@@ -1,9 +1,9 @@
 # Site wide configuration
 
-title:            Site Title
+title:            Higher Order Functions
 locale:           en_US
 url:
-
+timezone: America/Chicago
 
 # Jekyll configuration
 
@@ -41,12 +41,12 @@ titlecase: true
 
 # Site owner
 owner:
-  name: Your Name
+  name: Tristan Mahr
   avatar: bio-photo.jpg
-  bio: "Describe your self."
+  bio: "Language and data scientist"
   email:
   disqus-shortname:
-  twitter: #username
+  twitter: tjmahr
   facebook: #username
   google:
     plus: #username
@@ -55,7 +55,7 @@ owner:
     ad-client:
     ad-slot:
   bing-verify:
-  github: #username
+  github: tjmahr
   stackoverflow: #123456/username   from a "http://stackoverflow.com/users/123456/username" link
   linkedin: #username
   xing: #username
