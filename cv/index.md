@@ -9,13 +9,15 @@ paragraph-indent: false;
 
 ## Education
 
+dd---dd
 
-{% highlight r %}
+
+
+```r
 library("dplyr")
 a <- 1 + 1
 a
-{% endhighlight %}
-
+```
 
 ## Current Position
 
@@ -36,6 +38,9 @@ Mahr, T., McMillan, B. T. M., Saffran, J. R., Ellis Weismer, S., & Edwards, J. R
 _142_, 345–350. [10.1016/j.cognition.2015.05.009](http://doi.org/10.1016/j.cognition.2015.05.009). 
 [[<i class="fa fa-flask"></i> Data, scripts, stimuli on Github](https://github.com/tjmahr/2015_Coartic).]
 
+
+
+
 ## Software
 
 **[L2TDatabase](https://github.com/LearningToTalk/L2TDatabase)**. R package for working with the Learning To Talk lab's MySQL database. Helper functions for creating, updating, backing-up MySQL tables in R.
@@ -47,19 +52,34 @@ _142_, 345–350. [10.1016/j.cognition.2015.05.009](http://doi.org/10.1016/j.cog
 **[retrace](https://github.com/tjmahr/retrace)**. A pure R implementation of the TRACE model of word recognition. Too slow to be useful, but great learning experience.
 
 
+
+
 ## Presentations
 
 ### Talks
 
-#### Coauthored (i.e., I didn't talk, but did the stats and made figures)
+
+
+#### Coauthored (i.e., I didn't talk, but did some stats and made figures)
+
+Law, F., II, Mahr, T., & Edwards, J. R. (2015, November). 
+**_Exploring effects of expressive vocabulary size and maternal education on lexical processing by preschoolers using the visual world paradigm_**.
+Presentation at the 40th annual Boston University Conference on Language Development, Boston, MA. 
+
+Edwards, J. R. & Mahr, T. (2015, November). 
+**_Speech perception and spoken word recognition in young children_**. 
+Presentation at the 170th Meeting of the Acoustical Society of America, Jacksonville, FL. 
+[10.1121/1.4933949](http://doi.org/10.1121/1.4933949). 
+
+
 
 ### Posters
-
-tk tk psynom 2015
 
 Mahr, T., Venker, C., Premo, E., Ellis Weismer, S., Saffran, J. R., & Edwards, J. R. (2016, June). 
 **_Preschoolers with autism treat nonwords and mispronunciations differently_**. 
 Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
+
+tk tk psynom 2015
 
 tk tk srcld 2015
 
