@@ -10,7 +10,7 @@ encoding: utf-8
 # Jekyll configuration
 
 permalink:   /:categories/:title/
-markdown:    kramdown
+markdown:    redcarpet
 highlighter: rouge
 sass:
   sass_dir: _sass
@@ -24,8 +24,11 @@ kramdown:
   footnote_nr: 1
   entity_output: as_char
   toc_levels: 1..6
-  enable_coderay: false
+  enable_coderay: true
+  input: GFM
 
+redcarpet:
+  extensions: ["no_intra_emphasis", "fenced_code_blocks", "tables", "autolink", "strikethrough", "with_toc_data", "footnotes", "smart"]
 
 # Octopress
 
@@ -58,7 +61,8 @@ owner:
     ad-slot:
   bing-verify:
   github: tjmahr
-  stackoverflow: #123456/username   from a "http://stackoverflow.com/users/123456/username" link
+  stackoverflow: 1084259/tj-mahr
+  #123456/username   from a "http://stackoverflow.com/users/123456/username" link
   linkedin: #username
   xing: #username
   instagram: #username
