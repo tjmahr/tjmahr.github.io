@@ -10,7 +10,7 @@ encoding: utf-8
 # Jekyll configuration
 
 permalink:   /:categories/:title/
-markdown:    redcarpet
+markdown:    kramdown
 highlighter: rouge
 sass:
   sass_dir: _sass
@@ -24,7 +24,7 @@ kramdown:
   footnote_nr: 1
   entity_output: as_char
   toc_levels: 1..6
-  enable_coderay: true
+  enable_coderay: false
   input: GFM
 
 redcarpet:
