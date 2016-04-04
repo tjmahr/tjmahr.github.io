@@ -26,19 +26,31 @@ a
 
 ## Publications
 
-{% for paper in site.data.bib.publications %}
+{% for pub in site.data.bib.publications %}
 
 {% capture location %}
-{% if paper.where %}
-{% if paper.where.journal %}_{{ paper.where.journal }}_{% endif %}
-{% if paper.where.volume %}, _{{ paper.where.volume }}_{% endif %}
-{% if paper.where.pages %}, {{ paper.where.pages }}{% endif %}
+{% if pub.where %}
+{% if pub.where.journal %}_{{ pub.where.journal }}_{% endif %}
+{% if pub.where.volume %}, _{{ pub.where.volume }}_{% endif %}
+{% if pub.where.pages %}, {{ pub.where.pages }}{% endif %}
 .{% endif %}
 {% endcapture %}
-{% capture doi %}{% if paper.doi %} {{paper.doi | doi_link}} {% endif %} {% endcapture%}
-{% capture bonus %}{% if paper.bonus %} [{{paper.bonus}}] {% endif %}{% endcapture %}
 
-{{ paper.authors | concat_authors }} ({{ paper.when.year }}). **{{ paper.title }}**. {{ location | strip_newlines}} {{doi}} {{bonus}}
+{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
+
+{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+
+{% capture author_line %}
+{% for author in pub.authors %}
+{% if forloop.first %} {{author}}
+{% elsif forloop.last %}, & {{author}}
+{% else %}, {{author}}
+{% endif %}
+{% endfor %}
+{% endcapture %}
+
+
+{{ author_line | strip_newlines }} ({{ pub.when.year }}). **{{ pub.title }}**. {{ location | strip_newlines}} {{doi}} {{bonus}}
 {% endfor %}
 
 
@@ -62,17 +74,25 @@ a
 ### Talks
 
 
-
 #### Coauthored (i.e., I didn't talk, but did some stats and made figures)
 
 {% assign coauthored_talks = site.data.bib.talks | where: "type", "coauthored" %}
 
-{% for talk in coauthored_talks %}
+{% for pub in coauthored_talks %}
 
-{% capture doi %}{% if talk.doi %} {{talk.doi | doi_link}} {% endif %} {% endcapture%}
-{% capture bonus %}{% if talk.bonus %} [{{talk.bonus}}] {% endif %}{% endcapture %}
+{% capture author_line %}
+{% for author in pub.authors %}
+{% if forloop.first %} {{author}}
+{% elsif forloop.last %}, & {{author}}
+{% else %}, {{author}}
+{% endif %}
+{% endfor %}
+{% endcapture %}
 
-{{ talk.authors | concat_authors }} ({{ talk.when.year }}, {{ talk.when.month }}). **{{ talk.title }}**. {{ talk.where}} {{doi}} {{bonus}}
+{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title }}**. {{ pub.where}} {{doi}} {{bonus}}
 {% endfor %}
 
 
