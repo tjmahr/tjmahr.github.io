@@ -9,20 +9,13 @@ paragraph-indent: false;
 
 ## Education
 
-dd---dd
-
-
-
-```r
-library("dplyr")
-a <- 1 + 1
-a
-```
+tk tk 
 
 ## Current Position
 
 **Research Assistant**
 
+tk tk 
 
 ## Publications
 
@@ -49,10 +42,8 @@ a
 {% endfor %}
 {% endcapture %}
 
-
 {{ author_line | strip_newlines }} ({{ pub.when.year }}). **{{ pub.title }}**. {{ location | strip_newlines}} {{doi}} {{bonus}}
 {% endfor %}
-
 
 
 
@@ -68,10 +59,28 @@ a
 
 
 
-
 ## Presentations
 
-### Talks
+### Conference Talks
+
+{% assign authored_talks = site.data.bib.talks | where: "type", "authored" %}
+
+{% for pub in authored_talks %}
+
+{% capture author_line %}
+{% for author in pub.authors %}
+{% if forloop.first %} {{author}}
+{% elsif forloop.last %}, & {{author}}
+{% else %}, {{author}}
+{% endif %}
+{% endfor %}
+{% endcapture %}
+
+{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title }}**. {{ pub.where}} {{doi}} {{bonus}}
+{% endfor %}
 
 
 #### Coauthored (i.e., I didn't talk, but did some stats and made figures)
@@ -96,29 +105,54 @@ a
 {% endfor %}
 
 
+### Invited Talks
+
+{% assign invited_talks = site.data.bib.talks | where: "type", "invited" %}
+
+{% for pub in invited_talks %}
+
+{% capture author_line %}
+{% for author in pub.authors %}
+{% if forloop.first %} {{author}}
+{% elsif forloop.last %}, & {{author}}
+{% else %}, {{author}}
+{% endif %}
+{% endfor %}
+{% endcapture %}
+
+{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title }}**. {{ pub.where}} {{doi}} {{bonus}}
+{% endfor %}
+
+
+
 ### Posters
 
-Mahr, T., Venker, C., Premo, E., Ellis Weismer, S., Saffran, J. R., & Edwards, J. R. (2016, June). 
-**_Preschoolers with autism treat nonwords and mispronunciations differently_**. 
-Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
 
-tk tk psynom 2015
 
-tk tk srcld 2015
 
-Mahr, T., Law, F., II, & Edwards, J. R. (2014, June). 
-**_The influence of home language input and lexical processing efficiency on vocabulary size in 3-year olds_**.
-Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
 
-tk tk wsha 2014
+{% for pub in site.data.bib.posters %}
 
-Seidel, C. & Mahr, T. (2013, November). 
-**_A quantitative comparison of articulation assessments for different consonant error profiles_**.
-Poster session presented at the Annual Conference of the American Speech-Language-Hearing Association, Chicago, IL.
+{% capture author_line %}
+{% for author in pub.authors %}
+{% if forloop.first %} {{author}}
+{% elsif forloop.last %}, & {{author}}
+{% else %}, {{author}}
+{% endif %}
+{% endfor %}
+{% endcapture %}
 
-Mahr, T. & Edwards, J. R. (2013, June). 
-**_Do orienting stimuli create additional task demands in the looking-while-listening paradigm?_**.
-Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
+{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title }}**. {{ pub.where}} {{doi}} {{bonus}}
+{% endfor %}
+
+
+
 
 ## Awards
 
