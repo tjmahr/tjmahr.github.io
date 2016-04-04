@@ -1,0 +1,63 @@
+
+
+publications:
+  - authors: 
+    - Mahr, T.
+    - Edwards, J. R.
+    when: 
+      year: in prep
+    title: Using language input and lexical processing to predict vocabulary size
+    
+  - authors: 
+    - Law, F., II
+    - Mahr, T.
+    - Schneeberg, A.
+    - Edwards, J. R.
+    when: 
+      year: in press
+    title: Vocabulary size and auditory word recognition in preschool children
+    where: 
+      journal: Applied Psycholinguistics
+
+  - authors: 
+    - Mahr, T.
+    - McMillan, B. T. M.
+    - Saffran, J. R.
+    - Ellis Weismer, S. 
+    - Edwards, J. R. 
+    when: 
+      year: 2015
+    title: Anticipatory coarticulation facilitates word recognition in toddlers
+    where:
+      journal: Cognition
+      volume: 142
+      pages: 345--350
+    doi: 10.1016/j.cognition.2015.05.009
+    bonus: '[<i class="fa fa-flask"></i> Data, scripts, stimuli on Github](https://github.com/tjmahr/2015_Coartic).'
+
+      
+      
+      
+talks: 
+
+  - type: coauthored 
+    authors: 
+      - Law, F., II
+      - Mahr, T.
+      - Edwards, J. R.
+    when: 
+      year: 2015
+      month: November
+    title: Exploring effects of expressive vocabulary size and maternal education on lexical processing by preschoolers using the visual world paradigm
+    where: Presentation at the 40th annual Boston University Conference on Language Development, Boston, MA. 
+
+  - type: coauthored
+    authors:
+      - Edwards, J. R.
+      - Mahr, T.
+    when:
+      year: 2015
+      month: November
+    title: Speech perception and spoken word recognition in young children
+    where: Presentation at the 170th Meeting of the Acoustical Society of America, Jacksonville, FL. 
+    doi: 10.1121/1.4933949 

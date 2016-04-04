@@ -26,17 +26,20 @@ a
 
 ## Publications
 
-Mahr, T. & Edwards, J. R. (in prep). 
-**Using language input and lexical processing to predict vocabulary size**.
+{% for paper in site.data.bib.publications %}
 
-Law, F., II, Mahr, T., Schneeberg, A., & Edwards, J. R. (in press). 
-**Vocabulary size and auditory word recognition in preschool children**. 
-_Applied Psycholinguistics_.
+{% capture location %}
+{% if paper.where %}
+{% if paper.where.journal %}_{{ paper.where.journal }}_{% endif %}
+{% if paper.where.volume %}, _{{ paper.where.volume }}_{% endif %}
+{% if paper.where.pages %}, {{ paper.where.pages }}{% endif %}
+.{% endif %}
+{% endcapture %}
+{% capture doi %}{% if paper.doi %} {{paper.doi | doi_link}} {% endif %} {% endcapture%}
+{% capture bonus %}{% if paper.bonus %} [{{paper.bonus}}] {% endif %}{% endcapture %}
 
-Mahr, T., McMillan, B. T. M., Saffran, J. R., Ellis Weismer, S., & Edwards, J. R. (2015). 
-**Anticipatory coarticulation facilitates word recognition in toddlers.** _Cognition_, 
-_142_, 345–350. [10.1016/j.cognition.2015.05.009](http://doi.org/10.1016/j.cognition.2015.05.009). 
-[[<i class="fa fa-flask"></i> Data, scripts, stimuli on Github](https://github.com/tjmahr/2015_Coartic).]
+{{ paper.authors | concat_authors }} ({{ paper.when.year }}). **{{ paper.title }}**. {{ location | strip_newlines}} {{doi}} {{bonus}}
+{% endfor %}
 
 
 
@@ -62,15 +65,15 @@ _142_, 345–350. [10.1016/j.cognition.2015.05.009](http://doi.org/10.1016/j.cog
 
 #### Coauthored (i.e., I didn't talk, but did some stats and made figures)
 
-Law, F., II, Mahr, T., & Edwards, J. R. (2015, November). 
-**_Exploring effects of expressive vocabulary size and maternal education on lexical processing by preschoolers using the visual world paradigm_**.
-Presentation at the 40th annual Boston University Conference on Language Development, Boston, MA. 
+{% assign coauthored_talks = site.data.bib.talks | where: "type", "coauthored" %}
 
-Edwards, J. R. & Mahr, T. (2015, November). 
-**_Speech perception and spoken word recognition in young children_**. 
-Presentation at the 170th Meeting of the Acoustical Society of America, Jacksonville, FL. 
-[10.1121/1.4933949](http://doi.org/10.1121/1.4933949). 
+{% for talk in coauthored_talks %}
 
+{% capture doi %}{% if talk.doi %} {{talk.doi | doi_link}} {% endif %} {% endcapture%}
+{% capture bonus %}{% if talk.bonus %} [{{talk.bonus}}] {% endif %}{% endcapture %}
+
+{{ talk.authors | concat_authors }} ({{ talk.when.year }}, {{ talk.when.month }}). **{{ talk.title }}**. {{ talk.where}} {{doi}} {{bonus}}
+{% endfor %}
 
 
 ### Posters
