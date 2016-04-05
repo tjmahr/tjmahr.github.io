@@ -19,7 +19,7 @@ tk tk
 
 ## Programming
 
-Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML. Some practice with Javascript and Python. Exposure to Clojure.
+Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML. Some practice with Java, Javascript and Python. Exposure to Clojure.
 
 Tools and technologies: bash/batch scripting, git and GitHub, make, RMarkdown, Docker, regular expressions.
 
