@@ -152,7 +152,23 @@ tk tk
 {% endfor %}
 
 
+## Teaching
 
+### Lecturing
+
+* Guest lecture on phonological disorders for introductory communicative disorders course.
+* Guest lecture and accompanying online exercise on assessment of speech sounds for phonetics and phonological disorders course.
+
+### Clinical Experience
+
+These are positions and roles I worked in as a student speech-language clinician.
+
+* 2013-2014: Speech-language diagnostics (eventually as a long-term substitute for position), Middleton Cross Plains School District.
+* 2013: Pediatric voice clinic, American Family Children's Hospital.
+* 2012: Fluency clinic, UW-Madison Speech & Hearing Clinic.
+* 2012: Telling Life Stories program (helping individuals with aphasia create a scrapbook biography), UW-Madison Speech & Hearing Clinic.
+* 2012: Transgender voice clinic, UW-Madison Speech & Hearing Clinic.
+* 2011: Phonology clinic, UW-Madison Waisman Center.
 
 ## Awards
 
