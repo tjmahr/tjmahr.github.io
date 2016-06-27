@@ -77,3 +77,20 @@ owner:
 
 include: [".htaccess"]
 exclude: ["lib", "config.rb", "Capfile", "config", "log", "Rakefile", "Rakefile.rb", "tmp", "less", "*.sublime-project", "*.sublime-workspace", "test", "spec", "Gruntfile.js", "package.json", "node_modules", "Gemfile", "Gemfile.lock", "LICENSE", "README.md"]
+
+
+# Atom
+
+atom:
+  buildCommand:
+    - C:\Ruby22-x64\bin\bundle
+    - exec
+    - jekyll
+    - build
+  buildEnv:
+    JEKYLL_ENV: development
+  postDirs:
+    - _posts
+    - _drafts
+  defaultPostDir:
+    - _posts
