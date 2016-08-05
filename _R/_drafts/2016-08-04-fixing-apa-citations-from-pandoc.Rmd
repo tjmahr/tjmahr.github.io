@@ -39,7 +39,7 @@ documents. I especially like that it can do inline citations. I write
 aliens exist".
 
 But it doesn't quite do [APA style][apa-owl] citations correctly. A citation
-like `@SimpsonFlanders2006 found...` will render as "Simpson & Flanders (2006)
+like `@SimpsonFlanders2006 found...` renders as "Simpson & Flanders (2006)
 found...". Inline citations are not supposed to have ampersands in the list of
 authors. It should be "Simpson and Flanders (2006) found...".
 
