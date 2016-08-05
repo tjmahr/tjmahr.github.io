@@ -5,22 +5,48 @@ excerpt:
 share: false
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE, purl = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library("stringr")
 ```
 
-Pandoc is awesome. Truly the Swiss Army knife of plain-text documents. I like
-especially like that it can do inline citations. I write `@Jones2005 proved
-aliens exist` and pandoc produces "Jones (2005) proved aliens exist".
+```{r source partial chunks, purl = FALSE, include = FALSE}
+# This chunk gathers all the code in {purl = TRUE} chunks and then sources them,
+# so the code in the chunks is run even though the chunks have {eval = FALSE}.
 
-But it doesn't quite do APA style citations correctly. A citation like
-`@SimpsonFlanders2006 found...` will be rendered as "Simpson & Flanders (2006)
-found...`. Inline citations are not supposed to have ampersands in the list of
-authors. It should be `Simpson & Flanders (2005) found...`.
+# create an R script of the {purl = TRUE} chunks in a document
+purl_files <- function(file) {
+  # store purling results in a temporary file
+  tempy <- tempfile(tmpdir = tempdir(), fileext = ".R")
+  file.create(tempy)
+  tempy <- normalizePath(tempy, winslash = "/", mustWork = TRUE)
 
-This is tedious low-level stuff, but I have colleagues who will read a draft of
-a manuscript and write unnecessary comments about to cite stuff in APA. And it's
-too pervasive for one to fix manually. My current project has 15 of these ill-
+  # set the comments to blanks so that the (eval = FALSE) partial chunks are not
+  # commented out by default
+  template <- "knitr::opts_chunk$set(comment = ''); knitr::purl(input = '%s', output = '%s', documentation = 0, quiet = FALSE)"
+  expression <- sprintf(template, file, tempy)
+  # run the purl command outside of the current knitting procedure.
+  shell(sprintf('rscript -e "%s"', expression))
+  tempy
+}
+purled <- purl_files(knitr::current_input(dir = TRUE))
+source(purled)
+```
+
+
+
+[Pandoc][pandoc-home] is awesome. It's the universal translator for
+plain-text documents. I especially like that it can do inline citations. I write
+`@Jones2005 proved aliens exist` and pandoc produces "Jones (2005) proved aliens
+exist".
+
+But it doesn't quite do [APA style][apa-owl] citations correctly. A citation like
+`@SimpsonFlanders2006 found...` will render as "Simpson & Flanders (2006)
+found...". Inline citations are not supposed to have ampersands in the list of
+authors. It should be "Simpson and Flanders (2006) found...". 
+
+In the grand scheme of writing and revising, these errors are tedious low-level stuff. But I have colleagues who will read a draft of a manuscript and write unnecessary comments about how to cite stuff in APA. And the problem is subtle and pervasive enough
+too pervasive for me to fix manually. My current project has 15 of these ill-
 formatted citations. That number is just big enough to make manual corrections
 too much of a hassle and error-prone---easy to miss 1 in 15.
 
@@ -34,32 +60,37 @@ assume that an inline citation consists of an author's last name followed by a
 parenthesized year: `SomeKindOfName (2001)`. We encode these assumptions into
 regular expression patterns, prefixed with `re_`. 
 
+```{r, eval = FALSE, tidy = FALSE}
+library("stringr")
+
+fix_inline_citations <- function(text) {
+```
+
 The year is pretty easy. If it looks weird, it's because I prefer to escape
 special punctuation like `(` using brackets like `[(]`. Otherwise, four digits:
 `\\d{4}`.
 
-```{r}
-library("stringr")
-re_inline_year <- "[(]\\d{4}[)]"
+```{r, eval = FALSE, tidy = FALSE}
+  re_inline_year <- "[(]\\d{4}[)]"
 ```
 
 **What's in a name?** Here we have to stick our necks a little bit more about
 our assumptions. I'm going to assume a last name is any combination of letters,
 hyphens and spaces (spaces needed `von Name`). 
 
-```{r}
-re_author <- "[[:alpha:]- ]+"
-re_author_year <- sprintf("(%s %s)", re_author, re_inline_year)
+```{r, eval = FALSE, tidy = FALSE}
+  re_author <- "[[:alpha:]- ]+"
+  re_author_year <- sprintf("(%s %s)", re_author, re_inline_year)
 ```
 
 Next, we find the ampersand. We allow for a comma to precede in case there are
 more than two authors.
 
-```{r}
-re_maybe_comma <- "(,?)"
-re_ampersand <- "( & )"
-re_ampersand_author_year <- "%s%s%s" %>%
-  sprintf(re_maybe_comma, re_ampersand, re_author_year)
+```{r, eval = FALSE, tidy = FALSE}
+  re_maybe_comma <- "(,?)"
+  re_ampersand <- "( & )"
+  re_ampersand_author_year <- "%s%s%s" %>%
+    sprintf(re_maybe_comma, re_ampersand, re_author_year)
 ```
 
 These regular expressions are wrapped in parentheses so that I can use
@@ -69,15 +100,15 @@ with escaped digits like `\\1`. In that example, we reorder the patterns `(hot)
 (dog)` via `\\2\\1` to get `doghot`. For the current example, we just replace
 the second group which captures ` & ` with ` and `.
 
-```{r}
-replace_inline_ampersand <- . %>%
-  str_replace_all(re_ampersand_author_year, "\\1 and \\3")
+```{r, eval = FALSE, tidy = FALSE}
+  str_replace_all(text, re_ampersand_author_year, "\\1 and \\3")
+}
 ```
 
 We can now text our function on a variety of names that it should _and should
 not_ fix.
 
-```{r}
+```{r, purl = FALSE}
 test_names <- c(
   "Jones & Name (2005) found...",
   "...have been found (Jones & Name, 2005)",
@@ -88,7 +119,7 @@ test_names <- c(
   "Marge, Maggie, & Lisa (2005) found...",
   "...have been found (Marge, Maggie, & Lisa, 2005)")
 
-replace_inline_ampersand(test_names)
+fix_inline_citations(test_names)
 ```
 
 ### Steps towards production
@@ -112,3 +143,6 @@ actually, so I can't vouch for it yet.)
 
 I Use a separate script (e.g., `compile_script.R`) to compile
 * read the input with readr::read_lines
+
+[pandoc-home]: http://pandoc.org/ "pandoc: a universal document converter"
+[apa-owl]: https://owl.english.purdue.edu/owl/section/2/10/ "Purdue Online Writing Lab: APA Style"

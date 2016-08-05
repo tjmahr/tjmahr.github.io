@@ -60,4 +60,4 @@ dir_figs <- "figs/"
 dir_cache <- "_caches"
 
 knit_folder("_R", "_posts", "figs/", "_caches/")
-#knit_folder("_R/drafts", "_drafts", "figs/drafts/")
+# knit_folder("_R/_drafts", "_drafts", "figs/drafts/", "_caches/")
