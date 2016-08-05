@@ -48,7 +48,7 @@ stuff. But I have colleagues who will read a draft of a manuscript and write
 unnecessary comments about how to cite stuff in APA. And the problem is just
 subtle and pervasive enough that it doesn't make sense to fix manually. My
 current project has 15 of these ill-formatted citations. That number is just
-big enough to make manual corrections too much of a hassle and error-prone---
+big enough to make manual corrections a hassle and an error-prone process---
 easy to miss 1 in 15.
 
 ## Find and replace
