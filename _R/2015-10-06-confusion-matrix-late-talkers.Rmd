@@ -80,8 +80,13 @@ all_kids <- bind_rows(wnl_data, lt_data) %>%
 
 What we have looks like a real data-set now.
 
+```{r, echo = FALSE}
+set.seed(20151006)
+```
+
 ```{r}
-sample_n(all_kids, 8, replace = FALSE) 
+sample_n(all_kids, 8, replace = FALSE) %>% 
+  arrange(Group, Predicted, Outcome)
 ```
 
 Next, we just call `confusionMatrix` on the predicted values and the reference

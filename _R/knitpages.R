@@ -41,7 +41,7 @@ knit_folder <- function(dir_in, dir_out, dir_figs, dir_cache) {
   to_redo <- posts %>% filter(Rmds %is_newer_than% mds)
 
   # files need to be regenerated if this script changes
-  to_redo2 <- posts %>% filter("./_R/knitpages.R" %is_newer_than% Rmds)
+  to_redo2 <- posts %>% filter("./_R/knitpages.R" %is_newer_than% mds)
 
   to_do <- bind_rows(to_make, to_redo, to_redo2) %>% distinct
 

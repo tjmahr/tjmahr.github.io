@@ -82,19 +82,22 @@ all_kids <- bind_rows(wnl_data, lt_data) %>%
 What we have looks like a real data-set now.
 
 
+
+
 ```r
-sample_n(all_kids, 8, replace = FALSE) 
+sample_n(all_kids, 8, replace = FALSE) %>% 
+  arrange(Group, Predicted, Outcome)
 #> # A tibble: 8 x 4
 #>   ChildID      Group      Predicted        Outcome
 #>     <int>      <chr>          <chr>          <chr>
-#> 1       8 WNL at 18m     WNL at 30m     WNL at 30m
-#> 2      64  LT at 18m Delayed at 30m     WNL at 30m
-#> 3      19 WNL at 18m     WNL at 30m     WNL at 30m
-#> 4      54  LT at 18m Delayed at 30m     WNL at 30m
-#> 5      45 WNL at 18m     WNL at 30m Delayed at 30m
-#> 6      18 WNL at 18m     WNL at 30m     WNL at 30m
-#> 7       5 WNL at 18m     WNL at 30m     WNL at 30m
-#> 8      12 WNL at 18m     WNL at 30m     WNL at 30m
+#> 1      77  LT at 18m Delayed at 30m Delayed at 30m
+#> 2      73  LT at 18m Delayed at 30m Delayed at 30m
+#> 3      79  LT at 18m Delayed at 30m Delayed at 30m
+#> 4      49  LT at 18m Delayed at 30m     WNL at 30m
+#> 5      65  LT at 18m Delayed at 30m     WNL at 30m
+#> 6      43 WNL at 18m     WNL at 30m Delayed at 30m
+#> 7      33 WNL at 18m     WNL at 30m     WNL at 30m
+#> 8      13 WNL at 18m     WNL at 30m     WNL at 30m
 ```
 
 Next, we just call `confusionMatrix` on the predicted values and the reference
