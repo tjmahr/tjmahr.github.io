@@ -10,8 +10,8 @@ locale                   : "en_US"
 title                    : "Higher Order Functions"
 title_separator          : "-"
 name                     : "Tristan Mahr"
-description              : ""
-url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+description              : "Blog and research notebook by an R programming enthusiast"
+url                      : "https://tjmahr.github.io/" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : tjmahr/tjmahr.github.io
 teaser                   : # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
@@ -120,6 +120,8 @@ exclude:
   - tmp
   - tjmahr.github.io.Rproj
   - .Rproj.user
+  - "_R/*"
+  - serve.sh
 keep_files:
   - .git
   - .svn
