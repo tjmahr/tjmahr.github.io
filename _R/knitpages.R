@@ -26,7 +26,7 @@ knit_post <- function(input, outfile, dir_figs, dir_cache, base_url = "/") {
     fig.cap = "center",
     comment = "#>",
     collapse = TRUE)
-  render_jekyll()
+  render_markdown()
   knit(input, outfile, envir = parent.frame())
 }
 
