@@ -1,0 +1,8 @@
+---
+title: "SEM Path Diagrams with DiagrammeR"
+excerpt:
+share: false
+---
+
+
+migrate this http://rpubs.com/tjmahr/sem_diagrammer
