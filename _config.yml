@@ -190,15 +190,15 @@ tag_archive:
   type: liquid
   path: /tags/
 # https://github.com/jekyll/jekyll-archives
-jekyll-archives:
-  enabled:
-    - tags
+# jekyll-archives:
+#   enabled:
+#     - tags
 #    - categories
-  layouts:
-    tag: archive-taxonomy
+#   layouts:
+#     tag: archive-taxonomy
 #    category: archive-taxonomy
-  permalinks:
-    tag: /tags/:name/
+#   permalinks:
+#     tag: /tags/:name/
 #     category: /categories/:name/
 
 defaults:
