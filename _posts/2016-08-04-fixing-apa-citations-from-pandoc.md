@@ -2,6 +2,9 @@
 title: "Fixing APA citations from Pandoc with stringr"
 excerpt:
 share: false
+tags:
+  - stringr
+  - pandoc
 ---
 
 
