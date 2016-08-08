@@ -8,7 +8,6 @@ encoding: utf-8
 
 
 # Jekyll configuration
-
 permalink:  /:categories/:title/
 markdown: kramdown
 highlighter: rouge

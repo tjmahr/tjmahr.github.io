@@ -33,6 +33,8 @@ knit_post <- function(input, outfile, dir_figs, dir_cache, base_url = "/") {
 knit_folder <- function(dir_in, dir_out, dir_figs, dir_cache) {
   knittable <- list.files(dir_in, pattern = "*.Rmd", full.names = TRUE)
 
+  if (length(knittable) == 0) return(NULL)
+
   posts <- data_frame(Rmds = knittable, mds = rmd_to_md(Rmds, dir_out))
 
   to_make <- posts %>% filter(!file.exists(mds))
@@ -60,4 +62,8 @@ dir_figs <- "figs/"
 dir_cache <- "_caches"
 
 knit_folder("_R", "_posts", "figs/", "_caches/")
-# knit_folder("_R/_drafts", "_drafts", "figs/drafts/", "_caches/")
+
+dir_in <- "_R/_drafts"
+dir_out <- "_drafts"
+dir_figs <- "figs/drafts/"
+knit_folder("_R/_drafts", "_drafts", "figs/drafts/", "_caches/")
