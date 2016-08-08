@@ -39,7 +39,11 @@ knit_folder <- function(dir_in, dir_out, dir_figs, dir_cache) {
 
   to_make <- posts %>% filter(!file.exists(mds))
   to_redo <- posts %>% filter(Rmds %is_newer_than% mds)
-  to_do <- bind_rows(to_make, to_redo)
+
+  # files need to be regenerated if this script changes
+  to_redo2 <- posts %>% filter("./_R/knitpages.R" %is_newer_than% Rmds)
+
+  to_do <- bind_rows(to_make, to_redo, to_redo2) %>% distinct
 
   purrr::map2(to_do$Rmds, to_do$mds, knit_post, dir_figs, dir_cache)
 }
