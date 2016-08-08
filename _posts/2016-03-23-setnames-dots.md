@@ -1,10 +1,7 @@
 ---
-layout: post
 title: "Why is using list() critical for .dots = setNames() uses in dplyr?"
-excerpt: "Why is using list() critical for .dots = setNames() uses in dplyr?"
-tags: [link post]
-link: https://stackoverflow.com/questions/36067533/why-is-using-list-critical-for-dots-setnames-uses-in-dplyr/36168162#36168162
-share: false
+excerpt: 
+tags: 
 ---
 
 I wrote [an answer](https://stackoverflow.com/questions/36067533/why-is-using-list-critical-for-dots-setnames-uses-in-dplyr/36168162#36168162) about why `setNames()` shows up sometimes in standard evaluation with dplyr. 

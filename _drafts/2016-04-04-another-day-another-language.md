@@ -1,9 +1,7 @@
 ---
-layout: post
 title: "Another day, another language"
 excerpt: "Using liquid to generate CV sections"
 tags: []
-share: false
 ---
 
 I just started using Jekyll + Github pages, and I created a page for my CV. At first, I thought I would just write citations for my work in markdown and be done with it. But this proved tedious and error-prone. 

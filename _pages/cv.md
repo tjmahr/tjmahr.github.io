@@ -1,10 +1,11 @@
 ---
-layout: page
+layout: single
 title: CV [in prep]
 modified: 2016-01-19
 excerpt: ""
 share: false
 paragraph-indent: false;
+permalink: /cv.html
 ---
 
 ## Education

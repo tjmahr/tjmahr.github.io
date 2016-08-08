@@ -1,10 +1,8 @@
 ---
-layout: post
 title: "List of useful RStudio addins made by useRs"
 excerpt: "List of useful RStudio addins made by useRs"
 tags: [link post]
 link: https://github.com/daattali/rstudio-addins
-share: false
 ---
 
 Useful Github page alert: [Dean Attali](http://deanattali.com/) has 
