@@ -157,20 +157,20 @@ timezone: America/Chicago # http://en.wikipedia.org/wiki/List_of_tz_database_tim
 
 
 # Plugins
-# gems:
-#   - jekyll-paginate
-#   - jekyll-sitemap
-#   - jekyll-gist
-#   - jekyll-feed
-#   - jemoji
+gems:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
 
 # mimic GitHub Pages with --safe
-# whitelist:
-#   - jekyll-paginate
-#   - jekyll-sitemap
-#   - jekyll-gist
-#   - jekyll-feed
-#   - jemoji
+whitelist:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
 
 
 # Archives
