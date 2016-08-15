@@ -139,7 +139,7 @@ just hit the "Knit"" button in RStudio. I had to make a separate script to
 do `rmarkdown::render` to convert my .Rmd file into a .md file which can then be
 processed by this function.
 
-**Don't fix too much**: When pandoc does your references for you, it also does
+**Don't fix too much**. When pandoc does your references for you, it also does
 a bibliography section. But it would be wrong to fix the ampersands there. So
 I have to do a bit of fussing around by finding the line `"## References"` and
 processing just the text up until that line.

@@ -1,5 +1,5 @@
 ---
-title: "Confusion Matrix Statistics on Late Talker Diagnoses"
+title: "Confusion matrix statistics on late talker diagnoses"
 excerpt:
 share: false
 tags:
