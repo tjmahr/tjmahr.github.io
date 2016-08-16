@@ -2,6 +2,9 @@
 title: "Recent adventures with lazyeval"
 excerpt:
 share: false
+tags:
+  - lazyeval
+  - rstanarm
 ---
 
 The [lazyeval](https://cran.r-project.org/web/packages/lazyeval/) package is a 
@@ -22,6 +25,7 @@ print(.packages())
 
 lazyeval <- "evil_package"
 library(lazyeval)
+#> Warning: package 'lazyeval' was built under R version 3.2.5
 
 # The lazyeval package is loaded now.
 print(.packages())
@@ -182,17 +186,18 @@ lazyeval::expr_label(stop())
 ## Asking questions about a posterior distribution
 
 I fit regression models with RStanARM. It lets me fit Bayesian models in 
-[Stan](http://mc-stan.org/) by writing conventional R modeling code. (Btw, I'm [giving a tutorial on  RStanARM](http://www.meetup.com//MadR-Madison-R-Programming-UseRs-Group/events/233333897/?showDescription=true) in a month.)
+[Stan](http://mc-stan.org/) by writing conventional R modeling code. (Btw, I'm 
+[giving a tutorial on  RStanARM](http://www.meetup.com/MadR-Madison-R-Programming-UseRs-Group/events/233333897/?showDescription=true) in a month.)
 
-Here's a model about some famous flowers. 
+Here's a model about [some famous flowers](https://en.wikipedia.org/wiki/Iris_flower_data_set). 
 
 
 ```r
 library(rstanarm)
 
 model <- stan_glm(
-  Petal.Width ~ Petal.Length * Species, 
-  data = iris, 
+  Petal.Width ~ Petal.Length * Species,
+  data = iris,
   family = gaussian(), 
   prior = normal(0, 1))
 ```
@@ -223,15 +228,15 @@ summary(model)
 #> 
 #> Estimates:
 #>                                  mean   sd   2.5%   25%   50%   75%
-#> (Intercept)                     0.0    0.2 -0.3   -0.1   0.0   0.1 
-#> Petal.Length                    0.2    0.1 -0.1    0.1   0.2   0.3 
-#> Speciesversicolor               0.0    0.3 -0.6   -0.2   0.0   0.1 
+#> (Intercept)                     0.0    0.2 -0.4   -0.1   0.0   0.1 
+#> Petal.Length                    0.2    0.1  0.0    0.1   0.2   0.3 
+#> Speciesversicolor              -0.1    0.3 -0.6   -0.2  -0.1   0.1 
 #> Speciesvirginica                1.1    0.3  0.5    0.9   1.1   1.3 
 #> Petal.Length:Speciesversicolor  0.1    0.1 -0.1    0.1   0.1   0.2 
 #> Petal.Length:Speciesvirginica   0.0    0.1 -0.3   -0.1   0.0   0.1 
 #> sigma                           0.2    0.0  0.2    0.2   0.2   0.2 
 #> mean_PPD                        1.2    0.0  1.2    1.2   1.2   1.2 
-#> log-posterior                  32.9    1.9 28.3   31.9  33.3  34.3 
+#> log-posterior                  32.9    1.9 28.2   31.8  33.2  34.3 
 #>                                  97.5%
 #> (Intercept)                     0.3   
 #> Petal.Length                    0.4   
@@ -245,15 +250,15 @@ summary(model)
 #> 
 #> Diagnostics:
 #>                                mcse Rhat n_eff
-#> (Intercept)                    0.0  1.0  1043 
-#> Petal.Length                   0.0  1.0  1055 
-#> Speciesversicolor              0.0  1.0  1443 
-#> Speciesvirginica               0.0  1.0  1601 
-#> Petal.Length:Speciesversicolor 0.0  1.0  1032 
-#> Petal.Length:Speciesvirginica  0.0  1.0  1020 
-#> sigma                          0.0  1.0  2314 
-#> mean_PPD                       0.0  1.0  3196 
-#> log-posterior                  0.1  1.0  1285 
+#> (Intercept)                    0.0  1.0   926 
+#> Petal.Length                   0.0  1.0   918 
+#> Speciesversicolor              0.0  1.0  1215 
+#> Speciesvirginica               0.0  1.0  1565 
+#> Petal.Length:Speciesversicolor 0.0  1.0   871 
+#> Petal.Length:Speciesvirginica  0.0  1.0   924 
+#> sigma                          0.0  1.0  2079 
+#> mean_PPD                       0.0  1.0  3136 
+#> log-posterior                  0.1  1.0  1247 
 #> 
 #> For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
 ```
@@ -262,40 +267,59 @@ At the 2.5% quantile, the `Petal.Length` effect looks like zero or less than
 zero. What proportion of the `Petal.Length` effects (for `setosa` flowers) is
 positive?
 
-To answer questions like this one in a convenient way, I wrote a function that a
-takes boolean expression about a model's parameters and evaluates it inside of
-the data-frame summary of the model posterior distribution. `lazyeval::f_eval`
-does the nonstandard evaluation: It evaluates an expression captured by a
-formula like `~ 0 < Petal.Length` inside of a list or data-frame.
+To answer questions like this one in a convenient way, I wrote a function that
+takes a boolean expression about a model's parameters and evaluates it inside of
+the data-frame summary of the model posterior distribution. `lazyeval::f_eval` 
+does the nonstandard evaluation: It evaluates an expression captured by a 
+formula like `~ 0 < Petal.Length` inside of a list or data-frame. (Note that the
+mean of a logical vector is the proportion of the elements that are true.)
 
 
 ```r
 # Get proportion of posterior samples satisfying some inequality
-posterior_proportion <- function(model, inequality) {
+posterior_proportion_ <- function(model, inequality) {
   draws <- as.data.frame(model)
   mean(lazyeval::f_eval(inequality, data = draws))
 }
 
-posterior_proportion(model, ~ 0 < Petal.Length)
-#> [1] 0.935
+posterior_proportion_(model, ~ 0 < Petal.Length)
+#> [1] 0.9455
 ```
 
-Here's another question: What proportion of the posterior `Petal.Length` effect
-for `virginica` flowers is positive? In classical models, you would change the 
-reference level for the categorical variable, refit the model, and check the 
-significance. But I don't want to refit this model because that would repeat the
-MCMC sampling. (It takes about 20 seconds to fit this model after all). I'll 
-just ask the model about the sum of `Petal.Length` and 
-`Petal.Length:Speciesversicolor` effects. That will give me the estimated 
-`Petal.Length` effect but adjusted for the `versicolor` species. 
+**But all those tildes**... The final underscore in `posterior_proportion_`
+follows a convention for distinguishing between nonstandard evaluation functions
+that require formulas and those that do not. In the dplyr package, for example,
+there is `select_`/`select`/, `mutate_`/`mutate`, and so on. We can do the
+formula-free form of this function by using `lazyeval::f_capture` to capture the
+input expression as a formula. We then hand that off to the version of the
+function that takes a formula. 
 
 
 ```r
-posterior_proportion(model, ~ 0 < Petal.Length + `Petal.Length:Speciesversicolor`)
+posterior_proportion <- function(model, expr) {
+  posterior_proportion_(model, lazyeval::f_capture(expr))
+}
+
+posterior_proportion(model, 0 < Petal.Length)
+#> [1] 0.9455
+```
+
+Here's another question: What proportion of the posterior of the `Petal.Length` 
+effect for `virginica` flowers is positive? In classical models, we would change
+the reference level for the categorical variable, refit the model, and check the
+significance. But I don't want to refit this model because that would repeat the
+MCMC sampling. (It takes about 30 seconds to fit this model after all!) I'll
+just ask the model for the sum of `Petal.Length` and 
+`Petal.Length:Speciesversicolor` effects. That will give me the estimated 
+`Petal.Length` effect but adjusted for the `versicolor` species.
+
+
+```r
+posterior_proportion(model, 0 < Petal.Length + `Petal.Length:Speciesversicolor`)
 #> [1] 1
 
-posterior_proportion(model, ~ 0 < Petal.Length + `Petal.Length:Speciesvirginica`)
-#> [1] 0.99975
+posterior_proportion(model, 0 < Petal.Length + `Petal.Length:Speciesvirginica`)
+#> [1] 0.9995
 ```
 
 (The backticks around `Petal.Length:Speciesversicolor` here prevent the `:`
