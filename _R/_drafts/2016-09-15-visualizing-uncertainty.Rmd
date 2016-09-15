@@ -1,0 +1,195 @@
+---
+title: "RStanARM basics: visualizing uncertainty model fits"
+excerpt:
+share: false
+tags:
+  - rstanarm
+---
+
+
+Suppose have a simple regression model.
+
+```{r}
+library("dplyr")
+library("ggplot2")
+
+msleep %>% 
+  select(-conservation, -vore) %>% 
+  arrange(desc(brainwt / bodywt))
+
+msleep <- msleep %>% 
+  mutate(log_brainwt = log(brainwt), 
+         log_bodywt = log(bodywt), 
+         log_sleep_total = log(sleep_total))
+
+ggplot(msleep) + 
+  aes(x = bodywt, y = sleep_total) + 
+  geom_point()
+
+ggplot(msleep) + 
+  aes(x = log(bodywt), y = sleep_total) + 
+  geom_point() +
+  stat_smooth(method = "lm")
+
+ggplot(msleep) + 
+  aes(x = log(brainwt), y = sleep_total) + 
+  geom_point() +
+  stat_smooth(method = "lm")
+
+ggplot(msleep) + 
+  aes(x = log(brainwt), y = log(sleep_total)) + 
+  geom_point() +
+  stat_smooth(method = "lm")
+
+
+lm(sleep_total ~ log(bodywt), msleep) %>% summary
+
+lm(sleep_total ~ log(brainwt), msleep) %>% summary
+lm(log(sleep_total) ~ log(brainwt), msleep) %>% summary
+
+
+library("rstanarm")
+
+m1 <- stan_glm(
+  log_sleep_total ~ log_brainwt, 
+  family = gaussian(), 
+  data = msleep, 
+  prior = normal(0, 5),
+  prior_intercept = normal(0, 5))
+
+posterior_vs_prior(m1, pars = c("(Intercept)", "log_brainwt"))
+summary(m1)
+
+fits <- as_data_frame(m1) %>% 
+  rename(intercept = `(Intercept)`)
+
+model_data <- model.frame(m1) %>% 
+  tibble::rownames_to_column("rownumber")
+
+
+x_range <- range(model_data$log_brainwt, na.rm = TRUE)
+x_steps <- seq(x_range[1], x_range[2], length.out = 100)
+new_data <- data_frame(log_brainwt = x_steps) %>% 
+  tibble::rownames_to_column("rownumber")
+
+long_predictions <- posterior_linpred(m1, newdata = new_data) %>% 
+  as_data_frame() %>% 
+  tibble::rownames_to_column("simulation") %>% 
+  tidyr::gather(rownumber, prediction, -simulation)
+
+long_predictions <- long_predictions %>% 
+  left_join(new_data)
+
+quantile_df <- function(...) {
+  quantile(...) %>% as.list() %>% tibble::as_data_frame()
+}
+
+
+intervals <- long_predictions %>% 
+  group_by(rownumber, log_brainwt) %>% 
+  do(quantile_df(.$prediction, probs = c(.025, .50, .975))) %>% 
+  ungroup()
+  
+
+n_draws <- 500
+ggplot(msleep) + 
+  aes(x = log_brainwt, y = log_sleep_total) + 
+  geom_ribbon(aes(ymin = `2.5%`, y = `50%`, ymax = `97.5%`), data = intervals, color = "grey70", alpha = .5) + 
+  geom_line(aes(y = `50%`), data = intervals, color = "blue", size = 1) + 
+  geom_point()
+
+
+ggplot(msleep) + 
+  aes(x = log_brainwt, y = log_sleep_total) + 
+  geom_ribbon(aes(ymin = `2.5%`, y = `50%`, ymax = `97.5%`), data = intervals, color = "grey70", alpha = .5) + 
+  geom_line(aes(y = `50%`), data = intervals, color = "blue", size = 1) + 
+  geom_point()  + 
+  geom_abline(aes(intercept = intercept, slope = log_brainwt), 
+              data = sample_n(fits, n_draws), alpha = .04) + 
+  geom_abline(intercept = coef(m1)[1], slope = coef(m1)[2], 
+              size = 1.25, color = "blue")
+  
+  
+
+
+
+
+long_predictions %>% 
+  group_by(row_number) %>% 
+  summarise()
+
+
+
+
+
+poster
+
+huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))
+h <- ggplot(huron, aes(year))
+
+h + geom_ribbon(aes(ymin=0, ymax=level))
+h + geom_area(aes(y = level))
+
+h +
+  geom_ribbon(aes(ymin = level - 1, ymax = level + 1), fill = "grey70") +
+  geom_line(aes(y = level))
+
+geom_ribbon()
+
+tibble::has_rownames(mtcars)
+tibble::has_rownames(iris)
+
+ggplot(msleep) + 
+  aes(x = log_brainwt, y = log_sleep_total) + 
+  geom_point() +
+  stat_smooth(method = "lm")
+
+n_draws <- 500
+ggplot(msleep) + 
+  aes(x = log_brainwt, y = log_sleep_total) + 
+  geom_abline(aes(intercept = intercept, slope = log_brainwt), 
+              data = sample_n(fits, n_draws), alpha = .04) + 
+  geom_abline(intercept = coef(m1)[1], slope = coef(m1)[2], 
+              size = 1.25, color = "blue") + 
+  geom_point()
+
+
+
+
+
+
+
+
+ggplot(msleep) + 
+  aes(x = log(bodywt), y = sleep_total) + 
+  geom_point()
+ggplot(msleep) + 
+  aes(x = log(brainwt), y = sleep_total) + 
+  geom_point()
+
+ggplot(msleep) + 
+  aes(x = log(brainwt), y = sleep_total) + 
+  geom_point()
+
+ggplot(msleep) + 
+  aes(x = log(brainwt), y = sleep_total) + 
+  geom_point()
+
+
+msleep %>% filter(order == "Primates")
+
+ggplot(msleep) + 
+  aes(x = log(brainwt), y = sleep_rem) + 
+  geom_point()
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
