@@ -22,7 +22,7 @@ iris %>%
   mutate_(zSL = ~ z_round(Sepal.Length), 
           zSW = ~ z_round(Sepal.Width)) %>%
   tbl_df
-#> # A tibble: 150 x 7
+#> # A tibble: 150 × 7
 #>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species   zSL   zSW
 #>           <dbl>       <dbl>        <dbl>       <dbl>  <fctr> <dbl> <dbl>
 #> 1           5.1         3.5          1.4         0.2  setosa -0.90  1.02
@@ -51,7 +51,7 @@ iris %>% mutate_(exps)
 #> Error in UseMethod("as.lazy"): no applicable method for 'as.lazy' applied to an object of class "list"
 
 iris %>% mutate_(.dots = exps) %>% tbl_df
-#> # A tibble: 150 x 7
+#> # A tibble: 150 × 7
 #>    Sepal.Length Sepal.Width Petal.Length Petal.Width Species   zSL   zSW
 #>           <dbl>       <dbl>        <dbl>       <dbl>  <fctr> <dbl> <dbl>
 #> 1           5.1         3.5          1.4         0.2  setosa -0.90  1.02

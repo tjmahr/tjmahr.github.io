@@ -20,17 +20,16 @@ have the expression `lazyeval` and its value is `"evil_package"`.
 
 ```r
 print(.packages())
-#> [1] "dplyr"     "knitr"     "stats"     "graphics"  "grDevices" "utils"    
-#> [7] "datasets"  "base"
+#> [1] "stringr"   "dplyr"     "knitr"     "stats"     "graphics"  "grDevices"
+#> [7] "utils"     "datasets"  "base"
 
 lazyeval <- "evil_package"
 library(lazyeval)
-#> Warning: package 'lazyeval' was built under R version 3.2.5
 
 # The lazyeval package is loaded now.
 print(.packages())
-#> [1] "lazyeval"  "dplyr"     "knitr"     "stats"     "graphics"  "grDevices"
-#> [7] "utils"     "datasets"  "base"
+#>  [1] "lazyeval"  "stringr"   "dplyr"     "knitr"     "stats"    
+#>  [6] "graphics"  "grDevices" "utils"     "datasets"  "base"
 ```
 
 But this gambit doesn't work because `library` did something special: It didn't
@@ -229,14 +228,14 @@ summary(model)
 #> Estimates:
 #>                                  mean   sd   2.5%   25%   50%   75%
 #> (Intercept)                     0.0    0.2 -0.4   -0.1   0.0   0.1 
-#> Petal.Length                    0.2    0.1  0.0    0.1   0.2   0.3 
-#> Speciesversicolor              -0.1    0.3 -0.6   -0.2  -0.1   0.1 
+#> Petal.Length                    0.2    0.1 -0.1    0.1   0.2   0.3 
+#> Speciesversicolor               0.0    0.3 -0.6   -0.2   0.0   0.2 
 #> Speciesvirginica                1.1    0.3  0.5    0.9   1.1   1.3 
 #> Petal.Length:Speciesversicolor  0.1    0.1 -0.1    0.1   0.1   0.2 
 #> Petal.Length:Speciesvirginica   0.0    0.1 -0.3   -0.1   0.0   0.1 
 #> sigma                           0.2    0.0  0.2    0.2   0.2   0.2 
 #> mean_PPD                        1.2    0.0  1.2    1.2   1.2   1.2 
-#> log-posterior                  32.9    1.9 28.2   31.8  33.2  34.3 
+#> log-posterior                  33.0    1.9 28.4   32.0  33.3  34.3 
 #>                                  97.5%
 #> (Intercept)                     0.3   
 #> Petal.Length                    0.4   
@@ -246,19 +245,19 @@ summary(model)
 #> Petal.Length:Speciesvirginica   0.2   
 #> sigma                           0.2   
 #> mean_PPD                        1.2   
-#> log-posterior                  35.6   
+#> log-posterior                  35.7   
 #> 
 #> Diagnostics:
 #>                                mcse Rhat n_eff
-#> (Intercept)                    0.0  1.0   926 
-#> Petal.Length                   0.0  1.0   918 
-#> Speciesversicolor              0.0  1.0  1215 
-#> Speciesvirginica               0.0  1.0  1565 
-#> Petal.Length:Speciesversicolor 0.0  1.0   871 
-#> Petal.Length:Speciesvirginica  0.0  1.0   924 
-#> sigma                          0.0  1.0  2079 
-#> mean_PPD                       0.0  1.0  3136 
-#> log-posterior                  0.1  1.0  1247 
+#> (Intercept)                    0.0  1.0  1122 
+#> Petal.Length                   0.0  1.0  1110 
+#> Speciesversicolor              0.0  1.0  1337 
+#> Speciesvirginica               0.0  1.0  1399 
+#> Petal.Length:Speciesversicolor 0.0  1.0  1032 
+#> Petal.Length:Speciesvirginica  0.0  1.0  1018 
+#> sigma                          0.0  1.0  2634 
+#> mean_PPD                       0.0  1.0  3291 
+#> log-posterior                  0.0  1.0  1484 
 #> 
 #> For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
 ```
@@ -283,7 +282,7 @@ posterior_proportion_ <- function(model, inequality) {
 }
 
 posterior_proportion_(model, ~ 0 < Petal.Length)
-#> [1] 0.9455
+#> [1] 0.941
 ```
 
 **But all those tildes**... The final underscore in `posterior_proportion_`
@@ -301,7 +300,7 @@ posterior_proportion <- function(model, expr) {
 }
 
 posterior_proportion(model, 0 < Petal.Length)
-#> [1] 0.9455
+#> [1] 0.941
 ```
 
 Here's another question: What proportion of the posterior of the `Petal.Length` 
@@ -319,7 +318,7 @@ posterior_proportion(model, 0 < Petal.Length + `Petal.Length:Speciesversicolor`)
 #> [1] 1
 
 posterior_proportion(model, 0 < Petal.Length + `Petal.Length:Speciesvirginica`)
-#> [1] 0.9995
+#> [1] 0.99975
 ```
 
 (The backticks around `Petal.Length:Speciesversicolor` here prevent the `:`

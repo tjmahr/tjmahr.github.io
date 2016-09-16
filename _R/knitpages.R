@@ -27,7 +27,7 @@ knit_post <- function(input, outfile, dir_figs, dir_cache, base_url = "/") {
     comment = "#>",
     collapse = TRUE)
   render_markdown()
-  knit(input, outfile, envir = parent.frame())
+  knit(input, outfile, envir = parent.frame(), encoding = "UTF-8")
 }
 
 knit_folder <- function(dir_in, dir_out, dir_figs, dir_cache) {

@@ -87,7 +87,7 @@ What we have looks like a real data-set now.
 ```r
 sample_n(all_kids, 8, replace = FALSE) %>% 
   arrange(Group, Predicted, Outcome)
-#> # A tibble: 8 x 4
+#> # A tibble: 8 × 4
 #>   ChildID      Group      Predicted        Outcome
 #>     <int>      <chr>          <chr>          <chr>
 #> 1      77  LT at 18m Delayed at 30m Delayed at 30m

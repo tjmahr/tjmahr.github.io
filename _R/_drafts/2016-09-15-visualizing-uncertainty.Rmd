@@ -1,5 +1,5 @@
 ---
-title: "RStanARM basics: visualizing uncertainty model fits"
+title: "RStanARM basics: visualizing uncertainty of model fits"
 excerpt:
 share: false
 tags:
@@ -7,29 +7,111 @@ tags:
 ---
 
 
-Suppose have a simple regression model.
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  fig.asp = 0.618,
+  fig.width = 6,
+  dpi = 300,
+  fig.align = "center",
+  out.width = "70%"
+)
+```
 
-```{r}
-library("dplyr")
+
+As part of my tutorial on RStanARM, I will present some examples of how to visualize the uncertainty in our linear regression models. 
+
+
+
+
+## Data: Does brain mass predict how much mammals sleep in a day?
+
+Let's use the [mammal sleep dataset from ggplot2](https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2/msleep.html). 
+This dataset contains the number of hours spent sleeping per day for 83
+different species of mammals along with each species' brain mass (kg) and body mass (kg),
+among other measures. Here's a first look at the data.
+
+```{r brain-sleep, fig.cap = "Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes."}
+library("dplyr", warn.conflicts = FALSE)
 library("ggplot2")
 
+# Preview the data sorted by brain/body ratio. I chose this sorting so that
+# humans would show up in the preview.
 msleep %>% 
-  select(-conservation, -vore) %>% 
+  select(name, sleep_total, brainwt, bodywt, everything()) %>% 
   arrange(desc(brainwt / bodywt))
 
-msleep <- msleep %>% 
-  mutate(log_brainwt = log(brainwt), 
-         log_bodywt = log(bodywt), 
-         log_sleep_total = log(sleep_total))
-
 ggplot(msleep) + 
-  aes(x = bodywt, y = sleep_total) + 
+  aes(x = brainwt, y = sleep_total) + 
   geom_point()
+```
+
+Hmm, not very helpful. We should put our measures on a log-10 scale. Also, 27 of
+the species don't have brain mass data, so we'll see that warning frequently.
+
+Let's plot the log-transformed data. We will also label the points for some
+example critters, so we can get some intuition about the data in this scaling.
+
+```{r log-brain-sleep, fig.cap = "Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted."}
+msleep <- msleep %>% 
+  mutate(log_brainwt = log10(brainwt), 
+         log_bodywt = log10(bodywt), 
+         log_sleep_total = log10(sleep_total))
+
+# Create a separate dataframe of the species to highlight.
+example_mammals <- c("Domestic cat", "Human", "Dog", "Cow", "Rabbit",
+                     "Big brown bat", "House mouse", "Horse", "Golden hamster")
+
+# We will give some familiar species shorter names
+renaming_rules <- c(
+  "Domestic cat" = "Cat", 
+  "Golden hamster" = "Hamster", 
+  "House mouse" = "Mouse")
+
+example_points <- msleep %>% 
+  filter(name %in% example_mammals) %>% 
+  mutate(name = stringr::str_replace_all(name, renaming_rules))
 
 ggplot(msleep) + 
-  aes(x = log(bodywt), y = sleep_total) + 
+  aes(x = log_brainwt, y = log_sleep_total) + 
+  geom_point(color = "grey40") +
+  geom_point(size = 3, shape = 1, color = "grey40", data = example_points) +
+  ggrepel::geom_text_repel(aes(label = name), data = example_points)
+```
+
+Now, let's fit a classical regression model and plot the regression
+results to show the predicted mean of _y_ and its 95% confidence interval. This
+task is very easy in ggplot2 using `stat_smooth()`. This function fits a model 
+and draws the mean and CI for each aesthetic grouping of data[^1] in a plot. 
+
+```{r log-brain-sleep-lm-fit, fig.cap = "Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression."}
+lm(log_sleep_total ~ log_brainwt, data = msleep) %>% 
+  summary()
+
+ggplot(msleep) + 
+  aes(x = log_brainwt, y = log_sleep_total) + 
   geom_point() +
-  stat_smooth(method = "lm")
+  stat_smooth(method = "lm", level = .95) 
+```
+
+Now, for the point of this post: What's the Bayesian version of this kind of visualization?
+
+## Option 1: Randomly sample lines from the posterior distribution
+
+The line in the classical regression plot is a particular line. It's the line that satisfies the least-squares objective function. 
+
+```{r}
+
+```
+
+
+```{r, eval = FALSE}
+
+ggplot(msleep) + 
+  aes(x = log_brainwt, y = sleep_total) + 
+  geom_point() +
+  stat_smooth(method = "lm") +
+  scale_y_log10(breaks = c(1:5 * 4))
+
 
 ggplot(msleep) + 
   aes(x = log(brainwt), y = sleep_total) + 
@@ -65,6 +147,38 @@ fits <- as_data_frame(m1) %>%
 
 model_data <- model.frame(m1) %>% 
   tibble::rownames_to_column("rownumber")
+
+
+
+
+
+# number of draws (lines) to use in a posterior for regression plot
+n_draws <- 500
+alpha_level <- .1
+draw_color_default <- "grey70"
+median_color_default <-  "grey50"
+
+ggplot(msleep) + 
+  aes(x = log_brainwt, y = log_sleep_total) + 
+  geom_abline(aes(intercept = intercept, slope = log_brainwt), data = sample_n(fits, n_draws), color = "grey60", alpha = 0.2) + 
+  geom_abline(intercept = coef(m1)[1], slope = coef(m1)[2], size = 1, color = "#3366FF") +
+  geom_point()
+  
+
+
+
+
+
+ default_aes = aes(colour = "#3366FF", fill = "grey60", size = 1,
+    linetype = 1, weight = 1, alpha = 0.4)
+)
+
+
+
+
+
+
+
 
 
 x_range <- range(model_data$log_brainwt, na.rm = TRUE)
@@ -110,7 +224,81 @@ ggplot(msleep) +
               size = 1.25, color = "blue")
   
   
+StatLm <- ggproto("StatLm", Stat, 
+  required_aes = c("x", "y"),
+  
+  compute_group = function(data, scales) {
+    rng <- range(data$x, na.rm = TRUE)
+    grid <- data.frame(x = rng)
+    
+    mod <- lm(y ~ x, data = data)
+    grid$y <- predict(mod, newdata = grid)
+    
+    grid
+  }
+)
 
+stat_lm <- function(mapping = NULL, data = NULL, geom = "line",
+                    position = "identity", na.rm = FALSE, show.legend = NA, 
+                    inherit.aes = TRUE, ...) {
+  layer(
+    stat = StatLm, data = data, mapping = mapping, geom = geom, 
+    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...)
+  )
+}
+
+data <- msleep %>% 
+  rename(y = log_sleep_total, x = log_brainwt)
+
+
+
+StatStanGlm <- ggproto("StatStanGlm", Stat, 
+  required_aes = c("x", "y"),
+  
+  compute_group = function(data, scales, params, n = 100, formula = y ~ x, family = gaussian()) {
+    if (length(unique(data$x)) < 2) {
+      # Not enough data to perform fit
+      return(data.frame())
+    }
+
+    rng <- range(data$x, na.rm = TRUE)
+    grid <- data.frame(x = seq(rng[1], rng[2], length = n))
+    
+    mod <- stan_glm(formula, family, data = data)
+    predicted <- posterior_linpred(mod, newdata = grid)
+    grid$y <- as.vector(apply(predicted, 2, median))
+    grid
+    
+  }
+)
+
+stat_stan_glm <- function(mapping = NULL, data = NULL, geom = "line",
+                    position = "identity", na.rm = FALSE, show.legend = NA, 
+                    inherit.aes = TRUE, n = 50, formula = y ~ x, 
+                    ...) {
+  layer(
+    stat = StatStanGlm, data = data, mapping = mapping, geom = geom, 
+    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
+    params = list(n = n, formula = formula, na.rm = na.rm, ...)
+  )
+}
+
+
+
+ggplot(mpg, aes(displ, hwy, color = factor(cyl))) + 
+  geom_point() + 
+  stat_stan_glm(formula = y ~ x)
+
+ 
+  stat_glm(formula = y ~ poly(x, 10), geom = "point", colour = "red", n = 20)
+
+
+
+
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  stat_lm()
 
 
 
@@ -193,3 +381,9 @@ ggplot(msleep) +
 
 ```
 
+[^1]: That is, if we map the plot's color aesthetic to a categorical
+variable in the data, `stat_smooth()` will fit a separate model for each
+color/category. I figured this out when I tried to write my own function
+`stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) 
+and noticed that RStanARM was printing out MCMC sampling information for each
+color/category of the data. 
