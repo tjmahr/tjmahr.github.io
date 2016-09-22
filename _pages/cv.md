@@ -10,21 +10,23 @@ permalink: /cv.html
 
 ## Education
 
-tk tk
+* Ongoing - Ph.D. candidate, Communication Sciences and Disorders, University of Wisconsin--Madison. Ph.D. minor course work in statistics and psychology.
+* 2013 - M.S., Speech-Language Pathology, University of Wisconsin--Madison.
+* 2009 - B.S., Linguistics and English, University of Wisconsin--Madison.
 
 ## Current Position
 
-**Research Assistant**
+**Research Assistant** - Little Listeners project.
 
-tk tk
-tk kt
+I prepare and analyze eyetracking data from a series of word recognition experiments with toddlers. I develop R packages for handling, visualizing and modeling these data, include an interactive Shiny dashboard.
 
+## Programming and Statistics
 
-## Programming
+Languages: Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML. Some practice with Java, Javascript and Python. Exposure to Clojure.
 
-Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML. Some practice with Java, Javascript and Python. Exposure to Clojure.
+Computing tools and technologies: bash/batch scripting, git and GitHub, make, RMarkdown, Docker, regular expressions.
 
-Tools and technologies: bash/batch scripting, git and GitHub, make, RMarkdown, Docker, regular expressions.
+Statistics: Generalized regression models, mixed effects regression models, and Bayesian regression models. Structural equation modeling and factor analysis. Neural networks.
 
 ## Publications
 
