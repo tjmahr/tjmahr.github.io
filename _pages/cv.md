@@ -18,15 +18,15 @@ permalink: /cv.html
 
 **Research Assistant** - Little Listeners project.
 
-I prepare and analyze eyetracking data from a series of word recognition experiments with toddlers. I develop R packages for handling, visualizing and modeling these data, include an interactive Shiny dashboard.
+I prepare and analyze eyetracking data from a series of word recognition experiments with toddlers. I develop R packages for handling, visualizing and modeling these data, including an interactive Shiny dashboard.
 
 ## Programming and Statistics
 
-Languages: Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML. Some practice with Java, Javascript and Python. Exposure to Clojure.
+Languages: Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML, Stan. Some practice with Java, Javascript and Python. Exposure to Clojure.
 
-Computing tools and technologies: bash/batch scripting, git and GitHub, make, RMarkdown, Docker, regular expressions.
+Computing tools and technologies: bash/batch scripting, git and GitHub, tidy data and the R tidyverse, Shiny, knitr/rmarkdown, Docker, Praat, makefiles, regular expressions.
 
-Statistics: Generalized regression models, mixed effects regression models, and Bayesian regression models. Structural equation modeling and factor analysis. Neural networks.
+Statistics: Regression: generalized linear models, hierarchical and mixed effects models, and Bayesian versions of these models. Structural equation modeling and factor analysis. Neural networks: practice with shallow networks, familiarity with how some deep network architectures work (CNNs, RBMs, RNNs, denoising autoencoders).
 
 ## Publications
 
