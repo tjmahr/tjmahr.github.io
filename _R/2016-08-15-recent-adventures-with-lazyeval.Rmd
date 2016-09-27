@@ -1,10 +1,10 @@
 ---
 title: "Recent adventures with lazyeval"
 excerpt:
-share: false
 tags:
   - lazyeval
   - rstanarm
+  - r
 ---
 
 The [lazyeval](https://cran.r-project.org/web/packages/lazyeval/) package is a 

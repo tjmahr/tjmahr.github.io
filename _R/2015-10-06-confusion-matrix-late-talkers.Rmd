@@ -1,9 +1,9 @@
 ---
 title: "Confusion matrix statistics on late talker diagnoses"
 excerpt:
-share: false
 tags:
   - caret
+  - r
 ---
 
 How many late talkers are just _late bloomers_? More precisely, how many
