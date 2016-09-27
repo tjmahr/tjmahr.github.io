@@ -1,0 +1,21 @@
+---
+layout:
+---
+<?xml version="1.0" encoding="UTF-8"?>{% include base_path %}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ site.name | xml_escape }}</title>
+    <description>Posts categorized as 'R'</description>
+    <link>{{ base_path }}</link>
+    <atom:link href="{{ site.url }}/{{ page.path }}" rel="self" type="application/rss+xml" />
+    {% for post in site.tags.r limit:10 %}
+      <item>
+        <title>{{ post.title | xml_escape }}</title>
+        <description>{{ post.content | xml_escape }}</description>
+        <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
+        <link>{{ site.url }}{{ post.url }}</link>
+        <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
+      </item>
+      {% endfor %}
+  </channel>
+</rss>
