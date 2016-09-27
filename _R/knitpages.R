@@ -21,6 +21,11 @@ knit_post <- function(input, outfile, dir_figs, dir_cache, base_url = "/") {
 
   opts_knit$set(base.url = base_url)
   opts_chunk$set(
+    fig.asp = 0.618,
+    fig.width = 6,
+    dpi = 300,
+    fig.align = "center",
+    out.width = "70%",
     fig.path = path_fig,
     cache.path = path_cache,
     fig.cap = "center",
