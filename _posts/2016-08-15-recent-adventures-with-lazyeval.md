@@ -1,10 +1,10 @@
 ---
 title: "Recent adventures with lazyeval"
 excerpt:
-share: false
 tags:
   - lazyeval
   - rstanarm
+  - r
 ---
 
 The [lazyeval](https://cran.r-project.org/web/packages/lazyeval/) package is a 
@@ -20,16 +20,16 @@ have the expression `lazyeval` and its value is `"evil_package"`.
 
 ```r
 print(.packages())
-#> [1] "stringr"   "dplyr"     "knitr"     "stats"     "graphics"  "grDevices"
-#> [7] "utils"     "datasets"  "base"
+#> [1] "dplyr"     "knitr"     "stats"     "graphics"  "grDevices" "utils"    
+#> [7] "datasets"  "base"
 
 lazyeval <- "evil_package"
 library(lazyeval)
 
 # The lazyeval package is loaded now.
 print(.packages())
-#>  [1] "lazyeval"  "stringr"   "dplyr"     "knitr"     "stats"    
-#>  [6] "graphics"  "grDevices" "utils"     "datasets"  "base"
+#> [1] "lazyeval"  "dplyr"     "knitr"     "stats"     "graphics"  "grDevices"
+#> [7] "utils"     "datasets"  "base"
 ```
 
 But this gambit doesn't work because `library` did something special: It didn't
@@ -69,19 +69,19 @@ plot_dist <- function(xs) {
 plot_dist(rcauchy(n = 250, location = 0, scale = 1))
 ```
 
-![center](/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-1.png)
+<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-1.png" title="center" alt="center" width="70%" style="display: block; margin: auto;" />
 
 ```r
 plot_dist(rgamma(n = 25000, shape = 5, rate = .5))
 ```
 
-![center](/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-2.png)
+<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-2.png" title="center" alt="center" width="70%" style="display: block; margin: auto;" />
 
 ```r
 plot_dist(rexp(n = 25000, rate = .5))
 ```
 
-![center](/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-3.png)
+<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-3.png" title="center" alt="center" width="70%" style="display: block; margin: auto;" />
 
 **Less fussy warning messages**. I recently inherited some code where there were
 custom warning messages based on the input. The code threw a warning whenever a
@@ -210,7 +210,7 @@ ggplot(iris) +
   geom_point() + stat_smooth(method = "lm")
 ```
 
-![center](/figs//2016-08-15-recent-adventures-with-lazyeval/petal width height by species-1.png)
+<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/petal width height by species-1.png" title="center" alt="center" width="70%" style="display: block; margin: auto;" />
 
 The model gives me 4000 samples from the posterior distribution of the model. 
 
@@ -228,14 +228,14 @@ summary(model)
 #> Estimates:
 #>                                  mean   sd   2.5%   25%   50%   75%
 #> (Intercept)                     0.0    0.2 -0.4   -0.1   0.0   0.1 
-#> Petal.Length                    0.2    0.1 -0.1    0.1   0.2   0.3 
-#> Speciesversicolor               0.0    0.3 -0.6   -0.2   0.0   0.2 
+#> Petal.Length                    0.2    0.1  0.0    0.1   0.2   0.3 
+#> Speciesversicolor              -0.1    0.3 -0.6   -0.3  -0.1   0.1 
 #> Speciesvirginica                1.1    0.3  0.5    0.9   1.1   1.3 
 #> Petal.Length:Speciesversicolor  0.1    0.1 -0.1    0.1   0.1   0.2 
-#> Petal.Length:Speciesvirginica   0.0    0.1 -0.3   -0.1   0.0   0.1 
+#> Petal.Length:Speciesvirginica   0.0    0.1 -0.2   -0.1   0.0   0.1 
 #> sigma                           0.2    0.0  0.2    0.2   0.2   0.2 
 #> mean_PPD                        1.2    0.0  1.2    1.2   1.2   1.2 
-#> log-posterior                  33.0    1.9 28.4   32.0  33.3  34.3 
+#> log-posterior                  32.9    1.9 28.2   31.8  33.2  34.3 
 #>                                  97.5%
 #> (Intercept)                     0.3   
 #> Petal.Length                    0.4   
@@ -249,15 +249,15 @@ summary(model)
 #> 
 #> Diagnostics:
 #>                                mcse Rhat n_eff
-#> (Intercept)                    0.0  1.0  1122 
-#> Petal.Length                   0.0  1.0  1110 
-#> Speciesversicolor              0.0  1.0  1337 
-#> Speciesvirginica               0.0  1.0  1399 
-#> Petal.Length:Speciesversicolor 0.0  1.0  1032 
-#> Petal.Length:Speciesvirginica  0.0  1.0  1018 
-#> sigma                          0.0  1.0  2634 
-#> mean_PPD                       0.0  1.0  3291 
-#> log-posterior                  0.0  1.0  1484 
+#> (Intercept)                    0.0  1.0   704 
+#> Petal.Length                   0.0  1.0   711 
+#> Speciesversicolor              0.0  1.0   983 
+#> Speciesvirginica               0.0  1.0   960 
+#> Petal.Length:Speciesversicolor 0.0  1.0   699 
+#> Petal.Length:Speciesvirginica  0.0  1.0   638 
+#> sigma                          0.0  1.0  2593 
+#> mean_PPD                       0.0  1.0  3365 
+#> log-posterior                  0.1  1.0  1204 
 #> 
 #> For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
 ```
@@ -282,7 +282,7 @@ posterior_proportion_ <- function(model, inequality) {
 }
 
 posterior_proportion_(model, ~ 0 < Petal.Length)
-#> [1] 0.941
+#> [1] 0.9325
 ```
 
 **But all those tildes**... The final underscore in `posterior_proportion_`
@@ -300,7 +300,7 @@ posterior_proportion <- function(model, expr) {
 }
 
 posterior_proportion(model, 0 < Petal.Length)
-#> [1] 0.941
+#> [1] 0.9325
 ```
 
 Here's another question: What proportion of the posterior of the `Petal.Length` 
