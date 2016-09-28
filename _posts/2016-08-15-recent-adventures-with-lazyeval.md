@@ -1,6 +1,6 @@
 ---
 title: "Recent adventures with lazyeval"
-excerpt:
+excerpt: Some basic uses of nonstandard evaluation.
 tags:
   - lazyeval
   - rstanarm
@@ -20,16 +20,16 @@ have the expression `lazyeval` and its value is `"evil_package"`.
 
 ```r
 print(.packages())
-#> [1] "dplyr"     "knitr"     "stats"     "graphics"  "grDevices" "utils"    
-#> [7] "datasets"  "base"
+#> [1] "stringr"   "dplyr"     "knitr"     "stats"     "graphics"  "grDevices"
+#> [7] "utils"     "datasets"  "base"
 
 lazyeval <- "evil_package"
 library(lazyeval)
 
 # The lazyeval package is loaded now.
 print(.packages())
-#> [1] "lazyeval"  "dplyr"     "knitr"     "stats"     "graphics"  "grDevices"
-#> [7] "utils"     "datasets"  "base"
+#>  [1] "lazyeval"  "stringr"   "dplyr"     "knitr"     "stats"    
+#>  [6] "graphics"  "grDevices" "utils"     "datasets"  "base"
 ```
 
 But this gambit doesn't work because `library` did something special: It didn't

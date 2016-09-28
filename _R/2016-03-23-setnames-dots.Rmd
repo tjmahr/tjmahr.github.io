@@ -1,6 +1,6 @@
 ---
 title: "Why is using list() critical for .dots = setNames() uses in dplyr?"
-excerpt: 
+excerpt: Because the functions expect a list of expressions.
 tags: 
  - dplyr
  - nonstandard evaluation
@@ -8,9 +8,13 @@ tags:
  - stack exchange
 ---
 
-I wrote [an answer](https://stackoverflow.com/questions/36067533/why-is-using-list-critical-for-dots-setnames-uses-in-dplyr/36168162#36168162) about why `setNames()` shows up sometimes in standard evaluation with dplyr. 
+I wrote [an answer](https://stackoverflow.com/questions/36067533/why-is-using-list-critical-for-dots-setnames-uses-in-dplyr/36168162#36168162) 
+about why `setNames()` shows up sometimes in standard evaluation with dplyr. 
 
-My explanation turned into a mini-tutorial on why those standard evaluation functions have a `.dots` argument. The basic idea is that the usual variadic argument `...` is a series of expressions that get evaluated inside of the dataframe. 
+My explanation turned into a mini-tutorial on why those standard evaluation
+functions have a `.dots` argument. The basic idea is that the usual variadic
+argument `...` is a series of expressions that get evaluated inside of the
+dataframe.
 
 ```{r, message = FALSE}
 library("dplyr")
@@ -25,7 +29,9 @@ iris %>%
   tbl_df
 ```
 
-If we programmatically assemble or manipulate those expressions before calling `mutate_`, we can't use that `...`, because we have a _list_ of expressions, not a series of individual expressions. We use the `.dots` argument instead.
+If we programmatically assemble or manipulate those expressions before calling
+`mutate_`, we can't use that `...`, because we have a _list_ of expressions, not
+a series of individual expressions. We use the `.dots` argument instead.
 
 ```{r}
 exps <- list(

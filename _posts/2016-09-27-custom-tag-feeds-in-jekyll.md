@@ -1,6 +1,6 @@
 ---
 title: "Custom tag feeds in Jekyll"
-excerpt:
+excerpt: Creating an RSS feed for R blog posts.
 tags:
   - jekyll
   - meta

@@ -1,6 +1,6 @@
 ---
 title: "Fixing APA citations from Pandoc with stringr"
-excerpt:
+excerpt: That pesky ampersand.
 tags:
   - stringr
   - pandoc

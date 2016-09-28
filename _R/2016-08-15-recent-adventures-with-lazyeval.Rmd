@@ -1,6 +1,6 @@
 ---
 title: "Recent adventures with lazyeval"
-excerpt:
+excerpt: Some basic uses of nonstandard evaluation.
 tags:
   - lazyeval
   - rstanarm

@@ -1,6 +1,6 @@
 ---
 title: "Confusion matrix statistics on late talker diagnoses"
-excerpt:
+excerpt: Posterior predictive values and the like.
 tags:
   - caret
   - r
