@@ -29,8 +29,8 @@ mammals along with each species' brain mass (kg) and body mass (kg), among other
 measures. Here's a first look at the data.
 
 ```{r brain-sleep, fig.cap = "Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes."}
-library("dplyr", warn.conflicts = FALSE)
-library("ggplot2")
+library(dplyr, warn.conflicts = FALSE)
+library(ggplot2)
 
 # Preview sorted by brain/body ratio. I chose this sorting so that humans would
 # show up in the preview.
@@ -119,7 +119,7 @@ ggplot(msleep) +
 ```
 
 This interval conveys some uncertainty in the estimate of the mean, but this 
-interval has [a frequentist interpretation][interval-interp] which can be
+interval has a [frequentist interpretation][interval-interp] which can be
 unintuitive for this sort of data.
 
 Now, for the point of this post: **What's the Bayesian version of this kind of
@@ -171,7 +171,7 @@ coef(m1)
 coef(m1_classical)
 ```
 
-The way to visualize our model then is plot our point-estimate line plus a
+A way to visualize our model is to plot our point-estimate line plus a
 sample of the other credible lines from our model. First, we create a data-frame
 with all 4,000 regression lines.
 
@@ -211,7 +211,8 @@ the values of _x_. As these line pile up on top of each other, they create an
 uncertainty band around our line of best fit. More plausible lines are more 
 likely to be sampled, so the more plausible lines overlap and create a uniform
 color around the median line. As we get farther away from the mean of _x_, the
-lines start to fan out and we see very faint individual lines.
+lines start to fan out and we see very faint individual lines for some of the 
+more extreme (yet still plausible) lines.
 
 The advantage of this plot is that it is a direct visualization of posterior
 samples---one line per sample. This approach has limitations, however. Lines for
@@ -253,7 +254,7 @@ dim(pred_lin)
 We are going to reduce this down to just a median and 95% interval around each 
 point. I do some tidying to get the data into a long format (one row per fitted 
 mean per posterior sample), and then do a table-join with the `observation` 
-column I included in `new_data`. I store these steps in a function because I
+column included in `new_data`. I store these steps in a function because I
 have to do them again later in this post.
 
 ```{r}
@@ -295,10 +296,13 @@ ggplot(msleep) +
   geom_point()
 ```
 
-This plot is just like the `stat_smooth()` plot, except the interval here is
-interpreted in terms of post-data probabilities: We're 95% certain---given the
-data, model and our prior information---that the average sleep duration is
-contained in this interval. 
+This plot is just like the `stat_smooth()` plot, except the interval here is 
+interpreted in terms of post-data probabilities: We're 95% certain---given the 
+data, model and our prior information---that the "true" average sleep duration 
+is contained in this interval. I put "true" in quotes because this is truth in
+the "small world" of the model, to quote 
+[_Statistical Rethinking_](http://xcelab.net/rm/statistical-rethinking/), not 
+necessarily the real world.
 
 Although the interpretation of the interval changes (compared to a classical 
 confidence interval), its location barely changes at all. If we overlay a 
@@ -311,7 +315,7 @@ last_plot() + stat_smooth(method = "lm")
 ```
 
 The previous plot illustrates one limitation of this approach: Pragmatically
-speaking, `stat_smooth(0)` basically does the same thing, and we're
+speaking, `stat_smooth()` basically does the same thing, and we're
 not taking advantage of the affordances provided by our model. This is why 
 RStanARM, in a kind of amusing way, disowns `posterior_linpred()` in its 
 documentation:
@@ -322,8 +326,8 @@ documentation:
 
 And elsewhere:
 
-> `posterior_predict` to draw from the posterior predictive distribution of the 
-? outcome, which is almost always preferable.
+> See also: `posterior_predict` to draw from the posterior predictive 
+> distribution of the outcome, which is almost always preferable.
 
 
 
@@ -333,9 +337,9 @@ Option 3: Mean and 95% interval for model-generated data
 The reason why `posterior_predict()` is preferable is that it uses more 
 information from our model, namely the error term `sigma`. 
 `poseterior_linpred()` predicts averages; `posterior_predict()` predicts new 
-data. This _posterior predictive checking_ helps us confirm whether our model---a 
-story of how the data could have been generated---can produce new data that
-resembles our data.
+data. This _posterior predictive checking_ helps us confirm whether our 
+model---a story of how the data could have been generated---can produce new 
+data that resembles our data.
 
 Here, we can use the function we defined earlier to get prediction intervals.
 
@@ -348,7 +352,7 @@ df_pred_post <- tidy_predictions(pred_post, new_data)
 df_pred_post
 ```
 
-And plot the interval in the same way.
+And we can plot the interval in the same way.
 
 ```{r}
 ggplot(msleep) + 
@@ -374,7 +378,7 @@ are relatively small.
 Finally, we can see that there are only two points outside of the interval. 
 These appear to be the giant armadillo and the roe deer. These two represent the
 main outliers for our model because they fall slight outside of the 95%
-prediction interval. 
+prediction interval. In this way, the posterior predictive interval can help us discover which data points are relative outliers for our model.
 
 ```{r}
 msleep %>% 
