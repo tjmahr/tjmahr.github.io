@@ -1,12 +1,13 @@
 ---
 title: "RStanARM basics: visualizing uncertainty in linear regression"
-excerpt: Summarizing many, many lines of fit.
+excerpt: "Summarizing many, many lines of fit"
 header:
-  overlay_image: sleeping-raccoon-1280.jpg
+  overlay_image: "sleeping-raccoon-1280.jpg"
   caption: "Photo credit: [**Lance Anderson**](https://unsplash.com/photos/QZwf5yNopUo)"
 tags:
   - rstanarm
   - bayesian
+  - r
 ---
 
 ```{r, echo = FALSE, results = 'hide', message = FALSE}
@@ -47,10 +48,10 @@ Hmmm, not very helpful. We should put our measures on a log-10 scale. Also, 27
 of the species don't have brain mass data, so we'll exclude those rows for the
 rest of this tutorial.
 
-Let's plot the log-transformed data. We will also label the points for some
-example critters :cat: so that we can get some intuition about the data in this
-scaling. (Plus, I wanted to try out the [annotation tips][r4ds-labels] from the 
-R4DS book.)
+Let's plot the log-transformed data. Let's also get a little fancy and label the 
+points for some example critters :cat: so that we can get some intuition about 
+the data in this scaling. (Plus, I wanted to try out the 
+[annotation tips][r4ds-labels] from the _R4DS_ book.)
 
 ```{r log-brain-sleep, fig.cap = "Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted."}
 msleep <- msleep %>% 
@@ -73,19 +74,26 @@ ex_points <- msleep %>%
   filter(name %in% ex_mammals) %>% 
   mutate(name = stringr::str_replace_all(name, renaming_rules))
 
+# Define these only once for all the plots
+lab_lines <- list(
+  brain_log = "Brain mass (kg., log-scaled)", 
+  sleep_raw = "Sleep per day (hours)",
+  sleep_log = "Sleep per day (hours, log-scaled)"
+)
+
 ggplot(msleep) + 
   aes(x = brainwt, y = sleep_total) + 
   geom_point(color = "grey40") +
   geom_point(size = 3, shape = 1, color = "grey40", data = ex_points) +
   ggrepel::geom_text_repel(aes(label = name), data = ex_points) + 
   scale_x_log10(breaks = c(.001, .01, .1, 1)) + 
-  labs(x = "Brain mass (kg., log-scaled)", y = "Sleep per day (hours)")
+  labs(x = lab_lines$brain_log, y = lab_lines$sleep_raw)
 ```
 
-As a child growing up on a dairy farm :cow:, it was remarkable to me how I
-little saw cows sleeping, compared to dogs or cats. Were they okay? Are they
-constantly tired and groggy? Maybe they are asleep when I'm asleep? Looks like
-they just don't need very much sleep.
+As a child growing up on a dairy farm :cow:, it was remarkable to me how little 
+I saw cows sleeping, compared to dogs or cats. Were they okay? Are they
+constantly tired and groggy? Maybe they are asleep when I'm asleep? Here, it look 
+like they just don't need very much sleep.
 
 Next, let's fit a classical regression model. We will use a log-scaled sleep
 measure so that the regression line doesn't imply negative sleep (even though
@@ -115,7 +123,8 @@ aesthetic grouping of data[^1] in a plot.
 ggplot(msleep) + 
   aes(x = log_brainwt, y = log_sleep_total) + 
   geom_point() +
-  stat_smooth(method = "lm", level = .95)
+  stat_smooth(method = "lm", level = .95) + 
+  labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
 This interval conveys some uncertainty in the estimate of the mean, but this 
@@ -209,7 +218,7 @@ ggplot(msleep) +
 Each of these light lines represents a credible prediction of the mean across 
 the values of _x_. As these line pile up on top of each other, they create an
 uncertainty band around our line of best fit. More plausible lines are more 
-likely to be sampled, so the more plausible lines overlap and create a uniform
+likely to be sampled, so these more likely lines overlap and create a uniform
 color around the median line. As we get farther away from the mean of _x_, the
 lines start to fan out and we see very faint individual lines for some of the 
 more extreme (yet still plausible) lines.
@@ -218,9 +227,10 @@ The advantage of this plot is that it is a direct visualization of posterior
 samples---one line per sample. This approach has limitations, however. Lines for
 subgroups require a little more effort to undo interactions. Also, the
 regression lines span the whole _x_ axis which is not appropriate when subgroups
-only use a portion of the x-axis. Finally, I haven't found good defaults for the
-aesthetic options: The number of samples, the colors to use, and the
-transparency level. One can lose of a lot time fiddling with those knobs.
+only use a portion of the x-axis. (This limitation is tractable though.)
+Finally, I haven't found good defaults for the aesthetic options: The number of
+samples, the colors to use, and the transparency level. One can lose of a lot
+time fiddling with those knobs!
 
 
 
@@ -363,22 +373,23 @@ ggplot(msleep) +
   geom_point()
 ```
 
-First, we can appreciate that this interval is much wider. That's because the
+First, we can appreciate that this interval is **much wider**. That's because the
 interval doesn't summarize a particular statistic (like an average) but all of
 the observations that can generated by our model. Okay, not _all_ of the
 observations---just the 95% most probable observations.
 
-Next, we can also appreciate that the line and the ribbon are jagged, due to 
-randomness from data simulation. Each prediction is a random number draw, and at
-each value of _x_, we have 4000 such random draws. We computed a median and 95% 
-interval at each _x_, but due to simulation randomness, these medians do not 
-smoothly connect together in the plot. That's okay, because these fluctuations
-are relatively small.
+Next, we can also appreciate that the line and the ribbon are **jagged due to 
+simulation randomness**. Each prediction is a random number draw, and at each
+value of _x_, we have 4000 such random draws. We computed a median and 95% 
+interval at each _x_, but due to randomness from simulating new data, these
+medians do not smoothly connect together in the plot. That's okay, because these
+fluctuations are relatively small.
 
-Finally, we can see that there are only two points outside of the interval. 
+Finally, we can see that there are only two **points outside of the interval**. 
 These appear to be the giant armadillo and the roe deer. These two represent the
-main outliers for our model because they fall slight outside of the 95%
-prediction interval. In this way, the posterior predictive interval can help us discover which data points are relative outliers for our model.
+main outliers for our model because they fall slight outside of the 95% 
+prediction interval. In this way, the posterior predictive interval can help us
+discover which data points are relative outliers for our model.
 
 ```{r}
 msleep %>% 
@@ -397,282 +408,14 @@ last_plot() +
 ```
 
 One faulty consequence of how our model was specified is that it predicts that
-some mammals sleep more than 24 hours per day. What a life.
+some mammals sleep more than 24 hours per day --- oh, what a life.
 
+## Wrapping up
 
 
 
 
-
-
-
-
-
-
-```{r, eval = FALSE}
-p <- ggplot(msleep) + 
-  aes(x = log_brainwt, y = sleep_total) + 
-  geom_point() +
-  stat_smooth(method = "lm") +
-  scale_y_log10(breaks = c(1:5 * 4))
-
-summary(p)
-
-ggplot(msleep) + 
-  aes(x = log(brainwt), y = sleep_total) + 
-  geom_point() +
-  stat_smooth(method = "lm")
-
-ggplot(msleep) + 
-  aes(x = log(brainwt), y = log(sleep_total)) + 
-  geom_point() +
-  stat_smooth(method = "lm")
-
-
-lm(sleep_total ~ log(bodywt), msleep) %>% summary
-
-lm(sleep_total ~ log(brainwt), msleep) %>% summary
-lm(log(sleep_total) ~ log(brainwt), msleep) %>% summary
-
-
-
-posterior_vs_prior(m1, pars = c("(Intercept)", "log_brainwt"))
-summary(m1)
-
-fits <- as_data_frame(m1) %>% 
-  rename(intercept = `(Intercept)`)
-
-model_data <- model.frame(m1) %>% 
-  tibble::rownames_to_column("rownumber")
-
-
-
-
-
-
-
-
-
-
-
- default_aes = aes(colour = "#3366FF", fill = "grey60", size = 1,
-    linetype = 1, weight = 1, alpha = 0.4)
-)
-
-
-
-
-
-
-
-
-
-x_range <- range(model_data$log_brainwt, na.rm = TRUE)
-x_steps <- seq(x_range[1], x_range[2], length.out = 100)
-new_data <- data_frame(log_brainwt = x_steps) %>% 
-  tibble::rownames_to_column("rownumber")
-
-long_predictions <- posterior_linpred(m1, newdata = new_data) %>% 
-  as_data_frame() %>% 
-  tibble::rownames_to_column("simulation") %>% 
-  tidyr::gather(rownumber, prediction, -simulation)
-
-long_predictions <- long_predictions %>% 
-  left_join(new_data)
-
-quantile_df <- function(...) {
-  quantile(...) %>% as.list() %>% tibble::as_data_frame()
-}
-
-
-intervals <- long_predictions %>% 
-  group_by(rownumber, log_brainwt) %>% 
-  do(quantile_df(.$prediction, probs = c(.025, .50, .975))) %>% 
-  ungroup()
-  
-
-n_draws <- 500
-ggplot(msleep) + 
-  aes(x = log_brainwt, y = log_sleep_total) + 
-  geom_ribbon(aes(ymin = `2.5%`, y = `50%`, ymax = `97.5%`), data = intervals, color = "grey70", alpha = .5) + 
-  geom_line(aes(y = `50%`), data = intervals, color = "blue", size = 1) + 
-  geom_point()
-
-
-ggplot(msleep) + 
-  aes(x = log_brainwt, y = log_sleep_total) + 
-  geom_ribbon(aes(ymin = `2.5%`, y = `50%`, ymax = `97.5%`), data = intervals, color = "grey70", alpha = .5) + 
-  geom_line(aes(y = `50%`), data = intervals, color = "blue", size = 1) + 
-  geom_point()  + 
-  geom_abline(aes(intercept = intercept, slope = log_brainwt), 
-              data = sample_n(fits, n_draws), alpha = .04) + 
-  geom_abline(intercept = coef(m1)[1], slope = coef(m1)[2], 
-              size = 1.25, color = "blue")
-  
-  
-StatLm <- ggproto("StatLm", Stat, 
-  required_aes = c("x", "y"),
-  
-  compute_group = function(data, scales) {
-    rng <- range(data$x, na.rm = TRUE)
-    grid <- data.frame(x = rng)
-    
-    mod <- lm(y ~ x, data = data)
-    grid$y <- predict(mod, newdata = grid)
-    
-    grid
-  }
-)
-
-stat_lm <- function(mapping = NULL, data = NULL, geom = "line",
-                    position = "identity", na.rm = FALSE, show.legend = NA, 
-                    inherit.aes = TRUE, ...) {
-  layer(
-    stat = StatLm, data = data, mapping = mapping, geom = geom, 
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(na.rm = na.rm, ...)
-  )
-}
-
-data <- msleep %>% 
-  rename(y = log_sleep_total, x = log_brainwt)
-
-
-
-StatStanGlm <- ggproto("StatStanGlm", Stat, 
-  required_aes = c("x", "y"),
-  
-  compute_group = function(data, scales, params, n = 100, formula = y ~ x, family = gaussian()) {
-    if (length(unique(data$x)) < 2) {
-      # Not enough data to perform fit
-      return(data.frame())
-    }
-
-    rng <- range(data$x, na.rm = TRUE)
-    grid <- data.frame(x = seq(rng[1], rng[2], length = n))
-    
-    mod <- stan_glm(formula, family, data = data)
-    predicted <- posterior_linpred(mod, newdata = grid)
-    grid$y <- as.vector(apply(predicted, 2, median))
-    grid
-    
-  }
-)
-
-stat_stan_glm <- function(mapping = NULL, data = NULL, geom = "line",
-                    position = "identity", na.rm = FALSE, show.legend = NA, 
-                    inherit.aes = TRUE, n = 50, formula = y ~ x, 
-                    ...) {
-  layer(
-    stat = StatStanGlm, data = data, mapping = mapping, geom = geom, 
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(n = n, formula = formula, na.rm = na.rm, ...)
-  )
-}
-
-
-
-ggplot(mpg, aes(displ, hwy, color = factor(cyl))) + 
-  geom_point() + 
-  stat_stan_glm(formula = y ~ x)
-
- 
-  stat_glm(formula = y ~ poly(x, 10), geom = "point", colour = "red", n = 20)
-
-
-
-
-ggplot(mpg, aes(displ, hwy)) + 
-  geom_point() + 
-  stat_lm()
-
-
-
-long_predictions %>% 
-  group_by(row_number) %>% 
-  summarise()
-
-
-
-
-
-poster
-
-huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))
-h <- ggplot(huron, aes(year))
-
-h + geom_ribbon(aes(ymin=0, ymax=level))
-h + geom_area(aes(y = level))
-
-h +
-  geom_ribbon(aes(ymin = level - 1, ymax = level + 1), fill = "grey70") +
-  geom_line(aes(y = level))
-
-geom_ribbon()
-
-tibble::has_rownames(mtcars)
-tibble::has_rownames(iris)
-
-ggplot(msleep) + 
-  aes(x = log_brainwt, y = log_sleep_total) + 
-  geom_point() +
-  stat_smooth(method = "lm")
-
-n_draws <- 500
-ggplot(msleep) + 
-  aes(x = log_brainwt, y = log_sleep_total) + 
-  geom_abline(aes(intercept = intercept, slope = log_brainwt), 
-              data = sample_n(fits, n_draws), alpha = .04) + 
-  geom_abline(intercept = coef(m1)[1], slope = coef(m1)[2], 
-              size = 1.25, color = "blue") + 
-  geom_point()
-
-
-
-
-
-
-
-
-ggplot(msleep) + 
-  aes(x = log(bodywt), y = sleep_total) + 
-  geom_point()
-ggplot(msleep) + 
-  aes(x = log(brainwt), y = sleep_total) + 
-  geom_point()
-
-ggplot(msleep) + 
-  aes(x = log(brainwt), y = sleep_total) + 
-  geom_point()
-
-ggplot(msleep) + 
-  aes(x = log(brainwt), y = sleep_total) + 
-  geom_point()
-
-
-msleep %>% filter(order == "Primates")
-
-ggplot(msleep) + 
-  aes(x = log(brainwt), y = sleep_rem) + 
-  geom_point()
-
-```
-
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-[^1]: That is, if we map the plot's color aesthetic to a categorical
-variable in the data, `stat_smooth()` will fit a separate model for each
-color/category. I figured this out when I tried to write my own function
-`stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) 
-and noticed that RStanARM was printing out MCMC sampling information for each
-color/category of the data. 
+[^1]: That is, if we map the plot's color aesthetic to a categorical variable in the data, `stat_smooth()` will fit a separate model for each color/category. I figured this out when I tried to write my own function `stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) and noticed that RStanARM was printing out MCMC sampling information for each color/category of the data. 
 
 
 
