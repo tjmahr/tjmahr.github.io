@@ -10,15 +10,16 @@ tags:
   - r
 ---
 
-```{r, echo = FALSE, results = 'hide', message = FALSE}
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
 # I think this was getting cached when I included it in the cached chunk that
-# fit the model.
+# fit the model, so let's put it upfront instead.
 suppressPackageStartupMessages(library("rstanarm"))
 ```
 
-As part of my tutorial on RStanARM, I presented some examples of how to 
-visualize the uncertainty in Bayesian linear regression models. This post is an 
-expanded demonstration of the approaches I presented in the tutorial.
+As part of [my tutorial talk on RStanARM](/rstanarm-tutorial-slides/), I
+presented some examples of how to visualize the uncertainty in Bayesian linear
+regression models. This post is an expanded demonstration of the approaches I
+presented in that tutorial.
 
 
 Data: Does brain mass predict how much mammals sleep in a day?
@@ -44,23 +45,25 @@ ggplot(msleep) +
   geom_point()
 ```
 
-Hmmm, not very helpful. We should put our measures on a log-10 scale. Also, 27
+Hmmm, not very helpful! We should put our measures on a log-10 scale. Also, 27
 of the species don't have brain mass data, so we'll exclude those rows for the
 rest of this tutorial.
 
-Let's plot the log-transformed data. Let's also get a little fancy and label the 
-points for some example critters :cat: so that we can get some intuition about 
-the data in this scaling. (Plus, I wanted to try out the 
-[annotation tips][r4ds-labels] from the _R4DS_ book.)
-
-```{r log-brain-sleep, fig.cap = "Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted."}
+```{r}
 msleep <- msleep %>% 
   filter(!is.na(brainwt)) %>% 
   mutate(log_brainwt = log10(brainwt), 
          log_bodywt = log10(bodywt), 
          log_sleep_total = log10(sleep_total))
+```
 
-# Create a separate dataframe of the species to highlight.
+Now, plot the log-transformed data. But let's also get a little fancy and label
+the points for some example critters :cat: so that we can get some intuition
+about the data in this scaling. (Plus, I wanted to try out the [annotation
+tips][r4ds-labels] from the _R4DS_ book.)
+
+```{r log-brain-sleep, fig.cap = "Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted."}
+# Create a separate data-frame of species to highlight
 ex_mammals <- c("Domestic cat", "Human", "Dog", "Cow", "Rabbit",
                 "Big brown bat", "House mouse", "Horse", "Golden hamster")
 
@@ -74,26 +77,28 @@ ex_points <- msleep %>%
   filter(name %in% ex_mammals) %>% 
   mutate(name = stringr::str_replace_all(name, renaming_rules))
 
-# Define these only once for all the plots
+# Define these labels only once for all the plots
 lab_lines <- list(
   brain_log = "Brain mass (kg., log-scaled)", 
   sleep_raw = "Sleep per day (hours)",
-  sleep_log = "Sleep per day (hours, log-scaled)"
+  sleep_log = "Sleep per day (log-hours)"
 )
 
 ggplot(msleep) + 
   aes(x = brainwt, y = sleep_total) + 
   geom_point(color = "grey40") +
+  # Circles around highlighted points + labels
   geom_point(size = 3, shape = 1, color = "grey40", data = ex_points) +
   ggrepel::geom_text_repel(aes(label = name), data = ex_points) + 
+  # Use log scaling on x-axis
   scale_x_log10(breaks = c(.001, .01, .1, 1)) + 
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_raw)
 ```
 
 As a child growing up on a dairy farm :cow:, it was remarkable to me how little 
-I saw cows sleeping, compared to dogs or cats. Were they okay? Are they
-constantly tired and groggy? Maybe they are asleep when I'm asleep? Here, it look 
-like they just don't need very much sleep.
+I saw cows sleeping, compared to dogs or cats. Were they okay? Are they 
+constantly tired and groggy? Maybe they are asleep when I'm asleep? Here, it
+looks like they just don't need very much sleep.
 
 Next, let's fit a classical regression model. We will use a log-scaled sleep
 measure so that the regression line doesn't imply negative sleep (even though
@@ -101,7 +106,7 @@ brains never get _that_ large).
 
 ```{r}
 m1_classical <- lm(log_sleep_total ~ log_brainwt, data = msleep) 
-summary(m1_classical)
+arm::display(m1_classical)
 ```
 
 ```{r, echo = FALSE}
@@ -114,7 +119,7 @@ of brain mass sleeps 10<sup>`r b`</sup>&nbsp;= `r round(10 ^ b, 1)` hours per
 day. A mammal with a tenth of that brain mass (-1 log-kg) sleeps 
 10<sup>`r b`&nbsp;+ `r -m`</sup>&nbsp;= `r round(10 ^ (b - m), 1)` hours.
 
-Now, we illustrate the regression results to show the predicted mean of _y_ and
+We illustrate the regression results to show the predicted mean of _y_ and
 its 95% confidence interval. This task is readily accomplished in ggplot2 using 
 `stat_smooth()`. This function fits a model and plots the mean and CI for each 
 aesthetic grouping of data[^1] in a plot.
@@ -124,6 +129,7 @@ ggplot(msleep) +
   aes(x = log_brainwt, y = log_sleep_total) + 
   geom_point() +
   stat_smooth(method = "lm", level = .95) + 
+  scale_x_continuous(labels = function(x) 10 ^ x) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
@@ -136,7 +142,7 @@ visualization**? Specifically, we want to illustrate:
 
 * Predictions from a regression model
 * Some uncertainty about those predictions
-* The raw data used to train the model
+* Raw data used to train the model
 
 
 
@@ -150,7 +156,7 @@ regression lines. The first way to visualize our uncertainty is to plot our
 own line of best fit along with a sample of other lines from the posterior
 distribution of the model.
 
-First, we fit a model with weakly informative priors.
+First, we fit a model RStanARM using weakly informative priors.
 
 ```{r stanarm-model, results = 'hide', cache = TRUE}
 library("rstanarm")
@@ -169,22 +175,26 @@ We now have 4,000 credible regressions lines for our data.
 summary(m1)
 ```
 
-For models fit by RStanARM, `coef()` returns the median parameter values. We
-can see that the intercept and slope of the median line is pretty close to the
-classical model's intercept and slope. The median line serves as the "point
-estimate" for our model: If we had to summarize the modeled relationship using
-just a single number for each parameter, we can use the medians.
+For models fit by RStanARM, the generic coefficient function `coef()` returns 
+the median parameter values.
 
 ```{r}
 coef(m1)
 coef(m1_classical)
 ```
 
-A way to visualize our model is to plot our point-estimate line plus a
-sample of the other credible lines from our model. First, we create a data-frame
-with all 4,000 regression lines.
+We can see that the intercept and slope of the median line is pretty close to
+the classical model's intercept and slope. The median line serves as the "point
+estimate" for our model: If we had to summarize the modeled relationship using
+just a single number for each parameter, we can use the medians.
+
+One way to visualize our model therefore is to **plot our point-estimate line
+plus a sample of the other credible lines from our model**. First, we create a 
+data-frame with all 4,000 regression lines.
 
 ```{r}
+# Coercing a model to a data-frame returns data-frame of posterior samples. 
+# One row per sample.
 fits <- m1 %>% 
   as_data_frame %>% 
   rename(intercept = `(Intercept)`) %>% 
@@ -212,25 +222,30 @@ ggplot(msleep) +
   geom_abline(intercept = median(fits$intercept), 
               slope = median(fits$log_brainwt), 
               size = 1, color = col_median) +
-  geom_point()
+  geom_point() + 
+  scale_x_continuous(labels = function(x) 10 ^ x) +
+  labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
 Each of these light lines represents a credible prediction of the mean across 
-the values of _x_. As these line pile up on top of each other, they create an
+the values of _x_. As these line pile up on top of each other, they create an 
 uncertainty band around our line of best fit. More plausible lines are more 
-likely to be sampled, so these more likely lines overlap and create a uniform
-color around the median line. As we get farther away from the mean of _x_, the
-lines start to fan out and we see very faint individual lines for some of the 
-more extreme (yet still plausible) lines.
+likely to be sampled, so these lines overlap and create a uniform color around
+the median line. As we move left or right, getting farther away from the mean of
+_x_, the lines start to fan out and we see very faint individual lines for some
+of the more extreme (yet still plausible) lines.
 
-The advantage of this plot is that it is a direct visualization of posterior
-samples---one line per sample. This approach has limitations, however. Lines for
-subgroups require a little more effort to undo interactions. Also, the
-regression lines span the whole _x_ axis which is not appropriate when subgroups
-only use a portion of the x-axis. (This limitation is tractable though.)
-Finally, I haven't found good defaults for the aesthetic options: The number of
-samples, the colors to use, and the transparency level. One can lose of a lot
-time fiddling with those knobs!
+The advantage of this plot is that it is a direct visualization of posterior 
+samples---one line per sample. It provides an estimate for the central tendency
+in the data but it also converys uncertainty around that estimate. 
+
+This approach has limitations, however. Lines for subgroups require a little 
+more effort to undo interactions. Also, the regression lines span the whole _x_ 
+axis which is not appropriate when subgroups only use a portion of the x-axis. 
+(This limitation is solvable though.) Finally, I haven't found good defaults 
+for the aesthetic options: The number of samples, the colors to use, and the 
+transparency level. One can lose of lots and lots and lots time fiddling with
+those knobs!
 
 
 
@@ -240,8 +255,8 @@ Option 2: Mean and its 95% interval
 Another option is a direct port of the `stat_smooth()` plot: Draw a line of
 best fit and the 95% uncertainty interval around it.
 
-To limit the amount of the _x_ axis used by the lines, we're going to create a
-sequence of 80 points along the range of the data.
+To limit the amount of the _x_ axis used by the lines, we're going to create a 
+sequence of 80 points along the range of the data. 
 
 ```{r}
 x_rng <- range(msleep$log_brainwt) 
@@ -252,7 +267,7 @@ new_data <- data_frame(
 new_data
 ```
 
-The function `posterior_linpred` returns the model-fitted means for a data-frame
+The function `posterior_linpred()` returns the model-fitted means for a data-frame
 of new data. I say _means_ because the function computes 80 predicted means for
 each sample from the posterior. The result is 4000 x 80 matrix of fitted means.
 
@@ -298,12 +313,15 @@ We can do the line-plus-interval plot using `geom_ribbon()` for the uncertainty
 band.
 
 ```{r posterior-linpred-plot, fig.cap = "Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean."}
-ggplot(msleep) + 
-  aes(x = log_brainwt, y = log_sleep_total) + 
-  geom_ribbon(aes(ymin = lower, ymax = upper, y = median), data = df_pred_lin, 
+p_linpread <- ggplot(msleep) + 
+  aes(x = log_brainwt) + 
+  geom_ribbon(aes(ymin = lower, ymax = upper), data = df_pred_lin, 
               alpha = 0.4, fill = "grey60") + 
   geom_line(aes(y = median), data = df_pred_lin, colour = "#3366FF", size = 1) + 
-  geom_point()
+  geom_point(aes(y = log_sleep_total)) + 
+  scale_x_continuous(labels = function(x) 10 ^ x) +
+  labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
+p_linpread
 ```
 
 This plot is just like the `stat_smooth()` plot, except the interval here is 
@@ -321,7 +339,7 @@ virtually identical. With this much data and for this simple of a model, both
 types of models can make very similar estimates.
 
 ```{r posterior-linpred-plot-and-smooth, fig.cap = "Previous line-plus-interval plot with the classical regression line and confidence interval overlaid."}
-last_plot() + stat_smooth(method = "lm")
+p_linpread + stat_smooth(aes(y = log_sleep_total), method = "lm")
 ```
 
 The previous plot illustrates one limitation of this approach: Pragmatically
@@ -334,7 +352,7 @@ documentation:
 > Inference and model checking should generally be carried out using the 
 > posterior predictive distribution (see `posterior_predict`).
 
-And elsewhere:
+_Occasionally convenient._ :open_mouth: And elsewhere:
 
 > See also: `posterior_predict` to draw from the posterior predictive 
 > distribution of the outcome, which is almost always preferable.
@@ -347,9 +365,9 @@ Option 3: Mean and 95% interval for model-generated data
 The reason why `posterior_predict()` is preferable is that it uses more 
 information from our model, namely the error term `sigma`. 
 `poseterior_linpred()` predicts averages; `posterior_predict()` predicts new 
-data. This _posterior predictive checking_ helps us confirm whether our 
-model---a story of how the data could have been generated---can produce new 
-data that resembles our data.
+observations. This _posterior predictive checking_ helps us confirm whether our 
+model---a story of how the data could have been generated---can produce new data
+that resembles our data.
 
 Here, we can use the function we defined earlier to get prediction intervals.
 
@@ -364,13 +382,15 @@ df_pred_post
 
 And we can plot the interval in the same way.
 
-```{r}
+```{r posterior-predict, fig.cap = "Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations."}
 ggplot(msleep) + 
-  aes(x = log_brainwt, y = log_sleep_total) + 
-  geom_ribbon(aes(ymin = lower, ymax = upper, y = median), data = df_pred_post, 
+  aes(x = log_brainwt) + 
+  geom_ribbon(aes(ymin = lower, ymax = upper), data = df_pred_post, 
               alpha = 0.4, fill = "grey60") + 
   geom_line(aes(y = median), data = df_pred_post, colour = "#3366FF", size = 1) + 
-  geom_point()
+  geom_point(aes(y = log_sleep_total)) + 
+  scale_x_continuous(labels = function(x) 10 ^ x) +
+  labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
 First, we can appreciate that this interval is **much wider**. That's because the
@@ -386,12 +406,17 @@ medians do not smoothly connect together in the plot. That's okay, because these
 fluctuations are relatively small.
 
 Finally, we can see that there are only two **points outside of the interval**. 
-These appear to be the giant armadillo and the roe deer. These two represent the
-main outliers for our model because they fall slight outside of the 95% 
-prediction interval. In this way, the posterior predictive interval can help us
-discover which data points are relative outliers for our model.
+These appear to be the restless roe deer and the ever-sleepy giant armadillo.
+These two represent the main outliers for our model because they fall slight
+outside of the 95% prediction interval. In this way, the posterior predictive
+interval can help us discover which data points are relative outliers for our
+model.
 
-```{r}
+(Maybe _outliers_ isn't the right word. It makes perfect sense that 2/56&nbsp;=
+`r round(2 / 56, 3) * 100`% of the observations fall outside of the 95%
+interval.)
+
+```{r, echo = FALSE, results=FALSE}
 msleep %>% 
   filter(between(log_brainwt, -1.25, -0.90)) %>% 
   arrange(log_sleep_total) %>% 
@@ -401,18 +426,27 @@ msleep %>%
 This posterior prediction plot does reveal a shortcoming of our model, when
 plotted in a different manner.
 
-```{r}
+```{r posterior-predict-24-hours, fig.cap = "Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line."}
 last_plot() + 
   geom_hline(yintercept = log10(24), color = "grey50") + 
   geom_label(x = 0, y = log10(24), label = "24 hours")
 ```
 
 One faulty consequence of how our model was specified is that it predicts that
-some mammals sleep more than 24 hours per day --- oh, what a life.
+some mammals sleep more than 24 hours per day---oh, what a life to live 
+:sleeping:.
 
-## Wrapping up
+## Wrap up
 
+In the post, I covered three different ways to plot the results of an RStanARM 
+model, while demonstrating some of the key functions for working with RStanARM 
+models. Time well spent, I think.
 
+As for future directions, I learned about the under-development (as of November
+2016) R package [bayesplot](https://github.com/stan-dev/bayesplot) by the Stan
+team. The README package shows off a lot of different ways to visualize
+posterior samples from a model. I'll be sure to demo it on this data-set once it
+goes live.
 
 
 [^1]: That is, if we map the plot's color aesthetic to a categorical variable in the data, `stat_smooth()` will fit a separate model for each color/category. I figured this out when I tried to write my own function `stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) and noticed that RStanARM was printing out MCMC sampling information for each color/category of the data. 
