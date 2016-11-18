@@ -185,7 +185,9 @@ These are positions and roles I worked in as a student speech-language clinician
 
 tk tk training-grants
 
-tk tk bu-travel
+2016: [Jean Berko Gleason Award](https://twitter.com/TheBUCLD/status/795298601605992448) for highest scored student submission at the 41st Boston University Conference on Language Development.
+
+2014: Paula Menyuk Travel Award recipient at the 39st Boston University Conference on Language Development.
 
 2014: Emma Allen Scholarship. Given by the Dept. of Communication Sciences and Disorder at UW-Madison.
 
