@@ -1,8 +1,9 @@
 ---
 title: "RStanARM basics: visualizing uncertainty in linear regression"
 excerpt: "Summarizing many, many lines of fit"
+share: true
 header:
-  overlay_image: "sleeping-raccoon-1280.jpg"
+  overlay_image: "assets/images/sleeping-raccoon-1280.jpg"
   caption: "Photo credit: [**Lance Anderson**](https://unsplash.com/photos/QZwf5yNopUo)"
 tags:
   - rstanarm

@@ -69,19 +69,19 @@ plot_dist <- function(xs) {
 plot_dist(rcauchy(n = 250, location = 0, scale = 1))
 ```
 
-<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-1.png" title="center" alt="center" width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-1.png" title="center" alt="center" width="80%" style="display: block; margin: auto;" />
 
 ```r
 plot_dist(rgamma(n = 25000, shape = 5, rate = .5))
 ```
 
-<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-2.png" title="center" alt="center" width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-2.png" title="center" alt="center" width="80%" style="display: block; margin: auto;" />
 
 ```r
 plot_dist(rexp(n = 25000, rate = .5))
 ```
 
-<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-3.png" title="center" alt="center" width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/plot_dist examples-3.png" title="center" alt="center" width="80%" style="display: block; margin: auto;" />
 
 **Less fussy warning messages**. I recently inherited some code where there were
 custom warning messages based on the input. The code threw a warning whenever a
@@ -210,7 +210,7 @@ ggplot(iris) +
   geom_point() + stat_smooth(method = "lm")
 ```
 
-<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/petal width height by species-1.png" title="center" alt="center" width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-08-15-recent-adventures-with-lazyeval/petal width height by species-1.png" title="center" alt="center" width="80%" style="display: block; margin: auto;" />
 
 The model gives me 4000 samples from the posterior distribution of the model. 
 

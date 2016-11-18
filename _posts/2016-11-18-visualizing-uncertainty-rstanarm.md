@@ -1,8 +1,9 @@
 ---
 title: "RStanARM basics: visualizing uncertainty in linear regression"
 excerpt: "Summarizing many, many lines of fit"
+share: true
 header:
-  overlay_image: "sleeping-raccoon-1280.jpg"
+  overlay_image: "assets/images/sleeping-raccoon-1280.jpg"
   caption: "Photo credit: [**Lance Anderson**](https://unsplash.com/photos/QZwf5yNopUo)"
 tags:
   - rstanarm
@@ -58,7 +59,7 @@ ggplot(msleep) +
 #> Warning: Removed 27 rows containing missing values (geom_point).
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/brain-sleep-1.png" title="Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes." alt="Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes." width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/brain-sleep-1.png" title="Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes." alt="Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes." width="80%" style="display: block; margin: auto;" />
 
 Hmmm, not very helpful! We should put our measures on a log-10 scale. Also, 27
 of the species don't have brain mass data, so we'll exclude those rows for the
@@ -112,7 +113,7 @@ ggplot(msleep) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_raw)
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/log-brain-sleep-1.png" title="Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted." alt="Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted." width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/log-brain-sleep-1.png" title="Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted." alt="Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted." width="80%" style="display: block; margin: auto;" />
 
 As a child growing up on a dairy farm :cow:, it was remarkable to me how little 
 I saw cows sleeping, compared to dogs or cats. Were they okay? Are they 
@@ -158,7 +159,7 @@ ggplot(msleep) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/log-brain-sleep-lm-fit-1.png" title="Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression." alt="Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression." width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/log-brain-sleep-lm-fit-1.png" title="Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression." alt="Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression." width="80%" style="display: block; margin: auto;" />
 
 This interval conveys some uncertainty in the estimate of the mean, but this 
 interval has a [frequentist interpretation][interval-interp] which can be
@@ -213,19 +214,19 @@ summary(m1)
 #> 
 #> Estimates:
 #>                 mean   sd   2.5%   25%   50%   75%   97.5%
-#> (Intercept)    0.7    0.0  0.7    0.7   0.7   0.8   0.8   
+#> (Intercept)    0.7    0.0  0.6    0.7   0.7   0.8   0.8   
 #> log_brainwt   -0.1    0.0 -0.2   -0.1  -0.1  -0.1  -0.1   
 #> sigma          0.2    0.0  0.1    0.2   0.2   0.2   0.2   
 #> mean_PPD       1.0    0.0  0.9    0.9   1.0   1.0   1.0   
-#> log-posterior 12.1    1.2  9.1   11.6  12.4  12.9  13.4   
+#> log-posterior 12.0    1.2  9.0   11.5  12.3  12.9  13.4   
 #> 
 #> Diagnostics:
 #>               mcse Rhat n_eff
-#> (Intercept)   0.0  1.0  3249 
-#> log_brainwt   0.0  1.0  3247 
-#> sigma         0.0  1.0  2823 
-#> mean_PPD      0.0  1.0  3769 
-#> log-posterior 0.0  1.0  2248 
+#> (Intercept)   0.0  1.0  3040 
+#> log_brainwt   0.0  1.0  3046 
+#> sigma         0.0  1.0  2862 
+#> mean_PPD      0.0  1.0  3671 
+#> log-posterior 0.0  1.0  2159 
 #> 
 #> For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
 ```
@@ -237,7 +238,7 @@ the median parameter values.
 ```r
 coef(m1)
 #> (Intercept) log_brainwt 
-#>   0.7358459  -0.1260126
+#>   0.7354829  -0.1263922
 coef(m1_classical)
 #> (Intercept) log_brainwt 
 #>   0.7363492  -0.1264049
@@ -264,16 +265,16 @@ fits
 #> # A tibble: 4,000 × 2
 #>    intercept log_brainwt
 #>        <dbl>       <dbl>
-#> 1  0.7378144 -0.13516523
-#> 2  0.8177494 -0.09003485
-#> 3  0.8074633 -0.09440248
-#> 4  0.8545143 -0.11018825
-#> 5  0.8061616 -0.10772447
-#> 6  0.8422515 -0.09022916
-#> 7  0.7968577 -0.11273502
-#> 8  0.7679546 -0.12267055
-#> 9  0.7370562 -0.12933438
-#> 10 0.7192707 -0.12798695
+#> 1  0.7529824  -0.1369554
+#> 2  0.7243708  -0.1266290
+#> 3  0.7575502  -0.1171410
+#> 4  0.7855554  -0.1031353
+#> 5  0.6327073  -0.1795992
+#> 6  0.6474521  -0.1714347
+#> 7  0.7512467  -0.1155559
+#> 8  0.7363273  -0.1162038
+#> 9  0.7490401  -0.1276618
+#> 10 0.7238091  -0.1305896
 #> # ... with 3,990 more rows
 ```
 
@@ -303,7 +304,7 @@ ggplot(msleep) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/pile-of-lines-plot-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median regression line and 500 random regressions lines sampled from the posterior." alt="Brain mass by sleep hours, log-10 scale, plus the median regression line and 500 random regressions lines sampled from the posterior." width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/pile-of-lines-plot-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median regression line and 500 random regressions lines sampled from the posterior." alt="Brain mass by sleep hours, log-10 scale, plus the median regression line and 500 random regressions lines sampled from the posterior." width="80%" style="display: block; margin: auto;" />
 
 Each of these light lines represents a credible prediction of the mean across 
 the values of _x_. As these line pile up on top of each other, they create an 
@@ -406,16 +407,16 @@ df_pred_lin
 #> # A tibble: 80 × 5
 #>    observation   median    lower    upper log_brainwt
 #>          <int>    <dbl>    <dbl>    <dbl>       <dbl>
-#> 1            1 1.221808 1.130714 1.314318   -3.853872
-#> 2            2 1.214417 1.125008 1.305139   -3.795509
-#> 3            3 1.206990 1.119488 1.296013   -3.737146
-#> 4            4 1.199741 1.114178 1.286591   -3.678784
-#> 5            5 1.192367 1.108308 1.277354   -3.620421
-#> 6            6 1.184998 1.103334 1.267785   -3.562058
-#> 7            7 1.177831 1.097672 1.258505   -3.503695
-#> 8            8 1.170491 1.092854 1.249195   -3.445332
-#> 9            9 1.163016 1.086950 1.240197   -3.386970
-#> 10          10 1.155859 1.081630 1.231081   -3.328607
+#> 1            1 1.223770 1.128224 1.320591   -3.853872
+#> 2            2 1.216516 1.122147 1.311214   -3.795509
+#> 3            3 1.209222 1.117190 1.301462   -3.737146
+#> 4            4 1.201831 1.112268 1.291821   -3.678784
+#> 5            5 1.194506 1.107512 1.282047   -3.620421
+#> 6            6 1.187240 1.102580 1.272930   -3.562058
+#> 7            7 1.179955 1.096945 1.263415   -3.503695
+#> 8            8 1.172608 1.091237 1.254113   -3.445332
+#> 9            9 1.165268 1.085800 1.244733   -3.386970
+#> 10          10 1.157932 1.080823 1.235356   -3.328607
 #> # ... with 70 more rows
 ```
 
@@ -435,7 +436,7 @@ p_linpread <- ggplot(msleep) +
 p_linpread
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-linpred-plot-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean." alt="Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean." width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-linpred-plot-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean." alt="Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean." width="80%" style="display: block; margin: auto;" />
 
 This plot is just like the `stat_smooth()` plot, except the interval here is 
 interpreted in terms of post-data probabilities: We're 95% certain---given the 
@@ -456,7 +457,7 @@ types of models can make very similar estimates.
 p_linpread + stat_smooth(aes(y = log_sleep_total), method = "lm")
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-linpred-plot-and-smooth-1.png" title="Previous line-plus-interval plot with the classical regression line and confidence interval overlaid." alt="Previous line-plus-interval plot with the classical regression line and confidence interval overlaid." width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-linpred-plot-and-smooth-1.png" title="Previous line-plus-interval plot with the classical regression line and confidence interval overlaid." alt="Previous line-plus-interval plot with the classical regression line and confidence interval overlaid." width="80%" style="display: block; margin: auto;" />
 
 The previous plot illustrates one limitation of this approach: Pragmatically
 speaking, `stat_smooth()` basically does the same thing, and we're
@@ -499,16 +500,16 @@ df_pred_post
 #> # A tibble: 80 × 5
 #>    observation   median     lower    upper log_brainwt
 #>          <int>    <dbl>     <dbl>    <dbl>       <dbl>
-#> 1            1 1.222472 0.8646270 1.587308   -3.853872
-#> 2            2 1.216009 0.8693197 1.559538   -3.795509
-#> 3            3 1.207915 0.8509499 1.565226   -3.737146
-#> 4            4 1.205512 0.8388800 1.566543   -3.678784
-#> 5            5 1.199273 0.8318168 1.552506   -3.620421
-#> 6            6 1.186385 0.8245860 1.535794   -3.562058
-#> 7            7 1.181573 0.8333821 1.544027   -3.503695
-#> 8            8 1.176840 0.8200045 1.517013   -3.445332
-#> 9            9 1.167701 0.7943410 1.508184   -3.386970
-#> 10          10 1.152479 0.8002372 1.516674   -3.328607
+#> 1            1 1.224866 0.8685090 1.577798   -3.853872
+#> 2            2 1.207392 0.8395285 1.560691   -3.795509
+#> 3            3 1.209352 0.8499785 1.569175   -3.737146
+#> 4            4 1.203873 0.8333415 1.563349   -3.678784
+#> 5            5 1.204020 0.8537000 1.554171   -3.620421
+#> 6            6 1.183633 0.8284588 1.552674   -3.562058
+#> 7            7 1.182420 0.8234048 1.549418   -3.503695
+#> 8            8 1.177556 0.8111187 1.543201   -3.445332
+#> 9            9 1.164234 0.8238208 1.524496   -3.386970
+#> 10          10 1.161509 0.8130019 1.526353   -3.328607
 #> # ... with 70 more rows
 ```
 
@@ -526,7 +527,7 @@ ggplot(msleep) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-predict-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations." alt="Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations." width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-predict-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations." alt="Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations." width="80%" style="display: block; margin: auto;" />
 
 First, we can appreciate that this interval is **much wider**. That's because the
 interval doesn't summarize a particular statistic (like an average) but all of
@@ -573,22 +574,23 @@ last_plot() +
   geom_label(x = 0, y = log10(24), label = "24 hours")
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-predict-24-hours-1.png" title="Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line." alt="Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line." width="70%" style="display: block; margin: auto;" />
+<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-predict-24-hours-1.png" title="Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line." alt="Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line." width="80%" style="display: block; margin: auto;" />
 
 One faulty consequence of how our model was specified is that it predicts that
 some mammals sleep more than 24 hours per day---oh, what a life to live 
 :sleeping:.
 
-***
+## Wrap up
 
 In the post, I covered three different ways to plot the results of an RStanARM 
 model, while demonstrating some of the key functions for working with RStanARM 
 models. Time well spent, I think.
 
-This week, I learned about the under-development (as of November 2016) R package
-[bayesplot](https://github.com/stan-dev/bayesplot) by the Stan team. The README
-package shows off a lot of different ways to visualize posterior samples from a
-model. I'll be sure to demo it on this data-set once it goes live.
+As for future directions, I learned about the under-development (as of November
+2016) R package [bayesplot](https://github.com/stan-dev/bayesplot) by the Stan
+team. The README package shows off a lot of different ways to visualize
+posterior samples from a model. I'll be sure to demo it on this data-set once it
+goes live.
 
 
 [^1]: That is, if we map the plot's color aesthetic to a categorical variable in the data, `stat_smooth()` will fit a separate model for each color/category. I figured this out when I tried to write my own function `stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) and noticed that RStanARM was printing out MCMC sampling information for each color/category of the data. 
