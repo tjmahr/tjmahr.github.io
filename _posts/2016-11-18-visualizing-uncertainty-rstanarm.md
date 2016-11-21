@@ -553,16 +553,6 @@ model.
 interval.)
 
 
-```
-#> # A tibble: 5 × 4
-#>              name sleep_total log_sleep_total log_brainwt
-#>             <chr>       <dbl>           <dbl>       <dbl>
-#> 1        Roe deer         3.0       0.4771213  -1.0078885
-#> 2            Goat         5.3       0.7242759  -0.9393022
-#> 3             Dog        10.1       1.0043214  -1.1549020
-#> 4    Patas monkey        10.9       1.0374265  -0.9393022
-#> 5 Giant armadillo        18.1       1.2576786  -1.0915150
-```
 
 This posterior prediction plot does reveal a shortcoming of our model, when
 plotted in a different manner.

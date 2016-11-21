@@ -417,7 +417,7 @@ model.
 `r round(2 / 56, 3) * 100`% of the observations fall outside of the 95%
 interval.)
 
-```{r, echo = FALSE, results=FALSE}
+```{r, echo = FALSE, results = 'hide'}
 msleep %>% 
   filter(between(log_brainwt, -1.25, -0.90)) %>% 
   arrange(log_sleep_total) %>% 
