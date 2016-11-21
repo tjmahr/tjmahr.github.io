@@ -10,7 +10,8 @@ permalink: /cv.html
 
 ## Education
 
-* Ongoing - Ph.D. candidate, Communication Sciences and Disorders, University of Wisconsin--Madison. Ph.D. minor course work in statistics and psychology.
+* Ongoing - Ph.D. candidate, Communication Sciences and Disorders, University of Wisconsin--Madison. 
+  - Ph.D. minor course work in statistics and psychology.
 * 2013 - M.S., Speech-Language Pathology, University of Wisconsin--Madison.
 * 2009 - B.S., Linguistics and English, University of Wisconsin--Madison.
 
@@ -18,7 +19,14 @@ permalink: /cv.html
 
 **Research Assistant** - Little Listeners project.
 
-I prepare and analyze eyetracking data from a series of word recognition experiments with toddlers. I develop R packages for handling, visualizing and modeling these data, including an interactive Shiny dashboard.
+I prepare and analyze eyetracking data from a series of word recognition experiments with toddlers. I develop R packages for handling, visualizing and modeling these data, including an interactive Shiny dashboard. 
+
+### Previous Position
+
+**Research Assistant** - Learning to Talk project.
+
+This project was a three-year longitudinal study of preschoolers done in collaboration by three universities. I was responsible for data organization, validation, automation and general data-cleaning tasks for the project. I developed R packages to automate these validation and back-up tasks, and I developed a MySQL database supporting R package for our data. I analyzed eyetracking and speech perception experiments from this project. 
+
 
 ## Programming and Statistics
 
