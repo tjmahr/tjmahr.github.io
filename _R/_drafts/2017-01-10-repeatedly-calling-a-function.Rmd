@@ -1,0 +1,158 @@
+---
+title: Repeatedly calling a function
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A colleague of mine sent me the following R question:
+
+> I have a function that takes a list and does some stuff to it and then returns
+it. I then take that output and run it through the same function again. But I
+obviously don't want to repeatedly type the function out, because I want the
+number of function replications to be a declared argument. I had little luck
+with [functionals](http://adv-r.had.co.nz/Functionals.html), although they 
+seemed like an obvious choice.
+
+It goes on to say that the solution should work in a magrittr pipeline, so that 
+should influence how we solve the problem. Therefore, we want to write a
+function that will transform a pipeline like: 
+
+```{r, eval = FALSE}
+x %>% 
+  some_function(args) %>% 
+  some_function(args) %>% 
+  some_function(args) %>% 
+  some_function(args)
+```
+
+into a one-liner like
+
+```{r, eval = FALSE}
+x %>% 
+  repeated(.reps = 4, some_function, args)
+```
+
+The solution is repeated function application with some book-keeping. We could
+do this a while-loop or with recursion. Here's the loop version.
+
+```{r}
+repeated <- function(.x, .reps = 1, .f, ...) {
+  # A single, finite, non-negative number of repetitions
+  assertthat::assert_that(
+    length(.reps) == 1,
+    !is.na(.reps),
+    .reps >= 0,
+    is.finite(.reps))
+  
+  # accept purrr-style formula functions
+  .f <- purrr::as_function(.f, ...)
+  
+  # 0 .reps
+  value <- .x
+
+  while (.reps >= 1) {
+    value <- .f(value, ...)
+    .reps <- .reps - 1
+  }
+
+  value
+}
+```
+
+We start with some basic input-checking on the number of repetitions.
+`assert_that()` is like `stopifnot()`, but it spells out failures a little more
+verbosely. (I don't like that about half of the function is for checking the
+number of repetitions, but that's how it goes.)
+
+```{r, error = TRUE, message = FALSE}
+library(purrr)
+add <- function(x, y) x + y
+
+10 %>% repeated(-1, add, 2)
+10 %>% repeated(1:10, add, 2)
+```
+
+The next line uses purrr's `as_function()`, so that we can also use formula-
+based anonymous functions. Here are examples with named function and anonymous
+functions.
+
+```{r, error = TRUE}
+# Regular function
+1:4 %>% repeated(1, add, 2)
+1:4 %>% repeated(5, add, 2)
+
+# Formula-based anonymous function
+1:4 %>% repeated(2, ~ .x + 2)
+1:4 %>% repeated(5, ~ .x + 2)
+```
+
+Because we are working in a pipeline, we expect the first argument to be some
+data. If we apply a function 0 times to the data, it should return the data.
+That's why we set the `value` to the input before the loop.
+
+```{r}
+# 0 function-applications
+1:4 %>% repeated(0, add, 2)
+```
+
+This function is built around a while-loop that ticks down every the function
+is applied. Generally, loops are not considered idiomatic R. I certainly try to
+avoid writing loops in R because the language has some built-in functions that
+can abstract over a lot of iteration and the required book-keeping. Generally,
+if we are iterating over the structure of something, like elements in a vector
+or columns in a data-frame, we can probably write a loop-free version. But
+here we are not looping over structure&mdash;we are looping through time. This
+is fundamentally different kind of problem than the kinds are that solved by
+`Map()` or `lapply()`.
+
+But we can make it loop-free, by torturing the code into recursion. Actually,
+it's not all bad. But I break it up into an input-handling step which sets the
+stage for the recursive function `recurisvely_repeat()`.
+
+
+```{r}
+rrrepeated <- function(.x, .reps = 1, .f, ...) {
+  # A single, finite, non-negative number of repetitions
+  assertthat::assert_that(
+    length(.reps) == 1,
+    !is.na(.reps),
+    .reps >= 0,
+    is.finite(.reps))
+  
+  # accept purrr-style formula functions
+  .f <- purrr::as_function(.f, ...)
+  
+  recursively_repeat(.x, .reps, .f, ...)
+}
+
+recursively_repeat <- function(.x, .reps, .f, ...) {
+  if (.reps == 0) {
+    .x
+  } else { 
+    recursively_repeat(.f(.x, ...), .reps - 1, .f, ...)
+  }
+}
+
+
+# (It would be more correct to use `Recall` so renaming the function doesn't
+# break it... -- how's that for an R deep cut?)
+```
+
+The recursive function is abul
+
+
+It works like it buddy:
+
+```{r}
+1:4 %>% repeated(5, ~ .x - 2)
+1:4 %>% rrrepeated(5, ~ .x - 2)
+  
+
+1:4 %>% repeated(5, function(x, y) x * y, 2)
+1:4 %>% rrrepeated(5, function(x, y) x * y, 2)
+```
+
