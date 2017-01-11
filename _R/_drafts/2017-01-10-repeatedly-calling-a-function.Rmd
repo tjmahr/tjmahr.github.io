@@ -1,7 +1,8 @@
 ---
-title: Repeatedly calling a function
-excerpt: ''
-tags: ''
+title: Repeatedly applying a function
+excerpt: 'Doing the same thing over and over again'
+tags: 
+  - r
 ---
 
 ```{r setup, include = FALSE}
@@ -18,7 +19,7 @@ with [functionals](http://adv-r.had.co.nz/Functionals.html), although they
 seemed like an obvious choice.
 
 It goes on to say that the solution should work in a magrittr pipeline, so that 
-should influence how we solve the problem. Therefore, we want to write a
+will influence how we solve the problem. Namely, we want to write a
 function that will transform a pipeline like: 
 
 ```{r, eval = FALSE}
@@ -35,6 +36,8 @@ into a one-liner like
 x %>% 
   repeated(.reps = 4, some_function, args)
 ```
+
+## Winding up a while loop
 
 The solution is repeated function application with some book-keeping. We could
 do this a while-loop or with recursion. Here's the loop version.
@@ -66,7 +69,7 @@ repeated <- function(.x, .reps = 1, .f, ...) {
 We start with some basic input-checking on the number of repetitions.
 `assert_that()` is like `stopifnot()`, but it spells out failures a little more
 verbosely. (I don't like that about half of the function is for checking the
-number of repetitions, but that's how it goes.)
+number of repetitions, but that's how it goes...)
 
 ```{r, error = TRUE, message = FALSE}
 library(purrr)
@@ -76,18 +79,24 @@ add <- function(x, y) x + y
 10 %>% repeated(1:10, add, 2)
 ```
 
-The next line uses purrr's `as_function()`, so that we can also use formula-
-based anonymous functions. Here are examples with named function and anonymous
-functions.
+The next line uses purrr's `as_function()`, so that we can also use 
+formula-based anonymous functions. Here are examples with named functions, 
+typical anonymous functions and formula-based anonymous functions.
 
 ```{r, error = TRUE}
-# Regular function
+# Regular named function
 1:4 %>% repeated(1, add, 2)
 1:4 %>% repeated(5, add, 2)
 
+# Conventional anonymous function
+1:4 %>% repeated(2, function(x) x * 2)
+
 # Formula-based anonymous function
-1:4 %>% repeated(2, ~ .x + 2)
-1:4 %>% repeated(5, ~ .x + 2)
+1:4 %>% repeated(4, ~ .x * 2)
+
+# A weird kind of power tower!
+1:4 %>% repeated(4, ~ .x ^ 2)
+((((1:4) ^ 2) ^ 2) ^ 2) ^ 2
 ```
 
 Because we are working in a pipeline, we expect the first argument to be some
@@ -99,20 +108,24 @@ That's why we set the `value` to the input before the loop.
 1:4 %>% repeated(0, add, 2)
 ```
 
-This function is built around a while-loop that ticks down every the function
-is applied. Generally, loops are not considered idiomatic R. I certainly try to
-avoid writing loops in R because the language has some built-in functions that
-can abstract over a lot of iteration and the required book-keeping. Generally,
-if we are iterating over the structure of something, like elements in a vector
-or columns in a data-frame, we can probably write a loop-free version. But
-here we are not looping over structure&mdash;we are looping through time. This
-is fundamentally different kind of problem than the kinds are that solved by
-`Map()` or `lapply()`.
+This function is built around a while-loop that ticks down every time the
+function is applied. Generally, loops are not considered idiomatic R. I
+certainly try to avoid writing loops in R because the language has built-in 
+functions that can abstract over a lot of iteration and the required 
+book-keeping. Generally, if we are iterating over the structure of something, like
+elements in a vector or columns in a data-frame, we can probably write a 
+loop-free version. But here we are not looping over structure&mdash;we are looping
+through time. This is fundamentally different kind of problem than the kinds
+are that solved by `Map()` or `lapply()`. That's why we hade to invent our own
+higher-order function to handle this kind of iteration for us.
 
-But we can make it loop-free, by torturing the code into recursion. Actually,
-it's not all bad. But I break it up into an input-handling step which sets the
-stage for the recursive function `recurisvely_repeat()`.
+## Drilling down with recursion
 
+![Google search for "recursion" says "Did you mean recursion?"](/assets/images/recursion.png)
+
+But we can make it loop-free, by torturing the code into recursion. Okay, it's
+not that bad. Here I break it up into an input-handling step which sets the
+stage for the recursive function `recursively_repeat()`.
 
 ```{r}
 rrrepeated <- function(.x, .reps = 1, .f, ...) {
@@ -134,25 +147,63 @@ recursively_repeat <- function(.x, .reps, .f, ...) {
     .x
   } else { 
     recursively_repeat(.f(.x, ...), .reps - 1, .f, ...)
+    # (It would be more correct to use `Recall()` so that renaming the function
+    # doesn't break this line... -- how's that for an R deep cut?)
   }
 }
-
-
-# (It would be more correct to use `Recall` so renaming the function doesn't
-# break it... -- how's that for an R deep cut?)
 ```
 
-The recursive function is abul
+This is classic recursion. There are two branches. In the _base case_, when
+there are zero repetitions, the work is done and we return the result. In the
+_recursive case_, we re-apply the function, take away one of the repetitions
+and then try the recursion again&mdash;and again and again until we bottom out
+and hit the base case. 
 
-
-It works like it buddy:
+This verion works like its buddy:
 
 ```{r}
 1:4 %>% repeated(5, ~ .x - 2)
 1:4 %>% rrrepeated(5, ~ .x - 2)
-  
 
-1:4 %>% repeated(5, function(x, y) x * y, 2)
-1:4 %>% rrrepeated(5, function(x, y) x * y, 2)
+echo <- function(x) paste0(x, " (", x, ")") 
+"hello" %>% repeated(2, echo)
+"hello" %>% rrrepeated(2, echo)
 ```
 
+The main drawback to the recursive version is its readability. I just find it
+harder to take in compared to the loop version&mdash;at least for a problem this
+simple. For more interesting data structures, the recursive version may prove
+more elegant.
+
+Another drawback to the recursive approach is its performance. It's a little
+slower at the median level than the loop approach.
+
+```{r}
+shuffle <- function(x) sample(x)
+
+microbenchmark::microbenchmark(
+  with_while = repeated(1:100, 100, shuffle),
+  with_recur = rrrepeated(1:100, 100, shuffle),
+  times = 1000
+)
+```
+
+But I don't usually worry about performance unless I can notice the computation
+taking time. 
+
+What I will always notice is R trying to protect me from infinite
+recursion when I crank up the number of repetition:
+
+```{r, error = TRUE}
+repeated(1:20, 1000, shuffle)
+rrrepeated(1:20, 1000, shuffle)
+```
+
+***
+
+To recap, we had a problem that centered around a specific kind of iteration:
+repeatedly applying function on an input. To solve the problem, I wrote a
+higher-order function to handle this kind of iteration. My first pass at the
+problem used a simple while loop that ticked down a counter every time the
+function was called. Dared by the loop-free purism, I also wrote a recursive
+version, but for a problem this simple, it's more of a curiousity.
