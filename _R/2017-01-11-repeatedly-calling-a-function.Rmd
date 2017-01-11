@@ -37,10 +37,11 @@ x %>%
   repeated(.reps = 4, some_function, args)
 ```
 
+
 ## Winding up a while loop
 
 The solution is repeated function application with some book-keeping. We could
-do this a while-loop or with recursion. Here's the loop version.
+do this with a while-loop or even with recursion. Here's the loop version.
 
 ```{r}
 repeated <- function(.x, .reps = 1, .f, ...) {
@@ -68,8 +69,8 @@ repeated <- function(.x, .reps = 1, .f, ...) {
 
 We start with some basic input-checking on the number of repetitions.
 `assert_that()` is like `stopifnot()`, but it spells out failures a little more
-verbosely. (I don't like that about half of the function is for checking the
-number of repetitions, but that's how it goes...)
+verbosely. (To be honest, I don't like that about half of the function is for 
+checking the number of repetitions, but that's how it goes...)
 
 ```{r, error = TRUE, message = FALSE}
 library(purrr)
@@ -112,19 +113,20 @@ This function is built around a while-loop that ticks down every time the
 function is applied. Generally, loops are not considered idiomatic R. I
 certainly try to avoid writing loops in R because the language has built-in 
 functions that can abstract over a lot of iteration and the required 
-book-keeping. Generally, if we are iterating over the structure of something, like
+book-keeping. If we are iterating over a dimension of something, like
 elements in a vector or columns in a data-frame, we can probably write a 
 loop-free version. But here we are not looping over structure&mdash;we are looping
-through time. This is fundamentally different kind of problem than the kinds
-are that solved by `Map()` or `lapply()`. That's why we hade to invent our own
+through time! This is fundamentally different kind of problem than the kinds
+are that solved by `Map()` or `lapply()`. That's why we had to invent our own
 higher-order function to handle this kind of iteration for us.
+
 
 ## Drilling down with recursion
 
 ![Google search for "recursion" says "Did you mean recursion?"](/assets/images/recursion.png)
 
 But we can make it loop-free, by torturing the code into recursion. Okay, it's
-not that bad. Here I break it up into an input-handling step which sets the
+not _that_ bad. Here I break it up into an input-handling step which sets the
 stage for the recursive function `recursively_repeat()`.
 
 ```{r}
@@ -154,7 +156,7 @@ recursively_repeat <- function(.x, .reps, .f, ...) {
 ```
 
 This is classic recursion. There are two branches. In the _base case_, when
-there are zero repetitions, the work is done and we return the result. In the
+there are zero repetitions, the work is done and we return the input In the
 _recursive case_, we re-apply the function, take away one of the repetitions
 and then try the recursion again&mdash;and again and again until we bottom out
 and hit the base case. 
@@ -173,9 +175,9 @@ echo <- function(x) paste0(x, " (", x, ")")
 The main drawback to the recursive version is its readability. I just find it
 harder to take in compared to the loop version&mdash;at least for a problem this
 simple. For more interesting data structures, the recursive version may prove
-more elegant.
+more elegant and comprehensible.
 
-Another drawback to the recursive approach is its performance. It's a little
+A minor drawback to the recursive approach is its performance. It's a little
 slower at the median level than the loop approach.
 
 ```{r}
