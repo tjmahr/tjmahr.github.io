@@ -161,7 +161,7 @@ _recursive case_, we re-apply the function, take away one of the repetitions
 and then try the recursion again&mdash;and again and again until we bottom out
 and hit the base case. 
 
-This verion works like its buddy:
+This version works like its buddy:
 
 ```{r}
 1:4 %>% repeated(5, ~ .x - 2)
@@ -194,7 +194,7 @@ But I don't usually worry about performance unless I can notice the computation
 taking time. 
 
 What I will always notice is R trying to protect me from infinite
-recursion when I crank up the number of repetition:
+recursion when I crank up the number of repetitions:
 
 ```{r, error = TRUE}
 repeated(1:20, 1000, shuffle)
@@ -208,4 +208,4 @@ repeatedly applying function on an input. To solve the problem, I wrote a
 higher-order function to handle this kind of iteration. My first pass at the
 problem used a simple while loop that ticked down a counter every time the
 function was called. Dared by the loop-free purism, I also wrote a recursive
-version, but for a problem this simple, it's more of a curiousity.
+version, but for a problem this simple, it's more of a curiosity.

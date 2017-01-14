@@ -175,7 +175,7 @@ _recursive case_, we re-apply the function, take away one of the repetitions
 and then try the recursion again&mdash;and again and again until we bottom out
 and hit the base case. 
 
-This verion works like its buddy:
+This version works like its buddy:
 
 
 ```r
@@ -209,9 +209,9 @@ microbenchmark::microbenchmark(
   times = 1000
 )
 #> Unit: microseconds
-#>        expr     min        lq     mean   median       uq      max neval
-#>  with_while 699.331  875.6795 1515.112 1093.551 1589.706 48083.54  1000
-#>  with_recur 805.234 1037.1000 1796.680 1342.445 2011.684 13889.58  1000
+#>        expr     min       lq     mean   median       uq       max neval
+#>  with_while 763.246 1433.186 1802.666 1588.773 1778.185  8624.769  1000
+#>  with_recur 863.550 1696.776 2155.031 1892.952 2191.532 44090.026  1000
 #>  cld
 #>   a 
 #>    b
@@ -221,12 +221,12 @@ But I don't usually worry about performance unless I can notice the computation
 taking time. 
 
 What I will always notice is R trying to protect me from infinite
-recursion when I crank up the number of repetition:
+recursion when I crank up the number of repetitions:
 
 
 ```r
 repeated(1:20, 1000, shuffle)
-#>  [1] 12 14  2 17  7 19  4 10 13  1 20  9 15 11  6 16  5 18  8  3
+#>  [1]  9 15  7 20  5 16 10 12  4  8 11  1  3 19 17 13 14  2  6 18
 rrrepeated(1:20, 1000, shuffle)
 #> Error: evaluation nested too deeply: infinite recursion / options(expressions=)?
 ```
@@ -238,4 +238,4 @@ repeatedly applying function on an input. To solve the problem, I wrote a
 higher-order function to handle this kind of iteration. My first pass at the
 problem used a simple while loop that ticked down a counter every time the
 function was called. Dared by the loop-free purism, I also wrote a recursive
-version, but for a problem this simple, it's more of a curiousity.
+version, but for a problem this simple, it's more of a curiosity.
