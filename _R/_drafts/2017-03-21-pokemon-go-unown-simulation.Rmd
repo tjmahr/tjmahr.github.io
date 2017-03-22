@@ -9,39 +9,45 @@ tags:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-_Pokemon Go_ is that obnoxious augmented reality game where people with
-smartphones walk around and catch Pokemon. On February 16, 2017, a second
-"generation" of Pokemon were released into the wild, adding dozens of new
-species to the game. 
+_Pokemon Go_ is an augmented reality game where people with 
+smartphones walk around and catch Pokemon. As in the classic games, players are
+Pokemon "trainers" who have to travel around and collect creatures. Some types 
+are rarer than others, some have regional habitats or biomes, and so the players
+have to travel around the game world to find and collect them. Pokemon Go
+"augments reality" having these Pokemon spawn in the game world as players
+travel around the real world. I like the game; I'm level 33.
 
-The [rarest among this new 
-generation](http://www.imore.com/how-to-catch-unown-pokemon-go) is **Unown**. 
-Moreover, as part of a cruel scheme meant to torture completionists, Unown comes
-in 26 varieties---one for each letter of the alphabet. Which brings us to the
-statistical question behind this blog post: **How long will it take to
-encounter all 26 types of Unowns (taking into account repeats)?** Somewhat more
+![The elusive unown!](/assets/images/bulbapedia_unown.png){: .align-right}
+
+On February 16, 2017, a second "generation" of Pokemon were released into the 
+wild, adding dozens of new species to the game. The [rarest among this new 
+generation](http://www.imore.com/how-to-catch-unown-pokemon-go) is **Unown**. As
+part of a cruel scheme meant to torture completionists, the exceedingly rare 
+Unown comes in 26 varieties---one for each letter of the alphabet. Which brings
+us to the statistical question behind this blog post: **How long will it take to
+encounter all 26 types of Unowns (taking into account repeats)?** Somewhat more 
 formally, how many random encounters (i.e., draws while sampling with 
 replacement) will it take until we have encountered all 26 Unowns?
 
-This general problem is called the **coupon collector's problem**.
-[Wikipedia](https://en.wikipedia.org/wiki/Coupon_collector's_problem) includes a
-table which says that the expected number of encounters for _n_ = 26 is E(26) =
-101. So problem solved?
+This general problem is called the **coupon collector's problem** --- hat tip to
+[r/TheSilphRoad](https://www.reddit.com/r/TheSilphRoad/comments/5v3nv5/it_would_take_100_wild_catches_to_get_all_the/). [Wikipedia](https://en.wikipedia.org/wiki/Coupon_collector's_problem) includes a table which says that the expected number of encounters for _n_ = 26 is E(26) =
+100\. (It actually says 101 but that's wrong.) So problem solved?
 
 But not quite. Suppose we had never heard of coupon collector's problem. Suppose
 also that we want to get a sense of the uncertainty around the expected value.
-For example, how many encounters will it take for the unfortunate travelers in
+For example, how many encounters will it take for the unfortunate trainers in
 the 95th percentile?
 
 
 ***
 
-When analytic solutions are difficult or tedious, we can write simulations and get very good approximations. 
+When analytic solutions are difficult or tedious, we can write simulations and
+get very good approximations. That's what were going to do in R.
 
-First, we write a function to simulate a single successful set of Unown
-encounters. The main workhorse is `sample(..., replace = TRUE)`. Using the R's
-built-in `LETTERS` constant we can simulate a batch of Unown encounters using 
-`sample()`.
+We will write a function to simulate a single exhaustive set of Unown 
+encounters. The main workhorse is `sample(..., replace = TRUE)` to sample with
+replacement. Using R's built-in `LETTERS` constant, we can simulate a batch of
+Unown encounters.
 
 ```{r}
 sample(LETTERS, size = 1, replace = TRUE)
@@ -49,9 +55,9 @@ sample(LETTERS, size = 5, replace = TRUE)
 sample(LETTERS, size = 10, replace = TRUE)
 ```
 
-The question then is how many draws from this sample does it take to get the 26
-different Unowns. An absolute, and frankly miraculous, lower bound on this
-number would be 26. So let's draw 26 samples.
+The question then is how many samples does it take to get the 26 different
+Unowns. An absolute, and frankly miraculous, lower bound on this number would be
+26. So let's draw 26 samples.
 
 ```{r}
 set.seed(252)  # For reproducble blogging
@@ -65,8 +71,9 @@ leftover <- 26 - n_unique(first_batch)
 leftover
 ```
 
-We got `r unique(first_batch)` unique ones from the first batch of samples The 
-lower bound is now `r leftover`, so let's sample `r leftover` more encounters.
+We encountered `r n_unique(first_batch)` unique Unowns from the first batch of 
+samples. The miraculous lower bound for number of the encounters remaining is
+now `r leftover`, so let's take `r leftover` more samples.
 
 ```{r}
 second_batch <- sample(LETTERS, size = leftover, replace = TRUE)
@@ -79,9 +86,9 @@ leftover <- 26 - n_unique(both_batches)
 leftover
 ```
 
-We've gotten `r n_unique(both_batches) - n_unique(first_batch)` new ones, and we
-have encountered `r n_unique(both_batches)` unique ones from
-`r length(both_batches)` total draws. That means the lower bound is now 
+We found `r n_unique(both_batches) - n_unique(first_batch)` new Unowns in this
+batch, and we have encountered `r n_unique(both_batches)` unique ones so far
+from `r length(both_batches)` total samples. That means the lower bound is now 
 `r leftover`.
 
 ```{r}
@@ -95,11 +102,12 @@ leftover <- 26 - n_unique(all_batches)
 leftover
 ```
 
-We've gotten `r n_unique(all_batches) - n_unique(both_batches)` new ones, and we
-have encountered--ACTUALLY, this is starting to get tedious. We all know where 
-this is going: Take a sample, see how many you have left to get, take another 
-sample of that size, etc. Pretty simple? Good! Now, I don't have to explain how
-the `while` loop inside this function works.
+We found `r n_unique(all_batches) - n_unique(both_batches)` new Unowns in this---
+
+Actually, this is getting tedious. We all know where this is going: Take
+a sample, see how many you have left to get, take another sample of that size, 
+etc. until you have 0 left to get. Pretty simple? Great! Now, I don't have to
+explain how the `while` loop inside this function works. 
 
 ```{r}
 simulate_unown <- function() {
@@ -119,7 +127,7 @@ simulate_unown <- function() {
 ```
 
 Each call of the function simulates a process of encountering all 26 unowns,
-returning how many samples it took overall to encounter them all.
+returning how many encounters were required to find them all.
 
 ```{r}
 simulate_unown()
@@ -127,23 +135,23 @@ simulate_unown()
 simulate_unown()
 ```
 
-Now, we can use `replicate()` to call this function thousands of times.
+We can use `replicate()` to call this function thousands of times.
 
 ```{r}
 simulations <- replicate(10000, simulate_unown())
 ```
 
-We can get summary statistics and other quantiles for these simulations
+We can get summary statistics and other quantiles for these simulations.
 
 ```{r}
 summary(simulations)
 quantile(simulations, probs = c(.05, .10, .25, .75, .90, .95))
 ```
 
-The mean in our simulations `r mean(simulations)` is very close to the analytic 
-solution of 101. The median `r median(simulations)` is less than the mean, which
+The mean in our simulations `r round(mean(simulations), 1)` is very close to the analytic 
+solution of 100.2. The median `r median(simulations)` is less than the mean, which
 is a bit of good news: More than half of players will hit 26 in less than the 
-expected 101 encounters. There is a bit of a tail to these simulations, as the
+expected 100 encounters. There is a bit of a tail to these simulations, as the
 RNG gods have cursed one player by requiring `r max(simulations)` encounters.
 
 
