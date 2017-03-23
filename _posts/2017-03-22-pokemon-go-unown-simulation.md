@@ -19,18 +19,20 @@ travel around the real world. I like the game; I've reached level 30.
 
 On February 16, 2017, a second "generation" of Pokémon were released into the 
 wild, adding dozens of new species to the game. The [rarest among this new 
-generation][imore-unown] is [**Unown**][bulbapedia]. As part of a cruel scheme to torture
-completionists, the incredibly rare Unown comes in 26 varieties---one for each
-letter of the alphabet. Which brings us to the statistical question behind this
-blog post: **How long will it take to encounter all 26 types of Unowns (taking
-into account repeats)?** Somewhat more formally, how many random encounters
-(i.e., draws while sampling with replacement) will it take until we have
-encountered all 26 Unowns?
+generation][imore-unown] is [**Unown**][bulbapedia]. As part of a cruel scheme
+to torture completionists, the incredibly rare Unown comes in 26 varieties---one
+for each letter of the alphabet. Which brings us to the statistical question
+behind this blog post: **How long will it take to encounter all 26 types of
+Unowns (taking into account repeats)?** Somewhat more formally, how many random
+encounters (i.e., draws while sampling with replacement) will it take until we
+have encountered all 26 Unowns?
+
+## Unown collector's problem
 
 This general problem is called the **coupon collector's problem**---hat tip
 to [r/TheSilphRoad][silph-road-thread]. The [Wikipedia][wiki-coupon-problem]
-article for the problem includes a table which says that the expected number
-of encounters for _n_ = 26 is = 101\. (The analytic solution is actually
+article for the problem includes a table which says the expected number
+of encounters for _n_ = 26 is 101\. (The analytic solution is actually
 100.2, but we round up because there are no fractional encounters.) So problem
 solved?
 
@@ -52,11 +54,11 @@ Unown encounters.
 
 ```r
 sample(LETTERS, size = 1, replace = TRUE)
-#> [1] "F"
+#> [1] "W"
 sample(LETTERS, size = 5, replace = TRUE)
-#> [1] "H" "U" "C" "G" "D"
+#> [1] "D" "B" "J" "S" "J"
 sample(LETTERS, size = 10, replace = TRUE)
-#>  [1] "T" "K" "K" "D" "Z" "O" "Y" "K" "Q" "Q"
+#>  [1] "C" "G" "U" "Y" "A" "J" "Q" "M" "K" "V"
 ```
 
 The question now is how many samples does it take to get the 26 different
@@ -328,6 +330,8 @@ summary(simulation_last_6)
 
 This result is interesting: It says that we will spend the majority of our time
 working on the last 6 Unowns. 
+
+
 
 ## Simulate 'em all
 
