@@ -25,10 +25,11 @@ modeling these data, including an interactive Shiny dashboard.
 
 **Statistical consulting** - Freelance.
 
-I have consulted on generalized mixed-effects regression models. I
-fit models and visualize data from psychology experiments. I write
-tutorial on the analysis steps/code and deliver reproducible analyses. 
+I have consulted on generalized mixed-effects regression models. I fit models
+and visualize data from psychology experiments. I deliver reproducible analyses
+with tutorials/commentary on the analysis steps and code.
 ([Get in touch.](mailto:tjmahrweb@gmail.com))
+
 
 ### Previous position
 
