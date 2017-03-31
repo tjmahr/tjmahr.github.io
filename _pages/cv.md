@@ -17,7 +17,7 @@ permalink: /cv.html
 
 ## Current position
 
-**Research Assistant** - Little Listeners project.
+**Research assistant** - Little Listeners project.
 
 I prepare and analyze eyetracking data from a series of word recognition
 experiments with toddlers. I develop R packages for handling, visualizing and
@@ -31,7 +31,7 @@ documentation on the analysis steps and code and deliver reproducible analyses.
 
 ### Previous position
 
-**Research Assistant** - Learning to Talk project.
+**Research assistant** - Learning to Talk project.
 
 This project was a three-year longitudinal study of preschoolers done in
 collaboration by three universities. I was responsible for data organization,
