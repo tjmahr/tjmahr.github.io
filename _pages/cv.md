@@ -10,10 +10,10 @@ permalink: /cv.html
 
 ## Education
 
-* Ongoing - Ph.D. candidate, Communication Sciences and Disorders, University of Wisconsin--Madison. 
+* Ongoing - Ph.D. candidate, Communication Sciences and Disorders, University of Wisconsin–Madison. 
   - Ph.D. minor course work in statistics and psychology.
-* 2013 - M.S., Speech-Language Pathology, University of Wisconsin--Madison.
-* 2009 - B.S., Linguistics and English, University of Wisconsin--Madison.
+* 2013 - M.S., Speech-Language Pathology, University of Wisconsin–Madison.
+* 2009 - B.S., Linguistics and English, University of Wisconsin–Madison.
 
 ## Current position
 
@@ -25,9 +25,10 @@ modeling these data, including an interactive Shiny dashboard.
 
 **Statistical consulting** - Freelance.
 
-I have done consulting on generalized mixed-effects regression models. I
+I have consulted on generalized mixed-effects regression models. I
 fit models and visualize data from psychology experiments. I write
-documentation on the analysis steps and code and deliver reproducible analyses.
+tutorial on the analysis steps/code and deliver reproducible analyses. 
+([Get in touch.](mailto:tjmahrweb@gmail.com))
 
 ### Previous position
 
@@ -44,7 +45,7 @@ eyetracking and speech perception experiments from this project.
 ## Programming and statistics
 
 **Languages**: Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML,
-Stan. Some practice with Java, Javascript and Python. Exposure to Clojure.
+Stan. Some practice with Java, JavaScript and Python. Exposure to Clojure.
 
 **Computing tools and technologies**: bash/batch scripting, git and GitHub, tidy
 data and the R tidyverse, Shiny, knitr/rmarkdown, Docker, Praat, makefiles,
@@ -204,17 +205,22 @@ project. Links to reviews:
 
 ### Lecturing
 
-* Guest lecture on phonological disorders for introductory communicative disorders course.
-* Guest lecture and accompanying online exercise on assessment of speech sounds for phonetics and phonological disorders course.
+* Guest lecture on phonological disorders for introductory communicative
+  disorders course.
+* Guest lecture and accompanying online exercise on assessment of speech sounds
+  for phonetics and phonological disorders course.
 
 ### Clinical experience
 
-These are positions and roles I worked in as a student speech-language clinician.
+These are positions and roles I worked in as a student speech-language
+clinician.
 
-* 2013–2014: Speech-language diagnostics (eventually as a long-term substitute for position), Middleton Cross Plains School District.
+* 2013–2014: Speech-language diagnostics (eventually as a long-term substitute
+  for position), Middleton Cross Plains School District.
 * 2013: Pediatric voice clinic, American Family Children's Hospital.
 * 2012: Fluency clinic, UW-Madison Speech & Hearing Clinic.
-* 2012: Telling Life Stories program (helping individuals with aphasia create a scrapbook biography), UW-Madison Speech & Hearing Clinic.
+* 2012: Telling Life Stories program (helping individuals with aphasia create a
+  scrapbook biography), UW-Madison Speech & Hearing Clinic.
 * 2012: Transgender voice clinic, UW-Madison Speech & Hearing Clinic.
 * 2011: Phonology clinic, UW-Madison Waisman Center.
 
@@ -222,15 +228,21 @@ These are positions and roles I worked in as a student speech-language clinician
 
 ## Awards
 
-2016: [Jean Berko Gleason Award](https://twitter.com/TheBUCLD/status/795298601605992448) for highest scored student submission at the 41st Boston University Conference on Language Development.
+2016: [Jean Berko Gleason Award](https://twitter.com/TheBUCLD/status/795298601605992448) 
+for highest scored student submission at the 41st Boston University Conference
+on Language Development.
 
-2014: Paula Menyuk Travel Award recipient at the 39st Boston University Conference on Language Development.
+2014: Paula Menyuk Travel Award recipient at the 39th Boston University
+Conference on Language Development.
 
-2014: Emma Allen Scholarship. Given by the Dept. of Communication Sciences and Disorder at UW–Madison.
+2014: Emma Allen Scholarship. Given by the Dept. of Communication Sciences and
+Disorder at UW–Madison.
 
-2013–15: Supported by NIH Training Grant to Maryellen MacDonald: _2-T32-HD049899, Training in Language: Acquisition and Adult Performance._
+2013–15: Supported by NIH Training Grant to Maryellen MacDonald:
+_2-T32-HD049899, Training in Language: Acquisition and Adult Performance._
 
-2012–13: Supported by NIH Training Grant to Susan Ellis-Weismer: _5-T32-DC5359, Interdisciplinary Research in Speech–Language Disorders._
+2012–13: Supported by NIH Training Grant to Susan Ellis Weismer: _5-T32-DC5359,
+Interdisciplinary Research in Speech–Language Disorders._
 
-2012: Students Preparing for Academic-Research Careers (SPARC) Award. Given by the American
-Speech-Language-Hearing Association.
+2012: Students Preparing for Academic-Research Careers (SPARC) Award. Given by
+the American Speech-Language-Hearing Association.
