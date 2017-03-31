@@ -5,7 +5,7 @@ publications:
     - Mahr, T.
     - Edwards, J. R.
     when:
-      year: in prep
+      year: in revision
     title: Using language input and lexical processing to predict vocabulary size [working title]
 
   - authors:
@@ -34,12 +34,34 @@ publications:
       volume: 142
       pages: 345--350
     doi: 10.1016/j.cognition.2015.05.009
-    bonus: '[<i class="fa fa-flask"></i> Data, scripts, stimuli on Github](https://github.com/tjmahr/2015_Coartic).'
+    bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Data, scripts, stimuli on Github](https://github.com/tjmahr/2015_Coartic).'
 
 
 
 
 talks:
+
+  # BUCLD 2016
+  - type: authored
+    authors:
+      - Mahr, T.
+      - Edwards, J. R.
+    when:
+      year: 2016
+      month: November
+    title: "Lexical processing efficiency in preschool children: Influences of speech perception and inhibitory control"
+    where: Presentation at the 41st annual Boston University Conference on Language Development, Boston, MA.
+
+  # MadR RStanARM
+  - type: invited
+    authors:
+      - Mahr, T.
+    when:
+      year: 2016
+      month: September
+    title: "[Bayesian Regression Models with RStanARM](https://cdn.rawgit.com/tjmahr/MadR_RStanARM/master/01-how-i-got-into-Bayes-rpubs.html#/)"
+    where: Presentation for the Madison R Users Group, Madison, WI.
+    bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Github repository](https://github.com/tjmahr/MadR_RStanARM).'
 
   # BUCLD 2015
   - type: coauthored
@@ -75,7 +97,7 @@ talks:
       month: March
     title: "[Let the data flow: Pipelines in R with dplyr and magrittr](http://rpubs.com/tjmahr/pipelines_2015)"
     where: Presentation for the Madison R Users Group, Madison, WI.
-    bonus: '[<i class="fa fa-flask"></i> Github repository](https://github.com/tjmahr/MadR_Pipelines).'
+    bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Github repository](https://github.com/tjmahr/MadR_Pipelines).'
 
 
   # UW-Madison Prosem
@@ -157,7 +179,7 @@ posters:
     title: "The lexical restructuring hypothesis: Two claims of phonological awareness evaluated"
     where: Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
 
-  # SRCLD 2013
+  # SRCLD 2014
   - authors:
     - Mahr, T.
     - Law, F., II
