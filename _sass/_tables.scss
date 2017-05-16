@@ -4,7 +4,9 @@
 
 table {
   margin-bottom: 1em;
-  width: 100%;
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
   font-family: $global-font-family;
   font-size: $type-size-6;
   border-collapse: collapse;
