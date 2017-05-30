@@ -100,6 +100,9 @@ eyetracking data for the Learning To Talk lab.
 **[rprime](http://cran.r-project.org/web/packages/rprime)**. R package for
 working Eprime text files.
 
+**[polypoly](http://cran.r-project.org/web/packages/polypoly)**. Tools for 
+orthogonal polynomials.
+
 **[retrace](https://github.com/tjmahr/retrace)**. A pure R implementation of the
 TRACE model of word recognition. Too slow to be useful, but great learning
 experience.
