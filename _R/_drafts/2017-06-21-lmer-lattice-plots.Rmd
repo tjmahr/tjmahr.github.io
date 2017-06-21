@@ -1,0 +1,233 @@
+---
+title: Some plotting techniques for mixed effects models
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A few weeks ago, I made an obnoxious tweet about fitting a random-slope model 
+when I only have two observations per participant. lme4 throws an error message 
+when you try to fit such a model, but a Bayesian regression model will fit the 
+model and then raise a bunch of diagnostic warnings. But someone replied to me
+asking about how to make a lattice-style in ggplot2. In this post, I demonstrate
+a few various techniques for plotting information from a relatively simple
+mixed-effects model.
+
+## The sleepstudy data
+
+For these examples, I'm going to use the `sleepstudy` data from the lme4
+package. The outcome measure is reaction time, the predictor measure is days of
+sleep deprivation, and these measurements are nested within participants---we
+have 11 observations per participant. I am also going to add two fake
+participants with incomplete data to illustrate partial pooling.
+
+```{r}
+library(lme4)
+library(dplyr)
+
+# Convert factors to strings
+sleepstudy <- sleepstudy %>% 
+  as_tibble() %>% 
+  mutate(Subject = as.character(Subject))
+
+# Add two fake participants
+df_sleep <- bind_rows(
+  sleepstudy,
+  data_frame(Reaction = c(286, 288), Days = 0:1, Subject = "374"),
+  data_frame(Reaction = 245, Days = 0, Subject = "373"))
+
+df_sleep
+```
+
+
+## Our jumping off point: The trellis plot
+
+What is the lattice-style plot? I have never used lattice, but I recognize the
+style whenever it shows ups. Here is an example.
+
+```{r}
+xlab <- "Days of sleep deprivation"
+ylab <- "Average reaction time (ms)"
+
+lattice::xyplot(
+  Reaction ~ Days | Subject,
+  data = df_sleep,
+  # g: grid: p: points, r: regression line
+  type = c("g", "p","r"),
+  xlab = xlab,
+  ylab = ylab)
+```
+
+This example is translated rather transparently to ggplot2 by using `facet_wrap()` to create sub-plots and `stat_smooth()` to create the regression line. 
+
+```{r}
+library(ggplot2)
+ggplot(df_sleep) + 
+  aes(x = Days, y = Reaction) + 
+  stat_smooth(method = "lm", se = FALSE, ) +
+  # points on top of lines
+  geom_point() +
+  facet_wrap("Subject") +
+  labs(x = xlab, y = ylab) + 
+  # We also need to help the x-axis, so it doesn't 
+  # create gridlines/ticks on 2.5 days
+  scale_x_continuous(breaks = 0:4 * 2)
+```
+
+ggplot2 doesn't draw the regressions lines outside of the range of the data (as
+in the data for 374) unless we set `fullrange = TRUE`.
+
+
+
+
+## Complete pooling and no pooling models
+
+Each one of these panels plotted above shows an independently estimated
+regression line. This approach to fitting a separate line for each participant
+is sometimes called the **no pooling** model because none of the information
+from different participants is combined or _pooled_ together.
+
+We fit a separate line for each cluster of data, unaware
+that any of the other participants exist. The `lmList()` function in `lme4`
+automates this process.
+
+```{r, warnings = FALSE}
+df_no_pooling <- lmList(Reaction ~ Days | Subject, df_sleep) %>% 
+  coef() %>% 
+  tibble::rownames_to_column("Subject") %>% 
+  rename(Intercept = `(Intercept)`) %>% 
+  tibble::add_column(Model = "No pooling")
+head(df_no_pooling)
+```
+
+In contrast, we might consider a **complete pooling** where all the information
+from the participants is combined together. We fit a single line for the
+combined data set, unaware that the data came from different participants.
+
+```{r}
+# Fit a model on all the data pooled together
+m_pooled <- lm(Reaction ~ Days, df_sleep) 
+
+# Repeat the intercept and slope terms for each participant
+df_pooled <- data_frame(
+  Model = "Complete pooling",
+  Subject = unique(df_sleep$Subject),
+  Intercept = coef(m_pooled)[1], 
+  Days = coef(m_pooled)[2])
+head(df_pooled)
+```
+
+We can contrast these two extremes. Instead of calculating the regression lines
+with `stat_smooth()`, we can use  `geom_abline()` to draw the lines because we
+have a dataframe with intercept and slope parameters.
+
+```{r}
+df_models <- bind_rows(df_pooled, df_no_pooling)
+
+ggplot(df_sleep) + 
+  aes(x = Days, y = Reaction) + 
+  # temporarily switch to data-frame with slopes and intercepts
+  geom_abline(aes(intercept = Intercept, slope = Days, color = Model),
+              data = df_models, size = .75) + 
+  geom_point() +
+  facet_wrap("Subject") +
+  labs(x = xlab, y = ylab) + 
+  scale_x_continuous(breaks = 0:4 * 2) + 
+  # Fix the color palette 
+  scale_color_brewer(palette = "Dark2") + 
+  theme(legend.position = "top")
+```
+
+The no pooling model estimates a single line, and we see that same line drawn on
+every facet One advantage is that the model can make a guess about the line for 
+373 who only one observation. That model looks pretty terrible else, because
+nobody is perfectly average. In constrast, the complete pooling model can follow
+the data, fitting the sharp trend upwards in 308 and even capture the negative
+slope in 335. The model cannot make a guess about 373.
+
+In _Statistical Rethinking_, Mclreath says these models have amnesia. Once it draws the line for 372, and it completely forget everything it has seen and moves on to 373. 
+
+Here's a fun question: Which one has the better guess for 374?
+
+
+
+
+## Incorporating estimates from a mixed effects model
+
+We can do better with mixed effects models. In these models, we pool information
+from all the lines together to improve our estimates of each line. In
+particular, after seeing the 18 trend lines for the participants with complete
+data, we can make an educated guess about the trend lines for the two
+participants with incomplete data.
+
+We can fit a classical model with lme4. 
+
+```{r}
+m <- lmer(Reaction ~ Days + (Days | Subject), df_sleep)
+arm::display(m)
+```
+
+Then extract each participant's intercept and slope using `coef()`.
+
+```{r}
+# Make a dataframe with the fitted effects
+df_partial_pooling <- coef(m)[["Subject"]] %>% 
+  as_tibble() %>% 
+  tibble::rownames_to_column("Subject") %>% 
+  rename(Intercept = `(Intercept)`) %>% 
+  mutate(Model = "Partial pooling")
+head(df_partial_pooling)
+```
+
+
+
+
+```{r}
+df_models <- bind_rows(df_pooled, df_no_pooling, df_partial_pooling)
+
+ggplot(df_sleep) + 
+  aes(x = Days, y = Reaction) + 
+  geom_abline(aes(intercept = Intercept, slope = Days, color = Model),
+              data = df_models, size = .75) + 
+  geom_point() +
+  facet_wrap("Subject") +
+  labs(x = xlab, y = ylab) + 
+  scale_x_continuous(breaks = 0:4 * 2) + 
+  scale_color_brewer(palette = "Dark2") + 
+  theme(legend.position = "top")
+```
+
+Most of the time, the no pooling and partial pooling lines are on top of each other. But if the two differ, it's because the partial pooled model's line is pulled every slightly towards the no-pooling line. 
+
+We can appreciate the differences by zooming on some participants.
+
+```{r}
+df_zoom <- df_sleep %>% filter(Subject %in% c("335", "350", "373", "374"))
+df_model_zoom <- df_models %>% filter(Subject %in% c("335", "350", "373", "374"))
+  
+ggplot(df_zoom) + 
+  aes(x = Days, y = Reaction) + 
+  geom_abline(aes(intercept = Intercept, slope = Days, color = Model),
+              data = df_model_zoom, size = .75) + 
+  geom_point(size = 2) +
+  facet_wrap("Subject") +
+  labs(x = xlab, y = ylab) + 
+  scale_x_continuous(breaks = 0:4 * 2) + 
+  scale_color_brewer(palette = "Dark2") + 
+  theme(legend.position = "top")
+
+```
+
+The negative line for 335 from the no pooling model gets a flatter slope in the partial pooling model. The model knows that negative trends are rather unlikely, so the it hedges its bets and pulled that line towards the group average. Something similar happens with 350 where a sharp slope is slightly attenutated. For the participants with incomplete data, the model hedges its bets. The complete pooling and the partial pooling lines are basically parallel---i.e, they have the same slope. That's a reasonable guess given so little information. 
+
+
+## Shrinkage
+
+
+## THe oval
+
+
+## The bayesian version
