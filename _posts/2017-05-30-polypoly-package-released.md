@@ -168,15 +168,15 @@ models %>%
   select(model:estimate) %>% 
   mutate(estimate = round(estimate, 2))
 #>   model        term estimate
-#> 1    m1 (Intercept)    75.69
-#> 2    m1           x    72.91
-#> 3    m2 (Intercept)   -23.91
-#> 4    m2           x   122.72
-#> 5    m2      I(x^2)    -4.53
-#> 6    m3 (Intercept)     1.15
-#> 7    m3           x   100.48
-#> 8    m3      I(x^2)     0.29
-#> 9    m3      I(x^3)    -0.29
+#> 1    m1 (Intercept)   367.07
+#> 2    m1           x   -39.54
+#> 3    m2 (Intercept)  -114.98
+#> 4    m2           x   201.48
+#> 5    m2      I(x^2)   -21.91
+#> 6    m3 (Intercept)    -2.14
+#> 7    m3           x   101.41
+#> 8    m3      I(x^2)    -0.21
+#> 9    m3      I(x^3)    -1.32
 ```
 
 But with orthogonal polynomials, the parameter estimates don't change from model
@@ -196,15 +196,15 @@ models2 %>%
   select(model:estimate) %>% 
   mutate(estimate = round(estimate, 2))
 #>   model        term estimate
-#> 1    m1 (Intercept)   476.72
-#> 2    m1  poly(x, 1)   662.27
-#> 3    m2 (Intercept)   476.72
-#> 4    m2 poly(x, 2)1   662.27
-#> 5    m2 poly(x, 2)2  -104.03
-#> 6    m3 (Intercept)   476.72
-#> 7    m3 poly(x, 3)1   662.27
-#> 8    m3 poly(x, 3)2  -104.03
-#> 9    m3 poly(x, 3)3   -16.24
+#> 1    m1 (Intercept)   149.60
+#> 2    m1  poly(x, 1)  -359.14
+#> 3    m2 (Intercept)   149.60
+#> 4    m2 poly(x, 2)1  -359.14
+#> 5    m2 poly(x, 2)2  -503.48
+#> 6    m3 (Intercept)   149.60
+#> 7    m3 poly(x, 3)1  -359.14
+#> 8    m3 poly(x, 3)2  -503.48
+#> 9    m3 poly(x, 3)3   -73.09
 ```
 
 That's probably the simplest reason why orthogonal polynomials are preferred. (I
@@ -325,7 +325,7 @@ neut_coefs <- fixef(m)[1:4]
 faci_coefs <- neut_coefs + fixef(m)[5:8]
 faci_coefs
 #>  (Intercept)          ot1          ot2          ot3 
-#>  0.699926322  2.014186150  0.006646146 -0.226658408
+#>  0.699944477  2.014222959  0.006643989 -0.226649045
 
 set_colnames <- `colnames<-`
 

@@ -25,8 +25,6 @@ participants with incomplete data to illustrate partial pooling.
 
 ```r
 library(lme4)
-#> Loading required package: Matrix
-#> Loading required package: methods
 library(dplyr)
 library(tibble)
 
@@ -564,15 +562,20 @@ last_plot() +
 Are you feeling satisfied? I feel satisfied.
 
 
-## Plotting lines from a Bayesian mixed effects model
+## Bonus: Plotting lines from a Bayesian mixed effects model
 
-I call myself a Bayesian. Visualizing uncertainty is [one of my things here](/visualizing-uncertainty-rstanarm/), so I
-would be remiss if I didn't also demo how to do some plots using posterior
-samples.
+This last part is more of a code demo than a walkthough. I call myself a
+Bayesian. Visualizing uncertainty is [one of my things
+here](/visualizing-uncertainty-rstanarm/), so I would be remiss if I didn't also
+demo how to do some plots using posterior samples. 
 
-If we fit a Bayesian model, we can sample from a posterior distribution of
-partially pooled regression lines. First, we fit the model in RStanARM with
-weakly informative priors. 
+Conceptually, the classical model above estimated a single set of partially 
+pooled regression lines. With the Bayesian model, we can sample from a posterior
+distribution of partially pooled regression lines. Instead of one line for each 
+participant, there's an entire distribution of them for each participant. This
+distribution lets us quantify our uncertainty about each part of our model.
+
+First, we fit the model in RStanARM with weakly informative priors. 
 
 
 ```r
@@ -783,7 +786,7 @@ than that of 373: That extra data point matters.
 
 ***
 
-Funnily enough, this post start a quick write-up of a [demo I 
+Funnily enough, this post started as a quick write-up of a [demo I 
 wrote](http://rpubs.com/tjmahr/ggplot2-lme4-facet-plot), but it kind of spiraled
 out of control. I hope this write-up helps students and users understand
 mixed-effects models at a more intuitive level.
