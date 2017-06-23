@@ -1,0 +1,300 @@
+---
+title: New package polypoly (helper functions for orthogonal polynomials)
+excerpt: 'Plus some growth curve analysis!'
+tags:
+  - r
+  - mixed effects
+  - eyetracking
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Last week, I released a [new package called polypoly to CRAN][CRAN]. It wraps up
+some common tasks for dealing with orthogonal polynomials into a single package.
+The [README](https://github.com/tjmahr/polypoly) shows off the main 
+functionality, as well as the neat "logo" I made for the package. 
+In this post, I use the package on some word recognition data.
+
+## Demo: Growth curve analysis
+
+I primarily use orthogonal polynomials to model data from eyetracking 
+experiments where growth curves describe how the probability of looking at a 
+image changes as the image is named. The analysis technique, including 
+orthogonal polynomials and mixed effects models of eyetracking data, are
+described in [Mirman's 2014 book](http://amzn.to/2saBuzs).
+
+In [our 2015 paper](https://www.ncbi.nlm.nih.gov/pubmed/26072992), toddlers saw 
+two images on a computer screen. The objects in the images started with
+different consonants: for example, _duck_ and _ball_. The toddlers heard
+sentences like "find the ball", and we measured how their gaze location onscreen
+changed in response to speech. This setup is a pretty standard procedure for
+studying spoken word recognition.
+
+We manipulated the vowel in the word _the_. In the _facilitating_ condition, the
+vowel has acoustic information (via anticipatory coarticulation) which would 
+allow an adult listener to predict the upcoming consonant. In the _neutral_ 
+condition, the vowel provides no cues about the upcoming consonant. The
+scientific question is whether these kiddos can take advantage of these acoustic
+cues during word recognition.
+
+```{r, echo = FALSE}
+library(readr)
+coartic_cols <- cols_only(
+  Subj = col_integer(),
+  Condition = col_character(),
+  Time = col_integer(),
+  ToDistractor = col_integer(),
+  ToTarget = col_integer(),
+  Proportion = col_double())
+d <- readr::read_csv("https://raw.githubusercontent.com/tjmahr/2015_Coartic/master/data/model_data.csv", 
+                     col_types = coartic_cols)
+
+```
+
+Here's how the data look, both in R and in a plot. 
+
+```{r raw-data, fig.cap= "Eyetracking data from Mahr et al. (2015)"}
+library(ggplot2)
+library(dplyr)
+
+# The data
+d
+
+# Helper dataframe of where to put condition labels on the next plot
+df_labs <- data_frame(
+  Time = c(650, 800),
+  Proportion = c(.775, .625), 
+  Condition = c("facilitating", "neutral"))
+
+p <- ggplot(d) + 
+  aes(x = Time, y = Proportion, color = Condition) + 
+  geom_hline(yintercept = .5, size = 2, color = "white") +
+  stat_summary(fun.data = mean_se) + 
+  geom_text(aes(label = Condition), data = df_labs, size = 6) +
+  labs(x = "Time after noun onset [ms]", 
+       y = "Proportion looks to named image",
+       caption = "Mean ± SE. N = 29 children.") + 
+  guides(color = "none")
+p
+```
+
+Early on, children look equal amounts to both images on average (.5), and the
+proportion of looks to the named image increase as the word unfolds. In the
+facilitating condition, that rise happens earlier.
+
+We fit a mixed-effects logistic regression model to estimate how the probability
+of looking to the named image changes over time, across conditions, and within 
+children. We use cubic orthogonal polynomials to represent Time. For each time 
+point, we have three predictors available to us: Time<sup>1</sup>, 
+Time<sup>2</sup>, and Time<sup>3</sup>. (Plus, there's a constant "intercept"
+term.) Our model's growth curve will be a weighted combination of these polynomial
+curves. The code below shows off about half the functionality of the package 
+:bowtie::
+
+```{r orthogonal-curves, fig.cap= "Three orthogonal polynomial curves"}
+poly(unique(d$Time), 3) %>% 
+  # Force Time^1 term to range from -.5 to .5. Rescale others accordingly.
+  polypoly::poly_rescale(scale_width = 1) %>% 
+  polypoly::poly_plot()
+```
+
+I think people sometimes describe the contributions of these curves to the
+overall growth curve as _trends_: "A negative linear trend", "a significant
+quadratic trend", etc. I like that word because it makes the terminology a
+little less intimidating.
+
+### Quick aside: Why orthogonal polynomials?
+
+Why do we use orthogonal polynomial terms? First, note that simple polynomials
+_x_, _x_<sup>2</sup> and _x_<sup>3</sup> are correlated. Orthogonal ones are not
+correlated. (Hence, the name.)
+
+```{r}
+# Simple
+poly(1:10, 3, raw = TRUE) %>% 
+  cor() %>% 
+  round(2)
+
+# Orthogonal
+poly(1:10, 3, raw = FALSE) %>% 
+  cor() %>% 
+  round(2)
+```
+
+Adding new correlated predictors to a model is a problem. The parameter
+estimates will change as different predictors are added. Here we simulate some
+fake data, and fit three models with 1-, 2- and 3-degree raw polynomials.
+
+```{r}
+x <- 1:10
+y <- x + 
+  rnorm(1, mean = 100) * (x) +
+  rnorm(1, mean = 0, sd = .01) * (x) ^ 2 +
+  rnorm(1, mean = -1) * (x) ^ 3 + 
+  rnorm(10)
+
+models <- list(
+  m1 = lm(y ~ x),
+  m2 = lm(y ~ x + I(x^2)),
+  m3 = lm(y ~ x + I(x^2) + I(x^3))
+)
+```
+
+As expected, the estimates for the effects change from model to model:
+
+```{r}
+models %>% 
+  lapply(broom::tidy) %>% 
+  bind_rows(.id = "model") %>% 
+  select(model:estimate) %>% 
+  mutate(estimate = round(estimate, 2))
+```
+
+But with orthogonal polynomials, the parameter estimates don't change from model
+to model.
+
+```{r}
+models2 <- list(
+  m1 = lm(y ~ poly(x, 1)),
+  m2 = lm(y ~ poly(x, 2)),
+  m3 = lm(y ~ poly(x, 3))
+)
+
+models2 %>% 
+  lapply(broom::tidy) %>% 
+  bind_rows(.id = "model") %>% 
+  select(model:estimate) %>% 
+  mutate(estimate = round(estimate, 2))
+```
+
+That's probably the simplest reason why orthogonal polynomials are preferred. (I
+can't remember any others right now.)
+
+
+### Back to the data 
+
+Before fitting the model, I use `poly_add_columns()` to add polynomial terms as 
+columns to the dataframe. (For speed here, I use a simplified random effects 
+structure, estimating growth curve parameters for each Child x Condition
+combination.)
+
+```{r}
+library(lme4)
+
+d <- d %>% 
+  polypoly::poly_add_columns(Time, degree = 3, prefix = "ot", scale_width = 1) %>% 
+  # Change the reference level
+  mutate(Condition = factor(Condition, c("neutral", "facilitating")))
+
+m <- glmer(
+  cbind(ToTarget, ToDistractor) ~ 
+    (ot1 + ot2 + ot3) * Condition + 
+    (ot1 + ot2 + ot3 | Subj:Condition), 
+  family = binomial, 
+  data = d)
+```
+
+We can confirm that the model captures the overall shape of the growth curves.
+
+```{r with-model-fits, fig.cap= "Eyetracking data with model fits overlaid"}
+# The lines here are not quite the overall average, but the averages of 29
+# individual fits (for each participant). That's why the caption is a little
+# weird.
+p + 
+  stat_summary(aes(y = fitted(m)), fun.y = mean, geom = "line") + 
+  labs(caption = "Line: Average of model-fitted values. Points: Mean ± SE.")
+```
+
+We can inspect the model summary as well.
+
+```{r}
+arm::display(m)
+```
+
+The model summary indicates a significant Condition x Time<sup>2</sup>
+interaction, but really, only the intercept and Time<sup>1</sup> can ever be
+interpreted directly. To understand the model fit, we visualize how each of the
+polynomial terms are weighted. 
+
+Here we create a matrix of the polynomial terms plus a column of ones for the
+intercept.
+
+```{r}
+time_mat <- poly(sort(unique(d$Time)), 3) %>%
+  polypoly::poly_rescale(1) %>%
+  cbind(constant = 1, .)
+round(time_mat, 2)
+```
+
+To compute the weighted values, we multiply by a diagonal matrix of the
+coefficients.
+
+```{r}
+neut_coefs <- fixef(m)[1:4]
+faci_coefs <- neut_coefs + fixef(m)[5:8]
+faci_coefs
+
+set_colnames <- `colnames<-`
+
+m_neut <- time_mat %*% diag(neut_coefs) %>%
+  set_colnames(c("constant", "ot1", "ot2", "ot3")) 
+
+m_faci <- time_mat %*% diag(faci_coefs) %>%
+  set_colnames(c("constant", "ot1", "ot2", "ot3")) 
+
+# Convince ourselves with an example
+round(m_faci, 2)
+```
+
+Then, we can use the `poly_melt()` function to get a dataframe from each
+weighted matrix and then plot each of the effects.
+
+```{r trends, fig.cap= "Each of the polynomial effects weighted by condition"}
+df_neut <- m_neut %>%
+  polypoly::poly_melt() %>%
+  tibble::add_column(Condition = "neutral")
+
+df_faci <- m_faci %>% 
+  polypoly::poly_melt() %>%
+  tibble::add_column(Condition = "facilitating")
+
+df_both <- bind_rows(df_faci, df_neut) %>% 
+  mutate(Condition = factor(Condition, c("neutral", "facilitating")))
+
+ggplot(df_both) +
+  aes(x = observation, y = value, color = Condition) +
+  geom_line() + 
+  facet_wrap("degree")
+```
+
+Visually, the quadratic effect on the neutral curve pulls down the values during
+the center (when the curves are most different) and pushes the values in the
+tails upwards (when the curves are closest). Although only the quadratic effect
+is nominally significant, the constant and linear terms suggest other smaller
+effects but they are too noisy to pin down.
+
+It's worth noting that the predictors and weights discussed above are on the
+log-odds/logit scale used inside of the model, instead of the proportion scale
+used in the plots of the data and model fits. Basically, these weighted values
+are summed together and then squeezed into the range [0, 1] with a nonlinear
+transformation. For these data, the two scales produce similar looking growth
+curves, but you can notice that the right end of the curves are pinched slightly
+closer together in the probability-scale plot:
+
+```{r logit-vs-probability, fig.show='hold', out.width="50%", fig.align = "default", fig.cap= "Comparison of the growth curves in logit scale and probability scale"}
+ggplot(df_both) +
+  aes(x = observation, y = value, color = Condition) +
+  stat_summary(fun.y = sum, geom = "line") + 
+  ggtitle("logit scale") + 
+  guides(color = "none")
+
+ggplot(df_both) +
+  aes(x = observation, y = value, color = Condition) +
+  stat_summary(fun.y = function(xs) plogis(sum(xs)), geom = "line")  + 
+  ggtitle("probability scale") + 
+  guides(color = "none")
+```
+
+[CRAN]: https://cran.r-project.org/web/packages/polypoly/index.html "CRAN page for polypoly"
