@@ -25,6 +25,8 @@ participants with incomplete data to illustrate partial pooling.
 
 ```r
 library(lme4)
+#> Loading required package: Matrix
+#> Loading required package: methods
 library(dplyr)
 library(tibble)
 
@@ -255,7 +257,7 @@ df_partial_pooling <- coef(m)[["Subject"]] %>%
   as_tibble() %>% 
   rownames_to_column("Subject") %>% 
   rename(Intercept = `(Intercept)`, Slope_Days = Days) %>% 
-  mutate(Model = "Partial pooling")
+  add_column(Model = "Partial pooling")
 
 head(df_partial_pooling)
 #> # A tibble: 6 x 4
@@ -506,10 +508,11 @@ being pulled. Even if some of the points are not being pulled directly towards
 the center of gravity, nearlly all of them are being pulled into a higher
 confidence region.
 
-There are a few tweaks we might consider for this plot. I don't think the ovals
-need to be contained in the plot. The points are more important, and the
-plotting boundaries should be set with respect to the points. We can redefine
-the limits by using `coord_cartesian()`.
+There are a few tweaks we might consider for this plot. I don't think the ovals 
+need to be contained in the plot. The points are more important, and the 
+plotting boundaries should be set with respect to the points. We can redefine 
+the limits by using `coord_cartesian()`. (Your aesthetic preferences may differ.
+That's fine.)
 
 
 ```r
