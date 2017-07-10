@@ -100,7 +100,7 @@ tribble(
 
 The name "tribble" is short for "transposed tibble" (the _transposed_
 part referring to change from column-wise creation in `tibble()` to row-wise
-creation in `tribble`).
+creation in `tribble()`).
 
 I like to use light-weight tribbles for two particular tasks:
 
@@ -183,7 +183,7 @@ enframe(quantiles, "quantile", "value")
 ```
 
 I have not had an opportunity to use `enframe()` since I learned about it,
-but I definitely have created dataframes from names-value pairs in the past.
+but I definitely have created dataframes from name-value pairs in the past.
 
 It's also worth noting the most common way I create tibbles: Reading in files.
 The [readr](http://readr.tidyverse.org/) package will create tibbles when 
@@ -193,9 +193,9 @@ reading in data files like csvs.
 
 ## Viewing some values from each column
 
-When we `print()` a tibble, we only see data frame enough columns to fill the
+When we `print()` a tibble, we only see enough dataframe columns to fill the
 width of the console. For example, we will not see every column in this
-`tibble()`.
+tibble.
 
 
 ```r
@@ -223,7 +223,7 @@ df
 #> #   v <int>, w <int>, x <int>, y <int>, z <int>
 ```
 
-We can "transpose" the printing with `glimpse()` to see a few values from every 
+We can transpose the printing with `glimpse()` to see a few values from every 
 column. Once again, just enough data is shown to fill the width of the output
 console.
 
@@ -267,10 +267,10 @@ glimpse(df)
 We can add new rows and columns with `add_row()` and `add_column()`.
 
 Below we add rows to the bottom of the tibble (the default behavior) and to the 
-top of the tibble by using the `.before` argument (add the row _before_ row 1). 
+top of the tibble by using the `.before` argument (add the new row _before_ row 1). 
 There also is an `.after` argument, but I prefer to only add rows to the
 tops and bottoms of tables. The values in the `add_row()` are computed
-iteratively, so we can define values `x_squared` in terms of `x`.
+iteratively, so we can define the values of `x_squared` in terms of `x`.
 
 
 ```r
@@ -298,7 +298,7 @@ df
 ```
 
 The value `NA` is used when values are not provided for a certain column.
-Also, because we provide the names of the columns when adding rows, we have
+Also, because we provide the names of the columns when adding rows, we
 don't have to write out the columns in any particular order.
 
 
