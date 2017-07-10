@@ -1,0 +1,253 @@
+---
+title: A tour of the tibble package 
+excerpt: The tidyverse version of dataframes
+tags:
+  - r
+---
+
+Dataframes are used in R to hold tabular data. Think of the prototypical 
+spreadsheet or database table: a grid of data arranged into rows and columns. 
+That's a dataframe. The [tibble R package](http://tibble.tidyverse.org/)
+provides a fresh take on dataframes to fix some longstanding annoyances with
+them. For example, printing a large tibble shows just the first 10 rows instead
+of the flooding the console with the first 1,000 rows.
+
+In this post, I provide a tour of the tibble package. Because the package 
+provides tools for working with tabular data, it also contain some less
+well-known helper functions that I would like to advertise in this post. In
+particular, I find `add_column()`, `rownames_to_column()` and
+`rowid_to_column()` to be useful tools in my work.
+
+**Why the name "tibble"?** Tibbles first appeared in the dplyr package in 
+January 2014, but they weren't called "tibbles" yet. dplyr used a subclass 
+`tbl_df` for its dataframe objects and they behaved like modern tibbles: Better 
+printing, not converting strings to factors, etc. We loved them, and we would 
+convert our plain-old dataframes into these `tbl_df`s for these features. 
+However, the name tee-bee-ell-dee-eff is quite a mouthful. On Twitter,
+[@JennyBryan raised the question of how to pronounce
+`tbl_df`](https://twitter.com/JennyBryan/status/514652585488576512), and
+[@kevin_ushey suggested "tibble 
+diff"](https://twitter.com/kevin_ushey/status/514659005621219329). The name was 
+enthusiastically received.
+{: .notice--info}
+
+
+## Creating tibbles
+
+Create a fresh tibble using `tibble()` and vectors of values for each column.
+The column definitions are evaluated sequentially, so additional columns can be 
+created by manipulating earlier defined ones. Below `x` is defined and then the 
+values of `x` are manipulated to create the column `x_squared`.
+
+```{r, error = TRUE}
+library(tibble)
+library(magrittr)
+
+tibble(x = 1:5, x_squared = x ^ 2)
+```
+
+Note that this sequential evaluation does not work on classical dataframes.
+
+```{r, error = TRUE}
+data.frame(x = 1:5, x_squared = x ^ 2)
+```
+
+The function `data_frame()`---note the underscore instead of a dot---is an alias
+for `tibble()`, which might be more transparent if your audience has never 
+heard of tibbles.
+
+```{r}
+data_frame(x = 1:5, x_squared = x ^ 2)
+```
+
+In `tibble()`, the data are defined column-by-column. We can use `tribble()` to 
+write out tibbles row-by-row. Formulas like `~x` are used to denote column names.
+
+```{r}
+tribble(
+  ~ Film, ~ Year,
+  "A New Hope", 1977,
+  "The Empire Strikes Back", 1980,
+  "Return of the Jedi", 1983)
+```
+
+The name "tribble" is short for "transposed tibble" (the _transposed_
+part referring to change from column-wise creation in `tibble()` to row-wise
+creation in `tribble`).
+
+I like to use light-weight tribbles for two particular tasks:
+
+* Recoding: Create a tribble of, say, labels for a plot and join it onto a dataset.
+* Exclusion: Identify observations to exclude, and remove them with an anti-join.
+
+Pretend that we have a tibble called `dataset`. The code below shows
+examples of these tasks with `dataset`.
+
+```{r, eval = FALSE}
+library(dplyr)
+
+# Recoding example
+plotting_labels <- tribble(
+  ~ Group, ~ GroupLabel,
+  "TD", "Typically Developing",
+  "CI", "Cochlear Implant",
+  "ASD", "Autism Spectrum"
+)
+
+# Attach labels to dataset
+dataset <- left_join(dataset, plotting_labels, by = "Group")
+
+# Exclusion example
+ids_to_exclude <- tibble::tribble(
+  ~ Study, ~ ResearchID,
+  "TimePoint1", "053L",
+  "TimePoint1", "102L",
+  "TimePoint1", "116L"
+)
+
+reduced_dataset <- anti_join(dataset, ids_to_exclude)
+```
+
+
+## Converting things into tibbles
+
+`as_tibble()` will convert dataframes, matrices, and some other types into
+tibbles.
+
+```{r}
+as_tibble(mtcars)
+```
+
+We can convert simple named vectors into tibbles with `enframe()`. 
+For example, `quantile()` returns a named vector which we can `enframe()`.
+
+```{r}
+quantiles <- quantile(mtcars$hp, probs = c(.1, .25, .5, .75, .9))
+quantiles
+
+enframe(quantiles, "quantile", "value")
+```
+
+I have not had an opportunity to use `enframe()` since I learned about it,
+but I definitely have created dataframes from names-value pairs in the past.
+
+It's also worth noting the most common way I create tibbles: Reading in files.
+The [readr](http://readr.tidyverse.org/) package will create tibbles when 
+reading in data files like csvs.
+
+
+
+## Viewing some values from each column
+
+When we `print()` a tibble, we only see data frame enough columns to fill the
+width of the console. For example, we will not see every column in this
+`tibble()`.
+
+```{r}
+# Create a 200 x 26 dataframe
+df <- as.data.frame(replicate(26, 1:200)) %>% 
+  setNames(letters) %>% 
+  as_tibble()
+
+df
+```
+
+We can "transpose" the printing with `glimpse()` to see a few values from every 
+column. Once again, just enough data is shown to fill the width of the output
+console.
+
+```{r}
+glimpse(df)
+```
+
+
+
+## Growing a tibble
+
+We can add new rows and columns with `add_row()` and `add_column()`.
+
+Below we add rows to the bottom of the tibble (the default behavior) and to the 
+top of the tibble by using the `.before` argument (add the row _before_ row 1). 
+There also is an `.after` argument, but I prefer to only add rows to the
+tops and bottoms of tables. The values in the `add_row()` are computed
+iteratively, so we can define values `x_squared` in terms of `x`.
+
+```{r}
+df <- tibble(comment = "original", x = 1:2, x_squared = x ^ 2)
+df
+
+df <- df %>% 
+  add_row(comment = "append", x = 3:4, x_squared = x ^ 2) %>% 
+  add_row(comment = "prepend", x = 0, x_squared = x ^ 2, .before = 1)
+
+df
+```
+
+The value `NA` is used when values are not provided for a certain column.
+Also, because we provide the names of the columns when adding rows, we have
+don't have to write out the columns in any particular order.
+
+```{r}
+df %>% 
+  add_row(x = 5, comment = "NA defaults") %>% 
+  add_row(x_squared = 36, x = 6, comment = "order doesn't matter")
+```
+
+We can similarly add columns with `add_column()`.
+
+```{r}
+df %>% add_column(comment2 = "inserted column", .after = "comment")
+```
+
+Typically, with dplyr loaded, you would create new columns by using `mutate()`,
+although I have recently started to prefer using `add_column()` for cases like
+the above example, where I add a column with a single recycled value. 
+
+## Row names and identifiers
+
+Look at the converted `mtcars` tibble again.
+
+```{r}
+as_tibble(mtcars)
+```
+
+The row numbers in the converted dataframe have an asterisk `*` above them. That
+means that the dataframe has row-names. Row-names are clunky and quirky; they are 
+just a column of data (labels) that umm :confused: we store away from the rest
+of the data. 
+
+We should move those row-names into an explicit column, and
+`rownames_to_column()` does just that.
+
+```{r}
+mtcars %>% 
+  as_tibble() %>% 
+  rownames_to_column("model")
+```
+
+When I fit Bayesian models, I end up with a bunch of samples from a posterior 
+distribution. In my data-tidying, I need to assign a ID-number to each sample. 
+The function `rowid_to_column()` automates this step by creating a new column in
+a dataframe with the row-numbers. In the example below, I load some MCMC samples
+from the coda package and create draw IDs.
+
+```{r}
+library(coda)
+data(line, package = "coda")
+line1 <- as.matrix(line$line1) %>% 
+  as_tibble()
+
+line1
+
+line1 %>% rowid_to_column("draw")
+```
+
+From here, I could reshape the data into a long format or draw some random
+samples for use in a plot, all while preserving the draw number.
+
+*** 
+
+...And that covers the main functionality of the tibble package. I hope you
+discovered a new useful feature of the tibble package. To learn more about the
+technical differences between tibbles and dataframes, see [the tibble chapter in
+_R for Data Science_](http://r4ds.had.co.nz/tibbles.html).
