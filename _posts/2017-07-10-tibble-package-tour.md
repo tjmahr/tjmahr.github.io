@@ -285,7 +285,6 @@ df
 df <- df %>% 
   add_row(comment = "append", x = 3:4, x_squared = x ^ 2) %>% 
   add_row(comment = "prepend", x = 0, x_squared = x ^ 2, .before = 1)
-
 df
 #> # A tibble: 5 x 3
 #>    comment     x x_squared
@@ -401,7 +400,6 @@ library(coda)
 data(line, package = "coda")
 line1 <- as.matrix(line$line1) %>% 
   as_tibble()
-
 line1
 #> # A tibble: 200 x 3
 #>      alpha      beta     sigma

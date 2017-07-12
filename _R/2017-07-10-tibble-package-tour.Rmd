@@ -179,7 +179,6 @@ df
 df <- df %>% 
   add_row(comment = "append", x = 3:4, x_squared = x ^ 2) %>% 
   add_row(comment = "prepend", x = 0, x_squared = x ^ 2, .before = 1)
-
 df
 ```
 
@@ -236,7 +235,6 @@ library(coda)
 data(line, package = "coda")
 line1 <- as.matrix(line$line1) %>% 
   as_tibble()
-
 line1
 
 line1 %>% rowid_to_column("draw")
