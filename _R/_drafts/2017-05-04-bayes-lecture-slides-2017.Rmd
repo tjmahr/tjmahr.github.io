@@ -1,172 +1,60 @@
 ---
-title: Bayesian regression guest lecture slides (and some RMarkdown tricks)
-excerpt: ''
-tags: ''
+title: Recent slides on Bayesian regression
+excerpt: This time in LaTeX
+tags:
+  - bayesian
+
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-literal_inline <- function(x = "") paste0("`r ", x, "`")
 ```
 
+Back in April, I gave a guest lecture on Bayesian regression for the psychology 
+department's graduate regression class. This is the same course where I first
+learned regression---and where I first started using R for statistics, instead
+of data cleaning---so it was a fun experience. I also gave the lecture to my lab
+here, but it was more a guided discussion through the slides. It was just a
+handful of us, and we could really talk through some the big ideas and
+intuitions.
 
-A few weeks ago, I gave a guest lecture on Bayesian regression for the psychology
-department's graduate regression class. This class is where I first learned regression, so it was fun to speak to their experience. I also gave the lecture to my lab here, but it was more a guided discussion. It was just a handful of us, and we could really talk through some the big ideas and intuitions.
+Here are the materials:
 
+* [PDF version of slides](https://cdn.rawgit.com/tjmahr/Psych710_BayesLecture/55f446a0/bayes_slides_out.pdf)
+* [Same content but as a (non-presentation) web page](https://cdn.rawgit.com/tjmahr/Psych710_BayesLecture/55f446a0/bayes_slides.html)
+* [Github repository](https://github.com/tjmahr/Psych710_BayesLecture)
 
-## Thoughts and questions
+## Observations (training data)
 
-One student asked about Type 1 errors for models. Someone else said that they had heard that Bayesian models can provide evidence for a null effect---how does that work? There was a lot of discussion and confusion about interpreting credible intervals.
+As I did with [my last Bayes talk](/rstanarm-tutorial-slides/), I'm going to note 
+some questions from the audience, so I don't forget what kinds of questions
+people have when they are introduced to Bayesian statistics.
 
+One theme was frequentist baggage :handbag:. One person asked about 
+[Type I and Type II error](https://twitter.com/chrisalbon/status/874683365865029632) 
+rates. I did not have a satisfactory (that is, _rehearsed_) answer ready for
+this question. I think I said something about how those terms are based on a
+frequentist, repeated-sampling paradigm, whereas a Bayesian approach 
+[worries about different sorts of errors](http://andrewgelman.com/2004/12/29/type_1_type_2_t/). 
+(Statistical [power is still important](https://alexanderetz.com/2015/05/21/type-s-and-type-m-errors/), 
+of course, for both approaches.) Next time, I should study up on the
+frequentist properties of Bayesian models, so I can field these questions
+better. 
 
-## Some RMarkdown trickery
+Other questions:
 
-I wanted the equations to look nice and I also wanted to avoid some of the
-headaches with HTML slides shows, so I made the slides in LaTeX using a
-RMarkdown/Pandoc/Beamer workflow. I had never generated LaTeX with R or Pandoc before, so there were a few new tricks I had to work out.
+* Another bit of frequentist baggage :handbag:. I mentioned that with a
+posterior predictive distribution, we can put an uncertainty interval on any
+statistic we can calculate, and this point brought up the question of _multiple
+comparisons_. These are a bad thing in classical statistics. But for Bayes, there
+is only one model, and the multiple comparisons are really only the implications 
+of one model.
+* Someone else said that they had heard that Bayesian models can provide evidence
+for a null effect---*how does that work?* I briefly described the 
+[ROPE approach](https://doingbayesiandataanalysis.blogspot.nl/2016/12/bayesian-assessment-of-null-values.html),
+ignoring the existence of Bayes factors entirely.
 
-### Conditional markdown
+For future iterations of this tutorial, I should have a worked example, maybe a
+blog post, on each of these issues. 
 
-One nice thing about working with RMarkdown is that you get a markdown file, and Pandoc can transform that document into a zillion different formats. (Let's not forget that monstrous diagram on [this page](http://pandoc.org/).) I would like to generate two versions of the slides:
-
-* A Beamer presentation (a pdf where each page is a slide)
-* An HTML document where so can skim over the bullet points and images as a 
-  single web page
-
-Pandoc accommodates slide shows by overloading some markdown syntax. For example, to separate slides, you can use H2 headers or horizontal dividing lines. The following markdown generates three different slides.
-
-```
-## Slide one title
-
-* Point 1
-* Point 2
-
-## Slide two title
-
-* Point 3
-* Point 4
-
-----
-
-* This is a third, untitled slide.
-
-```
-
-But when you produce HTML documents from this markdown, those `----` take on their original function and insert horizontal dividers. The document becomes peppered with ugly, interuptive horizontal lines.
-
-> ## Slide two title
-> 
-> * Point 3
-> * Point 4
-> 
-> ----
-> 
-> * This is a third, untitled slide.
-
-There were some other problems where the slide-show tricks resulted in ugly HTML
-output. For example, to have content enter a slide incrementally, you can use 
-`.. .` to insert a pause or use blockquotes before the bullets.
-
-```
-## Slide Four
-
-> * This bullet appears first
-> * The next page of the pdf reveals this bullet
-> * The next page of the pdf reveals this bullet
-
-. . .
-
-The next page of the pdf reveals this paragraph.
-```
-
-But in HTML-land, the syntax retains its original meaning, so you get something
-kind of weird looking too.
-
-
-> ## Slide Four
-> 
-> > * This bullet appears first
-> > * The next page of the pdf reveals this bullet
-> > * The next page of the pdf reveals this bullet
-> 
-> . . .
-> 
-> The next page of the pdf reveals this paragraph.
-
-So I wrote some R functions to toggle between slide-oriented markdown
-decorations and regular HTML-oriented markdown. I used an unexported function
-inside of knitr to determine whether LaTeX is being targeted. (This is not a
-smart thing to do, but let's roll with it.) Because there are a few different
-syntactic practices that I need to handle with the same basic code, I create a
-function factory: A function that creates different LaTeX decorators.
-
-```{r}
-# Make a function that prints a string of characters if the output is pdf
-make_latex_decorator <- function(output, otherwise) {
-  function() {
-      if (knitr:::is_latex_output()) output else otherwise
-  }
-}
-
-insert_pause <- make_latex_decorator(". . .", "\n")
-insert_slide_break <- make_latex_decorator("----", "\n")
-insert_inc_bullet <- make_latex_decorator("> *", "*")
-insert_html_math <- make_latex_decorator("", "$$")
-```
-
-The `insert_pause()` function here will create an incremental slide break when
-the output is LaTeX but just use a blank line when the output is HTML.
-
-```
-## First, what are models?!
-
-What is a statistical model?
-
-`r literal_inline("insert_pause()")`
-
-It's a description of how the data could have been generated.
-```
-
-
-### Using a "Github" theme for HTML documents
-
-When I work in RMarkdown, I prefer the `github_document` format which produces a
-Github-flavored markdown file. Github renders these documents in a particularly
-pleasing style on their site. 
-
-When you render the document, RStudio also provides a preview of how the
-document might appear on Github. I like the styling of the HTML previews a lot.
-The HTML previews is just a temporary file that is not saved alongside the
-document.
-
-To retain or share that HTML preview file would require opening the preview of
-the file in a browser and saving the html file. Kind of a hassle. Can I just do
-this automatically?
-
-I created [a tiny R package](https://github.com/tjmahr/ghdown) that creates HTML
-files styled with CSS file used in the Github preview files. I called it
-"ghdown", missing the obvious name ("gitdown"). When I say _tiny_, I mean it. 
-The [main R code](https://github.com/tjmahr/ghdown/blob/b811cc319a831ac2235892746e90298adf6e2835/R/ghdown-package.R) 
-in the package is just two lines. I also some [helper files](https://github.com/tjmahr/ghdown/tree/master/inst/rmarkdown/templates/github_html_document), so that the format would show up in RStudio's template menu (New File >> R Markdown... >> From Template).
-
-
-The format is not a perfect clone of the HTML preview files, because it can
-support Mathjax equations, but oh well. 
-
-```yaml
----
-title: "An introduction to Bayesian regression"
-author: "Tristan Mahr"
-date: "April 13, 2017"
-output:
-  ghdown::github_html_document: default
-  beamer_presentation:
-    includes:
-      in_header: assets/header.txt
-    latex_engine: pdflatex
-    slide_level: 2
-    theme: Metropolis
-    toc: no
-subtitle: Guest lecture for Psych 610/710 at UW--Madison
----
-```
+A big part of my enthusiasm for Bayesian statistics is that I find it much more intuitive than frequentist statistics. _Yes!_ I thought to myself. _I never have to worry about whether I am correctly remembering the technically correct definition of _p*-value_ ever again!* Well actually no. I need to know this stuff even better than ever if I am going to teach on it. 
