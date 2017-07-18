@@ -1,22 +1,18 @@
 ---
-title: Recent slides on Bayesian regression
+title: "Slides from my intro to Bayesian regression talk"
 excerpt: This time in LaTeX
 tags:
   - bayesian
 
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 Back in April, I gave a guest lecture on Bayesian regression for the psychology 
-department's graduate regression class. This is the same course where I first
-learned regression---and where I first started using R for statistics, instead
-of data cleaning---so it was a fun experience. I also gave the lecture to my lab
-here, but it was more a guided discussion through the slides. It was just a
-handful of us, and we could really talk through some the big ideas and
-intuitions.
+department's graduate statistics class. This is the same course where I first
+learned regression---and where I first started using R for statistics instead
+of for data cleaning. It was fun drawing on my experience in that 
+course and tailoring the materials for the level of training.
 
 Here are the materials:
 
@@ -57,4 +53,9 @@ ignoring the existence of Bayes factors entirely.
 For future iterations of this tutorial, I should have a worked example, maybe a
 blog post, on each of these issues. 
 
-A big part of my enthusiasm for Bayesian statistics is that I find it much more intuitive than frequentist statistics. _Yes!_ I thought to myself. _I never have to worry about whether I am correctly remembering the technically correct definition of _p*-value_ ever again!* Well actually no. I need to know this stuff even better than ever if I am going to teach on it. 
+It's kind of amusing now that I think about it. A big part of my enthusiasm for
+Bayesian statistics is that I find it much more intuitive than frequentist
+statistics. _Yes!_ I thought to myself. _I never have to worry about what the
+hell a confidence interval is ever again!_ Well, actually---no. I need to know
+this stuff even more thoroughly than ever if I am going to talk fluently about
+what makes Bayes different. ¯\\\_(ツ)\_/¯
