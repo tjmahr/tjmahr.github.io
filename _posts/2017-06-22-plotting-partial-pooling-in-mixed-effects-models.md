@@ -83,7 +83,7 @@ ggplot(df_sleep) +
 
 <img src="/figs//2017-06-22-plotting-partial-pooling-in-mixed-effects-models/facet-plot-1.png" title="Trellis plot of reaction time by days of sleep deprivation." alt="Trellis plot of reaction time by days of sleep deprivation." width="80%" style="display: block; margin: auto;" />
 
-By the way, ggplot2 doesn't draw the regressions lines outside of the range of
+By the way, ggplot2 doesn't draw the regression lines outside of the range of
 the data unless we set `fullrange = TRUE`. That's a helpful feature for 374!
 
 
