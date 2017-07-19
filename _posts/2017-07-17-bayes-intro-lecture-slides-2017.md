@@ -3,7 +3,13 @@ title: "Slides from my intro to Bayesian regression talk"
 excerpt: This time in LaTeX
 tags:
   - bayesian
-
+gallery:
+  - url: /assets/images/2017-07-bayes-slide1.png
+    image_path: /assets/images/2017-07-bayes-slide1.png
+    alt: "Slide where I explain 'Bayesianism'"
+  - url: /assets/images/2017-07-bayes-slide2.png
+    image_path: /assets/images/2017-07-bayes-slide2.png
+    alt: "Bayesian updating demo"
 ---
 
 
@@ -19,6 +25,8 @@ Here are the materials:
 * [PDF version of slides](https://cdn.rawgit.com/tjmahr/Psych710_BayesLecture/55f446a0/bayes_slides_out.pdf)
 * [Same content but as a (non-presentation) web page](https://cdn.rawgit.com/tjmahr/Psych710_BayesLecture/55f446a0/bayes_slides.html)
 * [Github repository](https://github.com/tjmahr/Psych710_BayesLecture)
+
+{% include gallery caption="Some slides from the talk." %}
 
 ## Observations (training data)
 
