@@ -1,0 +1,291 @@
+---
+title: "Tidy Eval Example: Setting values in many rows to NA"
+excerpt: Working with quosures
+tags:
+  - r
+---
+
+```{r setup, include = FALSE}
+
+```
+
+In this post, I describe a recent case where I used nonstandard evaluation and
+the "tidy evaluation" system to do some data-cleaning.
+
+## Strange eyetracking data
+
+Last week, I had to deal with a file with some eyetracking data from a
+sequence-learning experiment. The eyetracker records the participant's gaze
+location at a rate of 60 frames per second, except for this weird file which
+wrote out ~80 frames each second. In this kind of data, we have one row per
+eyetracking sample, and each sample records a timestamp and the gaze location on
+the computer screen at each timestamp. In this particular dataset, _x_ and _y_
+gaze coordinates in pixels (both eyes averaged together, `GazeX` and `GazeY`) or
+in screen proportions (for each eye in the `EyeCoord` columns.)
+
+Here is what the data look like.
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+# devtools::install_github("tjmahr/fillgaze")
+
+df <- read_csv(system.file("test-gaze.csv", package = "fillgaze")) %>% 
+  mutate(Time = Time - min(Time)) %>% 
+  select(Time:REyeCoordY) %>% 
+  round(3) %>% 
+  mutate_at(vars(Time), round, 1) %>% 
+  mutate_at(vars(GazeX, GazeY), round, 0)
+df
+```
+
+In this particular experiment, offscreen looks are coded as negative gaze
+coordinates, and what's extra weird here is that every second or third point is
+incorrectly placed offscreen. It is physiologically impossible for a person's
+gaze to oscillate so quickly and with such magnitude (the gaze is tracked on a
+large screen display).
+
+```{r}
+ggplot(head(df, 40)) + 
+  aes(x = Time - min(Time)) + 
+  geom_hline(yintercept = 0, size = 2, color = "white") + 
+  geom_point(aes(y = GazeX, color = "GazeX")) +
+  geom_point(aes(y = GazeY, color = "GazeY")) + 
+  labs(x = "Time (ms)", y = "Screen location (pixels)", 
+       color = "Variable")
+
+# ggplot(results %>% filter(Trial == 5)) + 
+#   aes(x = GazeX, y = GazeY) + 
+#   geom_path()
+#   geom_hline(yintercept = 0, size = 2, color = "white") + 
+#   geom_point(aes(y = GazeX, color = "GazeX")) +
+#   geom_point(aes(y = GazeY, color = "GazeY")) + 
+#   labs(x = "Time (ms)", y = "Screen location (pixels)", 
+#        color = "Variable")
+```
+
+This file motivated me to develop a [general purpose package for interpolating
+missing data in eyetracking experiments](https://github.com/tjmahr/fillgaze).
+This package was always something I wanted to do, and this file moved it from
+that the _someday_ list to the _today_ list. I wanted this package to use a
+tidy/fluent interface so that the data manipulations can be chained together and
+expressed succinctly.
+
+## Detour: Why we need to capture expressions
+
+What does the expression `weight * 2` do? 
+
+```{r, error = TRUE}
+weight * 2
+```
+
+Nothing unless the name has been defined in the current environment.
+
+```{r}
+weight <- 100
+weight * 2
+```
+
+But that name also changes meaning based on the environment where its used. In
+R's bundled datasets, `weight` can refer to the weight of woman, plants, or baby
+birds.
+
+
+```{r}
+# Each of these is a different way of getting a column named 
+# "weight" from a dataframe.
+with(data = women, weight * 2)
+evalq(weight * 2, envir = PlantGrowth)
+# Kinda similar
+chickwts$weight * 2
+```
+
+What if I want to store that expression to pass around for later?
+
+```{r}
+my_code <- weight * 2
+
+# Not right!
+with(data = women, my_code)
+```
+
+I can quote or capture the expression using `quo()`. When quoted, it stays sealed off,
+unevaluated, until we unquote it.
+
+```{r}
+my_expr <- quote(weight * 2)
+my_expr
+```
+
+To be sure, none of these techniques will work unless I unquote `my_expr` when
+its needed.
+
+```{r}
+with(data = women, my_var)
+evalq(my_var, envir = PlantGrowth)
+chickwts$my_var
+```
+
+We can unquote by using `UQ()` or `!!`.
+
+```{r}
+library(rlang)
+
+evalq(UQ(my_var), envir = PlantGrowth)
+eval(my_var, envir = PlantGrowth)
+eval(!! my_var, envir = PlantGrowth)
+chickwts$my_var
+
+```
+
+
+
+## Setting offscreen values to missing data by evaluating logicals
+
+The first task for make package, and the focus of this demo, is setting all of
+the offscreen values to `NA`.
+
+Here is the code I want to write.
+
+```{r, eval = FALSE}
+set_na_where(
+  data = df,
+  GazeX = GazeX < -500 | 2500 < GazeX,
+  GazeY = GazeY < -300 | 1200 < GazeY)
+```
+
+That is, after specifying the `data`, I list off an arbitrary number of column
+names, and with each name, I provide a rule to determine whether a value in that
+column is offscreen and should be set to `NA`. For example, I want every value in
+`GazeX` where `GazeX < -500 | 2500 < GazeX` is `TRUE` to be replaced with an
+`NA` value.
+
+Let's build this up, step by step. First thing we need to do is capture that
+arbitrary set of of named expressions. In our function signature,
+`function(data, ...)`, the expressions will be collected in the special dots
+argument (`...`). `quos()` will quote a list of
+expressions, so it will capture the expressions stored in the dots. Once they
+are captured, we will also make sure that the names of the expressions match
+names in the dataframe.
+
+```{r}
+library(rlang)
+set_na_where <- function(data, ...) {
+  dots <- quos(...)
+  stopifnot(names(dots) %in% names(data), !anyDuplicated(names(dots)))
+  
+  dots
+  # more to come
+}
+
+set_na_where <- function(data, ...) {
+  dots <- list(...)
+  stopifnot(names(dots) %in% names(data), !anyDuplicated(names(dots)))
+  
+  dots
+  # more to come
+}
+
+results <- set_na_where(
+  data = df,
+  GazeX = GazeX < -500 | 2500 < GazeX, 
+  GazeY = GazeY < -300 | 1200 < GazeY)
+results
+```
+
+**Wait, why do you keep talking about _capturing_ expressions?** Good question.
+In other circumstances, we can view the contents of the dots by storing them in
+a list. Consider:
+
+```{r}
+hello_dots <- function(...) {
+  str(list(...))
+}
+hello_dots(x = pi, y = 1:10, z = NA)
+```
+
+But we are dealing with expressions. These throw errors
+
+```{r}
+?quo
+```
+
+
+We can interrogate these results. We can get the names, and the expressions
+quoted in each one.
+
+```{r}
+names(results)
+results[[1]]
+```
+
+What we need to do is evaluate the expression inside of the dataframe. We can use `eval_tidy(expr, data)` to evaluate the expression `expr` inside of the dataframe.
+
+```{r}
+gazex_to_set_na <- eval_tidy(results[[1]], data = df)
+
+gazex_to_set_na[1:20]
+```
+
+In fact, we can evaluate them all at once with by applying `eval_tidy()` on each listed expression.
+
+```{r}
+set_to_na <- lapply(results, eval_tidy, data = df)
+str(set_to_na)
+```
+
+
+```{r}
+dots <- results
+data <- df
+
+set_na_where <- function(data, ...) {
+  dots <- quos(...)
+  stopifnot(names(dots) %in% names(data), !anyDuplicated(names(dots)))
+  
+  set_to_na <- lapply(dots, eval_tidy, data = data)
+  
+  for (col in names(set_to_na)) {
+    data[set_to_na[[col]], col] <- NA
+  }
+  
+  data
+}
+
+results <- set_na_where(
+  data = df,
+  GazeX = GazeX < -500 | 2200 < GazeX, 
+  GazeY = GazeY < -200 | 1200 < GazeY)
+results
+
+```
+
+One of the quirks about eyetracking is that during a blink, sometimes the device
+will record the _x_ location but not the _y_ location. This effect shows up when
+there are more NA values for the _y_ values than for the _x_ values: 
+
+```{r}
+summary(results[c("GazeX", "GazeY")])
+```
+
+We can equalize these values by running the function again.
+
+```{r}
+results2 <- set_na_where(
+  data = results,
+  GazeX = is.na(GazeY), 
+  GazeY = is.na(GazeX))
+```
+
+Alternatively, we can do this all at once by using the same NA filtering rules on X and Y.
+
+```{r}
+results3 <- set_na_where(
+  data = df,
+  GazeX = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY, 
+  GazeY = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY)
+summary(results3)
+```
+
+
+
+
