@@ -1,0 +1,374 @@
+---
+title: "set_na_where(): a nonstandard evaluation use case"
+excerpt: Bottling up magic spells
+tags:
+  - r
+  - nonstandard evaluation
+  - eyetracking
+  - rlang
+share: true
+header:
+  overlay_image: "assets/images/jovi-waqa-1280.jpg"
+  caption: "Photo credit: [**Jovi Waqa**](https://unsplash.com/photos/gNJn5-C5enE)"
+---
+
+In this post, I describe a recent case where I used rlang's 
+[tidy evaluation](http://rlang.tidyverse.org/articles/tidy-evaluation.html)
+system to do some data-cleaning. This example is not particularly involved, but
+it demonstrates is a basic but powerful idea: That we can capture the
+expressions that a user writes, pass them around as data, and make some 
+:dizzy: magic :sparkles: happen. This technique in R is called 
+[_nonstandard evaluation_](http://adv-r.had.co.nz/Computing-on-the-language.html).
+
+## Strange eyetracking data
+
+Last week, I had to deal with a file with some eyetracking data from a
+sequence-learning experiment. The eyetracker records the participant's gaze
+location at a rate of 60 frames per second---except for this weird file which
+wrote out ~80 frames each second. In this kind of data, we have one row per
+eyetracking sample, and each sample records a timestamp and the gaze location
+:eyes: on the computer screen at each timestamp. In this particular dataset, we
+have _x_ and _y_ gaze coordinates in pixels (both eyes averaged together,
+`GazeX` and `GazeY`) or in screen proportions (for each eye in the `EyeCoord`
+columns.)
+
+
+```r
+library(dplyr)
+library(ggplot2)
+library(rlang)
+# the data is bundled with an R package I wrote
+# devtools::install_github("tjmahr/fillgaze")
+
+df <- system.file("test-gaze.csv", package = "fillgaze") %>% 
+  readr::read_csv() %>% 
+  mutate(Time = Time - min(Time)) %>% 
+  select(Time:REyeCoordY) %>% 
+  round(3) %>% 
+  mutate_at(vars(Time), round, 1) %>% 
+  mutate_at(vars(GazeX, GazeY), round, 0)
+df
+#> # A tibble: 14,823 x 8
+#>     Time Trial GazeX GazeY LEyeCoordX LEyeCoordY REyeCoordX REyeCoordY
+#>    <dbl> <dbl> <dbl> <dbl>      <dbl>      <dbl>      <dbl>      <dbl>
+#>  1   0.0     1  1176   643      0.659      0.589      0.566      0.602
+#>  2   3.5     1 -1920 -1080     -1.000     -1.000     -1.000     -1.000
+#>  3  20.2     1 -1920 -1080     -1.000     -1.000     -1.000     -1.000
+#>  4  36.8     1  1184   648      0.664      0.593      0.570      0.606
+#>  5  40.0     1  1225   617      0.685      0.564      0.591      0.579
+#>  6  56.7     1 -1920 -1080     -1.000     -1.000     -1.000     -1.000
+#>  7  73.4     1  1188   641      0.665      0.587      0.572      0.600
+#>  8  76.6     1  1204   621      0.674      0.568      0.580      0.582
+#>  9  93.3     1 -1920 -1080     -1.000     -1.000     -1.000     -1.000
+#> 10 109.9     1  1189   665      0.666      0.609      0.572      0.622
+#> # ... with 14,813 more rows
+```
+
+In this particular eyetracking setup, offscreen looks are coded as negative gaze
+coordinates, and what's extra weird here is that every second or third point is
+incorrectly placed offscreen. We see that in the frequent -1920 values in
+`GazeX`. Plotting the first few _x_ and _y_ pixel locations shows the 
+pattern as well.
+
+
+
+```r
+p <- ggplot(head(df, 40)) + 
+  aes(x = Time) + 
+  geom_hline(yintercept = 0, size = 2, color = "white") + 
+  geom_point(aes(y = GazeX, color = "GazeX")) +
+  geom_point(aes(y = GazeY, color = "GazeY")) + 
+  labs(x = "Time (ms)", y = "Screen location (pixels)", 
+       color = "Variable")
+
+p + 
+  annotate("text", x = 50, y = -200, 
+           label = "offscreen", color = "grey20") + 
+  annotate("text", x = 50, y = 200, 
+           label = "onscreen", color = "grey20") 
+```
+
+<img src="/figs//2017-08-15-set-na-where-nonstandard-evaluation-use-case/missing-data-plot-1.png" title="Offscreens looks occurred every two or three samples." alt="Offscreens looks occurred every two or three samples." width="80%" style="display: block; margin: auto;" />
+
+It is physiologically impossible for a person's gaze to oscillate so quickly and
+with such magnitude (the gaze is tracked on a large screen display), so
+obviously something weird was going on with the experiment software.
+
+This file motivated me to develop a [general purpose package for interpolating
+missing data in eyetracking experiments](https://github.com/tjmahr/fillgaze).
+This package was always something I wanted to do, and this file moved it from 
+the _someday_ list to the _today_ list. 
+
+## A function to recode values in many columns as `NA`
+
+The first step in handling this problematic dataset is to convert the offscreen
+values into actual missing (`NA`) values). Because we have several columns of
+data, I wanted a succinct way to recode values in multiple columns into `NA`
+values.
+
+First, we sketch out the _code we want to write_ when we're done.
+
+
+```r
+set_na_where <- function(data, ...) {
+  # do things
+}
+
+set_na_where(
+  data = df,
+  GazeX = GazeX < -500 | 2200 < GazeX,
+  GazeY = GazeY < -200 | 1200 < GazeY)
+```
+
+That is, after specifying the `data`, we list off an arbitrary number of column
+names, and with each name, we provide a rule to determine whether a value in
+that column is offscreen and should be set to `NA`. For example, we want every
+value in `GazeX` where `GazeX < -500` or `2299 < GazeX` is `TRUE` to be replaced
+with `NA`.
+
+### Bottling up magic spells
+
+Lines of computer code are magic spells: We say the incantations and things
+happen around us. Put more formally, the code contains expressions that are
+evaluated in an environment.
+
+
+```r
+hey <- "Hello!"
+message(hey)
+#> Hello!
+
+exists("x")
+#> [1] FALSE
+
+x <- pi ^ 2
+exists("x")
+#> [1] TRUE
+
+print(x)
+#> [1] 9.869604
+
+stop("what are you doing?")
+#> Error in eval(expr, envir, enclos): what are you doing?
+```
+
+In our function signature, `function(data, ...)`, the expressions are collected
+in the special "dots" argument (`...`). In normal circumstances, we can view the
+contents of the dots by storing them in a list. Consider:
+
+
+```r
+hello_dots <- function(...) {
+  str(list(...))
+}
+hello_dots(x = pi, y = 1:10, z = NA)
+#> List of 3
+#>  $ x: num 3.14
+#>  $ y: int [1:10] 1 2 3 4 5 6 7 8 9 10
+#>  $ z: logi NA
+```
+
+But we not passing in regular data, but expressions that need to be evaluated in
+a particular location. Below the magic words are uttered and we get an error
+because they mention things that do not exist in the current environment.
+
+
+```r
+hello_dots(GazeX = GazeX < -500 | 2200 < GazeX)
+#> Error in str(list(...)): object 'GazeX' not found
+```
+
+What we need to do is prevent these words from being uttered until the time and
+place are right. **Nonstandard evaluation is a way of bottling up magic spells
+and changing how or where they are cast**---sometimes we even change the magic
+words themselves. We bottle up or _capture_ the expressions given by the user by
+quoting them. `quo()` quotes a single expression, and `quos()` (plural) will
+quote a list of expressions. Below, we capture the expressions stored in the
+dots :speech_balloon: and then make sure that their names match column names in
+the dataframe.
+
+
+```r
+set_na_where <- function(data, ...) {
+  dots <- quos(...)
+  stopifnot(names(dots) %in% names(data), !anyDuplicated(names(dots)))
+  
+  dots
+  # more to come
+}
+
+spells <- set_na_where(
+  data = df,
+  GazeX = GazeX < -500 | 2200 < GazeX, 
+  GazeY = GazeY < -200 | 1200 < GazeY)
+spells
+#> $GazeX
+#> <quosure: frame>
+#> ~GazeX < -500 | 2200 < GazeX
+#> 
+#> $GazeY
+#> <quosure: frame>
+#> ~GazeY < -200 | 1200 < GazeY
+#> 
+#> attr(,"class")
+#> [1] "quosures"
+```
+
+I call these results `spells` because it just contains the expressions stored as
+data. We can interrogate these results like data. We can query the names of the
+stored data, and we can extract values (the quoted expressions).
+
+
+```r
+names(spells)
+#> [1] "GazeX" "GazeY"
+spells[[1]]
+#> <quosure: frame>
+#> ~GazeX < -500 | 2200 < GazeX
+```
+
+### Casting spells
+
+We can cast a spell by evaluating an expression. To keep the incantation from
+fizzling out, we specify that we want to evaluate the expression _inside_ of the
+dataframe. The function `eval_tidy(expr, data)` lets us do just that: evaluate
+an expression `expr` inside of some `data`.
+
+
+```r
+# Evaluate the first expression inside of the data
+xs_to_set_na <- eval_tidy(spells[[1]], data = df)
+
+# Just the first few bc there are 10000+ values
+xs_to_set_na[1:20]
+#>  [1] FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE
+#> [12]  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE
+```
+
+In fact, we can evaluate them all at once with by applying `eval_tidy()` on each
+listed expression.
+
+
+```r
+to_set_na <- lapply(spells, eval_tidy, data = df)
+str(to_set_na)
+#> List of 2
+#>  $ GazeX: logi [1:14823] FALSE TRUE TRUE FALSE FALSE TRUE ...
+#>  $ GazeY: logi [1:14823] FALSE TRUE TRUE FALSE FALSE TRUE ...
+```
+
+### Finishing touches
+
+Now, the rest of the function is straightforward. Evaluate each `NA`-rule on 
+the named columns, and then set each row where the rule is `TRUE` to `NA`.
+
+
+```r
+set_na_where <- function(data, ...) {
+  dots <- quos(...)
+  stopifnot(names(dots) %in% names(data), !anyDuplicated(names(dots)))
+  
+  set_to_na <- lapply(dots, eval_tidy, data = data)
+  
+  for (col in names(set_to_na)) {
+    data[set_to_na[[col]], col] <- NA
+  }
+  
+  data
+}
+
+results <- set_na_where(
+  data = df,
+  GazeX = GazeX < -500 | 2200 < GazeX, 
+  GazeY = GazeY < -200 | 1200 < GazeY)
+results
+#> # A tibble: 14,823 x 8
+#>     Time Trial GazeX GazeY LEyeCoordX LEyeCoordY REyeCoordX REyeCoordY
+#>    <dbl> <dbl> <dbl> <dbl>      <dbl>      <dbl>      <dbl>      <dbl>
+#>  1   0.0     1  1176   643      0.659      0.589      0.566      0.602
+#>  2   3.5     1    NA    NA     -1.000     -1.000     -1.000     -1.000
+#>  3  20.2     1    NA    NA     -1.000     -1.000     -1.000     -1.000
+#>  4  36.8     1  1184   648      0.664      0.593      0.570      0.606
+#>  5  40.0     1  1225   617      0.685      0.564      0.591      0.579
+#>  6  56.7     1    NA    NA     -1.000     -1.000     -1.000     -1.000
+#>  7  73.4     1  1188   641      0.665      0.587      0.572      0.600
+#>  8  76.6     1  1204   621      0.674      0.568      0.580      0.582
+#>  9  93.3     1    NA    NA     -1.000     -1.000     -1.000     -1.000
+#> 10 109.9     1  1189   665      0.666      0.609      0.572      0.622
+#> # ... with 14,813 more rows
+```
+
+Visually, we can see that the offscreen values are no longer plotted. Plus, we 
+are told that our data now has missing values.
+
+
+```r
+# `plot %+% data`: replace the data in `plot` with `data`
+p %+% head(results, 40)
+#> Warning: Removed 15 rows containing missing values (geom_point).
+
+#> Warning: Removed 15 rows containing missing values (geom_point).
+```
+
+<img src="/figs//2017-08-15-set-na-where-nonstandard-evaluation-use-case/no-offscreen-plots-1.png" title="Offscreens are no longer plotted." alt="Offscreens are no longer plotted." width="80%" style="display: block; margin: auto;" />
+
+One of the quirks about some eyetracking data is that during a blink, sometimes
+the device will record the _x_ location but not the _y_ location. (I think this
+happens because blinks move vertically so the horizontal detail can still be
+inferred in a half-closed eye.) This effect shows up in the data when there are
+more `NA` values for the _y_ values than for the _x_ values:
+
+
+```r
+count_na <- function(data, ...) {
+  subset <- select(data, ...)
+  lapply(subset, function(xs) sum(is.na(xs)))
+}
+
+count_na(results, GazeX, GazeY)
+#> $GazeX
+#> [1] 2808
+#> 
+#> $GazeY
+#> [1] 3064
+```
+
+We can equalize these counts by running the function a second time with new rules.
+
+
+```r
+df %>% 
+  set_na_where(
+    GazeX = GazeX < -500 | 2200 < GazeX, 
+    GazeY = GazeY < -200 | 1200 < GazeY) %>% 
+  set_na_where(
+    GazeX = is.na(GazeY), 
+    GazeY = is.na(GazeX)) %>% 
+  count_na(GazeX, GazeY)
+#> $GazeX
+#> [1] 3069
+#> 
+#> $GazeY
+#> [1] 3069
+```
+
+Alternatively, we can do this all at once by using the same `NA`-filtering rule
+on `GazeX` and `GazeY`.
+
+
+```r
+df %>% 
+  set_na_where(
+    GazeX = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY, 
+    GazeY = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY) %>% 
+  count_na(GazeX, GazeY)
+#> $GazeX
+#> [1] 3069
+#> 
+#> $GazeY
+#> [1] 3069
+```
+
+These last examples, where we compare different rules, showcases how nonstandard
+evaluation lets us write in a very succinct and convenient manner and quickly
+iterate over possible rules. Works like magic, indeed.
