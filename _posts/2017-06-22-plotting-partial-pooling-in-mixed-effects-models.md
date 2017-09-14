@@ -14,6 +14,7 @@ In this post, I demonstrate a few techniques for plotting information from a
 relatively simple mixed-effects model fit in R. These plots can help us develop 
 intuitions about what these models are doing and what "partial pooling" means.
 
+
 ## The `sleepstudy` dataset
 
 For these examples, I'm going to use the `sleepstudy` dataset from the lme4
@@ -86,6 +87,19 @@ ggplot(df_sleep) +
 By the way, ggplot2 doesn't draw the regression lines outside of the range of
 the data unless we set `fullrange = TRUE`. That's a helpful feature for 374!
 
+
+**Update: Douglas Bates did it first.** Someone sent me a link to [a slide deck by 
+Douglas Bates](http://lme4.r-forge.r-project.org/slides/2011-03-16-Amsterdam/2Longitudinal.pdf), 
+lead author of the lme4 package, where he has some plots just like the ones I demo 
+in this post. He uses the `sleepstudy` dataset too---it's his R package and his 
+teaching dataset, after all---so the similarities are uncanny but accidental. 
+Origin of this post: I was [asked on twitter](https://twitter.com/tcarpenter216/status/870746903889170432) 
+how to make a facet plot of a mixed effects model, [wrote up a quick 
+demo](http://rpubs.com/tjmahr/ggplot2-lme4-facet-plot) using the convenient 
+`sleepstudy` dataset, and then fleshed that demo into a tutorial. By using his 
+teaching dataset to illustrate some partial pooling concepts, I ended up 
+recreating some of his work on accident. :grimacing: [_Sept. 14, 2017_] 
+{: .notice--info}
 
 ## Complete pooling and no pooling models
 
@@ -374,8 +388,9 @@ estimate is the average. Likewise, 374 had only two observations, so they get
 pulled the farthest and receive a slope estimate near the overall average.
 
 This effect is sometimes called _shrinkage_, because more extreme values
-shrinkage are pulled towards a more reasonable, more average value. In the lme4
-book, Douglas Bates provides an alternative to _shrinkage_:
+shrinkage are pulled towards a more reasonable, more average value. In [the lme4
+book](http://lme4.r-forge.r-project.org/), Douglas Bates provides an alternative 
+to _shrinkage_:
 
 > The term "shrinkage" may have negative connotations. John Tukey preferred to
 refer to the process as the estimates for individual subjects "borrowing
