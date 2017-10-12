@@ -227,7 +227,7 @@ plot_intervals(interval_data, draw_ref_line = FALSE) + ggtitle("No line")
 
 As we can see, the plot is built up incrementally throughout the function.
 The plot object `p` is updated three times (the `p <- p + ...` parts). This
-makes more difficult to understand the function when reading it and increases
+makes it more difficult to understand the function when reading it and increases
 the chance that we might do something wrong when working on this code.
 
 We can improve the readability by using empty or placeholder elements to move
