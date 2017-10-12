@@ -367,13 +367,13 @@ plot_intervals(interval_data, draw_ref_line = FALSE) + ggtitle("No line")
 
 <img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-4-1.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" /><img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-4-2.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" />
 
-### A final note on `NULL` and why I avoid it
+## A final note on `NULL` [_updated_] 
 
-I should come clean and note that there is not really an identity element for
-ggplot2 construction. Unlike adding 0 to a number, using these techniques to add
-nothing to a plot still updates the plot object. For the plot object below, the
-first layer says `geom_blank` and the last layer says `geom_point`. Visually, we
-have done nothing, but internally, we left a trace behind.
+I should come clean and note that these blank layers are not really identity
+elements. Unlike adding 0 to a number, using these techniques to add nothing to
+a plot still updates the plot's data. For the plot object below, the first layer
+says `geom_blank` and the last layer says `geom_point`. Visually, we have done
+nothing, but internally, we left a trace behind.
 
 
 ```r
@@ -394,15 +394,22 @@ p[["layers"]][[4]]
 #> position_identity
 ```
 
-After some playing around, I discovered that adding `NULL` to a ggplot doesn't
-change it (e.g., `p + NULL` does not leave a trace), but I plan to avoid this
-technique. First, it seems like an edge-case: We are normally not supposed to
-add `NULL` to things,
-so we're asking for trouble. (In contrast, we are supposed to add `geom_blank()`
-to things, so no problem there.) Second, it doesn't seem future-proof. We might
-imagine a later stricter version of ggplot2 where adding `NULL` raises an error.
-Then all the code that relies on _this one weird trick_ will break.
+**Update** After some playing around, I discovered that adding `NULL` to a
+ggplot doesn't change it (e.g., `p + NULL` does not leave a trace), so it
+provides a stronger identity element for ggplot2 than invisible layers. In the
+original version of this post, I said that I would not use `NULL`  in this way
+because it seemed like an edge case that might break some day. But the creator
+of ggplot2, Hadley Wickham, [told me that using `NULL` as an identity element is
+a deliberate design
+feature](https://twitter.com/hadleywickham/status/918438633111203841). :tada:
+Cool! Now, we can make `geom_ignore()` even simpler.
 
+
+```r
+geom_ignore <- function(...) {
+  NULL
+}
+```
 
 [^monoids]: This technique of using an empty element with combiner functions was inspired by the concept of [monoids](https://en.wikipedia.org/wiki/Monoid) which come up in functional programming. Monoids have a strict formal definition, and ggplot2 are certainly not monoids because everything must be added onto an initial `ggplot()` object. 
 
