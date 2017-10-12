@@ -1,24 +1,28 @@
 ---
 title: "Simplifying ggplot2 code by doing nothing"
 excerpt: "The ggplot2 version of multiplying by 1"
-tags: ''
+tags:
+  - bayesplot
+  - ggplot2
+  - r
 ---
-
-
 
 Recently, I joined the development team for
 [bayesplot](http://mc-stan.org/bayesplot/), an R package by the Stan team for
-quickly plotting Bayesian models. Because plotting the results of Bayesian
-models in ggplot2 is a [recurring]((/visualizing-uncertainty-rstanarm/)
+plotting Bayesian models. Because visualizing Bayesian models in ggplot2 is a
+[recurring](/visualizing-uncertainty-rstanarm/)
 [topic](/plotting-partial-pooling-in-mixed-effects-models/)
-[here](/bayesian-fisher-exact-test/), it was a natural fit. I have been cleaning
-up and simplifying some of the plotting code in the package, so in this post, I
-describe one of the techniques I use in the package: **avoid if-branches by
-sometimes plotting nothing**.
+[here](/bayesian-fisher-exact-test/), it was a natural fit. So from time to
+time, I'll post about some programming techniques and new features we develop in
+the bayesplot package. 
+
+For this post, I describe one of strategies I have been
+using to clean up and simplify some of the plotting code in the package: **avoid
+if-branches by sometimes plotting nothing**.
 
 ## Warm-up example
 
-Let's start with a non-plotting example. We write a function
+Let's start with a non-plotting example. We consider a function
 that takes a list of counts of people and returns the total number of people.
 That sum, however, is controlled by some of the function's arguments:
 
@@ -48,15 +52,15 @@ head_count(data, faculty = TRUE)
 ```
 
 The function as it's written works fine... but the if-branches get in the
-way too. The main job of the function is to assemble something (a sum) from
+way. The main job of the function is to assemble something (a sum) from
 pieces of data, but that assembly is split across the if-branches. The `total`
-is updated in-place twice (`total <- total +`). I would rather combine all the
-data in one fell swoop.
+is updated in-place twice (`total <- total + ...`). I would rather combine all
+the data in one fell swoop.
 
 One way to move the data-assembly out of these if-branches is to make _the data_
 conditional. That is, instead of doing the addition in the `if` statements, we
-do all the addition at once but just add 0 if a piece of data isn't
-needed. This technique yields simplifies the function definition:
+do all the addition at once but just add 0 when a piece of data isn't
+needed. This technique simplifies the function definition:
 
 
 ```r
@@ -81,13 +85,13 @@ the results. Some examples:
 
 
 ```r
-# string concatenation
-paste0("a", "")
-#> [1] "a"
-
 # multiplication
 pi * 1
 #> [1] 3.141593
+
+# string concatenation
+paste0("a", "")
+#> [1] "a"
 
 # combining things
 c(1, 2, 3, c())
@@ -115,15 +119,18 @@ by stringing together statements with `+`. To handle conditional plotting
 elements and construct the plot all in one pass, I took advantage of ways to
 adding nothing to a ggplot2 plot.[^monoids]
 
-## Interval plots
+## Posterior interval plots
 
-Here are some MCMC samples for a Bayesian model. We want to create a plot that
-shows the 90% and 50% intervals for each parameter estimate. We first use a
-helper function to clean up the data to prepare it for plotting. (At the time of
-writing, `mcmc_intervals_data()` is not yet in the CRAN version of bayesplot.)
+Here are some posterior samples for a Bayesian model, in this case the ["eight schools"](http://andrewgelman.com/2014/01/21/everything-need-know-bayesian-statistics-learned-eight-schools/) meta-analysis example. We want to create a plot that
+shows the 90% and 50% uncertainty intervals for each parameter. 
+
+We first use a helper function to clean up the data to prepare it for plotting.
+(At the time of writing, `mcmc_intervals_data()` is not yet in the CRAN version
+of bayesplot.)
 
 
 ```r
+library(dplyr, warn.conflicts = FALSE)
 library(bayesplot)
 #> This is bayesplot version 1.4.0.9000
 #> - Plotting theme set to bayesplot::theme_default()
@@ -133,8 +140,7 @@ theme_set(theme_grey())
 
 interval_data <- shinystan::eight_schools@posterior_sample %>% 
   mcmc_intervals_data(pars = "mu", regex_pars = "theta") %>% 
-  mutate_if(is.numeric, round, 2) %>% 
-  mutate()
+  mutate_if(is.numeric, round, 2) 
 
 interval_data
 #> # A tibble: 9 x 9
@@ -152,10 +158,11 @@ interval_data
 #> # ... with 1 more variables: hh <dbl>
 ```
 
-Below is the basic plot we want to create. We use `aes_(y = ~ parameter)`
-because in R package programming, writing `aes(y = parameter)` would raise an
-undefined global variable warning during CRAN checks. The formula form "quotes"
-the variable name, so it doesn't appear as a global variable.
+Below is the basic plot we want to
+create. (Normally, in bayesplot, we would use
+[`mcmc_intervals()`](http://mc-stan.org/bayesplot/reference/MCMC-intervals.html)
+to make this plot, but for the sake of illustration, we will write a version of
+it from scratch.
 
 
 ```r
@@ -167,7 +174,15 @@ ggplot(interval_data) +
   labs(x = NULL, y = NULL)
 ```
 
-<img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/unnamed-chunk-5-1.png" title="center" alt="center" width="80%" style="display: block; margin: auto;" />
+<img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/intervals-1-1.png" title="An interval plot showing the 90% and 50% intervals for eight schools and average value in the eight schools model." alt="An interval plot showing the 90% and 50% intervals for eight schools and average value in the eight schools model." width="80%" style="display: block; margin: auto;" />
+
+**Wait, what's going on with the tildes?** We use `aes_(y = ~ parameter)`
+because in an R package, writing `aes(y = parameter)` would raise an undefined
+global variable warning :warning: during CRAN package checks. The code looks like it uses
+a variable called `parameter`, but a variable with that name has not been defined in
+the code yet. The formula form `~ parameter` "quotes" the variable name, so
+it doesn't appear as a global variable.
+{: .notice--info}
 
 We are going to wrap this code in an R function along with two annotation
 options: 
@@ -202,30 +217,21 @@ plot_intervals <- function(data, draw_points = TRUE, draw_ref_line = TRUE,
      labs(x = NULL, y = NULL)
 }
 
-plot_intervals(interval_data)
+# Test the code
+plot_intervals(interval_data) + ggtitle("Points and line")
+plot_intervals(interval_data, draw_points = FALSE) + ggtitle("No points")
+plot_intervals(interval_data, draw_ref_line = FALSE) + ggtitle("No line")
 ```
 
-<img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/tests-1-1.png" title="center" alt="center" width="80%" />
-
-```r
-plot_intervals(interval_data, draw_points = FALSE)
-```
-
-<img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/tests-1-2.png" title="center" alt="center" width="80%" />
-
-```r
-plot_intervals(interval_data, draw_ref_line = FALSE)
-```
-
-<img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/tests-1-3.png" title="center" alt="center" width="80%" />
+<img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-1-1.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" /><img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-1-2.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" /><img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-1-3.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" />
 
 As we can see, the plot is built up incrementally throughout the function.
-The plot object `p` is updated three times (the `p <- p +` parts). This makes
-more difficult to follow the function when reading it and increases the chance
-that we might do something wrong when working on this code.
+The plot object `p` is updated three times (the `p <- p + ...` parts). This
+makes more difficult to understand the function when reading it and increases
+the chance that we might do something wrong when working on this code.
 
-We can improve the readability by using empty or placeholder elements to remove
-the plot updates inside of the if-branches.
+We can improve the readability by using empty or placeholder elements to move
+the plot updates outside of the if-branches.
 
 ## Do nothing by plotting an empty dataframe
 
@@ -257,14 +263,15 @@ plot_intervals <- function(data, draw_points = TRUE, draw_ref_line = TRUE,
     labs(x = NULL, y = NULL)
 }
 
-plot_intervals(interval_data)
-plot_intervals(interval_data, draw_points = FALSE)
-plot_intervals(interval_data, draw_ref_line = FALSE)
+# Test the code
+plot_intervals(interval_data) + ggtitle("Points and line")
+plot_intervals(interval_data, draw_points = FALSE) + ggtitle("No points")
 ```
 
-<img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/test-2-1.png" title="center" alt="center" width="50%" /><img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/test-2-2.png" title="center" alt="center" width="50%" /><img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/test-2-3.png" title="center" alt="center" width="50%" />
+<img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-2-1.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" /><img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-2-2.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" />
 
-This is a marked improvement over the original, although
+This is a marked improvement over the original, as most of the plot construction
+happens at the end of the function.
 
 ## Do nothing with `geom_blank`
 
@@ -277,9 +284,10 @@ ggplot(interval_data) +
   aes(x = m, y = parameter)
 ```
 
-<img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/unnamed-chunk-6-1.png" title="center" alt="center" width="80%" style="display: block; margin: auto;" />
+<img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/blank-1.png" title="Demo of how ggplot uses geom_blank() to print plots" alt="Demo of how ggplot uses geom_blank() to print plots" width="80%" style="display: block; margin: auto;" />
 
-When we inspect the last plot that was displayed, we see `geom_blank()` is one of the layers:
+When we inspect the last plot that was displayed, we see `geom_blank()` is one
+of the layers:
 
 
 ```r
@@ -310,16 +318,20 @@ plot_intervals <- function(data, draw_points = TRUE, draw_ref_line = TRUE,
     scale_y_discrete(limits = rev(data$parameter)) + 
     labs(x = NULL, y = NULL)
 }
-plot_intervals(interval_data)
-plot_intervals(interval_data, draw_ref_line = FALSE)
+
+# Test the code
+plot_intervals(interval_data) + ggtitle("Points and line")
+plot_intervals(interval_data, draw_ref_line = FALSE) + ggtitle("No line")
 #> Warning: Ignoring unknown parameters: xintercept, size, colour
 ```
 
-<img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/test-3-1.png" title="center" alt="center" width="30%" /><img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/test-3-2.png" title="center" alt="center" width="30%" />
+<img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-3-1.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" /><img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-3-2.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" />
 
-But it also issues a warning when it toggles to `geom_blank()`. That's annoying. 
-
-For bayesplot, I wrote a helper called `geom_ignore()` as a version of `geom_blank()` that ignores any input arguments. The function recieves any number of arguments in the `...` argument, but note that that function does nothing with those dots. It just ignores them.
+But it also issues a warning when it toggles to `geom_blank()`. That might alarm
+some users, so we need to fix that. For bayesplot, I wrote a helper called
+`geom_ignore()` as a version of `geom_blank()` that ignores any input arguments.
+The function recieves any number of arguments in the `...` placeholder argument,
+but the function does nothing with those dots. It just ignores them.
 
 
 ```r
@@ -348,29 +360,51 @@ plot_intervals <- function(data, draw_points = TRUE, draw_ref_line = TRUE,
     labs(x = NULL, y = NULL)
 }
 
-plot_intervals(interval_data)
-plot_intervals(interval_data, draw_ref_line = FALSE)
+# Test the code
+plot_intervals(interval_data) + ggtitle("Points and line")
+plot_intervals(interval_data, draw_ref_line = FALSE) + ggtitle("No line")
 ```
 
-<img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/test-4-1.png" title="center" alt="center" width="30%" /><img src="/figs/drafts//2017-10-11-ggplot2-how-to-do-nothing/test-4-2.png" title="center" alt="center" width="30%" />
-
+<img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-4-1.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" /><img src="/figs//2017-10-11-ggplot2-how-to-do-nothing/test-4-2.png" title="A test of the plot_intervals() function" alt="A test of the plot_intervals() function" width="50%" />
 
 ### A final note on `NULL` and why I avoid it
 
-Adding `NULL` to a ggplot doesn't change it (e.g., `last_plot() + NULL`), but I
-avoid this technique. First, it seems like an edge-case: We are normally not
-supposed to add `NULL` to things, so we're asking for trouble. (In contrast, we are supposed to add `geom_blank()` to things, so no problem there.) Second, it
-doesn't seem future-proof. We might imagine a later stricter version of ggplot2
-where adding `NULL` raises an error. Then all the code that relies on _this one
-weird trick_ will break.
+I should come clean and note that there is not really an identity element for
+ggplot2 construction. Unlike adding 0 to a number, using these techniques to add
+nothing to a plot still updates the plot object. For the plot object below, the
+first layer says `geom_blank` and the last layer says `geom_point`. Visually, we
+have done nothing, but internally, we left a trace behind.
 
 
+```r
+p <- plot_intervals(
+  interval_data, 
+  draw_points = FALSE, 
+  draw_ref_line = FALSE)
 
-[^monoids]: This technique of using an empty element with combiner functions was
-inspired by the concept of [monoids](https://en.wikipedia.org/wiki/Monoid) which
-come up in functional programming. Monoids have a stricter formal definition,
-and ggplot2 are most certainly not monoids because everything must be added onto
-an initial `ggplot()` object.
+p[["layers"]][[1]]
+#> geom_blank: na.rm = FALSE
+#> stat_identity: na.rm = FALSE
+#> position_identity
+
+p[["layers"]][[4]]
+#> mapping: x = m 
+#> geom_point: na.rm = FALSE
+#> stat_identity: na.rm = FALSE
+#> position_identity
+```
+
+After some playing around, I discovered that adding `NULL` to a ggplot doesn't
+change it (e.g., `p + NULL` does not leave a trace), but I plan to avoid this
+technique. First, it seems like an edge-case: We are normally not supposed to
+add `NULL` to things,
+so we're asking for trouble. (In contrast, we are supposed to add `geom_blank()`
+to things, so no problem there.) Second, it doesn't seem future-proof. We might
+imagine a later stricter version of ggplot2 where adding `NULL` raises an error.
+Then all the code that relies on _this one weird trick_ will break.
+
+
+[^monoids]: This technique of using an empty element with combiner functions was inspired by the concept of [monoids](https://en.wikipedia.org/wiki/Monoid) which come up in functional programming. Monoids have a strict formal definition, and ggplot2 are certainly not monoids because everything must be added onto an initial `ggplot()` object. 
 
 
 
