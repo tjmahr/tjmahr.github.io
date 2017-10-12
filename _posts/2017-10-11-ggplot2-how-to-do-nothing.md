@@ -275,8 +275,8 @@ happens at the end of the function.
 
 ## Do nothing with `geom_blank`
 
-Another way to go nothing is to add `geom_blank()`. In fact, this is what
-ggplot2 does when we print a ggplot2 object without any data.
+Another way to do nothing is to add `geom_blank()`. In fact, this is what
+ggplot2 does when we print a ggplot2 object without any geom layers.
 
 
 ```r
