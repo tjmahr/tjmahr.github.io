@@ -53,7 +53,7 @@ repeated <- function(.x, .reps = 1, .f, ...) {
     is.finite(.reps))
   
   # accept purrr-style formula functions
-  .f <- purrr::as_function(.f, ...)
+  .f <- purrr::as_mapper(.f, ...)
   
   # 0 .reps
   value <- .x
@@ -139,7 +139,7 @@ rrrepeated <- function(.x, .reps = 1, .f, ...) {
     is.finite(.reps))
   
   # accept purrr-style formula functions
-  .f <- purrr::as_function(.f, ...)
+  .f <- purrr::as_mapper(.f, ...)
   
   recursively_repeat(.x, .reps, .f, ...)
 }
@@ -209,3 +209,12 @@ higher-order function to handle this kind of iteration. My first pass at the
 problem used a simple while loop that ticked down a counter every time the
 function was called. Dared by the loop-free purism, I also wrote a recursive
 version, but for a problem this simple, it's more of a curiosity.
+
+**Update: Trampolines?** Thanks to RStudio's community forum, I've learned that
+there is a "trampoline" programming pattern for converting
+recursive functions into ones that use loops. Read the [great thread
+here](https://community.rstudio.com/t/tidiest-way-to-do-recursion-safely-in-r/1408)
+and [follow-up blog post
+here](https://tailrecursion.com/wondr/posts/tail-recursion-in-r.html). [_Oct.
+13, 2017_]
+{: .notice--info}

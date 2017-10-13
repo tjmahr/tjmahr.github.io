@@ -54,7 +54,7 @@ repeated <- function(.x, .reps = 1, .f, ...) {
     is.finite(.reps))
   
   # accept purrr-style formula functions
-  .f <- purrr::as_function(.f, ...)
+  .f <- purrr::as_mapper(.f, ...)
   
   # 0 .reps
   value <- .x
@@ -153,7 +153,7 @@ rrrepeated <- function(.x, .reps = 1, .f, ...) {
     is.finite(.reps))
   
   # accept purrr-style formula functions
-  .f <- purrr::as_function(.f, ...)
+  .f <- purrr::as_mapper(.f, ...)
   
   recursively_repeat(.x, .reps, .f, ...)
 }
@@ -209,9 +209,9 @@ microbenchmark::microbenchmark(
   times = 1000
 )
 #> Unit: microseconds
-#>        expr     min       lq     mean   median       uq       max neval
-#>  with_while 763.246 1433.186 1802.666 1588.773 1778.185  8624.769  1000
-#>  with_recur 863.550 1696.776 2155.031 1892.952 2191.532 44090.026  1000
+#>        expr      min       lq     mean   median       uq      max neval
+#>  with_while  952.152 1006.612 1246.617 1051.803 1131.922 47775.11  1000
+#>  with_recur 1081.268 1154.930 1412.638 1218.662 1330.562 48546.50  1000
 #>  cld
 #>   a 
 #>    b
@@ -226,7 +226,7 @@ recursion when I crank up the number of repetitions:
 
 ```r
 repeated(1:20, 1000, shuffle)
-#>  [1]  9 15  7 20  5 16 10 12  4  8 11  1  3 19 17 13 14  2  6 18
+#>  [1]  4  8  5  1 15  2  7 13 14 11  9  3 17 20 12  6 10 18 19 16
 rrrepeated(1:20, 1000, shuffle)
 #> Error: evaluation nested too deeply: infinite recursion / options(expressions=)?
 ```
@@ -239,3 +239,12 @@ higher-order function to handle this kind of iteration. My first pass at the
 problem used a simple while loop that ticked down a counter every time the
 function was called. Dared by the loop-free purism, I also wrote a recursive
 version, but for a problem this simple, it's more of a curiosity.
+
+**Update: Trampolines?** Thanks to RStudio's community forum, I've learned that
+there is a "trampoline" programming pattern for converting
+recursive functions into ones that use loops. Read the [great thread
+here](https://community.rstudio.com/t/tidiest-way-to-do-recursion-safely-in-r/1408)
+and [follow-up blog post
+here](https://tailrecursion.com/wondr/posts/tail-recursion-in-r.html). [_Oct.
+13, 2017_]
+{: .notice--info}
