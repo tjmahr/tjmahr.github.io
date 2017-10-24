@@ -1,0 +1,115 @@
+---
+title: "Am I going crazy or is everyone computing the HPDI wrong?"
+author: "TJ Mahr"
+date: "June 20, 2017"
+output: 
+  ghdown::github_html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>")
+```
+
+The _highest (posterior) density interval_ (HPDI) for a sample of values is
+narrowest interval that contains x% of the data. The 90% HPDI would be the 
+smallest interval that contains 90% of the data.
+
+What's the 90% HPDI for these values?
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+
+xs <- 1:20
+xs
+```
+
+Using existing implementations, we get...
+
+```{r}
+xs <- 1:20
+
+hpdi1 <- HDInterval::hdi(xs, credMass = .9)
+hpdi1
+
+hpdi2 <- coda::HPDinterval(coda::as.mcmc(xs), .9)
+hpdi2
+```
+
+But these intervals contain more than 90% of the data.
+
+```{r}
+within <- function(xs, range) {
+  min(range) <= xs & xs <= max(range)
+}
+
+mean(within(xs, hpdi1))
+mean(within(xs, hpdi2))
+```
+
+So I rolled my own version. The algorithm for finding the HPDI involves looking
+at all intervals with x% of the data, and keeping the one with the smallest
+interval. That's what I do here.
+
+```{r}
+compute_hpdi <- function(xs, prob = .9) {
+  x_sorted <- sort(xs)
+  n <- length(xs)
+
+  num_to_keep <- ceiling(prob * n)
+  num_to_drop <- n - num_to_keep
+
+  possible_starts <- seq(1, num_to_drop + 1, by = 1)
+  # Just count down from the other end
+  possible_ends <- rev(seq(from = n, length = num_to_drop + 1, by = -1))
+
+  # Find smallest interval
+  span <- x_sorted[possible_ends] - x_sorted[possible_starts]
+  edge <- which.min(span)
+  edges <- c(possible_starts[edge], possible_ends[edge])
+
+  # My requirement: length of span interval must be same as number to keep.
+  # Other methods produce intervals that are 1 longer.
+  stopifnot(length(edges[1]:edges[2]) == num_to_keep)
+  
+  x_sorted[edges]
+}
+
+compute_hpdi(xs)
+mean(within(xs, compute_hpdi(xs)))
+```
+
+That seems more correct to me.
+
+## Bunch of tests where my version does best
+
+```{r}
+compare_methods <- function(xs, prob = .9) {
+  x <- rlang::f_label(rlang::enquo(xs))
+  hpdi1 <- HDInterval::hdi(xs, credMass = prob)
+  hpdi2 <- coda::HPDinterval(coda::as.mcmc(xs), prob)
+  hpdi3 <- compute_hpdi(xs, prob)
+  
+  tibble::tribble(
+    ~ x, ~ Method, ~ lower, ~ upper, ~ coverage, ~ target,
+    x, "HDInterval", min(hpdi1), max(hpdi1), mean(within(xs, hpdi1)), prob,
+    x, "coda", min(hpdi2), max(hpdi2), mean(within(xs, hpdi2)), prob,
+    x, "TJ", min(hpdi3), max(hpdi3), mean(within(xs, hpdi3)), prob
+  ) %>% 
+    mutate(span = upper - lower)
+}
+
+compare_methods(rnorm(20))
+compare_methods(rnorm(200))
+compare_methods(rnorm(200000))
+
+compare_methods(iris$Sepal.Length)
+compare_methods(iris$Sepal.Width)
+
+compare_methods(mtcars$mpg)
+compare_methods(mtcars$mpg, .09312)
+
+compare_methods(mtcars$wt)
+compare_methods(mtcars$wt, .5)
+```
+
+

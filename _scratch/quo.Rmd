@@ -1,0 +1,100 @@
+---
+title: "Checking if quosures are missing or null"
+author: "[TJ Mahr](https://tjmahr.github.io/)"
+output: 
+  ghdown::github_html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>")
+```
+I'm still figuring out the new quosure (quotation + closure) system in rlang. 
+This document has some notes on a problem I had to sort out.
+
+I was working on function that took an unquoted column name as an argument. But
+I also wanted to set `NULL` as a default value if the user did not provide a
+column name. 
+
+The general idea and usage would be something like...
+
+```{r, eval = FALSE}
+my_function <- function(data, column = NULL) {
+  var <- enquo(column)
+  # ... do things...
+}
+
+# We want to support both of these calls
+my_function(iris)
+my_function(iris, Species)
+```
+
+How do I check whether or not the column is `NULL` or a column name once it has
+been `enquo`'d? rlang provides several functions to check the expression inside
+of a quosure.
+
+```{r}
+library(rlang)
+
+f <- function(var) {
+  v <- enquo(var)
+  str(list(
+    v = v,
+    quo_is_missing = quo_is_missing(v),
+    quo_is_null = quo_is_null(v),
+    quo_is_symbol = quo_is_symbol(v),
+    quo_is_symbolic = quo_is_symbolic(v),
+    quo_is_lang = quo_is_lang(v)))
+}
+
+
+f()
+f(Time)
+f(NULL)
+
+g <- function(var = NULL) {
+  v <- enquo(var)
+  str(list(
+    v = v,
+    quo_is_missing = quo_is_missing(v),
+    quo_is_null = quo_is_null(v),
+    quo_is_symbol = quo_is_symbol(v),
+    quo_is_symbolic = quo_is_symbolic(v),
+    quo_is_lang = quo_is_lang(v)))
+}
+
+g()
+g(Time)
+g(NULL)
+```
+
+What to do when these functions are sending quos to other functions? Unquote
+them if they are being re-`enquo`'d.
+
+Without unquoting, the inner function just re-quotes `v`. Note that the
+environment `<quosure: ...>` is neither global nor empty; `v`'s environment is
+the outer function.
+
+```{r}
+h_send_quo <- function(var) {
+    v <- enquo(var)
+    f(v)
+}
+
+h_send_quo()
+h_send_quo(Time)
+h_send_quo(NULL)
+```
+
+With unquoting, the inner function sees the expression and environemtn quoted 
+by `v`.
+
+```{r}
+h_send_unquoted <- function(var) {
+    v <- enquo(var)
+    f(!! v)
+}
+h_send_unquoted()
+h_send_unquoted(Time)
+h_send_unquoted(NULL)
+```
+

@@ -1,0 +1,164 @@
+
+
+## Some RMarkdown trickery
+
+In this section, I 
+
+For this version of the talk, I wanted my equations to look nice. I also wanted
+to avoid some of the headaches with HTML slides shows, so I made the slides in
+LaTeX using a RMarkdown/Pandoc/Beamer workflow. I had never generated LaTeX with
+R or Pandoc before, so there were a few new tricks I had to work out.
+
+### Conditional markdown
+
+One nice thing about working with RMarkdown is that you get a markdown file that Pandoc can transform that document into a zillion different formats. (Let's not forget that monstrous diagram on [this page](http://pandoc.org/).) I would like to generate two versions of the slides:
+
+* A Beamer presentation (a pdf where each page is a slide)
+* An HTML document where so can skim over the bullet points and images as a 
+  single web page
+
+[Pandoc accommodates slideshows](https://pandoc.org/MANUAL.html#producing-slide-shows-with-pandoc) by overloading some markdown syntax. To separate slides, for example, you can use H2 headers or horizontal dividing lines. The following markdown generates three different slides.
+
+```
+## Slide one title
+
+* Point 1
+* Point 2
+
+## Slide two title
+
+* Point 3
+* Point 4
+
+----
+
+* This is a third, untitled slide.
+
+```
+
+But when you produce HTML documents from this markdown, those `----` take on
+their original function and insert horizontal dividers. The document becomes
+peppered with ugly, disruptive horizontal lines.
+
+> ## Slide two title
+> 
+> * Point 3
+> * Point 4
+> 
+> ----
+> 
+> * This is a third, untitled slide.
+
+There were some other problems where the slideshow tricks resulted in ugly HTML
+output. For example, to have content enter a slide incrementally, you can use 
+`. . .` to insert a pause or use blockquotes before the bullets.
+
+```
+## Slide Four
+
+> * This bullet appears first
+> * The next page of the pdf reveals this bullet
+> * The next page of the pdf reveals this bullet
+
+. . .
+
+The next page of the pdf reveals this paragraph.
+```
+
+But in HTML-land, the syntax retains its original meaning, so you get something
+kind of weird looking too.
+
+
+> ## Slide Four
+> 
+> > * This bullet appears first
+> > * The next page of the pdf reveals this bullet
+> > * The next page of the pdf reveals this bullet
+> 
+> . . .
+> 
+> The next page of the pdf reveals this paragraph.
+
+I wrote some R functions to toggle between slide-oriented markdown
+decorations and regular HTML-oriented markdown. I used an unexported function
+inside of knitr to determine whether LaTeX is being targeted. (Using private
+code is not a smart thing to do, but let's roll with it.) Because there are a
+few different syntactic practices that I need to handle with the same basic
+code, I create a function factory: A function that creates different LaTeX
+decorators.
+
+```{r}
+# Make a function that prints a string of characters if the output is pdf
+make_latex_decorator <- function(output, otherwise) {
+  function() {
+      if (knitr:::is_latex_output()) output else otherwise
+  }
+}
+
+insert_pause <- make_latex_decorator(". . .", "\n")
+insert_slide_break <- make_latex_decorator("----", "\n")
+insert_inc_bullet <- make_latex_decorator("> *", "*")
+insert_html_math <- make_latex_decorator("", "$$")
+```
+
+The `insert_pause()` function here will create an incremental slide break when
+the output is LaTeX but just use a blank line when the output is HTML.
+
+```
+## First, what are models?!
+
+What is a statistical model?
+
+`r literal_inline("insert_pause()")`
+
+It's a description of how the data could have been generated.
+```
+
+
+### Using a "Github" theme for HTML documents
+
+When I work in RMarkdown, I prefer the `github_document` format which produces a
+Github-flavored markdown file. Github renders these documents in a particularly
+pleasing style on their site. 
+
+When you render the document, RStudio also provides a preview of how the
+document might appear on Github. I like the styling of the HTML previews a lot.
+The HTML previews is just a temporary file that is not saved alongside the
+document.
+
+To retain or share that HTML preview file would require opening the preview of
+the file in a browser and saving the html file. Kind of a hassle. Can I just do
+this automatically?
+
+I created [a tiny R package](https://github.com/tjmahr/ghdown) that creates HTML
+files styled with CSS file used in the Github preview files. I called it
+"ghdown", missing the obvious name ("gitdown"). When I say _tiny_, I mean it. 
+The [main R code](https://github.com/tjmahr/ghdown/blob/b811cc319a831ac2235892746e90298adf6e2835/R/ghdown-package.R) 
+in the package is just two lines. I also some 
+[helper files](https://github.com/tjmahr/ghdown/tree/master/inst/rmarkdown/templates/github_html_document), 
+so that the format would show up in RStudio's template menu 
+(New File >> R Markdown... >> From Template).
+
+The format is not a perfect clone of the HTML preview files, because it can 
+support Mathjax equations, but I put that on the _feature_ side of the
+feature-bug divide.
+
+Ultimately, to target the two formats, I used the following header.
+
+```yaml
+---
+title: "An introduction to Bayesian regression"
+author: "Tristan Mahr"
+date: "April 13, 2017"
+output:
+  ghdown::github_html_document: default
+  beamer_presentation:
+    includes:
+      in_header: assets/header.txt
+    latex_engine: pdflatex
+    slide_level: 2
+    theme: Metropolis
+    toc: no
+subtitle: Guest lecture for Psych 610/710 at UW--Madison
+---
+```
