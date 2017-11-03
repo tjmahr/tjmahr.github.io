@@ -245,7 +245,7 @@ more effort to undo interactions. Also, the regression lines span the whole _x_
 axis which is not appropriate when subgroups only use a portion of the x-axis. 
 (This limitation is solvable though.) Finally, I haven't found good defaults 
 for the aesthetic options: The number of samples, the colors to use, and the 
-transparency level. One can lose of lots and lots and lots time fiddling with
+transparency level. One can lose lots and lots and lots of time fiddling with
 those knobs!
 
 
