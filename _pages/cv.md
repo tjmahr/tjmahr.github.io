@@ -71,8 +71,7 @@ denoising autoencoders).
 {% endcapture %}
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-
-{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
 
 {% capture author_line %}
 {% for author in pub.authors %}
@@ -136,10 +135,11 @@ project. Links to reviews:
 {% endcapture %}
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
 
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus | strip_newlines }}
 {% endfor %}
+
 
 
 #### Coauthored (i.e., I didn't talk, but probably did stats and made figures)
@@ -158,7 +158,7 @@ project. Links to reviews:
 {% endcapture %}
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
 
 {{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
@@ -170,6 +170,12 @@ project. Links to reviews:
 
 {% for pub in invited_talks %}
 
+{% capture title %}
+{% if pub.title.url %}[{{pub.title.text}}]({{pub.title.url}})
+{% else %}{{pub.title}}
+{% endif %}
+{% endcapture %}
+
 {% capture author_line %}
 {% for author in pub.authors %}
 {% if forloop.first %} {{author}}
@@ -180,9 +186,10 @@ project. Links to reviews:
 {% endcapture %}
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
 
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
+{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
+
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
 
 
@@ -201,7 +208,7 @@ project. Links to reviews:
 {% endcapture %}
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
 
 {{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}

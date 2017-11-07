@@ -17,7 +17,8 @@ publications:
     - Edwards, J. R.
     when:
       year: 2016
-    title: Vocabulary size and auditory word recognition in preschool children
+    title: >
+      Vocabulary size and auditory word recognition in preschool children
     where:
       journal: Applied Psycholinguistics
     doi: 10.1017/S0142716416000126
@@ -36,9 +37,10 @@ publications:
       volume: 142
       pages: 345--350
     doi: 10.1016/j.cognition.2015.05.009
-    bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Data, scripts, stimuli on Github](https://github.com/tjmahr/2015_Coartic).'
-
-
+    bonus:
+      type: flask
+      text: Data, scripts, stimuli on Github.
+      url: https://github.com/tjmahr/2015_Coartic
 
 
 talks:
@@ -54,7 +56,10 @@ talks:
     where: >
       Presentation at the 42nd annual Boston University Conference on
       Language Development, Boston, MA.
-    bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Data, scripts, slides on Github](https://github.com/tjmahr/bucld17).'
+    bonus:
+      type: flask
+      text: Data, scripts, slides on Github.
+      url: https://github.com/tjmahr/bucld17
 
   # BUCLD 2016
   - type: authored
@@ -78,9 +83,14 @@ talks:
     when:
       year: 2016
       month: September
-    title: "[Bayesian Regression Models with RStanARM](https://cdn.rawgit.com/tjmahr/MadR_RStanARM/master/01-how-i-got-into-Bayes-rpubs.html#/)"
+    title:
+      text: Bayesian Regression Models with RStanARM
+      url: "https://cdn.rawgit.com/tjmahr/MadR_RStanARM/master/01-how-i-got-into-Bayes-rpubs.html#/"
     where: Presentation for the Madison R Users Group, Madison, WI.
-    bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Github repository](https://github.com/tjmahr/MadR_RStanARM).'
+    bonus:
+      type: flask
+      text: Github repository.
+      url: https://github.com/tjmahr/MadR_RStanARM
 
   # BUCLD 2015
   - type: coauthored
@@ -106,7 +116,8 @@ talks:
     when:
       year: 2015
       month: November
-    title: Speech perception and spoken word recognition in young children
+    title: >
+      Speech perception and spoken word recognition in young children
     where: >
       Presentation at the 170th Meeting of the Acoustical Society of
       America, Jacksonville, FL.
@@ -120,9 +131,14 @@ talks:
     when:
       year: 2015
       month: March
-    title: "[Let the data flow: Pipelines in R with dplyr and magrittr](http://rpubs.com/tjmahr/pipelines_2015)"
+    title:
+      text: "Let the data flow: Pipelines in R with dplyr and magrittr"
+      url: http://rpubs.com/tjmahr/pipelines_2015
     where: Presentation for the Madison R Users Group, Madison, WI.
-    bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Github repository](https://github.com/tjmahr/MadR_Pipelines).'
+    bonus:
+      type: flask
+      text: Github repository.
+      url: https://github.com/tjmahr/MadR_Pipelines
 
   # UW-Madison Prosem
   - type: invited
@@ -171,7 +187,6 @@ talks:
     where: >
       Presentation at the 19th annual Mid-Continental Phonetics & Phonology
       Conference, Madison, WI.
-
 
 
 posters:
