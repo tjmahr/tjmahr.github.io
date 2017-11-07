@@ -1,7 +1,7 @@
 ---
 layout: single
 title: Curriculum vitae
-modified: 2017-03-31
+modified: 2017-11-07
 excerpt: ""
 share: false
 paragraph-indent: false;

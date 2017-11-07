@@ -46,13 +46,13 @@ publications:
 talks:
   # BUCLD 2017
   - type: coauthored
+    title: Spoken word recognition of children with cochlear implants
     authors:
       - Mahr, T.
       - Edwards, J. R.
     when:
       year: 2017
       month: November
-    title: Spoken word recognition of children with cochlear implants
     where: >
       Presentation at the 42nd annual Boston University Conference on
       Language Development, Boston, MA.
@@ -61,31 +61,50 @@ talks:
       text: Data, scripts, slides on Github.
       url: https://github.com/tjmahr/bucld17
 
+  # ASHA 2016
+  - type: coauthored
+    title: >
+      Comparing Automatic Eye Tracking & Manual Gaze Coding in Children
+      with Autism Spectrum Disorder
+    authors:
+      - Venker, C.
+      - Mahr, T.
+      - Premo, E.
+      - Saffran, J. R.
+      - Edwards, J. R.
+      - Ellis Weismer, S.
+    when:
+      year: 2016
+      month: November
+    where: >
+      Technical Research Session at the Annual Conference of the
+      American Speech-Language-Hearing Association, Philadelphia, IL.
+
   # BUCLD 2016
   - type: authored
+    title: >
+      Lexical processing efficiency in preschool children: Influences of
+      speech perception and inhibitory control
     authors:
       - Mahr, T.
       - Edwards, J. R.
     when:
       year: 2016
       month: November
-    title: >
-      Lexical processing efficiency in preschool children: Influences of
-      speech perception and inhibitory control
     where: >
       Presentation at the 41st annual Boston University Conference on
       Language Development, Boston, MA.
 
   # MadR RStanARM
   - type: invited
+    title:
+      text: Bayesian Regression Models with RStanARM
+      url: "https://cdn.rawgit.com/tjmahr/MadR_RStanARM/master/01-how-i-got-into-Bayes-rpubs.html#/"
     authors:
       - Mahr, T.
     when:
       year: 2016
       month: September
-    title:
-      text: Bayesian Regression Models with RStanARM
-      url: "https://cdn.rawgit.com/tjmahr/MadR_RStanARM/master/01-how-i-got-into-Bayes-rpubs.html#/"
     where: Presentation for the Madison R Users Group, Madison, WI.
     bonus:
       type: flask
@@ -94,6 +113,9 @@ talks:
 
   # BUCLD 2015
   - type: coauthored
+    title: >
+      Exploring effects of expressive vocabulary size and maternal education
+      on lexical processing by preschoolers using the visual world paradigm
     authors:
       - Law, F., II
       - Mahr, T.
@@ -101,23 +123,20 @@ talks:
     when:
       year: 2015
       month: November
-    title: >
-      Exploring effects of expressive vocabulary size and maternal education
-      on lexical processing by preschoolers using the visual world paradigm
     where: >
       Presentation at the 40th annual Boston University Conference on
       Language Development, Boston, MA.
 
   # ASA 2015
   - type: coauthored
+    title: >
+      Speech perception and spoken word recognition in young children
     authors:
       - Edwards, J. R.
       - Mahr, T.
     when:
       year: 2015
       month: November
-    title: >
-      Speech perception and spoken word recognition in young children
     where: >
       Presentation at the 170th Meeting of the Acoustical Society of
       America, Jacksonville, FL.
@@ -126,14 +145,14 @@ talks:
 
   # MadR Pipelines
   - type: invited
+    title:
+      text: "Let the data flow: Pipelines in R with dplyr and magrittr"
+      url: http://rpubs.com/tjmahr/pipelines_2015
     authors:
       - Mahr, T.
     when:
       year: 2015
       month: March
-    title:
-      text: "Let the data flow: Pipelines in R with dplyr and magrittr"
-      url: http://rpubs.com/tjmahr/pipelines_2015
     where: Presentation for the Madison R Users Group, Madison, WI.
     bonus:
       type: flask
@@ -142,20 +161,23 @@ talks:
 
   # UW-Madison Prosem
   - type: invited
+    title: >
+      Using eyetracking to study toddlers' sensitivity to coarticulation
+      during word recognition
     authors:
       - Mahr, T.
     when:
       year: 2014
       month: October
-    title: >
-      Using eyetracking to study toddlers' sensitivity to coarticulation
-      during word recognition
     where: >
       Presentation for the UW-Madison Communication Sciences & Disorders
       Professional Seminar, Madison, WI.
 
   # BUCLD 2014
   - type: authored
+    title: >
+      Toddlers are sensitive to anticipatory coarticulation during
+      word recognition
     authors:
       - Mahr, T.
       - McMillan, B. T. M.
@@ -164,15 +186,15 @@ talks:
     when:
       year: 2014
       month: November
-    title: >
-      Toddlers are sensitive to anticipatory coarticulation during
-      word recognition
     where: >
       Presentation at the 39th annual Boston University Conference on
       Language Development, Boston, MA.
 
   # MidPhon 2014
   - type: authored
+    title: >
+      Are toddlers sensitive to anticipatory coarticulation during
+      word recognition?
     authors:
       - Mahr, T.
       - McMillan, B. T. M.
@@ -181,9 +203,6 @@ talks:
     when:
       year: 2014
       month: September
-    title: >
-      Are toddlers sensitive to anticipatory coarticulation during
-      word recognition?
     where: >
       Presentation at the 19th annual Mid-Continental Phonetics & Phonology
       Conference, Madison, WI.
@@ -191,8 +210,7 @@ talks:
 
 posters:
   # BUCLD 2017
-  - type: coauthored
-    authors:
+  - authors:
       - Erskine, M. E.
       - Mahr, T.
       - Edwards, J. R.
