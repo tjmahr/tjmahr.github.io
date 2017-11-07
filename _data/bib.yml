@@ -6,7 +6,9 @@ publications:
     - Edwards, J. R.
     when:
       year: in revision
-    title: Using language input and lexical processing to predict vocabulary size [working title]
+    title: >
+      Using language input and lexical processing to predict vocabulary
+      size [working title]
 
   - authors:
     - Law, F., II
@@ -40,6 +42,19 @@ publications:
 
 
 talks:
+  # BUCLD 2017
+  - type: coauthored
+    authors:
+      - Mahr, T.
+      - Edwards, J. R.
+    when:
+      year: 2017
+      month: November
+    title: Spoken word recognition of children with cochlear implants
+    where: >
+      Presentation at the 42nd annual Boston University Conference on
+      Language Development, Boston, MA.
+    bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Data, scripts, slides on Github](https://github.com/tjmahr/bucld17).'
 
   # BUCLD 2016
   - type: authored
@@ -49,8 +64,12 @@ talks:
     when:
       year: 2016
       month: November
-    title: "Lexical processing efficiency in preschool children: Influences of speech perception and inhibitory control"
-    where: Presentation at the 41st annual Boston University Conference on Language Development, Boston, MA.
+    title: >
+      Lexical processing efficiency in preschool children: Influences of
+      speech perception and inhibitory control
+    where: >
+      Presentation at the 41st annual Boston University Conference on
+      Language Development, Boston, MA.
 
   # MadR RStanARM
   - type: invited
@@ -72,8 +91,12 @@ talks:
     when:
       year: 2015
       month: November
-    title: Exploring effects of expressive vocabulary size and maternal education on lexical processing by preschoolers using the visual world paradigm
-    where: Presentation at the 40th annual Boston University Conference on Language Development, Boston, MA.
+    title: >
+      Exploring effects of expressive vocabulary size and maternal education
+      on lexical processing by preschoolers using the visual world paradigm
+    where: >
+      Presentation at the 40th annual Boston University Conference on
+      Language Development, Boston, MA.
 
   # ASA 2015
   - type: coauthored
@@ -84,7 +107,9 @@ talks:
       year: 2015
       month: November
     title: Speech perception and spoken word recognition in young children
-    where: Presentation at the 170th Meeting of the Acoustical Society of America, Jacksonville, FL.
+    where: >
+      Presentation at the 170th Meeting of the Acoustical Society of
+      America, Jacksonville, FL.
     doi: 10.1121/1.4933949
 
 
@@ -99,7 +124,6 @@ talks:
     where: Presentation for the Madison R Users Group, Madison, WI.
     bonus: '[<i class="fa fa-flask" aria-hidden="true"></i> Github repository](https://github.com/tjmahr/MadR_Pipelines).'
 
-
   # UW-Madison Prosem
   - type: invited
     authors:
@@ -107,9 +131,12 @@ talks:
     when:
       year: 2014
       month: October
-    title: Using eyetracking to study toddlers' sensitivity to coarticulation during word recognition
-    where: Presentation for the UW-Madison Communication Sciences & Disorders Professional Seminar, Madison, WI.
-
+    title: >
+      Using eyetracking to study toddlers' sensitivity to coarticulation
+      during word recognition
+    where: >
+      Presentation for the UW-Madison Communication Sciences & Disorders
+      Professional Seminar, Madison, WI.
 
   # BUCLD 2014
   - type: authored
@@ -121,8 +148,12 @@ talks:
     when:
       year: 2014
       month: November
-    title: Toddlers are sensitive to anticipatory coarticulation during word recognition
-    where: Presentation at the 39th annual Boston University Conference on Language Development, Boston, MA.
+    title: >
+      Toddlers are sensitive to anticipatory coarticulation during
+      word recognition
+    where: >
+      Presentation at the 39th annual Boston University Conference on
+      Language Development, Boston, MA.
 
   # MidPhon 2014
   - type: authored
@@ -134,15 +165,32 @@ talks:
     when:
       year: 2014
       month: September
-    title: Are toddlers sensitive to anticipatory coarticulation during word recognition?
-    where: Presentation at the 19th annual Mid-Continental Phonetics & Phonology Conference, Madison, WI.
-
-
-
+    title: >
+      Are toddlers sensitive to anticipatory coarticulation during
+      word recognition?
+    where: >
+      Presentation at the 19th annual Mid-Continental Phonetics & Phonology
+      Conference, Madison, WI.
 
 
 
 posters:
+  # BUCLD 2017
+  - type: coauthored
+    authors:
+      - Erskine, M. E.
+      - Mahr, T.
+      - Edwards, J. R.
+    when:
+      year: 2017
+      month: November
+    title: >
+      Understanding the effects of dialect familiarity on lexical processing
+      efficiency in preschool children using the visual world paradigm
+    where: >
+      Poster session at the 42nd annual Boston University Conference on
+      Language Development, Boston, MA.
+
   # SRCLD 2016
   - authors:
     - Mahr, T.
@@ -154,8 +202,11 @@ posters:
     when:
       year: 2016
       month: June
-    title: Preschoolers with autism treat nonwords and mispronunciations differently
-    where: Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
+    title: >
+      Preschoolers with autism treat nonwords and mispronunciations differently
+    where: >
+      Poster session presented at the annual Symposium on Research in Child
+      Language Disorders, Madison, WI.
 
   # Psynom 2015
   - authors:
@@ -164,8 +215,11 @@ posters:
     when:
       year: 2015
       month: November
-    title: Using language input and lexical processing to predict vocabulary size
-    where: Poster session presented at 56th Annual Meeting of the Psychonomic Society, Chicago, IL.
+    title: >
+      Using language input and lexical processing to predict vocabulary size
+    where: >
+      Poster session presented at 56th Annual Meeting of the Psychonomic
+      Society, Chicago, IL.
 
   # SRCLD 2015
   - authors:
@@ -176,8 +230,12 @@ posters:
     when:
       year: 2015
       month: June
-    title: "The lexical restructuring hypothesis: Two claims of phonological awareness evaluated"
-    where: Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
+    title: >
+      The lexical restructuring hypothesis: Two claims of phonological
+      awareness evaluated
+    where: >
+      Poster session presented at the annual Symposium on Research in Child
+      Language Disorders, Madison, WI.
 
   # SRCLD 2014
   - authors:
@@ -187,8 +245,12 @@ posters:
     when:
       year: 2014
       month: June
-    title: The influence of home language input and lexical processing efficiency on vocabulary size in 3-year-olds
-    where: Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
+    title: >
+      The influence of home language input and lexical processing efficiency
+      on vocabulary size in 3-year-olds
+    where: >
+      Poster session presented at the annual Symposium on Research in Child
+      Language Disorders, Madison, WI.
 
   # WSHA 2014
   - authors:
@@ -197,8 +259,12 @@ posters:
     when:
       year: 2014
       month: February
-    title: Comparison of the GFTA-2, KLPA-2, HAPP-3 and BBTOP for different consonant error profiles
-    where: Poster session presented at the annual conference of the Wisconsin Speech-Language Pathology and Audiology Association, Middleton, WI.
+    title: >
+      Comparison of the GFTA-2, KLPA-2, HAPP-3 and BBTOP for different
+      consonant error profiles
+    where: >
+      Poster session presented at the annual conference of the Wisconsin
+      Speech-Language Pathology and Audiology Association, Middleton, WI.
 
   # ASHA 2013
   - authors:
@@ -207,8 +273,12 @@ posters:
     when:
       year: 2013
       month: November
-    title: A quantitative comparison of articulation assessments for different consonant error profiles
-    where: Poster session presented at the Annual Conference of the American Speech-Language-Hearing Association, Chicago, IL.
+    title: >
+      A quantitative comparison of articulation assessments for different
+      consonant error profiles
+    where: >
+      Poster session presented at the Annual Conference of the American
+      Speech-Language-Hearing Association, Chicago, IL.
 
   # SRCLD 2013
   - authors:
@@ -217,5 +287,9 @@ posters:
     when:
       year: 2013
       month: June
-    title: Do orienting stimuli create additional task demands in the looking-while-listening paradigm?
-    where: Poster session presented at the annual Symposium on Research in Child Language Disorders, Madison, WI.
+    title: >
+      Do orienting stimuli create additional task demands in the
+      looking-while-listening paradigm?
+    where: >
+      Poster session presented at the annual Symposium on Research in
+      Child Language Disorders, Madison, WI.

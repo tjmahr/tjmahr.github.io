@@ -83,16 +83,16 @@ denoising autoencoders).
 {% endfor %}
 {% endcapture %}
 
-{{ author_line | strip_newlines }} ({{ pub.when.year }}). **{{ pub.title }}**. {{ location | strip_newlines}} {{doi}} {{bonus}}
+{{ author_line | strip_newlines }} ({{ pub.when.year }}). **{{ pub.title | strip_newlines }}**. {{ location | strip_newlines}} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
 
 
 
 ## Software
 
-**[L2TDatabase](https://github.com/LearningToTalk/L2TDatabase)**. R package for
-working with the Learning To Talk lab's MySQL database. Helper functions for
-creating, updating, backing-up MySQL tables in R.
+**[bayesplot](http://mc-stan.org/bayesplot/)**. R package for visualizing 
+Bayesian models and MCMC samples. It is the plotting library for 
+the [Stan programming language](http://mc-stan.org/).
 
 **[lookr](https://github.com/tjmahr/lookr)**. R package for dealing with
 eyetracking data for the Learning To Talk lab.
@@ -103,9 +103,11 @@ working Eprime text files.
 **[polypoly](http://cran.r-project.org/web/packages/polypoly)**. Tools for 
 orthogonal polynomials.
 
-**[retrace](https://github.com/tjmahr/retrace)**. A pure R implementation of the
-TRACE model of word recognition. Too slow to be useful, but great learning
-experience.
+**[L2TDatabase](https://github.com/LearningToTalk/L2TDatabase)**. R package for
+working with the Learning To Talk lab's MySQL database. Helper functions for
+creating, updating, backing-up MySQL tables in R.
+
+Plus, countless other R packages for various projects or problems.
 
 I have also peer-reviewed software for the [rOpenSci](https://ropensci.org/) 
 project. Links to reviews:
@@ -136,7 +138,7 @@ project. Links to reviews:
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
 {% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
 
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title }}**. {{ pub.where}} {{doi}} {{bonus}}
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
 
 
@@ -158,7 +160,7 @@ project. Links to reviews:
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
 {% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
 
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title }}**. {{ pub.where}} {{doi}} {{bonus}}
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
 
 
@@ -180,7 +182,7 @@ project. Links to reviews:
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
 {% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
 
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title }}**. {{ pub.where}} {{doi}} {{bonus}}
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
 
 
@@ -201,7 +203,7 @@ project. Links to reviews:
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
 {% capture bonus %}{% if pub.bonus %} [{{pub.bonus}}] {% endif %}{% endcapture %}
 
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title }}**. {{ pub.where}} {{doi}} {{bonus}}
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
 
 
@@ -209,6 +211,8 @@ project. Links to reviews:
 
 ### Lecturing
 
+* [Guest lecture on Bayesian regression](./bayes-intro-lecture-slides-2017) 
+  for graduate statistics course in psychology department.
 * Guest lecture on phonological disorders for introductory communicative
   disorders course.
 * Guest lecture and accompanying online exercise on assessment of speech sounds
