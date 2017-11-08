@@ -223,6 +223,10 @@ posters:
     where: >
       Poster session at the 42nd annual Boston University Conference on
       Language Development, Boston, MA.
+    bonus:
+      type: flask
+      text: Data, scripts, poster on Github.
+      url: https://github.com/tjmahr/bucld2017b
 
   # SRCLD 2016
   - authors:
