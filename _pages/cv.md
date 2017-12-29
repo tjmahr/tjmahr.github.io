@@ -46,7 +46,7 @@ eyetracking and speech perception experiments from this project.
 ## Programming and statistics
 
 **Languages**: Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML,
-Stan. Some practice with Java, JavaScript and Python. Exposure to Clojure.
+Stan. Some practice with Java, JavaScript and Python. Exposure to Clojure. 
 
 **Computing tools and technologies**: bash/batch scripting, git and GitHub, tidy
 data and the R tidyverse, Shiny, knitr/rmarkdown, Docker, Praat, makefiles,
@@ -105,6 +105,9 @@ orthogonal polynomials.
 **[L2TDatabase](https://github.com/LearningToTalk/L2TDatabase)**. R package for
 working with the Learning To Talk lab's MySQL database. Helper functions for
 creating, updating, backing-up MySQL tables in R.
+
+**[adventofcode17](https://github.com/tjmahr/adventofcode17)**. Completed a 
+[series of programming puzzles](http://adventofcode.com/2017) in R.
 
 Plus, countless other R packages for various projects or problems.
 
