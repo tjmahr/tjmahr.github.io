@@ -1,0 +1,500 @@
+---
+title: Draft post (2018-01-04)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+I recently completed all 25 days of Advent of Code 2017, an annual series of
+recreational programming puzzles. Each day describes a programming puzzle and
+illustrates a few simple examples of the problem. The whole thing has a
+backstory involving Santa Claus and his elves; it's charming. Then they pull the
+rug out from under you, as you have to solve a really large version of that
+problem.
+
+For five or so of the days, I used special or nonstandard evaluation to
+implement my solution. I chose to use special evaluation not because it was the
+easiest or most obvious solution but because I wanted to develop my skills with
+computing on the language. In this post, I work through one of the examples
+where I used nonstandard evaluation.
+
+## Problem statement
+
+Day 8 requires us to simulate the state of a register machine as it receives a
+series of instructions.
+
+> Each instruction consists of several parts: the register to modify, whether to
+increase or decrease that register's value, the amount by which to increase or
+decrease it, and a condition. If the condition fails, skip the instruction
+without modifying the register. The registers all start at `0`. The instructions
+look like this:
+>
+>     b inc 5 if a > 1
+>     a inc 1 if b < 5
+>     c dec -10 if a >= 1
+>     c inc -20 if c == 10
+>
+> [...]
+>
+> You might also encounter `<=` (less than or equal to) or `!=` (not equal to).
+However, the CPU doesn't have the bandwidth to tell you what all the registers
+are named, and leaves that to you to determine.
+>
+> **What is the largest value in any register** after completing the
+instructions in your puzzle input?
+
+Each user, I think, receives some unique input for the problem. My problem input
+contains 1,000 of these instructions.
+
+```{r}
+library(magrittr)
+full_input <- file.path("https://raw.githubusercontent.com", "tjmahr", 
+                        "adventofcode17", "master", "inst", 
+                        "input08.txt") %>% 
+  readr::read_lines()
+
+length(full_input)
+
+head(full_input)
+```
+
+
+
+If I squint at the register instructions, I can basically see R code.
+
+```{r, eval = FALSE}
+# b inc 5 if a > 1
+b <- if (a > 1) b + 5 else b
+
+# a inc 1 if b < 5
+a <- if (b < 5) a + 1 else a
+
+# c dec -10 if a >= 1
+c <- if (a >= 1) c - -10 else c
+
+# c inc -20 if c == 10
+c <- if (c == 10) c + -20 else c
+```
+
+If we can set up a way to convert the statements into R code, R will handle
+looking up values, modifying values and evaluating the logic and `if`
+statements. In other words, if we can convert register instructions into R code,
+the problem basically becomes as hard as running an R script.
+
+
+## Parsing the register instructions with regular expressions
+
+The instructions have a very simple grammar. Here is how I would label the first
+few lines of my problem input.
+
+```
+[target] [verb] [num1] if [s1] [op] [num2]
+      kd    dec    -37 if   gm   <=     9
+       x    dec   -715 if  kjn   ==     0
+      ey    inc    249 if    x    <   722
+       n    dec    970 if    t    >     3
+       c    inc    -20 if    c   ==    10
+      kd    dec   -456 if   ic   <=    -8
+```
+
+We can parse these lines using regular expressions. Regular expressions are an
+incredibly powerful language for processing text using pattern-matching rules. I
+will walk through each of the regular expression patterns needed to parse the
+instructions.
+
+To match the verbs, we can just use the [or `|` operator](https://www.regular-expressions.info/alternation.html), so
+`(inc|dec)` matches `inc` or `dec`. We can also match the six different logical
+operators using `|` too. In the code below, I put the patterns in parentheses so
+that they will be treated as a single group.
+
+```{r}
+re_verb <- "(inc|dec)"
+re_op <- "(>|<|==|!=|>=|<=)"
+```
+
+A register name is just a sequence of letters. The special character `\w`
+matches any _word_ character; that is, it matches uppercase/lowercase letters,
+digits and underscores. 
+[The `(token)+` suffix](https://www.regular-expressions.info/repeat.html) 
+matches 1 or more repetitions of a token. Putting these two together, `\w+` will
+match 1 or more adjacent word characters.
+
+```{r}
+# We have to double the backslashes when using them in R strings
+re_name <- "(\\w+)"
+```
+
+Numbers here are just integers, and sometimes they are negative. A number here
+is an optional `-` plus some digits. The special character `\d` matches any
+digit from 0 to 9, so `\d+` matches 1 or more adjacent digits. We can use 
+[the `(token)?` suffix](https://www.regular-expressions.info/optional.html) to 
+match an optional token. In our case, `-?\d+` will match a sequence of digits 
+and match leading hyphen if one is present.
+
+```{r}
+re_number <- "(-?\\d+)"
+```
+
+Each pattern in parentheses is a matching group, and the function `str_match()`
+from [the stringr package](http://stringr.tidyverse.org/) will return a matrix
+with a column for each matched group. I am going to include an extra set of
+parentheses around the condition in the `if` statement to also match the whole
+condition as well as its parts.
+
+```{r}
+re <- sprintf("%s %s %s if (%s %s %s)", re_name, re_verb, 
+              re_number, re_name, re_op, re_number)
+re
+
+text <- "b inc 5 if a > 1"
+stringr::str_match(text, re)
+```
+
+Now we can package this step into a function that that takes an instruction's
+text and returns a list with the parts of that instruction.
+
+```{r}
+parse_instruction <- function(text) {
+  stopifnot(length(text) == 1)
+  re <- "(\\w+) (inc|dec) (-?\\d+) if ((\\w+) (>|<|==|!=|>=|<=) (-?\\d+))"
+  
+  text %>% 
+    stringr::str_match(re) %>% 
+    as.list() %>% 
+    setNames(c("instruction", "target", "verb", "num1",
+               "cond", "s1", "op", "num2"))
+}
+
+str(parse_instruction(text))
+```
+
+
+
+## Creating R code
+
+We need to convert some strings into R code. We can do this with
+`rlang::parse_expr()`. It takes a string and creates an R expression, a kind of
+[bottled up magic spell](/set-na-where-nonstandard-evaluation-use-case/).
+
+```{r}
+code <- rlang::parse_expr("print('hello')")
+code
+
+code <- rlang::parse_expr("if (a > 1) b + 5 else b")
+code
+```
+
+The form of the instruction is relatively straightforward. We can just fill in a
+template with parts of the parsed line. Because `inc/dec` are just addition and
+subtraction, I replace them with the appropriate math operations.
+
+```{r}
+create_r_instruction <- function(parsed) {
+  parsed$math <- if (parsed$verb == "inc") "+" else "-"
+  code <- sprintf("if (%s) %s %s %s else %s", parsed$cond, 
+                  parsed$target, parsed$math, parsed$num1, 
+                  parsed$target)
+  rlang::parse_expr(code)
+}
+
+parsed <- parse_instruction(text)
+create_r_instruction(parsed)
+```
+
+## Create the register machine
+
+Okay, let's run some instructions!
+
+```{r, error = TRUE}
+parsed <- parse_instruction("b inc 5 if a > 1")
+r_code <- create_r_instruction(parsed)
+eval(r_code)
+```
+
+Oh, that's right... We have to initialize all the registers to 0. Let's deal
+with that in a bit. We have to figure out _where_ we want to evaluate 
+this R code too.
+
+First, we will create a register object to hold the values. This object 
+will also serve as the location where the machine instructions are evaluated. 
+Our register machine is just a `list()` with some extra metadata. 
+
+```{r}
+create_register_machine <- function(...) {
+  initial <- list(...)
+  data <- c(initial, list(.metadata = list()))
+  structure(data, class = c("register_machine", "list"))
+}
+
+# Create a nice print method
+print.register_machine <- function(x, ...) utils::str(x, ...)
+
+create_register_machine()
+```
+
+For now, we can initialize registers by using named arguments to the function.
+
+```{r}
+create_register_machine(a = 0, b = 0)
+```
+
+So far we have:
+
+* A way to analyzing  register instructions
+* A way to convert  register instructions into R code
+* An object that holds register values
+
+We need to evaluate an expression *inside* of the register. We will use do 
+[tidy evaluation](http://rlang.tidyverse.org/articles/tidy-evaluation.html). The 
+function `eval_tidy()` lets us evaluate an R expression inside of R data object.
+
+```{r}
+r_code
+
+# b + 5
+r <- create_register_machine(a = 4, b = 7)
+rlang::eval_tidy(r_code, data = r)
+
+# just b
+r <- create_register_machine(a = 0, b = 7)
+rlang::eval_tidy(r_code, data = r)
+```
+
+### Inspecting the expression
+
+Now, we need to actually do something. We need to update the register machine
+using the value from the evaluated instruction. Otherwise, the machine will just
+read expressions and forget everything its read.
+
+To update the machine, we have to determine the register to update. Fortunately,
+our code always ends with an `else` branch that has the target register.
+
+```{r}
+r_code
+```
+
+If we can pull out that symbol after the `else`, we will have the name of
+register to update in the machine. Because the code is so formulaic, we can just
+extract the symbol directly using the code's abstract syntax tree (AST). 
+`pryr::call_tree()` shows the AST for an expression.
+
+```{r}
+pryr::call_tree(r_code)
+```
+
+We can extract elements from tree like elements in a list. 
+
+```{r}
+# The numbers match one of the slashs at the first level of indentation
+r_code[[1]]
+r_code[[2]]
+
+# We can crawl down subtrees too
+r_code[[2]][[2]]
+
+# But what we want is the last branch from the `if` level
+r_code[[4]]
+```
+
+If we convert the symbol into a string, we can look it up in the register using
+the usual list lookup syntax.
+
+```{r}
+r <- create_register_machine(a = 4, b = 7)
+target <- rlang::as_string(r_code[[4]])
+r[[target]]
+```
+
+We can also _modify_ it.
+
+```{r}
+r[[target]] <- rlang::eval_tidy(r_code, data = r)
+r
+```
+
+Let's wrap these steps into a function. 
+
+```{r}
+eval_instruction <- function(register_machine, instruction) {
+  # Evaluate instruction
+  target <- rlang::as_string(instruction[[4]])
+  register_machine[[target]] <- rlang::eval_tidy(
+    expr = instruction, 
+    data = register_machine)
+  register_machine
+}
+
+create_register_machine(a = 2, b = 0) %>% 
+  eval_instruction(r_code)
+
+# For quick testing, we can also send in quoted expressions
+create_register_machine(a = 2, b = 0) %>% 
+  eval_instruction(quote(if (a > 1) b - 100 else b)) %>% 
+  # Won't run
+  eval_instruction(quote(if (a < 1) b + 5 else b)) %>% 
+  # Will run
+  eval_instruction(quote(if (a > 1) a + 10 else a))
+```
+
+## Time for some very nonstandard evaluation
+
+This code so far only works if the machine already has registers that match the
+registers in an instruction. 
+
+```{r, error = TRUE}
+create_register_machine() %>% 
+  eval_instruction(quote(if (a > 1) b - 100 else b))
+```
+
+To solve the problem, we could study the 1000 lines of input beforehand, extract
+the register names, initialize them to 0 and then evaluate the instructions.
+Or... or... we could procrastinate and only initialize register name to 0 when
+the machine encounters a new register name.
+
+This latter strategy will involve some _very_ nonstandard evaluation. I
+emphasize the "very" because we changing one of the fundamental rules of R
+evaluation. R throws an error if you ask it to evaluate a variable that doesn't
+exist. But here we are going to detect those missing variables and set them to 0
+before they get evaluated.
+
+To find the brand new register names, we can inspect the call tree and find the
+names. We already know where the target is. The other place names show up is in
+the condition of the `if()` statement.
+
+```{r}
+pryr::call_tree(r_code)
+
+extract_register_names <- function(instruction) {
+  reg_target <- rlang::as_string(instruction[[4]])
+  reg_condition <- rlang::as_string(instruction[[2]][[2]])
+  list(target = reg_target,
+       registers = unique(c(reg_target, reg_condition))
+  )
+}
+
+extract_register_names(quote(if (a > 1) b - 100 else b))
+extract_register_names(quote(if (b > 1) b - 100 else b))
+```
+
+We can define a helper function which checks for missing names and initializes
+them to 0.
+
+```{r}
+initialize_new_registers <- function(register_machine, registers) {
+  for (each_register in registers) {
+    if (is.null(register_machine[[each_register]])) {
+      register_machine[[each_register]] <- 0
+    }
+  }
+  register_machine
+}
+
+r
+initialize_new_registers(r, c("a", "b", "w", "a", "s", "j"))
+```
+
+Finally, we update our evaluation function to do this step automatically. I'm
+also going to add some code to record the value of the maximum register whenever
+an instruction is evaluated, you know, because that's the whole point of puzzle.
+
+```{r}
+eval_instruction <- function(register_machine, instruction) {
+  # Set any new registers to 0
+  registers <- extract_register_names(instruction)
+  register_machine <- initialize_new_registers(
+    register_machine, registers$registers)
+  
+  # Evaluate instruction
+  register_machine[[registers$target]] <- rlang::eval_tidy(
+    expr = instruction, 
+    data = register_machine)
+  
+  # Find the maximum value
+  register_names <- setdiff(names(register_machine), ".metadata")
+  current_max <- max(unlist(register_machine[register_names]))
+  register_machine$.metadata$max <- current_max
+  register_machine
+}
+```
+
+Let's try four instructions from a clean slate.
+
+```{r}
+r <- create_register()
+r %>% 
+  # b gets 5
+  eval_instruction(quote(if (d < 1) b + 5 else b)) %>% 
+  # c gets 10
+  eval_instruction(quote(if (b > 1) c + 10 else c)) %>% 
+  # b gets 5 more
+  eval_instruction(quote(if (a < 1) b + 5 else b))
+```
+
+Let's process all 1000 instructions. We parse and evaluate them one at a
+time.
+
+```{r}
+r <- create_register()
+
+for (each_instruction in full_input) {
+  parsed <- each_instruction %>% 
+    parse_instruction() %>% 
+    create_r_instruction()
+  r <- eval_instruction(r, parsed)
+}
+
+r
+```
+
+Ta-da! The maximum register value is 4832. **Problem solved**
+
+
+## Then comes the twist
+
+Advent of Code problems come in two parts, and we don't learn the question
+behind Part 2 until we complete Part 1. In this case, submitting our solution,
+we get the following requirement:
+
+> To be safe, the CPU also needs to know **the highest value held in any
+register during this process** so that it can decide how much memory to allocate
+to these operations.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Doing even more nonstandard evaluation
+
+
+```{r}
+eval_instruction <- function(register_machine, instruction) {
+  # Evaluate instruction
+  target <- rlang::as_string(instruction[[4]])
+  register_machine[[target]] <- rlang::eval_tidy(
+    expr = instruction, 
+    data = register_machine)
+  
+  # Find the maximum value
+  register_names <- setdiff(names(register_machine), ".metadata")
+  current_max <- max(unlist(register_machine[register_names]))
+  register_machine$.metadata$max <- current_max
+  register_machine
+}
+```
+
+
+
