@@ -567,8 +567,8 @@ it's also a viable problem-solving strategy when the "machine" or the
 [this problem about simulating "dance" moves][dance-moves].
 
 Odds are, you'll never have to write an interpreter for a toy machine or 
-language. Nevertheless, here are some useful R functions that we used for this 
-puzzle that are useful in other contexts:
+language. Nevertheless, here are some R functions that we used for this 
+puzzle that are helpful in other contexts:
 
 - `stringr::str_match()` to extract all the groups in a regular 
   expression at once.
