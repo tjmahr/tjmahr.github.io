@@ -9,14 +9,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-I recently completed all 25 days of Advent of Code 2017, an annual series of
+I recently completed all 25 days of [Advent of Code 2017](http://adventofcode.com/2017), an annual series of
 recreational programming puzzles. Each day describes a programming puzzle and
-illustrates a few simple examples of the problem. The whole thing has a
-backstory involving Santa Claus and his elves; it's charming. Then they pull the
+illustrates a few simple examples of the problem. Then they pull the
 rug out from under you, as you have to solve a really large version of that
 problem.
 
-For five or so of the days, I used special or nonstandard evaluation to
+For five or so of the days, I used _nonstandard evaluation_ to
 implement my solution. I chose to use special evaluation not because it was the
 easiest or most obvious solution but because I wanted to develop my skills with
 computing on the language. In this post, I work through one of the examples
@@ -24,7 +23,7 @@ where I used nonstandard evaluation.
 
 ## Problem statement
 
-Day 8 requires us to simulate the state of a register machine as it receives a
+[Day 8](http://adventofcode.com/2017/day/8) requires us to simulate the state of a register machine as it receives a
 series of instructions.
 
 > Each instruction consists of several parts: the register to modify, whether to
@@ -47,23 +46,6 @@ are named, and leaves that to you to determine.
 > **What is the largest value in any register** after completing the
 instructions in your puzzle input?
 
-Each user, I think, receives some unique input for the problem. My problem input
-contains 1,000 of these instructions.
-
-```{r}
-library(magrittr)
-full_input <- file.path("https://raw.githubusercontent.com", "tjmahr", 
-                        "adventofcode17", "master", "inst", 
-                        "input08.txt") %>% 
-  readr::read_lines()
-
-length(full_input)
-
-head(full_input)
-```
-
-
-
 If I squint at the register instructions, I can basically see R code.
 
 ```{r, eval = FALSE}
@@ -83,12 +65,35 @@ c <- if (c == 10) c + -20 else c
 If we can set up a way to convert the statements into R code, R will handle
 looking up values, modifying values and evaluating the logic and `if`
 statements. In other words, if we can convert register instructions into R code,
-the problem basically becomes as hard as running an R script.
+**the problem becomes as hard as running an R script**.
+
+And that's a good strategy, because we have a lot of instructions to process.
+Each user receives some unique (I think) input for each problem. My problem
+input contains 1,000 instructions.
+
+```{r}
+library(magrittr)
+full_input <- "https://raw.githubusercontent.com" %>% 
+  file.path("tjmahr", "adventofcode17", "master", 
+            "inst", "input08.txt") %>% 
+  readr::read_lines()
+
+length(full_input)
+
+head(full_input)
+```
+
+As a roadmap for this post, our strategy for simulating the register machine will have the following steps:
+
+* Parsing the register instruction
+* Creating an R expression from the instruction
+* Evaluating the R expression _inside_ of a register machine
+* Adapting to the quirks of this particular problem
 
 
 ## Parsing the register instructions with regular expressions
 
-The instructions have a very simple grammar. Here is how I would label the first
+The instructions have a very simple grammar. Here is how I would tag the first
 few lines of my problem input.
 
 ```
@@ -97,16 +102,16 @@ few lines of my problem input.
        x    dec   -715 if  kjn   ==     0
       ey    inc    249 if    x    <   722
        n    dec    970 if    t    >     3
-       c    inc    -20 if    c   ==    10
-      kd    dec   -456 if   ic   <=    -8
+       f    dec   -385 if  msg    >    -3
 ```
 
 We can parse these lines using regular expressions. Regular expressions are an
 incredibly powerful language for processing text using pattern-matching rules. I
-will walk through each of the regular expression patterns needed to parse the
-instructions.
+will walk through each of the regular expression patterns needed to parse an
+instruction.
 
-To match the verbs, we can just use the [or `|` operator](https://www.regular-expressions.info/alternation.html), so
+To match the verbs, we can just use the 
+[or `|` operator](https://www.regular-expressions.info/alternation.html), so
 `(inc|dec)` matches `inc` or `dec`. We can also match the six different logical
 operators using `|` too. In the code below, I put the patterns in parentheses so
 that they will be treated as a single group.
@@ -128,7 +133,7 @@ match 1 or more adjacent word characters.
 re_name <- "(\\w+)"
 ```
 
-Numbers here are just integers, and sometimes they are negative. A number here
+Numbers are just integers, and sometimes they are negative. A number here
 is an optional `-` plus some digits. The special character `\d` matches any
 digit from 0 to 9, so `\d+` matches 1 or more adjacent digits. We can use 
 [the `(token)?` suffix](https://www.regular-expressions.info/optional.html) to 
@@ -141,11 +146,12 @@ re_number <- "(-?\\d+)"
 
 Each pattern in parentheses is a matching group, and the function `str_match()`
 from [the stringr package](http://stringr.tidyverse.org/) will return a matrix
-with a column for each matched group. I am going to include an extra set of
+with a column for each matched group. I also include an extra set of
 parentheses around the condition in the `if` statement to also match the whole
 condition as well as its parts.
 
 ```{r}
+# Combine the sub-patterns together
 re <- sprintf("%s %s %s if (%s %s %s)", re_name, re_verb, 
               re_number, re_name, re_op, re_number)
 re
@@ -154,7 +160,7 @@ text <- "b inc 5 if a > 1"
 stringr::str_match(text, re)
 ```
 
-Now we can package this step into a function that that takes an instruction's
+We can package this work into a function that that takes an instruction's
 text and returns a list with the parts of that instruction.
 
 ```{r}
@@ -222,6 +228,12 @@ this R code too.
 First, we will create a register object to hold the values. This object 
 will also serve as the location where the machine instructions are evaluated. 
 Our register machine is just a `list()` with some extra metadata. 
+
+```{r, echo = FALSE}
+library(knitr)
+knit_print.register_machine <- function(x, ...) utils::str(x, ...)
+```
+
 
 ```{r}
 create_register_machine <- function(...) {
