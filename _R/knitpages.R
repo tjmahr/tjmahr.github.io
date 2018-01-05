@@ -12,6 +12,20 @@
 library("knitr")
 library("dplyr", warn.conflicts = FALSE)
 
+# Work around for 2018-01-05 post. Custom print methods need to be in global
+# environment of knitting code.
+print.register_machine <- function(x, ...) {
+  utils::str(x, ...)
+  invisible(x)
+}
+
+# Just run this code to avoid recompiling all the scripts.
+# for (f in list.files("_posts", full.names = TRUE)) {
+#   system2("touch", f)
+# }
+
+
+
 knit_post <- function(input, outfile, dir_figs, dir_cache, base_url = "/") {
   # this function is a modified version of an example here:
   # http://jfisher-usgs.github.com/r/2012/07/03/knitr-jekyll/
