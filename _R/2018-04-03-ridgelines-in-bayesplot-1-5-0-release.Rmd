@@ -7,28 +7,35 @@ tags:
   - r
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 At the end of March, Jonah Gabry and I released
-[bayesplot 1.5.0](http://mc-stan.org/bayesplot/index.html). The major additions
-to the package were visualizations using ridgelines and a new plot for PIT
-diagnostics from LOO validation. I don't know what that LOO PIT thing is yet, so
-I'll talk about how ridgelines have been incorporated into bayesplot instead.
+[bayesplot 1.5.0][bayesplot]. The major additions to the package were
+visualizations using ridgelines and a new plot for PIT diagnostics from LOO
+validation. I don't know what that LOO PIT thing is yet, so I'll talk about how
+ridgelines have been incorporated into bayesplot instead.
+
+![Unknown Pleasures cover](/assets/images/up-cover.jpg){: .align-right}
+
+Ridgelines display the distributions of some variables---think of a series
+of bell curves---but allow the curves to vary in height or overlap each other.
+Several curves packed together look like a mountain ridge (hence the name). The
+canonical example of this visualization are the cold, austere lines from the
+[cover of Joy Division's *Unknown Pleasures*][up-cover]. 
+
+In this post, I briefly describe where ridgelines appear in the package now. At
+the end of the post, I show a more involved example of fitting a model and
+plotting results from it.
 
 ## Behind the scenes of `mcmc_areas()`
 
-I'm going to start with a less obvious use of ridgelines.
+I'm going to start with a less obvious use of ridgelines. `mcmc_areas()`
+visualizes the posterior distribution of model parameters. It helps us see where
+the peak values are, and occasionally, whether there is more than one peak. By
+default, it will plot the complete range of the distribution, shade the
+middle 50% of the distribution, and draw a line at the median.
 
-`mcmc_areas()` visualizes the posterior distribution of model parameters. It
-helps us see where the peak values are. By default, it will plot the complete
-range of the distribution, shade the middle 50% of the distribution, and draw a
-line at the median.
-
-For this release, I [rewrote the function](https://github.com/stan-dev/bayesplot/pull/115) 
-so that it uses the [ggridges](https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html) package. I had noticed that the shapes it
-produced had different areas. Here's an example of how the plots have changed.
+For this release, I [rewrote the function][pull-request] so that it uses the
+[ggridges][ggridges] package. I had noticed that the shapes it produced had
+different areas. Here's an example of how the plots have changed.
 
 ```{r version-differences, warning = FALSE, fig.width = 5, fig.height = 3, out.width = "80%", fig.cap="Comparison of mcmc_areas() in bayesplot 1.4.0 and 1.5.0"}
 library(ggplot2)
@@ -60,19 +67,19 @@ makes sense. Therefore, the problem is the height---namely, the fact that the
 shapes have the same height. To make the areas more similar, we adjust the
 heights, and that's what's happening in the plot on the right. The distribution
 for `beta[2]` is concentrated to a more narrow range, and that feature manifests
-in that shape's much higher peak. 
+in that shape's much higher peak.
 
 ### Three plots in one
 
 This plot is built using the ggridges packages which handles drawing the shapes
 at different heights. It took a bit of trickery, however, to do the annotation
-for the shaded 50% interval and the median. Here is a high-level overview of
+for the shaded 50% interval and the median. Here is a high-level overview of
 what's happening.
 
 `mcmc_areas_data()` tidies the MCMC samples into a dataframe suitable for
 plotting. It computes the density of the parameter values, and it returns the
-densities over *three* intervals: 1) an outer interval, 2) an inner interval to
-be shaded, and 3) a narrow "point" interval. 
+densities over *three* intervals: 1) an outer interval, 2) an inner interval to
+be shaded, and 3) a narrow "point" interval.
 
 ```{r}
 library(dplyr, warn.conflicts = FALSE)
@@ -119,20 +126,19 @@ intervals and whether a point is calculated are options that have to be handled.
 The tips of the topmost peaks are not cut off in those plots as well. But that's
 the basic idea.
 
+
+
 ## Overlapping ridgelines for related parameters
 
-Plots with the classic, overlapping [*Unknown
-Pleasures*](https://en.wikipedia.org/wiki/Unknown_Pleasures) look are supported
-by `mcmc_areas_ridges()`. I like these plots for hierarchical models where the
+Plots with the classic, overlapping *Unknown Pleasures* look are supported by
+`mcmc_areas_ridges()`. I like these plots for hierarchical models where the
 parameters represent similar units. In fact, part of the reason Jonah approached
-me about contributing to bayesplot was a [proof-of-concept
-demo](https://rpubs.com/tjmahr/joyplot) I wrote to visualize hierarchical
-effects using ridgeline plots, back when they were popularly called "joyplots".
+me about contributing to bayesplot was a [proof-of-concept demo][rpub-demo]
+I wrote to visualize hierarchical effects using ridgeline plots, back when they
+were popularly called "joyplots".
 
-Below is the ["eight
-schools"](http://andrewgelman.com/2014/01/21/everything-need-know-bayesian-statistics-learned-eight-schools/)
-example where there is a treatment effect for each school (thetas) and an
-overall average effect (mu).
+Below is the [eight schools][eight-schools] example where there is a
+treatment effect for each school (thetas) and an overall average effect (mu).
 
 ```{r eight-schools-ridges, fig.width = 5, fig.height = 5, out.width = "80%", fig.cap = "Overlapping ridgelines in a typical looking ridgeline plot"}
 m <- shinystan::eight_schools@posterior_sample
@@ -183,6 +189,8 @@ ggplot(bind_rows(d, zeroes)) +
     axis.ticks = element_blank())
 ```
 
+## Densities of different sampling chains
+
 Finally, ridgelines appear in by-chain diagnostics using `mcmc_dens_chains()`.
 
 ```{r chain-ridges, fig.width = 4, fig.height = 3, out.width = "66%", fig.cap = "A ridgeline plot where MCMC chains are drawn in different colors"}
@@ -190,6 +198,94 @@ mcmc_dens_chains(m, pars = c("theta[1]", "theta[2]", "theta[3]"))
 ```
 
 There really isn't much interesting to say about this plot, except that it
-follows Mike DeCrescenzo's [early
-example](https://twitter.com/mikedecr/status/886376620004700160?lang=en) of
-using ridgelines on Bayesian models.
+follows Mike DeCrescenzo's [early example][early-ridgeline-tweet] of using
+ridgelines on Bayesian models.
+
+
+## An example of fitting and plotting a model
+
+The `cake` dataset in lme4 reports the angle of breakage of chocolate cakes
+for 3 different recipes at 6 temperatures tested 15 times each (3 × 6 × 15 = 270
+observations). The data are shown below, ignoring temperature details:
+
+```{r cake-dataset, warning = FALSE, fig.width = 5, fig.height = 3, out.width = "80%", fig.cap="The cake dataset"}
+set.seed(20180405)
+cake <- lme4::cake
+
+theme_set(theme_grey())
+
+ggplot(cake) + 
+  # aes(x = temp, y = angle, color = recipe) + 
+  aes(x = replicate, y = angle, color = recipe) + 
+  geom_text(aes(label = recipe), position = position_jitter(.15), size = 3) + 
+  stat_summary(color = "grey10", size = .4) + 
+  guides(color = FALSE, label = FALSE) +
+  labs(
+    x = "Replicate", 
+    y = "Angle of breakage", 
+    caption = "Letters: Recipe. Points: Replicate Mean ± SE")
+```
+
+It looks like the first few replications showed larger breakage angles compared
+to later ones. From a modeling perspective, we would want to capture variation
+due to replication. There could be variation due to recipe × replication
+effects, so we will model the data at that level of detail.
+
+```{r, results = 'hide'}
+library(rstanarm)
+m <- stan_glmer(
+  angle ~ recipe * temp + (1 | recipe:replicate), 
+  family = gaussian(), 
+  data = cake,
+  prior = normal(0, 1),
+  seed = 20180405)
+```
+
+This models predicts the breakage angle using an average recipe, temperature,
+and recipe × temperate effects and adjusting the prediction for each recipe ×
+replication. 
+
+Below, we use `mcmc_areas_ridges()` to plot the distributions of replication
+effects for recipe A. The plotting functions in bayesplot take a set of MCMC
+samples from a model. We can extract the samples using `as.matrix()`. We can
+narrow the parameters to be plotted by naming them individually with `pars` or
+by selecting all the parameters that match a regular expression pattern with
+`regex_pars`.
+
+```{r cake-model-results, fig.width = 5, fig.height = 5, out.width = "60%", fig.cap="Replications effects for recipe A"}
+# Revert to the bayesplot default theme
+theme_set(bayesplot::theme_default())
+
+mcmc_areas_ridges(
+  as.matrix(m), 
+  regex_pars = "recipe:replicate:A") 
+```
+
+The effects describe deviations from the recipe average. A faint line is drawn
+at *x* = 0 represents the average value. Ridges to the left of the line are
+below average and those to the right are above average. We can see that the
+model captured how the first three replications had particular high breakage
+angles.
+
+
+[bayesplot]: http://mc-stan.org/bayesplot/index.html
+  "bayesplot package website"
+
+[up-cover]: https://blogs.scientificamerican.com/sa-visual/pop-culture-pulsar-origin-story-of-joy-division-s-unknown-pleasures-album-cover-video/ 
+  "Pop Culture Pulsar: Origin Story of Joy Division’s Unknown Pleasures Album Cover"
+
+[pull-request]: https://github.com/stan-dev/bayesplot/pull/115
+  "My pull request where I refactored mcmc_areas()"
+
+[ggridges]: https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html
+  "ggridges package vignette"
+
+[rpub-demo]: https://rpubs.com/tjmahr/joyplot
+  "Demo of I wrote using ridgelines for a mixed effects model"
+
+[eight-schools]: http://andrewgelman.com/2014/01/21/everything-need-know-bayesian-statistics-learned-eight-schools/
+  "Blog post about the Eight Schools model"
+
+[early-ridgeline-tweet]: https://twitter.com/mikedecr/status/886376620004700160?lang=en
+  "Tweet with a plot containing ridgelines from a hierarchical model"
+
