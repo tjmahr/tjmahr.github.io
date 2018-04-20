@@ -246,6 +246,9 @@ clinician.
 
 ## Awards
 
+2017–18, 2012–13: Supported by NIH Training Grant to Susan Ellis Weismer: _5-T32-DC5359,
+Interdisciplinary Research in Speech–Language Disorders._
+
 2016: [Jean Berko Gleason Award](https://twitter.com/TheBUCLD/status/795298601605992448) 
 for highest scored student submission at the 41st Boston University Conference
 on Language Development.
@@ -258,9 +261,6 @@ Disorder at UW–Madison.
 
 2013–15: Supported by NIH Training Grant to Maryellen MacDonald:
 _2-T32-HD049899, Training in Language: Acquisition and Adult Performance._
-
-2012–13: Supported by NIH Training Grant to Susan Ellis Weismer: _5-T32-DC5359,
-Interdisciplinary Research in Speech–Language Disorders._
 
 2012: Students Preparing for Academic-Research Careers (SPARC) Award. Given by
 the American Speech-Language-Hearing Association.

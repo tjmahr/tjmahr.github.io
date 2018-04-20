@@ -5,10 +5,13 @@ publications:
     - Mahr, T.
     - Edwards, J. R.
     when:
-      year: in revision
+      year: in press
     title: >
       Using language input and lexical processing to predict vocabulary
-      size [working title]
+      size
+    where:
+      journal: Developmental Science
+    doi: 10.1111/desc.12685
 
   - authors:
     - Law, F., II
@@ -44,6 +47,19 @@ publications:
 
 
 talks:
+  # UW-Madison Prosem
+  - type: invited
+    title: >
+      Development of word recognition in preschoolers
+    authors:
+      - Mahr, T.
+    when:
+      year: 2018
+      month: March
+    where: >
+      Presentation for the UW-Madison Communication Sciences & Disorders
+      Professional Seminar, Madison, WI.
+
   # BUCLD 2017
   - type: coauthored
     title: Spoken word recognition of children with cochlear implants
