@@ -1,0 +1,217 @@
+---
+title: "Demo of growth curve analysis on babynames"
+author: TJ Mahr
+output: 
+  ghdown::github_html_document: default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.asp = 0.618,
+  fig.width = 6,
+  dpi = 300,
+  fig.align = "center",
+  out.width = "80%")
+```
+
+Back when my wife and I were deciding names for our daughter, I played around
+with some plots of the popularity of certain baby names over the decades. I do a
+lot of time series stuff in research and hierarchical models where I am
+interested *groups* of curves that change in similar ways over time. Thus, I did
+a quick-and-curious check for baby names with similar curves.
+
+## The polynomial growth cruve 
+
+In a cubic-polynomial growth curve model, the trend is the weighted sum of three
+components. We might talk about "a linear trend" or "quadratic component" of the
+overall growth curve.
+
+```{r}
+library(tidyverse)
+library(babynames)
+library(ggplot2)
+
+polypoly::poly_plot(poly(x = 1:100, degree = 3)) + 
+  stat_summary(aes(color = "sum"), fun.y = "sum", geom = "line", size = 1)
+```
+
+We could include more and more degrees to find more and more trends but I find
+the cubic model is a good place to start.
+
+So if I fit this model for each name, I can get a measure of the linear,
+quadratic, or cubic trends of each name's trajectory.
+
+```{r}
+f_names <- babynames %>%
+  filter(sex == "F")
+
+# Fit a cubic growth curve model for each name
+models <- f_names %>%
+  nest(-name) %>%
+  # Require 20 years of samples
+  filter(map_int(data, nrow) > 20) %>%
+  mutate(model = purrr::map(data, . %>% lm(prop ~ poly(year, 3), .)))
+
+# A model for each name
+models
+
+# Extract coefficients
+coefs <- models %>%
+  mutate(coefs = map(model, broom::tidy)) %>%
+  unnest(coefs)
+coefs
+```
+
+## Spiky names
+
+Now, we can identify the top 10 names for each growth curve component. We'll
+look at both positive and negative coefficients.
+
+```{r}
+# Keep names with 10 largest coefficients for each growth curve component
+positive_trends <- coefs %>% 
+  group_by(term) %>% 
+  top_n(10, estimate) %>% 
+  mutate(sign = "positive") %>% 
+  ungroup()
+
+# Find most negative ones
+negative_trends <- coefs %>% 
+  group_by(term) %>% 
+  top_n(10, -estimate) %>% 
+  mutate(sign = "negative") %>% 
+  ungroup()
+
+# Combine with data
+trends <- bind_rows(negative_trends, positive_trends)
+trends_with_data <- f_names %>%
+  inner_join(trends)
+
+peak_years <- trends_with_data %>%
+  group_by(term, name) %>%
+  top_n(1, prop) %>%
+  ungroup()
+```
+
+To find the spikiest names, plot the names with 10 most negative quadratic
+effects.
+
+```{r}
+spiky <- trends_with_data %>% 
+  filter(term == "poly(year, 3)2", sign == "negative") 
+  
+ggplot(spiky) +
+  aes(x = year, y = prop, color = name) +
+  geom_line() +
+  hrbrthemes::scale_y_percent() +
+  ggrepel::geom_text_repel(
+    aes(label = name), 
+    data = peak_years %>% inner_join(spiky), 
+    size = 5,
+    segment.alpha = 0) +
+  ylab("Percent of births with name") +
+  labs(color = NULL) +
+  guides(color = "none")
+```
+
+
+### Bowly names
+
+Names with largest positive quadratic effects are bowls.
+
+```{r}
+bowly <- trends_with_data %>% 
+  filter(term == "poly(year, 3)2", sign == "positive") 
+  
+ggplot(bowly) +
+  aes(x = year, y = prop, color = name) +
+  geom_line() +
+  hrbrthemes::scale_y_percent() +
+  ggrepel::geom_text_repel(
+    aes(label = name), 
+    data = peak_years %>% inner_join(bowly), 
+    size = 5,
+    segment.alpha = 0) +
+  ylab("Percent of births with name") +
+  labs(color = NULL) +
+  guides(color = "none")
+```
+
+## The cubic trends finds early or late bumps
+
+Names with largest cubic effects fit names that fall at the
+beginning and end of the dataset.
+
+```{r}
+this_trend <- trends_with_data %>% 
+  filter(term == "poly(year, 3)3") 
+  
+ggplot(this_trend) +
+  aes(x = year, y = prop, color = name) +
+  geom_line() +
+  hrbrthemes::scale_y_percent() +
+  ggrepel::geom_text_repel(
+    aes(label = name), 
+    data = peak_years %>% inner_join(this_trend), 
+    size = 5,
+    segment.alpha = 0) +
+  ylab("Percent of births with name") +
+  labs(color = NULL) +
+  guides(color = "none") + 
+  facet_wrap("sign")
+```
+
+## The intercept fits area under the curve
+
+The intercept is the average growth curve value, or the area under the curve. In
+the positive cases, these are names that were the most popular on average,
+either by being very trendy at some point or being consistently moderately
+popular.
+
+```{r}
+this_trend <- trends_with_data %>% 
+  filter(term == "(Intercept)") 
+  
+ggplot(this_trend) +
+  aes(x = year, y = prop, color = name) +
+  geom_line() +
+  hrbrthemes::scale_y_percent() +
+  ggrepel::geom_text_repel(
+    aes(label = name), 
+    data = peak_years %>% inner_join(this_trend), 
+    size = 5,
+    segment.alpha = 0) +
+  ylab("Percent of births with name") +
+  labs(color = NULL) +
+  guides(color = "none") + 
+  facet_wrap("sign")
+```
+
+## The linear trend is kind of weird
+
+This growth curve component is picking up on names that spiked recently or
+distantly.
+
+```{r}
+this_trend <- trends_with_data %>% 
+  filter(term == "poly(year, 3)1") 
+  
+ggplot(this_trend) +
+  aes(x = year, y = prop, color = name) +
+  geom_line() +
+  hrbrthemes::scale_y_percent() +
+  ggrepel::geom_text_repel(
+    aes(label = name), 
+    data = peak_years %>% inner_join(this_trend), 
+    size = 5,
+    segment.alpha = 0) +
+  ylab("Percent of births with name") +
+  labs(color = NULL) +
+  guides(color = "none") + 
+  facet_wrap("sign")
+```
+
+
