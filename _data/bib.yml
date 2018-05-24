@@ -5,13 +5,17 @@ publications:
     - Mahr, T.
     - Edwards, J. R.
     when:
-      year: in press
+      year: 2018
     title: >
       Using language input and lexical processing to predict vocabulary
       size
     where:
       journal: Developmental Science
     doi: 10.1111/desc.12685
+    bonus:
+      type: flask
+      text: Data and scripts on Github.
+      url: https://github.com/tjmahr/mahr-edwards-2017
 
   - authors:
     - Law, F., II
