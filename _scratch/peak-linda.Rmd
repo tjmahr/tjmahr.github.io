@@ -1,0 +1,179 @@
+## Two bonus plots
+
+When I was playing with this data for this post, I made two plots because I was curious. 
+
+First, consider the total number of Lisas that were born.
+
+```{r}
+totals %>% 
+  filter(name == "Lisa") %>% 
+  summarise(name = unique(name), total = sum(n))
+```
+
+*By what year, were the first half of them born?*
+
+First, I compute a rolling total for each name and then divided by the overall
+total for that name to get a proportion.
+
+```{r}
+totals <- totals %>% 
+  group_by(name) %>%
+  mutate(
+    total_n = cumsum(n),
+    prop_born = total_n / sum(n)) %>%
+  ungroup()
+```
+
+The time series on the proportions shows how the name. In terms of this plot, my
+question is when does each name cross the .5 threshold.
+
+```{r}
+totals %>% 
+  sample_n_of(9, name) %>% 
+  ggplot() +
+    aes(x = year, y = prop_born) +
+    geom_hline(yintercept = .5, color = "grey50", linetype = "dashed") +
+    geom_line() +
+    facet_wrap("name") + 
+    ylab("proportion of total born")
+
+
+```
+
+For each name, we filter down to find the row where the proportion minus .5 is
+closest to 0.
+
+```{r}
+crossover_years <- totals %>%
+  group_by(name) %>%
+  filter(abs(prop_born - .5) == min(abs(prop_born - .5))) %>%
+  ungroup()
+
+crossover_years %>% 
+  filter(name == "Emma")
+```
+
+Let's visualize these crossover years.
+
+```{r crossover-plot}
+ggplot(crossover_years) +
+  aes(x = year, y = prop_born) +
+  ggrepel::geom_text_repel(
+    aes(label = name), 
+    direction = "y", 
+    segment.alpha = 0) + 
+  theme(
+    axis.ticks.y = element_blank(), 
+    axis.text.y = element_blank(), 
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    axis.title.y = element_blank()) + 
+  labs(
+    title = "50% of Emmas were born after 1998",
+    x = "Half of all people with this name were born after this year", 
+    caption = "Source: Social Security Administration. Data from 1880-2015.")
+```
+
+Another more obvious question is to ask when each name peaked. To answer this question,
+
+```{r}
+peak_year <- totals %>%
+  group_by(name) %>%
+  filter(n == max(n)) %>%
+  ungroup() %>% 
+  top_n(25, n) 
+
+peak_year %>% 
+  ggplot() +
+  aes(x = year, y = n) +
+  geom_line(
+    aes(group = name), 
+    data = totals %>% semi_join(peak_year %>% top_n(25, n), by = "name"), 
+    alpha = .15) +
+  ggrepel::geom_text_repel(
+    aes(label = name)) +
+  labs(
+    title = "Peak Linda",
+    x = "Year",
+    y = "N births of people with this name",
+    caption = "Source: Social Security Administration. Data from 1880-2015.")
+```
+
+
+
+```{r}
+df <- carData::Wong
+library(dplyr)
+library(ggplot2)
+ggplot(df) +
+  aes(x = days, y = piq) +
+  geom_line(aes(group = id))
+
+
+gapminder::gapminder
+
+ggplot(gapminder::gapminder) +
+  aes(x = year, y = lifeExp) +
+  geom_line(aes(group = country))
+
+
+#
+# # ggplot(totals) +
+# #   aes(x = year, y = prop_born) +
+# #   geom_line() +
+# #   facet_wrap("name")
+#
+# percentile_years <- totals %>%
+#   group_by(name) %>%
+#   filter(abs(prop_born - .5) == min(abs(prop_born - .5))) %>%
+#   ungroup()
+#
+# ggplot(percentile_years) +
+#   aes(x = year, y = prop_born) +
+#   ggrepel::geom_text_repel(aes(label = name))
+#
+# peak_year <- totals %>%
+#   group_by(name) %>%
+#   filter(n == max(n)) %>%
+#   ungroup()
+#
+# ggplot(peak_year) +
+#   aes(x = year, y = n) +
+#   ggrepel::geom_text_repel(aes(label = name))
+```
+
+How many things are in dots?
+
+  ```{r}
+count_dots <- function(...) length(quos(...))
+count_dots()
+count_dots(1, 2, 3)
+
+my_dots <- quos(1, 2, 3)
+
+# it's counting just the one thing
+count_dots(my_dots)
+
+# but here it's spliced
+count_dots(!!! my_dots)
+```
+
+We use `!!! dots` to splice in our `dots` values into the dots needed by `group_by()`.
+```
+top50 <- babynames %>%
+  group_by(name) %>%
+  summarise(total = sum(n)) %>%
+  top_n(50, total)
+
+group_by(name) %>%
+  mutate(
+    total_n = cumsum(n),
+    prop_born = total_n / sum(n)) %>%
+  ungroup()
+
+```
+Here's a side-note... Note that the `filter()` here does not use any of the
+columns in the dataframe `data`. `group_indices(grouped) %in% sampled_groups`
+returns a vector the same length as the number of rows in `data` This same
+principle is how `filter(data, FALSE)` returns a 0-row version of a dataframe.
+
