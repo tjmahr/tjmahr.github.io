@@ -234,7 +234,7 @@ p_model_comparison %+% df_models
 
 Most of the time, the no pooling and partial pooling lines are on top of each
 other. But when the two differ, it's because the partial pooling model's line is
-pulled slightly towards the no-pooling line.
+pulled slightly towards the complete-pooling line.
 
 We can appreciate the differences by zooming in on some participants.
 
