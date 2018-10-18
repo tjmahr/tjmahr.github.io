@@ -153,12 +153,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-## Notes to self
-
-* [Jekyll on windows guide](http://jekyll-windows.juthilo.com/)
-* [Dealing with the liquid exception](https://gist.github.com/fnichol/867550)
-* `bundle exec jekyll serve`
-* `bundle exec jekyll serve --drafts`
-* How I [fixed the GitHub metadata warning](https://www.hieule.info/programming/fix-errors-github-metadata-ssl-certificate-running-jekyll-serve/). Created a token with public scape and a system variable.
-
