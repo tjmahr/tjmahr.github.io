@@ -1,7 +1,7 @@
 ---
 layout: single
 title: Curriculum vitae
-modified: 2017-11-07
+modified: 2018-10-18
 excerpt: ""
 share: false
 paragraph-indent: false;
@@ -10,18 +10,18 @@ permalink: /cv.html
 
 ## Education
 
-* Ongoing - Ph.D. candidate, Communication Sciences and Disorders, University of Wisconsin–Madison. 
+* 2018 - Ph.D., Communication Sciences and Disorders, University of Wisconsin–Madison. 
+  - Dissertation: [Development of word recognition in preschoolers](https://www.tjmahr.com/dissertation/)
   - Ph.D. minor course work in statistics and psychology.
 * 2013 - M.S., Speech-Language Pathology, University of Wisconsin–Madison.
 * 2009 - B.S., Linguistics and English, University of Wisconsin–Madison.
 
 ## Current position
 
-**Research assistant** - Little Listeners project.
+**Data scientist** - Wisconsin Intelligibility, Speech and Communication Laboratory
 
-I prepare and analyze eyetracking data from a series of word recognition
-experiments with toddlers. I develop R packages for handling, visualizing and
-modeling these data, including an interactive Shiny dashboard.
+I study how children with cerebral palsy learn to talk and communicate. The project has amassed nearly 15 years of longitudinal speech and language data from children with cerebral palsy, and I analyze the developmental trajectories of these children.
+
 
 **Statistical consulting** - Freelance.
 
@@ -31,7 +31,13 @@ with tutorials/commentary on the analysis steps and code.
 ([Get in touch.](mailto:tjmahrweb@gmail.com))
 
 
-### Previous position
+## Previous positions
+
+**Research assistant** - Little Listeners project.
+
+I prepared and analyzed eyetracking data from a series of word recognition
+experiments with toddlers. I also developed R packages for handling, visualizing and
+modeling these data, including a web-based interactive dashboard.
 
 **Research assistant** - Learning to Talk project.
 
@@ -53,7 +59,7 @@ data and the R tidyverse, Shiny, knitr/rmarkdown, Docker, Praat, makefiles,
 regular expressions.
 
 **Statistics**: Regression: generalized linear models, hierarchical and mixed
-effects models, and Bayesian versions of these models. Structural equation
+effects models, generalized additive models, and Bayesian versions of these models. Structural equation
 modeling and factor analysis. Neural networks: practice with shallow networks,
 familiarity with how some deep network architectures work (CNNs, RBMs, RNNs,
 denoising autoencoders).
@@ -93,14 +99,14 @@ denoising autoencoders).
 Bayesian models and MCMC samples. It is the plotting library for 
 the [Stan programming language](http://mc-stan.org/).
 
-**[lookr](https://github.com/tjmahr/lookr)**. R package for dealing with
-eyetracking data for the Learning To Talk lab.
-
 **[rprime](http://cran.r-project.org/web/packages/rprime)**. R package for
 working Eprime text files.
 
 **[polypoly](http://cran.r-project.org/web/packages/polypoly)**. Tools for 
 orthogonal polynomials.
+
+**[lookr](https://github.com/tjmahr/lookr)**. R package for dealing with
+eyetracking data for the Learning To Talk lab.
 
 **[L2TDatabase](https://github.com/LearningToTalk/L2TDatabase)**. R package for
 working with the Learning To Talk lab's MySQL database. Helper functions for
@@ -121,51 +127,6 @@ project. Links to reviews:
 
 
 ## Presentations
-
-### Conference talks
-
-{% assign authored_talks = site.data.bib.talks | where: "type", "authored" %}
-
-{% for pub in authored_talks %}
-
-{% capture author_line %}
-{% for author in pub.authors %}
-{% if forloop.first %} {{author}}
-{% elsif forloop.last %}, & {{author}}
-{% else %}, {{author}}
-{% endif %}
-{% endfor %}
-{% endcapture %}
-
-{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
-
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus | strip_newlines }}
-{% endfor %}
-
-
-
-#### Coauthored (i.e., I didn't talk, but probably did stats and made figures)
-
-{% assign coauthored_talks = site.data.bib.talks | where: "type", "coauthored" %}
-
-{% for pub in coauthored_talks %}
-
-{% capture author_line %}
-{% for author in pub.authors %}
-{% if forloop.first %} {{author}}
-{% elsif forloop.last %}, & {{author}}
-{% else %}, {{author}}
-{% endif %}
-{% endfor %}
-{% endcapture %}
-
-{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
-
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
-{% endfor %}
-
 
 ### Invited talks
 
@@ -193,6 +154,52 @@ project. Links to reviews:
 {% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
 
 {{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
+{% endfor %}
+
+
+
+
+### Conference talks
+
+{% assign authored_talks = site.data.bib.talks | where: "type", "authored" %}
+
+{% for pub in authored_talks %}
+
+{% capture author_line %}
+{% for author in pub.authors %}
+{% if forloop.first %} {{author}}
+{% elsif forloop.last %}, & {{author}}
+{% else %}, {{author}}
+{% endif %}
+{% endfor %}
+{% endcapture %}
+
+{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
+
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus | strip_newlines }}
+{% endfor %}
+
+
+### Coauthored talks (i.e., I didn't talk, but probably did stats and made figures)
+
+{% assign coauthored_talks = site.data.bib.talks | where: "type", "coauthored" %}
+
+{% for pub in coauthored_talks %}
+
+{% capture author_line %}
+{% for author in pub.authors %}
+{% if forloop.first %} {{author}}
+{% elsif forloop.last %}, & {{author}}
+{% else %}, {{author}}
+{% endif %}
+{% endfor %}
+{% endcapture %}
+
+{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
+{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
+
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
 
 
