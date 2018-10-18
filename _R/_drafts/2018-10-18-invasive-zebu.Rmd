@@ -1,0 +1,173 @@
+---
+title: Draft post (2018-10-18)
+excerpt: ''
+tags: ''
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Start by reading over the [article on extending ggplot2](https://ggplot2.tidyverse.org/articles/extending-ggplot2.html).
+
+```{r}
+summarise_by_xn <- function(data, summary, ...) {
+  summary <- plyr::ddply(data, c("group", "x"), summary, ...)
+  unique <- plyr::ddply(data, c("group", "x"), uniquecols)
+  unique$y <- NULL
+  unique$n <- NULL
+
+  merge(summary, unique, by = c("x", "group"), sort = FALSE)
+}
+
+uniquecols <- ggplot2:::uniquecols
+
+bin_conf <- function(df, width = .95) {
+  alpha <- (1 - width)
+  results <- Hmisc::binconf(
+    sum(df$y),
+    sum(df$n),
+    alpha = alpha,
+    return.df = TRUE)
+  results <- setNames(results, c("y", "ymin", "ymax"))
+  results
+}
+
+
+StatPropCI <- ggproto(
+  "StatPropCI",
+  Stat,
+  required_aes = c("x", "y", "n"),
+  compute_panel = function(data, scales, width = .95) {
+    summarise_by_xn(data, bin_conf, width = width)
+  }
+)
+StatPropCI
+
+# data <- d %>%
+#   rename(x = Prompt, n = SWord, y = MWord)
+
+
+stat_prop_ci <- function(mapping = NULL, data = NULL, geom = "pointrange",
+                         position = "identity", na.rm = FALSE, show.legend = NA,
+                         inherit.aes = TRUE, width = .95, ...) {
+  layer(
+    stat = StatPropCI, data = data, mapping = mapping, geom = geom,
+    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
+    params = list(width = width, na.rm = na.rm, ...)
+  )
+}
+
+ggplot(d) +
+  aes(x = Prompt, y = MWord / SWord) +
+  geom_point(
+    position = position_jitter(height = .025, width = .2),
+    alpha = .4) +
+  stat_prop_ci(
+    aes(y = MWord, n = SWord),
+    color = "blue",
+    geom = "pointrange")
+
+
+  stat_prop_ci(aes(y = MWord, n = SWord), color = "blue",  geom = "pointrange")
+
+
+
+
+
+data <- sample_data %>%
+  group_by(Prompt) %>%
+  summarise(n = SWord %>% sum, y = sum(MWord)) %>%
+  rename(x = Prompt)
+
+
+```
+
+First, let's go over `stat_summary()`. This function is very flexible. There are two pieces: 
+
+1. A function to summarize the data  (fun.data, fun.y, etc.)
+2. A geom to visualize the summary result.
+
+To apply
+a summary function on each group of data, we tell specify `fun.data` when the
+summary gives point and range of values or `fun.y` when the summary gives a
+single estimate. There are also fun.ymin or fun.ymax but I have never had
+occasion to use them.
+
+Here are some examples with `fun.y`. We give it a function to summarize the data
+at each x and then a geom to plot it. In this case, the function is `mean()` and
+we plot the summary with point and then with a text label.
+
+```{r}
+ggplot(d) +
+  aes(x = Item, y = MWord) +
+  stat_summary(
+    fun.y = mean,
+    geom = "point") +
+  stat_summary(
+    aes(label = Prompt),
+    position = position_nudge(y = .025),
+    geom = "label")
+```
+
+With `fun.data`, the summary functions need to return a dataframe with the columns `y`, `ymin`, `ymax`. ggplot2 provides `mean_se()`, `mean_sdl()`, `mean_cl_normal()`, and `mean_cl_boot()`.
+
+
+```{r}
+ggplot(d) + 
+  aes(x = Item, y = MWord) + 
+  stat_summary(
+    aes(color = "1. fun.data = mean_se,\ngeom = \"pointrange\" (default)"),
+    position = position_nudge(x = -.10)) +
+  stat_summary(
+    aes(color = "2. fun.data = mean_cl_boot,\ngeom = \"errorbar\""),
+    position = position_nudge(x = .10),
+    fun.data = mean_cl_boot,
+    geom = "errorbar",
+    width = .25) + 
+  labs(
+    color = "Summary") +
+  theme(
+    legend.key.height = unit(40, "pt"))
+```
+
+### Sidenote: Bootstrapping wins here
+
+It doesn't go past the range of the data.
+
+```{r}
+1:100 %>% 
+  purrr::map_dfr(function(x) d %>% group_by(Item) %>% sample_frac(replace = TRUE) %>% summarise(mean = mean(MWord / SWord))) %>% ggplot() + 
+  aes(x = Item, y = mean) + 
+  geom_jitter(width = .1)
+```
+
+
+## The problem of binomial probabilities
+
+Number of trials affects the uncertainty. To compute the summary, we need a
+second piece of data: The number of trials.
+
+```{r}
+# visualize 10, 25, 50, 100 observations
+# tidyr::expand()
+
+```
+
+
+Basically, re-write `stat_summary()` but require a `n` aesthetic.
+
+
+It helps to look at what others have done.
+
+```{r}
+StatSummary$compute_group
+StatSummary$compute_panel
+StatSummary$compute_layer
+
+tidybayes:::StatPointinterval
+tidybayes:::StatPointinterval$compute_panel
+
+```
