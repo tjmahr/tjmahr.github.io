@@ -8,9 +8,9 @@ paragraph-indent: false;
 permalink: /about.html
 ---
 
-In a phrase: Speech pathologist turned data scientist. In a sentence:
-I wrangle data, crunch numbers, plot pictures, and fit models to
-study how children with cerebral palsy learn to communicate.
+In a phrase: Speech pathologist turned data scientist. I wrangle data, crunch
+numbers, plot pictures, and fit models to study how children with cerebral palsy
+learn to communicate.
 
 I earned my Ph.D. in communication sciences and disorders in Madison, Wisconsin.
 On paper, I was studying speech development, word recognition and word learning

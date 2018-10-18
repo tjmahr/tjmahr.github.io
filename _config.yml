@@ -138,8 +138,12 @@ exclude:
   - tjmahr.github.io.Rproj
   - .Rproj.user
   - "_R/*"
+  - notes.md
+  - minimal-mistakes-jekyll.gemspec
   - serve.sh
   - /docs # ignore Minimal Mistakes /docs
+  - screenshot.png
+  - screenshot-layouts.png
   - /test # ignore Minimal Mistakes /test
 keep_files:
   - .git
