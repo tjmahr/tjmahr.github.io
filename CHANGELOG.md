@@ -1,3 +1,41 @@
+## [4.1.0](https://github.com/mmistakes/minimal-mistakes/releases/tag/4.1.0)
+
+### Enhancements
+
+- Add Jekyll include for adding [custom author profile links](https://github.com/mmistakes/minimal-mistakes/blob/master/_includes/author-profile-custom-links.html) to sidebar
+
+### Bug Fixes
+
+- Fix link to Discourse.org homepage in `noscript` section [#699](https://github.com/mmistakes/minimal-mistakes/pull/699)
+- Fix padding issue with pagination buttons [#694](https://github.com/mmistakes/minimal-mistakes/issues/694)
+
+## [4.0.10](https://github.com/mmistakes/minimal-mistakes/releases/tag/4.0.10)
+
+### Bug Fixes
+
+- Add Staticman default `path`. [#683](https://github.com/mmistakes/minimal-mistakes/issues/683)
+
+### Maintenance
+
+- Slight correction/improvements to French UI text. [#685](https://github.com/mmistakes/minimal-mistakes/pull/685)
+
+## [4.0.9](https://github.com/mmistakes/minimal-mistakes/releases/tag/4.0.9)
+
+### Bug Fixes
+
+- Fix overlapping sidebar navigation lists due to `max-height: 100vh`. [#668](https://github.com/mmistakes/minimal-mistakes/issues/668)
+
+## [4.0.8](https://github.com/mmistakes/minimal-mistakes/releases/tag/4.0.8)
+
+### Bug Fixes
+
+- Set default value for `words_per_minute`. [#657](https://github.com/mmistakes/minimal-mistakes/issues/657)
+- Adjust sidebar navigation list CSS so it collapses at the correct width.
+
+### Maintenance
+
+- Add Google AdSense banner to `/docs/_layouts/default.html` for demo site.
+
 ## [4.0.7](https://github.com/mmistakes/minimal-mistakes/releases/tag/4.0.7)
 
 ### Enhancements

@@ -75,6 +75,7 @@
     margin-left: -1px;
 
     a {
+      display: block;
       margin-bottom: 0.25em;
       padding: 0.5em 1em;
       font-family: $sans-serif;
@@ -321,7 +322,7 @@
     display: none;
   }
 
-  @include breakpoint(max-width $large) {
+  @include breakpoint(max-width ($large - 1px)) {
 
     label {
       position: relative;
@@ -385,23 +386,23 @@
     input:checked + label:hover:after {
       transform: rotate(0);
     }
-  }
 
-  ul {
-    margin-bottom: 1em;
-  }
-
-  a {
-    display: block;
-    padding: 0.25em 0;
-
-    @include breakpoint($large) {
-      padding-top: 0.125em;
-      padding-bottom: 0.125em;
+    ul {
+      margin-bottom: 1em;
     }
 
-    &:hover {
-      text-decoration: underline;
+    a {
+      display: block;
+      padding: 0.25em 0;
+
+      @include breakpoint($large) {
+        padding-top: 0.125em;
+        padding-bottom: 0.125em;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
@@ -428,10 +429,10 @@
     }
   }
 
-  @include breakpoint(max-width $large) {
+  @include breakpoint(max-width ($large - 1px)) {
     position: relative;
     max-height: 0;
-    opacity: 0;
+    opacity: 0%;
     overflow: hidden;
     z-index: 10;
     -webkit-transition: 0.3s ease-in-out;
@@ -442,13 +443,13 @@
   }
 }
 
-@include breakpoint(max-width $large) {
+@include breakpoint(max-width ($large - 1px)) {
   .nav__list input:checked ~ .nav__items {
     -webkit-transition: 0.5s ease-in-out;
     transition: 0.5s ease-in-out;
-    max-height: 100vh;
-    opacity: 1;
+    max-height: 9999px; // exaggerate max-height to accommodate tall lists
     overflow: visible;
+    opacity: 1;
     margin-top: 1em;
     -webkit-transform: translate(0, 0);
         -ms-transform: translate(0, 0);
