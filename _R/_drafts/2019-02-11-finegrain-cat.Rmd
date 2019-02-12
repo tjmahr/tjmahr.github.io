@@ -160,11 +160,6 @@ generate_curves(100, time = 0:100, asymptote = .95, mid = 50) %>%
 
 
 ```{r}
-d <- readr::read_delim(
-  file = here::here("./_scratch/soybean.dat"), 
-  delim = " ", 
-  skip = 1, 
-  col_names = c("row", "plot", "trt", "day", "lwt"))
 
 ```
 
@@ -209,7 +204,7 @@ Sys.setenv(LOCAL_CPPFLAGS = '-march=native')
 #   Sys.setenv(LOCAL_CPPFLAGS = '-march=native')
 # although this causes Stan to throw an error on a few processors.
 formula_beta2 <- bf(
-  lwt ~ asym * inv(1 + exp((mid - day) * exp(scale))),
+  weight ~ asym * inv(1 + exp((mid - day) * exp(scale))),
   # asym ~ 1 + trt + (1 | ID | plot),
   asym ~ 1 +  (1 | ID | plot),
   mid ~ 1 +  (1 | ID | plot),
@@ -267,7 +262,6 @@ prior_fixef <- c(
   prior(normal(8, 3), nlpar = "scale", coef = "Intercept"),
   prior(exponential(1), class = "sigma")
 )
-hist(rexp(1000, .2))
 
 prior_ranef <- c(
   prior(exponential(.2), class = "sd", nlpar = "asym"),
@@ -275,12 +269,11 @@ prior_ranef <- c(
   prior(exponential(1), class = "sd", nlpar = "scale"),
   prior(lkj_corr_cholesky(2), class = "L"))
 
-
+d <- nlmrmd::soybean
 fit_beta <- brm(
   formula_beta2,
   data = d,
   prior = c(prior_fixef, prior_ranef),
-  # family = Beta(link = identity),
   iter = 2000,
   chains = 4,
   control = list(adapt_delta = 0.90, max_treedepth = 15))
@@ -315,11 +308,25 @@ intels <- d %>%
 summary <- d %>%
   tidyr::expand(
     day = seq(min(day), max(day), length.out = 80),
-    nesting(plot, trt)) %>%
-  tidybayes::add_fitted_draws(fit_draw, n = 1000) %>%
+    nesting(plot, year, phenotype)) %>%
+  tidybayes::add_fitted_draws(fit_draw, n = 100) %>%
   ungroup()
 
 
+summary %>% 
+  tjmisc::sample_n_of(20, .draw) %>%
+  tjmisc::sample_n_of(9, plot) %>% 
+  ggplot() +
+    aes(x = day, y = .value) +
+    geom_line(
+      aes(y = .value, group = .draw),
+      color = "#B6297B",
+      alpha = .2) +
+  geom_point(
+    aes(y = weight),
+    data = . %>% distinct(plot) %>% inner_join(d)) +
+  facet_wrap("plot")
+tjmisc::ggpreview()
 ```
 
 
