@@ -2,6 +2,11 @@
 title: Draft post (2019-02-11)
 excerpt: ''
 tags: ''
+header:
+  overlay_image: "assets/images/marisa-morton-1280.jpg"
+  image_description: "A wall of donuts"
+  overlay_filter: rgba(10, 10, 10, 0.1)
+  caption: "Photo credit: [**Yuval Levy**](https://unsplash.com/photos/r3VbEP24__o)"
 ---
 
 ```{r setup, include = FALSE}
@@ -9,241 +14,201 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 In this post, I walk through the code I used to make a nice diagram illustrating
-how a logistic growth curve works. I made this figure for a conference
-submission. I had a tight word count limit (600 words) and a complicated
+the parameters in a logistic growth curve. I made this figure for a conference
+submission. I had a tight word limit (600 words) and a complicated
 statistical method (Bayesian nonlinear mixed effects beta regression), so I
 wanted to use a diagram to handle some of the explanatory burden. Also, figures
 didn't count towards the word limit, so that was a bonus.
 
+In Septemer, I started a job as a data scientist for an NIH project studying how
+speech, language and communication development in children with cerebral palsy.
+My title says assistant scientist, but I call myself a data scientist because I
+still do all my work in RStudio and because it makes feel cool. And I study
+development
 
 ## Growth towards a ceiling
 
-Children can be hard to understand; they are learning to talk after all. This
-problem is compounded for children with cerebral palsy, because these kids will
-often speech-motor impairments. My current project is a model of how
-intelligibility---the probability that a listener understands what a child
-says---develops from age 3 to age 8. 
+Children can be hard to understand; they are learning to talk after all. You
+probably can imagine a four-year old asking politely asking for something:
+"pwetty pwease". This understandability problem is compounded for children with
+cerebral palsy, because these kids will often have speech-motor impairments on
+top of the usual developmental patterns. My current project is a statistical
+model of how *intelligibility*---the probability that an unfamiliar listener
+understands what a child says---develops from age 3 to age 8. 
 
-For the statistical models, we expected children 
-to follow a certain developmental trajectory: Begin at zero intelligibility, 
-show a period of accelerating then decelerating growth, and finally plateau at 
-some mature level of ability. This pattern of growth can be modeled using a logistic 
-growth curve using three parameters: an asymptote, a midpoint when growth is 
-steepest, and a scale which sets the slope of the curve. 
+For example, here are some data. Most of the code here is for formating the
+axes.
 
 ```{r}
-# "sample" a constant  
-rconstant <- function(n, x) {
-  rep(x, times = n)
-}
+library(tidyverse)
+points <- tibble(
+  age = c(30, 37, 44, 53, 72, 66) + 8, 
+  prop = c(0.146, 0.241, 0.571, 0.745, 0.843, 0.738))
 
-plot_priors <- function(x, n, asymptote = rbeta(n, 10, 20),
-                        midpoint = rnorm(n, 0, 1),
-                        scale = rnorm(n, .1, .025)) {
-  # stash sampling statements
-  asymptote_expr <- enexpr(asymptote)
-  midpoint_expr <- enexpr(midpoint)
-  scale_expr <- enexpr(scale)
+ggplot(points) + 
+  aes(x = age, y = prop) + 
+  geom_point() +
+  scale_x_continuous(
+    name = "Age in months", 
+    limits = c(0, 96), 
+    # Break the x-axis up on 12 months
+    breaks = scales::extended_breaks(Q = c(24, 12))) + 
+  scale_y_continuous(
+    name = "Intelligibility",
+    limits = c(0, NA),
+    labels = scales::percent_format(accuracy = 1))
+```
 
-  # evaluate sampling statements with n supplied
-  samples <- list(
-    sample_num = seq_len(n),
-    asymptote = rlang::eval_tidy(asymptote_expr, list(n = n)),
-    midpoint = rlang::eval_tidy(midpoint_expr, list(n = n)),
-    scale = rlang::eval_tidy(scale_expr, list(n = n)))
 
-  # compute the nonlinear curve for each sample
-  xs <- seq(min(x), max(x), length.out = 80)
+One of the interesting features of speech development is that it finishes:
+Children stop making their usual developmental speech patterns and converge on a
+mature level of performance. They stop making the stereotypical patterns of
+child speech.
 
-  # for each sample
-  data <- samples %>%
-    purrr::pmap_dfr(
-      function(sample_num, asymptote, midpoint, scale) {
-        tibble::tibble(
-          xs = xs,
-          ys = asymptote / (1 + exp((midpoint - xs) * scale)),
-          sample_num = sample_num)
-      })
+For the statistical models, we expected children to follow a certain
+developmental trajectory towards this ceiling: Begin at zero intelligibility,
+show a period of accelerating then decelerating growth, and finally plateau at
+some mature level of ability. This pattern of growth can be modeled using a
+logistic growth curve using three parameters: an asymptote, a midpoint when
+growth is steepest, and a scale which sets the slope of the curve.
 
-  p <- ggplot(data) +
-    aes(xs, ys) +
-    geom_line(aes(group = sample_num))
+Below is the equation of the logistic growth curve:
 
-  print(p)
-  invisible(data)
-}
+$$f(t) = \frac{\text{asymptote}}{1 + \exp{((\text{mid}~-~t)~*~\text{scale})}}$$
 
-plot_priors(0:96, n = 100, asymptote = rconstant(n, .8), scale = rnorm(n, .1, .04))
+But this equation doesn't do us any good. If you are like me, you probably
+stopped paying attention when you saw exp() in the denominator.
 
+
+
+
+```{r}
+
+xs <- seq(0, 96, length.out = 80)
+
+# crossing(
+#   xs = xs,
+#   asymptote = c(.4, .6, .8),
+#   scale = c(-0.05, .1, .2, .3),
+#   midpoint = c(40)
+#   
+#   ) %>% 
+#   mutate(
+#     ys = asymptote / (1 + exp((midpoint - xs) * scale))) %>% 
+#   ggplot() + 
+#   aes(x = xs, y = ys, group = interaction(asymptote, midpoint, scale)) + 
+#   geom_line(aes(color = factor(scale)))
+
+trend <- tibble(
+  xs = xs,
+  asymptote = .8,
+  scale = .2,
+  midpoint = 48,
+  ys = asymptote / (1 + exp((midpoint - xs) * scale)))
+
+ggplot(points) + 
+  aes(x = age, y = prop) + 
+  geom_point() +
+  geom_line(aes(x = xs, y = ys), data = trend) +
+  scale_x_continuous(
+    name = "Age in months", 
+    limits = c(0, 96), 
+    breaks = scales::extended_breaks(Q = c(24, 12))) + 
+  scale_y_continuous(
+    name = "Intelligibility",
+    limits = c(0, NA),
+    labels = scales::percent_format(accuracy = 1))
 ```
 
 
 
-Now my job for a recent abstract submission was to briefly illustrate what these curves look like but not let the curve
+```{r}
+
+blood_orange <- "#E7552C"
+# col_black <- "#2F2E33"
+col_black <- "#414145"
+col_asym <- "#E7552C"
+col_mid <- "#3B7B9E"
+col_scale <- "#1FA35C"
+
+# Compute endpoints for segment for slope in middle
+slope <- (.2 / 4) * .8
+y1 <- .4 + slope * -3
+y2 <- .4 + slope * 3
+
+ggplot(trend) +
+  aes(x = xs, y = ys) +
+  geom_segment(
+    color = col_mid,
+    x = 48,
+    xend = 48,
+    y = 0,
+    yend = .4,
+    linetype = "dashed") +
+  geom_segment(
+    color = col_asym,
+    x = 48 - 2,
+    xend = Inf,
+    y = .8,
+    yend = .8,
+    linetype = "dashed") +
+  geom_line(
+    # the actual curve
+    aes(group = scale),
+    size = 1,
+    color = col_black) +
+  geom_point(
+    aes(x = age, y = prop), 
+    data = points, size = 3, shape = 1) +
+  geom_segment(
+    color = col_scale,
+    arrow = arrow(ends = "both", length = unit(.1, "in")),
+    size = 1.2,
+    x = 48 - 3,
+    xend = 48 + 3,
+    y = y1,
+    yend = y2) +
+  annotate(
+    "text",
+    label = "growth plateaus at asymptote",
+    y = .84,
+    x = 49,
+    hjust = 0,
+    color = col_asym) +
+  annotate(
+    "text",
+    label = "growth steepest at midpoint",
+    y = .05,
+    x = 49,
+    hjust = 0,
+    color = col_mid) +
+  annotate(
+    "text",
+    label = "scale controls slope of curve",
+    y = .36,
+    x = 49,
+    hjust = 0,
+    color = col_scale) +
+  scale_x_continuous(breaks = scales::extended_breaks(Q = c(12, 6))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme_minimal() +
+  labs(
+    x = "Age in months",
+    y = "Estimated intelligibility"
+    # title = "Anatomy of logistic growth curve"
+    )
 
 
+```
 
 
-In Septemer, I started a job as a data scientist for an NIH project studying how
-speech, language and communication development in children with cerebral palsy.
-My title says assistatn scientist, but I say data scientist because I still do
-all my work in RStudio. And I study development
-
-
-
-
-We're talking about time series of repeated measurements.
-
-We're talking
-
-
-
-
-This curve is 
-flexible enough to capture many patterns—for example, sudden growth (sharp 
-slope), delay (later midpoint), or no change at all (low asymptote)—so these 
-parameters provide a way to estimate group-level and individual differences 
+This curve is flexible enough to capture many patterns—for example, sudden
+growth (sharp slope), delay (later midpoint), or no change at all (low
+asymptote)—so these parameters provide a way to estimate individual differences
 in developmental trajectories.
 
 
-
-First, here's a helper I've been using to study these curves. It 
-
-
-```{r}
-library(tidyverse)
-
-# Generate a single curve
-generate_one_curve <- function(time = -10:10, mid = NULL,
-                           asymptote = NULL, scale = NULL) {
-  # If no value is given, draw one from a distribution
-  mid <- mid %||% rnorm(1, median(time), IQR(time) / 5)
-  asymptote <- asymptote %||% rbeta(1, 2, 1)
-  scale <- scale %||% rnorm(1, .1, .05)
-
-  y <- asymptote / (1 + exp((mid - time) * scale))
-
-  tibble(
-    time = time,
-    proportion = y,
-    asymptote = asymptote,
-    scale = scale,
-    min_proportion = min(y),
-    mid = mid)
-}
-
-generate_curves <- function(n = 1, ...) {
-  # this function ignores the argument and just runs the function on the dots
-  make_one <- function(x) {
-    generate_one_curve(...)
-  }
-
-  purrr::map_df(
-    seq_len(n),
-    make_one,
-    .id = "sample")
-}
-
-library(tidyverse)
-generate_curves(40, time = 0:100) %>%
-  ggplot() +
-  aes(x = time, y = proportion, group = sample) +
-  geom_line()
-
-generate_curves(100, time = 0:100, mid = 50, scale = .5) %>%
-  ggplot() +
-    aes(x = time, y = proportion, group = sample) +
-    geom_line(alpha = .5)
-
-generate_curves(100, time = 0:100, asymptote = .95, scale = .5) %>%
-  ggplot() +
-    aes(x = time, y = proportion, group = sample) +
-    geom_line(alpha = .5)
-
-generate_curves(100, time = 0:100, asymptote = .95, mid = 50) %>%
-  ggplot() +
-  aes(x = time, y = proportion, group = sample) +
-  geom_line(alpha = .5)
-
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-
-```
-
-
-My textbook reference on these kinds of models is Davidian and Giltinan. I've
-more thumbed through it than studied it very closely, because a lot of the text
-seems to be how to estimate these things and I'm letting Bayes handle those
-details.
-
-
-To prepare this demo, I had to work through the Bayesian workflow from scratch on a new dataset. brms requires priors, but I do not want to peek at the data. On the other hand, I don't need to give the model some information to help it out. Thus, I weakly informative priors.
-
-First, I peeked at the range of the data.
-
-```{r}
-skimr::skim(d)
-```
-
-Then I devised priors that would hit these ranges.
-
-
-
-```{r}
+```{r, eval = FALSE, echo = FALSE}
 library(tidyverse)
 library(rstan)
 library(brms)
@@ -255,239 +220,77 @@ options(mc.cores = 4)
 rstan_options(auto_write = TRUE)
 Sys.setenv(LOCAL_CPPFLAGS = '-march=native')
 
-# For execution on a local, multicore CPU with excess RAM we recommend calling
-#   options(mc.cores = parallel::detectCores()).
-#
-# To avoid recompilation of unchanged Stan programs, we recommend calling
-#   rstan_options(auto_write = TRUE)
-#
-# For improved execution time, we recommend calling
-#   Sys.setenv(LOCAL_CPPFLAGS = '-march=native')
-# although this causes Stan to throw an error on a few processors.
-f <- bf(
-  weight ~ asym * inv(1 + exp((mid - day) * scale)),
-  asym ~ 1 +  (1 | ID | plot),
-  mid ~ 1 +  (1 | ID | plot),
-  scale ~ 1 + (1 | ID | plot),
+f0 <- bf(
+  prop ~ asym * inv(1 + exp((mid - age) * scale)),
+  asym ~ 1,
+  mid ~ 1,
+  scale ~ 1,
   nl = TRUE)
-
-f2 <- bf(
-  weight ~ asym * inv(1 + exp((mid - day) * scale)),
-  asym ~ 1 + phenotype + year + (1 | ID | plot),
-  mid ~ 1 + phenotype + year + (1 | ID | plot),
-  scale ~ 1 + phenotype + year + (1 | ID | plot),
-  nl = TRUE)
-
-f3 <- bf(
-  weight ~ asym * inv(1 + exp((mid - day) * scale)),
-  asym ~ 1 + phenotype + year + (1 | ID | plot),
-  mid ~ 1 + phenotype + year + (1 | ID | plot),
-  scale ~ 1 + phenotype + year + (1 | ID | plot),
-  nl = TRUE, 
-  sigma ~ 1 + day)
-
-# Prior for the individual children's asymptotes in NSMI group
-hist(rnorm(
-  1000,
-  mean = rnorm(1000, 20, 10),
-  sd = abs(rnorm(1000, 0, 10)))
-)
-
-
-
-plot_priors(d$day, n = 100, asymptote = rnorm(n, 20, 10), midpoint = rnorm(n, 40, 10), scale = rnorm(n, .5, .25))
 
 prior_fixef <- c(
-  prior(normal(20, 10), nlpar = "asym", coef = "Intercept"),
-  prior(normal(40, 10), nlpar = "mid", coef = "Intercept"),
-  prior(normal(.5, .25), nlpar = "scale", coef = "Intercept"),
-  prior(normal(0, 10), nlpar = "asym", class = "b"),
-  prior(normal(0, 7), nlpar = "mid", class = "b"),
-  prior(normal(0, .25), nlpar = "scale", class = "b"),
-  prior(exponential(1), class = "sigma")
-  # prior(exponential(1), dpar = "sigma")
+  prior(beta(8, 2), nlpar = "asym", coef = "Intercept"),
+  prior(normal(50, 6), nlpar = "mid", coef = "Intercept"),
+  prior(normal(2, .5), nlpar = "scale", coef = "Intercept")
 )
 
-prior_ranef <- c(
-  prior(exponential(.2), class = "sd", nlpar = "asym"),
-  prior(exponential(.2), class = "sd", nlpar = "mid"),
-  prior(exponential(1), class = "sd", nlpar = "scale"),
-  prior(lkj_corr_cholesky(2), class = "L"))
+plogis(rnorm(1000, 1, .5))
+mean(plogis(rnorm(1000, 1, .5)))
+plot(density(rbeta(1000, 8, 2)))
+beta()
 
-d <- nlmrmd::soybean %>% 
-  mutate(year = paste0("y", year))
+# prior_phi <- c(
+#   prior(normal(2, 1), dpar = "phi", class = "Intercept")
+# )
 
-fit <- brm(
-  f2,
-  data = d,
-  prior = c(prior_fixef, prior_ranef),
+fit_beta <- brm(
+  f0,
+  data = points,
+  prior = c(prior_fixef),
+  family = Beta(link = identity),
   iter = 2000,
   chains = 4,
   control = list(adapt_delta = 0.90, max_treedepth = 15))
-
-ggplot(d) + 
-  aes(x = day, y = lwt, color = factor(trt)) + 
-  geom_point() + 
-  geom_line(aes(group = plot)) + 
-  facet_wrap("trt")
-
-fit_draw <- fit
+fit_beta
 
 
-# m <- make_stancode(
-#   f3,
-#   data = d,
-#   prior = c(prior_fixef, prior_ranef))
-# 
-# l <- make_standata(f3, data = d,
-#   prior = c(prior_fixef, prior_ranef))
-# 
-# m_comp <- rstan::stan_model(model_code = m)
-# m_fit <- sampling(m_comp, l)
-# 
-# 
+fit_draw <- fit_beta
 
 
+points %>%
+  tidyr::expand(
+    age = seq(0, 96, length.out = 80)) %>%
+  tidybayes::add_fitted_draws(
+    fit_draw,
+    n = 1000) %>%
+  ggplot() +
+    aes(x = age, y = .value) +
+    stat_summary(fun.data = median_hdci) +
+    geom_point(aes(y = prop), data = points) 
 
-# d %>%
-#   tidyr::expand(
-#     day = seq(min(day), max(day), length.out = 80),
-#     nesting(plot, trt)) %>%
-#   tidybayes::add_fitted_draws(
-#     fit_draw,
-#     n = 100) %>%
-#   ggplot() +
-#     aes(x = day, y = .value, color = factor(trt)) +
-#     stat_summary(fun.data = median_hdci) +
-#     geom_point(aes(y = lwt), data = d ) +
-#     facet_wrap("trt")
+points %>%
+  tidyr::expand(
+    age = seq(0, 96, length.out = 80)) %>%
+  tidybayes::add_fitted_draws(
+    fit_draw,
+    n = 40) %>%
+  ggplot() +
+    aes(x = age, y = .value) +
+    geom_line(aes(group = .draw), alpha = .1) +
+      # stat_summary(fun.data = median_hdci) +
+    geom_point(aes(y = prop), data = points) 
 
-# intels <- d %>%
-#   distinct(day, trt, year, phenotype, plot)
+intels <- d %>%
+  distinct(age, sid, intel2)
 
 summary <- d %>%
   tidyr::expand(
-    day = seq(min(day), max(day), length.out = 80),
-    nesting(plot, year, phenotype)) %>%
-  tidybayes::add_fitted_draws(fit_draw, n = 100) %>%
+    age = seq(24, max(age), by = 1),
+    nesting(slpg, sid)) %>%
+  tidybayes::add_fitted_draws(fit_draw, n = 1000) %>%
   ungroup()
 
 
-summary %>% 
-  tjmisc::sample_n_of(20, .draw) %>%
-  tjmisc::sample_n_of(9, plot) %>% 
-  ggplot() +
-    aes(x = day, y = .value) +
-    geom_line(
-      aes(y = .value, group = .draw),
-      color = "#B6297B",
-      alpha = .2) +
-  geom_point(
-    aes(y = weight),
-    data = . %>% distinct(plot) %>% inner_join(d)) +
-  facet_wrap("plot")
-
-d_fit <- d %>% 
-  bind_cols(fit %>% resid() %>% as_tibble()) %>% 
-  bind_cols(fit %>% fitted() %>% as_tibble() %>% select(Fitted = Estimate)) 
-  
-d_fit %>% 
-  filter(year == "y1990", phenotype == "PI") %>% 
-  ggplot() + 
-    aes(x = Fitted, y = Estimate) + 
-    geom_pointrange(
-      aes(ymin = Q2.5, ymax = Q97.5), alpha = .4) + 
-    geom_line(
-      aes(group = plot)) +
-  scale_x_log10() +
-  labs(y = "Residual")
-
-d_fit %>% 
-  filter(year == "y1990", phenotype == "PI") %>% 
-  ggplot() + 
-    aes(x = day, y = Estimate) + 
-    geom_pointrange(
-      aes(ymin = Q2.5, ymax = Q97.5), alpha = .4) + 
-    geom_line(
-      aes(group = plot)) +
-  scale_x_log10() +
-  labs(y = "Residual")
-
-residuals(fit, summary = TRUE)
-brmsformula()
-summary %>% 
-  tjmisc::sample_n_of(20, .draw) %>%
-  # tjmisc::sample_n_of(9, plot) %>% 
-  ggplot() +
-    aes(x = day, y = .value) +
-    geom_line(
-      aes(y = .value, group = .draw),
-      color = "#B6297B",
-      alpha = .2) +
-  geom_point(
-    aes(y = weight),
-    data = . %>% distinct(plot) %>% inner_join(d)) +
-  facet_wrap("plot")
-tjmisc::ggpreview()
 ```
 
 
-
-```{r}
-library(tidyverse)
-
-# Generate a single curve
-generate_one_curve <- function(time = -10:10, mid = NULL,
-                           asymptote = NULL, scale = NULL) {
-  # If no value is given, draw one from a distribution
-  mid <- mid %||% rnorm(1, 0, 3)
-  asymptote <- asymptote %||% rbeta(1, 2, 1)
-  scale <- scale %||% (1 / rnorm(1, 10, 4))
-
-  y <- asymptote / (1 + exp((mid - time) * scale))
-
-  tibble(
-    time = time,
-    proportion = y,
-    asymptote = asymptote,
-    scale = scale,
-    min_proportion = min(y),
-    mid = mid)
-}
-
-generate_curves <- function(n = 1, ...) {
-  # this function ignores the argument and just runs the function on the dots
-  make_one <- function(x) {
-    generate_one_curve(...)
-  }
-
-  purrr::map_df(
-    seq_len(n),
-    make_one,
-    .id = "sample")
-}
-
-library(tidyverse)
-generate_curves(40) %>%
-  ggplot() +
-  aes(x = time, y = proportion, group = sample) +
-  geom_line()
-
-generate_curves(100,  mid = 0, scale = .5) %>%
-  ggplot() +
-    aes(x = time, y = proportion, group = sample) +
-    geom_line(alpha = .5)
-
-generate_curves(100, asymptote = .95, scale = .5) %>%
-  ggplot() +
-    aes(x = time, y = proportion, group = sample) +
-    geom_line(alpha = .5)
-
-generate_curves(100, asymptote = .95, mid = 0) %>%
-  ggplot() +
-  aes(x = time, y = proportion, group = sample) +
-  geom_line(alpha = .5)
-
-
-```
 
