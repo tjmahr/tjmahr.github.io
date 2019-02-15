@@ -41,8 +41,10 @@ axes.
 
 ```{r}
 library(tidyverse)
+theme_set(theme_minimal())
+
 points <- tibble(
-  age = c(30, 37, 44, 53, 72, 66) + 8, 
+  age = c(38, 45, 52, 61, 80, 74), 
   prop = c(0.146, 0.241, 0.571, 0.745, 0.843, 0.738))
 
 ggplot(points) + 
@@ -77,27 +79,11 @@ Below is the equation of the logistic growth curve:
 $$f(t) = \frac{\text{asymptote}}{1 + \exp{((\text{mid}~-~t)~*~\text{scale})}}$$
 
 But this equation doesn't do us any good. If you are like me, you probably
-stopped paying attention when you saw exp() in the denominator.
-
-
+stopped paying attention when you saw exp() in the denominator. Here's the logistic curve for these data.
 
 
 ```{r}
-
 xs <- seq(0, 96, length.out = 80)
-
-# crossing(
-#   xs = xs,
-#   asymptote = c(.4, .6, .8),
-#   scale = c(-0.05, .1, .2, .3),
-#   midpoint = c(40)
-#   
-#   ) %>% 
-#   mutate(
-#     ys = asymptote / (1 + exp((midpoint - xs) * scale))) %>% 
-#   ggplot() + 
-#   aes(x = xs, y = ys, group = interaction(asymptote, midpoint, scale)) + 
-#   geom_line(aes(color = factor(scale)))
 
 trend <- tibble(
   xs = xs,
@@ -120,12 +106,132 @@ ggplot(points) +
     labels = scales::percent_format(accuracy = 1))
 ```
 
+Now, let's add some labels to mark some key parts of the equation.
+
+```{r}
+blood_orange <- "#E7552C"
+col_black <- "#414145"
+col_asym <- "#E7552C"
+col_mid <- "#3B7B9E"
+col_scale <- "#1FA35C"
+
+# # Compute endpoints for segment for slope in middle
+# slope <- (.2 / 4) * .8
+# y1 <- .4 + slope * -3
+# y2 <- .4 + slope * 3
+
+ggplot(trend) +
+  aes(x = xs, y = ys) +
+  geom_segment(
+    color = col_mid,
+    x = 48, xend = 48,
+    y = 0, yend = .4,
+    linetype = "dashed") +
+  geom_segment(
+    color = col_asym,
+    x = 20, xend = Inf,
+    y = .8, yend = .8,
+    linetype = "dashed") +
+  geom_line(
+    # the actual curve
+    aes(group = scale),
+    size = 1,
+    color = col_black) +
+  geom_point(
+    aes(x = age, y = prop), 
+    data = points, size = 3, shape = 1) +
+  # geom_segment(
+  #   color = col_scale,
+  #   arrow = arrow(ends = "both", length = unit(.1, "in")),
+  #   size = 1.2,
+  #   x = 48 - 3,
+  #   xend = 48 + 3,
+  #   y = y1,
+  #   yend = y2) +
+  annotate(
+    "text",
+    label = "growth plateaus at asymptote",
+    y = .84,
+    x = 20,
+    hjust = 0,
+    color = col_asym) +
+  annotate(
+    "text",
+    label = "growth steepest at midpoint",
+    y = .05,
+    x = 49,
+    hjust = 0,
+    color = col_mid)
+
+```
+
+
+
+```{r}
+
+
+# crossing(
+#   xs = xs,
+#   asymptote = c(.4, .6, .8),
+#   scale = c(-0.05, .1, .2, .3),
+#   midpoint = c(40)
+#   
+#   ) %>% 
+#   mutate(
+#     ys = asymptote / (1 + exp((midpoint - xs) * scale))) %>% 
+#   ggplot() + 
+#   aes(x = xs, y = ys, group = interaction(asymptote, midpoint, scale)) + 
+#   geom_line(aes(color = factor(scale)))
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+## We need to talk about the scale parameter for a second
+
+The curve is at its steepest at the midpoint. The curve is accelerating, hits the midpoint, then starts decelerating. 
+
+This is the derivative of the logistic curve. I had to ask a computer to do the math for me. 
+
+$$\frac{d}{dt}f(t) =  \text{asymptote} * \frac{ \text{scale} * \exp{((\text{mid}~-~t)~*~\text{scale})}}{(1 + \exp{((\text{mid}~-~t)~*~\text{scale})})^2}$$
+
+Yeah, I don't like it either, but I have to show you this mess to show how neat
+the midpoint of the curve is. When *t* is the midpoint, algebraic magic happens.
+All of the (mid − *t*) parts become 0, exp(0) is 1, so everything simplifies a
+great deal. Check it out.
+
+$$
+\begin{align}
+\frac{d}{dt}f(t = \text{mid}) &=  \text{asymptote} * \frac{ \text{scale} * \exp{(0~*~\text{scale})}}{(1 + \exp{(0~*~\text{scale}}))^2} \\
+&= \text{asymptote} * \frac{ \text{scale} * 1}{(1 + 1)^2} \\
+&= \text{asymptote} * \frac{ \text{scale}}{4} \\
+\text{slope at midpoint} &= \text{asymptote} * \frac{ \text{scale}}{4} \\
+\end{align}
+$$
+
+
+
+
+
+
+
+
+
 
 
 ```{r}
 
 blood_orange <- "#E7552C"
-# col_black <- "#2F2E33"
 col_black <- "#414145"
 col_asym <- "#E7552C"
 col_mid <- "#3B7B9E"
@@ -293,4 +399,10 @@ summary <- d %>%
 ```
 
 
+## Extra notes
+
+
+### Gelman's divide by four rule
+
+In Gelman and Hill, a textbook I've mentioned a few times on this blog, they use these feature in their chapter on logistic regression. ...
 
