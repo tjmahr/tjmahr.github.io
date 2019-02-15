@@ -9,6 +9,8 @@ header:
   caption: "Photo credit: [**Yuval Levy**](https://unsplash.com/photos/r3VbEP24__o)"
 ---
 
+
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -17,16 +19,26 @@ In this post, I walk through the code I used to make a nice diagram illustrating
 the parameters in a logistic growth curve. I made this figure for a conference
 submission. I had a tight word limit (600 words) and a complicated
 statistical method (Bayesian nonlinear mixed effects beta regression), so I
-wanted to use a diagram to handle some of the explanatory burden. Also, figures
+wanted to use a diagram to carry some of the expository load. Also, figures
 didn't count towards the word limit, so that was a bonus.
 
-In Septemer, I started a job as a data scientist for an NIH project studying how
-speech, language and communication development in children with cerebral palsy.
-My title says assistant scientist, but I call myself a data scientist because I
-still do all my work in RStudio and because it makes feel cool. And I study
-development
+Here I will cover a few different topics:
+
+- The pieces of the three-parameter logistic equation
+- What exactly the murky "scale" parameter does
+- How use `mathplot` to add mathematical material to plots
+- The divide by four rule for logistic curves
+
+
 
 ## Growth towards a ceiling
+
+<!-- In Septemer, I started a job as a data scientist for an NIH project studying how -->
+<!-- speech, language and communication development in children with cerebral palsy. -->
+<!-- My title says assistant scientist, but I call myself a data scientist because I -->
+<!-- still do all my work in RStudio and because it makes feel cool. And I study -->
+<!-- development -->
+
 
 Children can be hard to understand; they are learning to talk after all. You
 probably can imagine a four-year old asking politely asking for something:
@@ -36,7 +48,7 @@ top of the usual developmental patterns. My current project is a statistical
 model of how *intelligibility*---the probability that an unfamiliar listener
 understands what a child says---develops from age 3 to age 8. 
 
-For example, here are some data. Most of the code here is for formating the
+For example, here are some data. Most of the code revhere is for formatting the
 axes.
 
 ```{r}
@@ -47,13 +59,19 @@ points <- tibble(
   age = c(38, 45, 52, 61, 80, 74), 
   prop = c(0.146, 0.241, 0.571, 0.745, 0.843, 0.738))
 
+colors <- list(
+  data = "#41414580",
+  fit = "#414145")
+
 ggplot(points) + 
   aes(x = age, y = prop) + 
-  geom_point() +
+  geom_point(size = 3, color = colors$data) +
   scale_x_continuous(
     name = "Age in months", 
     limits = c(0, 96), 
-    # Break the x-axis up on 12 months
+    # Because age is in months, I want breaks to land on multiples
+    # of 12. The `Q` in `extended_breaks()` are "nice" numbers to use
+    # for axis breaks.
     breaks = scales::extended_breaks(Q = c(24, 12))) + 
   scale_y_continuous(
     name = "Intelligibility",
@@ -86,16 +104,16 @@ stopped paying attention when you saw exp() in the denominator. Here's the logis
 xs <- seq(0, 96, length.out = 80)
 
 trend <- tibble(
-  xs = xs,
+  age = xs,
   asymptote = .8,
   scale = .2,
   midpoint = 48,
-  ys = asymptote / (1 + exp((midpoint - xs) * scale)))
+  prop = asymptote / (1 + exp((midpoint - age) * scale)))
 
 ggplot(points) + 
   aes(x = age, y = prop) + 
-  geom_point() +
-  geom_line(aes(x = xs, y = ys), data = trend) +
+  geom_line(data = trend, color = colors$fit) +
+  geom_point(size = 3, color = colors$data) +
   scale_x_continuous(
     name = "Age in months", 
     limits = c(0, 96), 
@@ -106,85 +124,67 @@ ggplot(points) +
     labels = scales::percent_format(accuracy = 1))
 ```
 
-Now, let's add some labels to mark some key parts of the equation.
+Now, let's add some labels to mark some key parts of the equation. One
+unfamiliar bit of ggplot technology here might be `annotate()`. Geometry
+functions like `geom_point()` or `geom_text()` are used to draw data that lives
+in a dataframe using aesthetic mappings defined in `aes()`, and these function
+draws some geometry (like a point or a label) for each row of the data. For
+one-off annotations with `annotate()`, we set the aesthetics manually
+instead. The first argument of `annotate()` says what kind of geom to use for
+the annotation: `"text"` calls on `geom_text()` and `"segment"` calls on
+`geom_segment()`.
+
+<!-- A line  -->
+<!-- like `aes(x = age)` tells ggplot "when you draw something, get its *x* position -->
+<!-- using the `age` column in the data", and this happens for each row of the data. -->
 
 ```{r}
-blood_orange <- "#E7552C"
-col_black <- "#414145"
-col_asym <- "#E7552C"
-col_mid <- "#3B7B9E"
-col_scale <- "#1FA35C"
+colors$asym <- "#E7552C"
+colors$mid <- "#3B7B9E"
+colors$scale <- "#1FA35C"
 
-# # Compute endpoints for segment for slope in middle
-# slope <- (.2 / 4) * .8
-# y1 <- .4 + slope * -3
-# y2 <- .4 + slope * 3
-
-ggplot(trend) +
-  aes(x = xs, y = ys) +
-  geom_segment(
-    color = col_mid,
+p <- ggplot(points) +
+  aes(x = age, y = prop) +
+  annotate(
+    "segment",
+    color = colors$mid,
     x = 48, xend = 48,
     y = 0, yend = .4,
     linetype = "dashed") +
-  geom_segment(
-    color = col_asym,
+  annotate(
+    "segment",
+    color = colors$asym,
     x = 20, xend = Inf,
     y = .8, yend = .8,
     linetype = "dashed") +
-  geom_line(
-    # the actual curve
-    aes(group = scale),
-    size = 1,
-    color = col_black) +
-  geom_point(
-    aes(x = age, y = prop), 
-    data = points, size = 3, shape = 1) +
-  # geom_segment(
-  #   color = col_scale,
-  #   arrow = arrow(ends = "both", length = unit(.1, "in")),
-  #   size = 1.2,
-  #   x = 48 - 3,
-  #   xend = 48 + 3,
-  #   y = y1,
-  #   yend = y2) +
+  geom_line(data = trend, size = 1, color = colors$fit) +
+  geom_point(size = 3, color = colors$data) +
   annotate(
     "text",
     label = "growth plateaus at asymptote",
-    y = .84,
-    x = 20,
+    x = 20, y = .84,
+    # horizontal justification = 0 sets x position to left edge of text
     hjust = 0,
-    color = col_asym) +
+    color = colors$asym) +
   annotate(
     "text",
     label = "growth steepest at midpoint",
-    y = .05,
-    x = 49,
+    x = 49, y = .05,
     hjust = 0,
-    color = col_mid)
+    color = colors$mid) +
+  scale_x_continuous(
+    name = "Age in months", 
+    limits = c(0, 96), 
+    breaks = scales::extended_breaks(Q = c(24, 12))) + 
+  scale_y_continuous(
+    name = "Intelligibility",
+    limits = c(0, NA),
+    labels = scales::percent_format(accuracy = 1))
 
+p
 ```
 
-
-
-```{r}
-
-
-# crossing(
-#   xs = xs,
-#   asymptote = c(.4, .6, .8),
-#   scale = c(-0.05, .1, .2, .3),
-#   midpoint = c(40)
-#   
-#   ) %>% 
-#   mutate(
-#     ys = asymptote / (1 + exp((midpoint - xs) * scale))) %>% 
-#   ggplot() + 
-#   aes(x = xs, y = ys, group = interaction(asymptote, midpoint, scale)) + 
-#   geom_line(aes(color = factor(scale)))
-
-
-```
+But how do we represent scale?
 
 
 
@@ -230,88 +230,109 @@ $$
 
 
 ```{r}
-
-blood_orange <- "#E7552C"
-col_black <- "#414145"
-col_asym <- "#E7552C"
-col_mid <- "#3B7B9E"
-col_scale <- "#1FA35C"
-
 # Compute endpoints for segment for slope in middle
 slope <- (.2 / 4) * .8
-y1 <- .4 + slope * -3
-y2 <- .4 + slope * 3
+x_step <- 2.5
+y1 <- .4 + slope * -x_step
+y2 <- .4 + slope * x_step
 
-ggplot(trend) +
-  aes(x = xs, y = ys) +
+p <- p +
   geom_segment(
-    color = col_mid,
-    x = 48,
-    xend = 48,
-    y = 0,
-    yend = .4,
-    linetype = "dashed") +
-  geom_segment(
-    color = col_asym,
-    x = 48 - 2,
-    xend = Inf,
-    y = .8,
-    yend = .8,
-    linetype = "dashed") +
-  geom_line(
-    # the actual curve
-    aes(group = scale),
-    size = 1,
-    color = col_black) +
-  geom_point(
-    aes(x = age, y = prop), 
-    data = points, size = 3, shape = 1) +
-  geom_segment(
-    color = col_scale,
-    arrow = arrow(ends = "both", length = unit(.1, "in")),
+    x = 48 - x_step, xend = 48 + x_step,
+    y = y1, yend = y2,
     size = 1.2,
-    x = 48 - 3,
-    xend = 48 + 3,
-    y = y1,
-    yend = y2) +
-  annotate(
-    "text",
-    label = "growth plateaus at asymptote",
-    y = .84,
-    x = 49,
-    hjust = 0,
-    color = col_asym) +
-  annotate(
-    "text",
-    label = "growth steepest at midpoint",
-    y = .05,
-    x = 49,
-    hjust = 0,
-    color = col_mid) +
+    color = colors$scale,
+    arrow = arrow(ends = "both", length = unit(.1, "in"))) +
   annotate(
     "text",
     label = "scale controls slope of curve",
-    y = .36,
-    x = 49,
-    hjust = 0,
-    color = col_scale) +
-  scale_x_continuous(breaks = scales::extended_breaks(Q = c(12, 6))) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  theme_minimal() +
-  labs(
-    x = "Age in months",
-    y = "Estimated intelligibility"
-    # title = "Anatomy of logistic growth curve"
-    )
-
-
+    x = 49, y = .36, 
+    color = colors$scale, hjust = 0)
 ```
 
 
-This curve is flexible enough to capture many patterns—for example, sudden
-growth (sharp slope), delay (later midpoint), or no change at all (low
-asymptote)—so these parameters provide a way to estimate individual differences
-in developmental trajectories.
+
+
+```{r}
+# Helper to plot an equation a specified spot
+annotate_eq <- function(label, ...) {
+  annotate(
+    "text",
+    x = 0,
+    y = .6,
+    label = label,
+    parse = TRUE,
+    hjust = 0,
+    size = 4, ...)
+}
+
+
+p <- last_plot()
+
+p + annotate_eq(
+    label = "f(t)==frac(asymptote, (1 + exp(mid-t)%*%scale))", 
+    color = colors$fit)
+
+
+# Use phantom to invisibly write characters. I think it only works on whole
+# expressions so I have to do some ridiculous stuff like adding spaces with \~
+# to get things to line up.
+# frac() draws a fraction line. atop() does not.
+p +
+  annotate_eq(
+    label = "
+    f(t)==frac(
+    phantom(asymptote), 
+    (1 + exp((phantom(mid)-t)%*%phantom(scale)))
+    )",
+    color = colors$fit) +
+  annotate_eq(
+    label = "phantom(f(t))~atop(asymptote, phantom((1 + exp((mid-t)%*%scale))))",
+    color = colors$asym) +
+  annotate_eq(
+    label = "phantom(f(t))~atop(phantom(asymptote), phantom(1 + exp((mid-t11)))~~scale)",
+    color = colors$scale) +
+  annotate_eq(
+    label = "phantom(f(t))~atop(phantom(asymptote), phantom(1 + exp)~~~~~~~~mid~phantom(t*scale))",
+    color = colors$mid)
+```
+
+Using `phantom(x)` will make space for x in the equation but it won't draw it.
+So we can `phantom()` out all of the parameters to draw the non-parameter parts
+of the equation in black.
+
+```{r}
+p1 <- p +
+  annotate_eq(
+    label = "
+    f(t)==frac(phantom(asymptote), 
+    (1 + exp((phantom(mid)-t)%*%phantom(scale))))", 
+    color = colors$fit) 
+p1
+```
+
+Then we layer on the other parts of the equation, but use `phantom()` as needed
+
+```{r}
+
+
+p2 <- p1 + 
+  annotate_eq(
+    label = "phantom(f(t))~atop(asymptote, phantom((1 + exp((mid-t)%*%scale))))",
+    color = colors$asym)
+
+p2 +
+  annotate_eq(
+    label = "
+    phantom(f(t), symbol('=')) ~ 
+    atop(
+      phantom(asymptote), 
+      phantom(1 + exp((mid-t), symbol(')'), symbol('*'))) ~ scale)",
+    color = colors$scale) +
+  annotate_eq(
+    label = "phantom(f(t))~atop(phantom(asymptote), phantom(1 + exp)~~~~~~~~mid~phantom(t*scale))",
+    color = colors$mid)
+```
 
 
 ```{r, eval = FALSE, echo = FALSE}
@@ -406,3 +427,28 @@ summary <- d %>%
 
 In Gelman and Hill, a textbook I've mentioned a few times on this blog, they use these feature in their chapter on logistic regression. ...
 
+
+```{r}
+
+
+# crossing(
+#   xs = xs,
+#   asymptote = c(.4, .6, .8),
+#   scale = c(-0.05, .1, .2, .3),
+#   midpoint = c(40)
+#   
+#   ) %>% 
+#   mutate(
+#     ys = asymptote / (1 + exp((midpoint - xs) * scale))) %>% 
+#   ggplot() + 
+#   aes(x = xs, y = ys, group = interaction(asymptote, midpoint, scale)) + 
+#   geom_line(aes(color = factor(scale)))
+
+
+```
+
+
+This curve is flexible enough to capture many patterns—for example, sudden
+growth (sharp slope), delay (later midpoint), or no change at all (low
+asymptote)—so these parameters provide a way to estimate individual differences
+in developmental trajectories.
