@@ -34,7 +34,7 @@ I will cover a few different topics:
 
 ## Growth towards a ceiling
 
-<!-- In Septemer, I started a job as a data scientist for an NIH project studying how -->
+<!-- In September, I started a job as a data scientist for an NIH project studying how -->
 <!-- speech, language and communication development in children with cerebral palsy. -->
 <!-- My title says assistant scientist, but I call myself a data scientist because I -->
 <!-- still do all my work in RStudio and because it makes feel cool. And I study -->
@@ -42,7 +42,7 @@ I will cover a few different topics:
 
 
 Children can be hard to understand; they are learning to talk after all. You
-probably can imagine a four-year-old asking politely asking for something:
+probably can imagine a four-year-old politely asking for something:
 "pwetty pwease". This understandability problem is compounded for children with
 cerebral palsy, because these kids will often have speech-motor impairments on
 top of the usual developmental patterns. My current project is a statistical
@@ -215,7 +215,7 @@ then decelerates. The rate of change on the curve is changing constantly along
 the course of the curve. Therefore, it doesn't make sense to talk about the
 scale as the growth rate or as the slope in any particular location. It's better
 to think of it as a growth factor, or umm, *scale*. I say that it "controls" the
-slope of the curve, because changing the scale will affect the overall stepness
+slope of the curve, because changing the scale will affect the overall steepness
 of the curve.
 
 Here is the derivative of the logistic curve. This function tells you the rate
@@ -431,7 +431,7 @@ or how to blank out subexpressions in an easier way, I would love to hear it.
     at 0. There is a four-parameter version of the curve that estimates the 
     other asymptote.
 
-[^reparameter]: We could reparameterize the equation to multiple *scyle* by
+[^reparameter]: We could reparameterize the equation to multiply *scale* by
     *asymptote / 4*, so that the scale parameter comes out to be the slope at 
     the midpoint automatically. If you are using a non-Bayesian procedure and 
     want a confidence interval on the slope at the midpoint, then that 
