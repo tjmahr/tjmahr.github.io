@@ -397,7 +397,7 @@ or how to blank out subexpressions in an easier way, I would love to hear it.
     other asymptote.
 
 [^reparameter]: We could reparameterize the equation to multiply *scale* by
-    *asymptote / 4*, so that the scale parameter comes out to be the slope at 
+    *4 / asymptote*, so that the scale parameter comes out to be the slope at 
     the midpoint automatically. If you are using a non-Bayesian procedure and 
     want a confidence interval on the slope at the midpoint, then that 
     parameterization should provide an easy way to do that. I prefer using 
