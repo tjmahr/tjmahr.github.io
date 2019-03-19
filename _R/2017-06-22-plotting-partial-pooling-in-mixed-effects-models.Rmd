@@ -214,8 +214,8 @@ using `coef()`.
 ```{r}
 # Make a dataframe with the fitted effects
 df_partial_pooling <- coef(m)[["Subject"]] %>% 
-  as_tibble() %>% 
   rownames_to_column("Subject") %>% 
+  as_tibble() %>% 
   rename(Intercept = `(Intercept)`, Slope_Days = Days) %>% 
   add_column(Model = "Partial pooling")
 
