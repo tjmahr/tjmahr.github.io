@@ -1,0 +1,117 @@
+---
+title: ICCBot comes online (2019-09-18)
+excerpt: ''
+tags:
+  - r
+  - shiny
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+"I feel like I've had an epiphany. All of the complexities in the data. It doesn't matter."
+{: .page__lead}
+
+That was me, reporting to my lab, after I emerging from the rabbit hole.
+
+I had been tasked by my lab to figure how reliable our team was when scoring a
+children's speech assessment. We wanted to know how reliable how scores were.
+
+The test is fairly conventional articulation
+inventory. Children name pictures, and listeners score whether the child
+correctly produced certain target sounds in the word. The words work through the
+consonants, consonant cluster, and vowels of English in different positions. For
+example, the sound /l/ is tested twice: in *ladder* (word-initially) and
+in *ball* (word-finally). The test weights some sounds are more than others. The
+vowel in *knife* is word 3 points, the final /f/ is worth .5 points. All told,
+there are 67 sounds tested and producing all of the sounds correctly yields an
+overall score of 100 points.
+
+We had 2 graduate students each score 130 administrations of the test. 
+
+They both chose the same answer 90% of the time. If we weighted their agreement,
+by the item weights, we got 91% agreement. But what question was this statistic
+answering? Agreement tells us how frequently the two chose the same answer or how frequently they
+both awarded a point. 
+
+```{r, eval = FALSE}
+library(tidyverse)
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  select(rater_1, rater_2) %>% 
+  irr::agree()
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  select(rater_1, rater_2) %>% 
+  irr::maxwell()
+  
+summarise(
+    mean(agree),
+    weighted.mean(agree, w = item_points)
+  )
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  summarise(
+    mean(agree),
+    weighted.mean(agree, w = item_points)
+  )
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  group_by(test_id) %>% 
+  summarise(
+    mean(agree),
+    weighted.mean(agree, w = item_points)
+  )
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  group_by(test_id) %>% 
+  summarise(
+    rater_1 = sum(rater_1),
+    rater_2 = sum(rater_2)
+  ) %>% 
+  select(rater_1, rater_2) %>%
+  irr::kappa2()
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  select(rater_1, rater_2) %>%
+  irr::kappam.fleiss()
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  group_by(test_id) %>% 
+  summarise(
+    rater_1 = sum(rater_1),
+    rater_2 = sum(rater_2)
+  ) %>% 
+  select(rater_1, rater_2) %>%
+  cor()
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  group_by(test_id) %>% 
+  summarise(
+    rater_1 = sum(rater_1),
+    rater_2 = sum(rater_2)
+  ) %>% 
+  select(rater_1, rater_2) %>%
+  cor()
+
+readr::read_csv("./_R/data/sample-irr-scores.csv") %>% 
+  group_by(test_id) %>% 
+  summarise(
+    rater_1 = sum(rater_1),
+    rater_2 = sum(rater_2)
+  ) %>% 
+  select(rater_1, rater_2) %>%
+  irr::icc(model = "twoway", type = "agreement")
+
+
+```
+
+irr::kappa()
+
+it looks at the speech sounds of English
+
+The test involves 67 judgements
+
+
+I had been tasked by my lab to figure how reliability our scorers were. We had 
