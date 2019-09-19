@@ -1,6 +1,6 @@
 ---
-layout: single
 title: Curriculum vitae
+layout: single
 modified: 2018-10-18
 excerpt: ""
 share: false
