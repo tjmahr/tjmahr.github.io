@@ -94,7 +94,7 @@ og_image                 : # Open Graph/Twitter default site image
 social:
   type                   : # Person or Organization (defaults to Person)
   name                   : # If the user or organization name differs from the site's name
-  links: # An array of links to social media profiles
+  links                  : # An array of links to social media profiles
 
 # Analytics
 analytics:
@@ -133,13 +133,10 @@ author:
   weibo            :
   xing             :
   youtube          :
-#   links:
-#     - label: "Email"
-#       icon: "fas fa-fw fa-envelope-square"
-#       # url: mailto:your.name@email.com
-#     - label: "Website"
-#       icon: "fas fa-fw fa-link"
-#       # url: "https://your-website.com"
+  links:
+    - label: "R Bloggers"
+      icon: "fab fa-r-project"
+      url: "https://www.r-bloggers.com/"
 #     - label: "Twitter"
 #       icon: "fab fa-fw fa-twitter-square"
 #       # url: "https://twitter.com/"
@@ -152,7 +149,8 @@ author:
 #     - label: "Instagram"
 #       icon: "fab fa-fw fa-instagram"
 #       # url: "https://instagram.com/"
-#
+
+
 # # Site Footer
 # footer:
 #   links:
