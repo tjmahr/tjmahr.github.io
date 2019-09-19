@@ -78,6 +78,13 @@
     font-size: 1em;
   }
 
+  .page__lead {
+    font-family: $global-font-family;
+    font-size: $type-size-4;
+    margin-bottom: 1em;
+    font-weight: lighter;
+  }
+
   /* paragraph indents */
   p {
     margin: 0 0 $indent-var;
