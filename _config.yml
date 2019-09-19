@@ -150,6 +150,9 @@ author:
 #       icon: "fab fa-fw fa-instagram"
 #       # url: "https://instagram.com/"
 
+head_scripts:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+
 
 # # Site Footer
 # footer:
