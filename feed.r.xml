@@ -1,12 +1,12 @@
 ---
 layout:
 ---
-<?xml version="1.0" encoding="UTF-8"?>{% include base_path %}
+<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ site.title | xml_escape }}</title>
     <description>{{ site.description | xml_escape }}</description>
-    <link>{{ base_path }}</link>
+    <link>{{ site.url }}</link>
     <atom:link href="{{ site.url }}/{{ page.path }}" rel="self" type="application/rss+xml" />
     {% for post in site.tags.r limit:10 %}
       <item>
