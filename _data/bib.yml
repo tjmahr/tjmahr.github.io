@@ -51,6 +51,25 @@ publications:
 
 
 talks:
+
+  # satRday chicago 2019
+  - type: authored
+    title:
+      text: "bayesplot: Diagnostic plots for Bayesian models"
+      url: https://www.tjmahr.com/bayesplot-satrdays-2019/
+    authors:
+      - Mahr, T.
+    when:
+      year: 2019
+      month: April
+    where: >
+      Presentation at SatRday Chicago.
+    bonus:
+      type: flask
+      text: Github repository.
+      url: https://github.com/tjmahr/bayesplot-satrdays-2019
+
+
   # UW-Madison Prosem
   - type: invited
     title: >

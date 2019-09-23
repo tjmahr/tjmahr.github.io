@@ -1,7 +1,7 @@
 ---
 title: Curriculum vitae
 layout: single
-modified: 2018-10-18
+modified: 2019-09-23
 excerpt: ""
 share: false
 paragraph-indent: false;
@@ -10,17 +10,22 @@ permalink: /cv.html
 
 ## Education
 
-* 2018 - Ph.D., Communication Sciences and Disorders, University of Wisconsin–Madison. 
-  - Dissertation: [Development of word recognition in preschoolers](https://www.tjmahr.com/dissertation/)
-  - Ph.D. minor course work in statistics and psychology.
-* 2013 - M.S., Speech-Language Pathology, University of Wisconsin–Madison.
-* 2009 - B.S., Linguistics and English, University of Wisconsin–Madison.
+  - 2018 - Ph.D., Communication Sciences and Disorders, University of
+    Wisconsin–Madison.
+      - Dissertation: [Development of word recognition in
+        preschoolers](https://www.tjmahr.com/dissertation/)
+      - Ph.D. minor course work in statistics and psychology.
+  - 2013 - M.S., Speech-Language Pathology, University of Wisconsin–Madison.
+  - 2009 - B.S., Linguistics and English, University of Wisconsin–Madison.
 
 ## Current position
 
 **Data scientist** - Wisconsin Intelligibility, Speech and Communication Laboratory
 
-I study how children with cerebral palsy learn to talk and communicate. The project has amassed nearly 15 years of longitudinal speech and language data from children with cerebral palsy, and I analyze the developmental trajectories of these children.
+I study how children with cerebral palsy learn to talk and communicate. The
+project has amassed nearly 15 years of longitudinal speech and language data
+from children with cerebral palsy, and I analyze the developmental trajectories
+of these children.
 
 
 **Statistical consulting** - Freelance.
@@ -36,8 +41,8 @@ with tutorials/commentary on the analysis steps and code.
 **Research assistant** - Little Listeners project.
 
 I prepared and analyzed eyetracking data from a series of word recognition
-experiments with toddlers. I also developed R packages for handling, visualizing and
-modeling these data, including a web-based interactive dashboard.
+experiments with toddlers. I also developed R packages for handling, visualizing
+and modeling these data, including a web-based interactive dashboard.
 
 **Research assistant** - Learning to Talk project.
 
@@ -52,17 +57,17 @@ eyetracking and speech perception experiments from this project.
 ## Programming and statistics
 
 **Languages**: Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML,
-Stan. Some practice with Java, JavaScript and Python. Exposure to Clojure. 
+Stan. Some practice with Java, JavaScript and Python. Exposure to Clojure.
 
 **Computing tools and technologies**: bash/batch scripting, git and GitHub, tidy
 data and the R tidyverse, Shiny, knitr/rmarkdown, Docker, Praat, makefiles,
 regular expressions.
 
 **Statistics**: Regression: generalized linear models, hierarchical and mixed
-effects models, generalized additive models, and Bayesian versions of these models. Structural equation
-modeling and factor analysis. Neural networks: practice with shallow networks,
-familiarity with how some deep network architectures work (CNNs, RBMs, RNNs,
-denoising autoencoders).
+effects models, generalized additive models, and Bayesian versions of these
+models. Structural equation modeling and factor analysis. Neural networks:
+practice with shallow networks, familiarity with how some deep network
+architectures work (CNNs, RBMs, RNNs, denoising autoencoders).
 
 ## Publications
 
@@ -105,6 +110,9 @@ working Eprime text files.
 **[polypoly](http://cran.r-project.org/web/packages/polypoly)**. Tools for 
 orthogonal polynomials.
 
+**[littlelisteners](/littlelisteners/)**. A general-purpose R package for
+dealing with eyetracking data.
+
 **[lookr](https://github.com/tjmahr/lookr)**. R package for dealing with
 eyetracking data for the Learning To Talk lab.
 
@@ -117,11 +125,12 @@ creating, updating, backing-up MySQL tables in R.
 
 Plus, countless other R packages for various projects or problems.
 
-I have also peer-reviewed software for the [rOpenSci](https://ropensci.org/) 
-project. Links to reviews:
+I have also peer-reviewed software:
 
 * [charlatan](https://github.com/ropensci/onboarding/issues/94#issuecomment-283799109), 
   a tool for generating fake data
+* [bayestestR](https://github.com/openjournals/joss-reviews/issues/1541#issuecomment-516067570), 
+  functions for describing Bayesian models and posterior distributions
 
 
 
@@ -165,6 +174,12 @@ project. Links to reviews:
 
 {% for pub in authored_talks %}
 
+{% capture title %}
+{% if pub.title.url %}[{{pub.title.text}}]({{pub.title.url}})
+{% else %}{{pub.title}}
+{% endif %}
+{% endcapture %}
+
 {% capture author_line %}
 {% for author in pub.authors %}
 {% if forloop.first %} {{author}}
@@ -177,7 +192,7 @@ project. Links to reviews:
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
 {% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
 
-{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus | strip_newlines }}
+{{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus | strip_newlines }}
 {% endfor %}
 
 
