@@ -1,9 +1,27 @@
 
 
+abbreviations:
+  - &tjm Mahr, T.
+  - &jre Edwards, J. R.
+  - &flaw Law, F., II
+  - &bttm McMillan, B. T. M.
+  - &jrs Saffran, J. R.
+  - &sew Ellis Weismer, S.
+  - &cv Venker, C.
+  - &ep Premo, E.
+  - &cs Seidel, C.
+  - &mee Erskine, M. E.
+  - &pemn Natzke, P. E. M.
+  - &kch Hustad, K. C.
+  - &where_srcld_poster >
+    Poster session presented at the annual Symposium on Research in Child
+    Language Disorders, Madison, WI.
+
+
 publications:
   - authors:
-    - Mahr, T.
-    - Edwards, J. R.
+    - *tjm
+    - *jre
     when:
       year: 2018
     title: >
@@ -18,10 +36,10 @@ publications:
       url: https://github.com/tjmahr/mahr-edwards-2017
 
   - authors:
-    - Law, F., II
-    - Mahr, T.
+    - *flaw
+    - *tjm
     - Schneeberg, A.
-    - Edwards, J. R.
+    - *jre
     when:
       year: 2016
     title: >
@@ -31,11 +49,11 @@ publications:
     doi: 10.1017/S0142716416000126
 
   - authors:
-    - Mahr, T.
-    - McMillan, B. T. M.
-    - Saffran, J. R.
-    - Ellis Weismer, S.
-    - Edwards, J. R.
+    - *tjm
+    - *bttm
+    - *jrs
+    - *sew
+    - *jre
     when:
       year: 2015
     title: Anticipatory coarticulation facilitates word recognition in toddlers
@@ -58,7 +76,7 @@ talks:
       text: "bayesplot: Diagnostic plots for Bayesian models"
       url: https://www.tjmahr.com/bayesplot-satrdays-2019/
     authors:
-      - Mahr, T.
+      - *tjm
     when:
       year: 2019
       month: April
@@ -75,7 +93,7 @@ talks:
     title: >
       Development of word recognition in preschoolers
     authors:
-      - Mahr, T.
+      - *tjm
     when:
       year: 2018
       month: March
@@ -87,8 +105,8 @@ talks:
   - type: coauthored
     title: Spoken word recognition of children with cochlear implants
     authors:
-      - Mahr, T.
-      - Edwards, J. R.
+      - *tjm
+      - *jre
     when:
       year: 2017
       month: November
@@ -106,12 +124,12 @@ talks:
       Comparing Automatic Eye Tracking & Manual Gaze Coding in Children
       with Autism Spectrum Disorder
     authors:
-      - Venker, C.
-      - Mahr, T.
-      - Premo, E.
-      - Saffran, J. R.
-      - Edwards, J. R.
-      - Ellis Weismer, S.
+      - *cv
+      - *tjm
+      - *ep
+      - *jrs
+      - *jre
+      - *sew
     when:
       year: 2016
       month: November
@@ -125,8 +143,8 @@ talks:
       Lexical processing efficiency in preschool children: Influences of
       speech perception and inhibitory control
     authors:
-      - Mahr, T.
-      - Edwards, J. R.
+      - *tjm
+      - *jre
     when:
       year: 2016
       month: November
@@ -140,7 +158,7 @@ talks:
       text: Bayesian Regression Models with RStanARM
       url: "https://cdn.rawgit.com/tjmahr/MadR_RStanARM/master/01-how-i-got-into-Bayes-rpubs.html#/"
     authors:
-      - Mahr, T.
+      - *tjm
     when:
       year: 2016
       month: September
@@ -156,9 +174,9 @@ talks:
       Exploring effects of expressive vocabulary size and maternal education
       on lexical processing by preschoolers using the visual world paradigm
     authors:
-      - Law, F., II
-      - Mahr, T.
-      - Edwards, J. R.
+      - *flaw
+      - *tjm
+      - *jre
     when:
       year: 2015
       month: November
@@ -171,8 +189,8 @@ talks:
     title: >
       Speech perception and spoken word recognition in young children
     authors:
-      - Edwards, J. R.
-      - Mahr, T.
+      - *jre
+      - *tjm
     when:
       year: 2015
       month: November
@@ -188,7 +206,7 @@ talks:
       text: "Let the data flow: Pipelines in R with dplyr and magrittr"
       url: http://rpubs.com/tjmahr/pipelines_2015
     authors:
-      - Mahr, T.
+      - *tjm
     when:
       year: 2015
       month: March
@@ -204,7 +222,7 @@ talks:
       Using eyetracking to study toddlers' sensitivity to coarticulation
       during word recognition
     authors:
-      - Mahr, T.
+      - *tjm
     when:
       year: 2014
       month: October
@@ -218,10 +236,10 @@ talks:
       Toddlers are sensitive to anticipatory coarticulation during
       word recognition
     authors:
-      - Mahr, T.
-      - McMillan, B. T. M.
-      - Saffran, J. R.
-      - Edwards, J. R.
+      - *tjm
+      - *bttm
+      - *jrs
+      - *jre
     when:
       year: 2014
       month: November
@@ -235,10 +253,10 @@ talks:
       Are toddlers sensitive to anticipatory coarticulation during
       word recognition?
     authors:
-      - Mahr, T.
-      - McMillan, B. T. M.
-      - Saffran, J. R.
-      - Edwards, J. R.
+      - *tjm
+      - *bttm
+      - *jrs
+      - *jre
     when:
       year: 2014
       month: September
@@ -248,11 +266,42 @@ talks:
 
 
 posters:
+
+  # SRCLD 2019
+  - authors:
+    - *tjm
+    - *pemn
+    - *kch
+    when:
+      year: 2019
+      month: June
+    title: >
+      Intelligibility in multiword utterances in children with cerebral palsy
+    where: *where_srcld_poster
+    bonus:
+      type: flask
+      text: Poster on Github.
+      url: https://github.com/tjmahr/SRCLD2019
+
+  # SRCLD 2018
+  - authors:
+    - *tjm
+    - *jre
+    when:
+      year: 2018
+      month: June
+    title: Development of familiar word recognition in preschoolers
+    where: *where_srcld_poster
+    bonus:
+      type: flask
+      text: Poster on Github.
+      url: https://github.com/tjmahr/SRCLD2018
+
   # BUCLD 2017
   - authors:
-      - Erskine, M. E.
-      - Mahr, T.
-      - Edwards, J. R.
+      - *mee
+      - *tjm
+      - *jre
     when:
       year: 2017
       month: November
@@ -269,25 +318,23 @@ posters:
 
   # SRCLD 2016
   - authors:
-    - Mahr, T.
-    - Venker, C.
-    - Premo, E.
-    - Ellis Weismer, S.
-    - Saffran, J. R.
-    - Edwards, J. R.
+    - *tjm
+    - *cv
+    - *ep
+    - *sew
+    - *jrs
+    - *jre
     when:
       year: 2016
       month: June
     title: >
       Preschoolers with autism treat nonwords and mispronunciations differently
-    where: >
-      Poster session presented at the annual Symposium on Research in Child
-      Language Disorders, Madison, WI.
+    where: *where_srcld_poster
 
   # Psynom 2015
   - authors:
-    - Mahr, T.
-    - Edwards, J. R.
+    - *tjm
+    - *jre
     when:
       year: 2015
       month: November
@@ -299,39 +346,35 @@ posters:
 
   # SRCLD 2015
   - authors:
-    - Erskine, M. E.
-    - Mahr, T.
+    - *mee
+    - *tjm
     - Munson, B.
-    - Edwards, J. R.
+    - *jre
     when:
       year: 2015
       month: June
     title: >
       The lexical restructuring hypothesis: Two claims of phonological
       awareness evaluated
-    where: >
-      Poster session presented at the annual Symposium on Research in Child
-      Language Disorders, Madison, WI.
+    where: *where_srcld_poster
 
   # SRCLD 2014
   - authors:
-    - Mahr, T.
-    - Law, F., II
-    - Edwards, J. R.
+    - *tjm
+    - *flaw
+    - *jre
     when:
       year: 2014
       month: June
     title: >
       The influence of home language input and lexical processing efficiency
       on vocabulary size in 3-year-olds
-    where: >
-      Poster session presented at the annual Symposium on Research in Child
-      Language Disorders, Madison, WI.
+    where: *where_srcld_poster
 
   # WSHA 2014
   - authors:
-    - Mahr, T.
-    - Seidel, C.
+    - *tjm
+    - *cs
     when:
       year: 2014
       month: February
@@ -344,8 +387,8 @@ posters:
 
   # ASHA 2013
   - authors:
-    - Seidel, C.
-    - Mahr, T.
+    - *cs
+    - *tjm
     when:
       year: 2013
       month: November
@@ -358,14 +401,12 @@ posters:
 
   # SRCLD 2013
   - authors:
-    - Mahr, T.
-    - Edwards, J. R.
+    - *tjm
+    - *jre
     when:
       year: 2013
       month: June
     title: >
       Do orienting stimuli create additional task demands in the
       looking-while-listening paradigm?
-    where: >
-      Poster session presented at the annual Symposium on Research in
-      Child Language Disorders, Madison, WI.
+    where: *where_srcld_poster
