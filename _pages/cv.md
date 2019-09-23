@@ -8,7 +8,7 @@ paragraph-indent: false;
 permalink: /cv.html
 ---
 
-## Education
+## <i class="fas fa-graduation-cap"></i> Education
 
   - 2018 - Ph.D., Communication Sciences and Disorders, University of
     Wisconsin–Madison.
@@ -18,7 +18,7 @@ permalink: /cv.html
   - 2013 - M.S., Speech-Language Pathology, University of Wisconsin–Madison.
   - 2009 - B.S., Linguistics and English, University of Wisconsin–Madison.
 
-## Current position
+## <i class="fas fa-user-astronaut"></i> Current position
 
 **Data scientist** - Wisconsin Intelligibility, Speech and Communication Laboratory
 
@@ -36,7 +36,7 @@ with tutorials/commentary on the analysis steps and code.
 ([Get in touch.](mailto:tjmahrweb@gmail.com))
 
 
-## Previous positions
+## <i class="fas fa-list-ul"></i> Previous positions
 
 **Research assistant** - Little Listeners project.
 
@@ -54,7 +54,7 @@ developed a MySQL database supporting R package for our data. I analyzed
 eyetracking and speech perception experiments from this project.
 
 
-## Programming and statistics
+## <i class="fas fa-chart-line"></i> Programming and statistics
 
 **Languages**: Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML,
 Stan. Some practice with Java, JavaScript and Python. Exposure to Clojure.
@@ -69,7 +69,7 @@ models. Structural equation modeling and factor analysis. Neural networks:
 practice with shallow networks, familiarity with how some deep network
 architectures work (CNNs, RBMs, RNNs, denoising autoencoders).
 
-## Publications
+## <i class="fas fa-paragraph"></i> Publications
 
 {% for pub in site.data.bib.publications %}
 
@@ -98,7 +98,7 @@ architectures work (CNNs, RBMs, RNNs, denoising autoencoders).
 
 
 
-## Software
+## <i class="fas fa-code"></i> Software
 
 **[bayesplot](http://mc-stan.org/bayesplot/)**. R package for visualizing 
 Bayesian models and MCMC samples. It is the plotting library for 
@@ -135,7 +135,7 @@ I have also peer-reviewed software:
 
 
 
-## Presentations
+## <i class="fas fa-bullhorn"></i> Presentations
 
 ### Invited talks
 
@@ -239,7 +239,7 @@ I have also peer-reviewed software:
 {% endfor %}
 
 
-## Teaching
+## <i class="fas fa-chalkboard-teacher"></i> Teaching
 
 ### Lecturing
 
@@ -266,7 +266,7 @@ clinician.
 
 
 
-## Awards
+## <i class="fas fa-award"></i> Awards
 
 2017–18, 2012–13: Supported by NIH Training Grant to Susan Ellis Weismer: _5-T32-DC5359,
 Interdisciplinary Research in Speech–Language Disorders._
