@@ -6,6 +6,8 @@ tags:
   - r
   - ggplot2
   - mixed effects
+  - brms
+  - tidybayes
 ---
 
 
@@ -14,7 +16,7 @@ tags:
 Last week, I presented an analysis on the longitudinal development of
 intelligibility in children with cerebral palsy---that is, how well do strangers
 understand these children's speech from 2 to 8 years old. My analysis used a 
-Bayesian nonlinear mixed effects Beta regression model. If some [models are livestock and some are
+Bayesian nonlinear mixed effects beta regression model. If some [models are livestock and some are
 pets](https://twitter.com/hadleywickham/status/742353541793120259?s=20), this
 model is my dearest pet. I first started developing it a year ago, and it took
 weeks of learning and problem-solving to get the first version working
@@ -27,28 +29,29 @@ speech-language pathologists, audiologists, and researchers in communication
 sciences and disorders. The audience here is rightly more concerned with
 clinical or research matters than the nuts and bolts of my model.
 
-Still, I wanted to convey the main ideas behind the model without dumbing things down. I got to work
-making lots of educational diagrams. Among them was the annotated logistic curve
-from [my earlier post](/anatomy-of-a-logistic-growth-curve/) and the following
+Still, I wanted to convey the main ideas behind the model without dumbing things
+down. I got to work making lots of educational diagrams. Among them was the
+annotated logistic curve from 
+[my earlier post](/anatomy-of-a-logistic-growth-curve/) and the following
 figure, used to illustrate information borrowing (or partial pooling) in mixed
 effects models:
 
 {% include figure image_path="/assets/images/2019-11-mixed-model-diagram.png" alt="Diagram showing four panels of observed data in the top row, a set of predictions for a new set of data in the middle row, and the four panels from the first row updated to included fitted estimates." caption="Diagram I used to illustrate how mixed effects models work." %}
 
-I am pleased with this figure. I originally tried to convey the idea as an
-interactive process: Individual-level data inform the population model and those
-feed back into the individual estimates. I had only two sets of plots with
-labeled paths running back and forth between them; it wasn't pretty. This plot's
-"feed-forward" approach simplified things a great deal. My only concern, in
-hindsight, is that I should have oriented things to run left-to-right instead of
-top-to-bottom so I could have filled a 16:9 widescreen slide better. (But this
-vertical version probably looks great on your phone or tablet right now, so
+I am pleased with this figure. Originally, I tried to convey the idea as an
+interactive process: Individual-level data feed into the population model and
+those feed back into the individual estimates. I had only two sets of plots with
+labeled paths running back and forth between them; it wasn't pretty. The final
+plot's "feed-forward" approach simplified things a great deal. My only concern,
+in hindsight, is that I should have oriented things to run left-to-right instead
+of top-to-bottom so I could have filled a 16:9 widescreen slide better. (But
+this vertical version probably looks great on your phone or tablet right now, so
 whatever!)
 
 In this post, I walk through how to produce a plot like this one from scratch. I
 can't share the original model or the clinical data here, so I will use the
-`sleepstudy` data from lme4, as in [my partial pooling
-tutorial](/plotting-partial-pooling-in-mixed-effects-models/).
+`sleepstudy` data from lme4, as in 
+[my partial pooling tutorial](/plotting-partial-pooling-in-mixed-effects-models/).
 
 
 
@@ -71,7 +74,8 @@ sleepstudy <- lme4::sleepstudy %>%
 df_sleep <- bind_rows(
   sleepstudy,
   tibble(Reaction = c(286, 288), Days = 0:1, Subject = "374"),
-  tibble(Reaction = 245, Days = 0, Subject = "373"))
+  tibble(Reaction = 245, Days = 0, Subject = "373")
+)
 
 df_sleep
 #> # A tibble: 183 x 3
@@ -142,8 +146,8 @@ b
 
 ## Top row: connect the dots
 
-Let's create the top row. The core of the plot is straightforward: We
-draw lines, draw points, facet by `Subject`, and set a reasonable y-axis range for
+Let's create the top row. The core of the plot is straightforward: We draw
+lines, draw points, facet by `Subject`, and set a reasonable *y*-axis range for
 the plot (controlling the coordinates via `coord_cartesian()`).
 
 
@@ -165,12 +169,12 @@ p_first_pass
 <img src="/figs//2019-11-25-another-mixed-effects-model-visualization/top-row-take-1-1.png" title="First pass at the model. It shows points connected by lines split over four panels." alt="First pass at the model. It shows points connected by lines split over four panels." width="66%" style="display: block; margin: auto;" />
 
 First, let's make one somewhat obscure tweak. Currently, the left edge of the
-title is aligned with with plotting panel---that is, the window where the data
-are drawn. But in our final ensemble, we are going to have three plots and the left
-edge of the panel will not be in the the same location across all three plots.
-We want our titles to be aligned with each other from plot to plot, so we tell
-ggplot2 to position the plot title using the left edge of the `"plot"`, as opposed
-to the `"panel"`. 
+title is aligned with the plotting panel---that is, the window with the grey
+background where the data are drawn. But in our final ensemble, we are going to
+have three plots and the left edge of the panel will not be in the same
+location across all three plots. We want our titles to be aligned with each
+other from plot to plot, so we tell ggplot2 to position the plot title using the
+left edge of the `"plot"`, as opposed to the `"panel"`.
 
 
 ```r
@@ -188,8 +192,8 @@ November 2019.
 
 For the diagram, we have to remove the facet labels ("strips"),
 axis titles, axis text, and axis ticks (those little lines that stick out of the
-plot). We also clean up the gridlines for the *x* axis. The *x* unit is whole
-number `Days`, so putting a line ("break") at 2.5 is not meaningful.
+plot). We also should clean up the gridlines for the *x* axis. The *x* unit is
+whole number `Days`, so putting a line ("break") at 2.5 days is not meaningful.
 
 
 ```r
@@ -222,9 +226,9 @@ ggplot() + labs(title = "A tagged plot", tag = "A. ")
 
 <img src="/figs//2019-11-25-another-mixed-effects-model-visualization/tag-demo-1.png" title="A diagram showing the placement a plot's title and tag. The tag is in the upper left corner of the plot." alt="A diagram showing the placement a plot's title and tag. The tag is in the upper left corner of the plot." width="33%" style="display: block; margin: auto;" />
 
-But we will use that text feature to place some text to the right side of the
-plot. Sometimes, there's a correct way and there's the way that gives you the
-image you can paste into your slides, and this tag trick is one of two shortcuts
+But we will use that feature to place some text to the right side of the plot.
+Sometimes, there's a correct way and there's the way that gives you the image
+you can paste into your slides, and this tag trick is one of two such shortcuts
 I used in my diagram.
 
 
@@ -243,7 +247,7 @@ p_second_pass +
 
 I have discovered that incrementally and didactically building up my plots over
 multiple code chunks creates a hassle for Future Me when copypasting plotting
-code, so the final, complete code is below.
+code, so the final, complete code is provided below.
 
 
 ```r
@@ -276,7 +280,7 @@ p_top <- ggplot(df_demo) +
 
 Let's skip to the bottom row because it uses the same coordinates, points and
 theming as the top row. The plot visualizes the posterior fits (the estimated
-mean) as a median and a 95% interval.
+mean) as a median and 95% interval.
 [tidybayes](https://github.com/mjskay/tidybayes) makes the process 
 straightforward with `add_fitted_draws()` to add model fits onto a dataframe and with
 `stat_lineribbon()` to plot a line and ribbon summary of a posterior
@@ -319,7 +323,8 @@ df_demo_fitted
 
 Given these posterior fits, we call `stat_lineribbon()` to get the median
 and 95% intervals. The plotting code is otherwise the same as the last one,
-except for a different title and two lines that set the fill color and hide the fill legend.
+except for a different title and two lines that set the fill color and hide the
+fill legend.
 
 
 ```r
@@ -419,7 +424,6 @@ hex codes, where the last two digits set the transparency for the color.
 
 
 ```r
-# tidybayes::stat_lin
 ggplot() + 
   geom_vline(xintercept = 1, size = 4, color = "#000000FF") + 
   geom_vline(xintercept = 2, size = 4, color = "#000000CC") + 
@@ -434,7 +438,7 @@ ggplot() +
 <img src="/figs//2019-11-25-another-mixed-effects-model-visualization/hex-8-demo-1.png" title="A diagram showing vertical lines that become increasingly transparent." alt="A diagram showing vertical lines that become increasingly transparent." width="50%" style="display: block; margin: auto;" />
 
 This is the other shortcut I used in this diagram: I tell `stat_lineribbon()` to use
-some color with `00` for the final 2 digits, so that it draws the median as a
+a color with `00` for the final 2 digits, so that it draws the median as a
 completely transparent line.
 
 
@@ -474,10 +478,15 @@ to use `plot_grid()`.)
 
 
 ```r
-p_middle <- plot_grid(p_population, NULL, nrow = 1, rel_widths = c(3, .5))
+p_middle <- plot_grid(
+  p_population, 
+  NULL, 
+  nrow = 1, 
+  rel_widths = c(3, .5)
+)
 ```
 
-Now, we just stack three on top of each other in to column:
+Now, we just stack the three on top of each other in a single column:
 
 
 ```r
