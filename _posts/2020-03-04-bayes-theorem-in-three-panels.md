@@ -66,7 +66,7 @@ likelihood contains our built-in assumptions about how the data is distributed.
 The *average likelihood*---sometimes called *evidence*---is weird. I don't have a
 script for how to describe it in an intuitive way. It's there to make sure the
 math works out so that the posterior probabilities sum to 1. Some presentations
-of Bayes theorem gloss over it, noting that the posterior is proportion to the
+of Bayes' theorem gloss over it, noting that the posterior is proportional to the
 likelihood and prior information.
 
 $$ 
@@ -76,7 +76,7 @@ $$
 
 There it is. *Update your prior information in proportion to how well it fits
 the observed data.* My plot about Bayes' theorem is really just this form of the
-equation expressed visually.
+equation expressed visually. 
 
 Here is an [earlier post with some slides](/bayes-intro-lecture-slides-2017/)
 that work through these terms with some examples.
