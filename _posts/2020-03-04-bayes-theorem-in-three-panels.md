@@ -1,6 +1,8 @@
 ---
 title: Bayes' theorem in three panels
 excerpt: What looks plausible, what fits, what does both
+header:
+  og_image: /assets/images/2020-03-bayes-triple.png
 tags:
   - bayesian
   - r
@@ -16,7 +18,7 @@ In [my last post](/another-mixed-effects-model-visualization/), I walked through
 an intuition-building visualization I created to describe mixed-effects models
 for a nonspecialist audience. For that presentation, I also created an analogous
 visualization to introduce Bayes' Theorem, so here I will walk through that
-figure..
+figure.
 
 As in the earlier post, let's start by looking at the visualization and
 then we will recreate it using a simpler model and smaller dataset.
@@ -40,9 +42,9 @@ In that case, the formula reads like:
 
 $$ P(\text{unknown} \mid \text{observed}) = \frac{ P(\text{observed} \mid \text{unknown}) * P(\text{unknown})}{P(\text{observed})} $$
 
-When I was first learning Bayes, this form was my anchor for remember the
+When I was first learning Bayes, this form was my anchor for remembering the
 formula. The goal is to learn about unknown quantity from data, so the left side
-needs be "unknown given data".
+needs to be "unknown given data".
 
 These terms have conventional names:
 
@@ -76,7 +78,8 @@ There it is. *Update your prior information in proportion to how well it fits
 the observed data.* My plot about Bayes' theorem is really just this form of the
 equation expressed visually.
 
-
+Here is an [earlier post with some slides](/bayes-intro-lecture-slides-2017/)
+that work through these terms with some examples.
 
 {% include figure image_path="/assets/images/2020-03-bayes-shirt.jpg" alt="Me wearing a shirt with Bayes' theorem last year." caption="For my birthday last year, I got a shirt with Bayes' theorem on it." %}{: style="max-width: 50%;"}
 
@@ -106,13 +109,13 @@ data <- tibble(
 )
 ```
 
-Here *x* is a child's age in months and *y* is
-how intelligible the child's speech is to strangers as a proportion. We use a
-nonlinear beta regression model. The beta regression handles the fact that the
-data are proportions, and the nonlinear  encodes some assumptions about growth:
-it starts at 0, reaches some asymptote, etc. Finally, our prior information
-comes from our knowledge about when and how children learn to talk. (Nobody is
-talking in understandable sentences at 16 months of age.)
+Here *x* is a child's age in months and *y* is how intelligible the child's
+speech is to strangers as a proportion. We use a nonlinear beta regression
+model. The beta regression handles the fact that the data are proportions, and
+the nonlinear piece encodes some assumptions about growth: it starts at 0,
+reaches some asymptote, etc. Finally, our prior information comes from our
+knowledge about when and how children learn to talk. (Nobody is talking in
+understandable sentences at 16 months of age.)
 
 Here is the model specification. I won't go over it in detail.
 
@@ -198,11 +201,7 @@ We can randomly draw some lines from the prior distribution by using
 draws_prior <- data %>%
   tidyr::expand(age = 0:100) %>%
   tidybayes::add_fitted_draws(fit_prior, n = 100)
-```
 
-
-
-```r
 p1 <- ggplot(draws_prior) +
   aes(x = age, y = .value) +
   geom_line(aes(group = .draw), alpha = .2) +
@@ -237,7 +236,8 @@ To illustrate the likelihood, I am going to visualize a curve with a very high
 likelihood. I won't use Bayes here; instead, I will use nonlinear least squares
 `nls()` to illustrate what a purely data-driven fit would be. This approach is
 not the same as finding the best-fitting line from the posterior
-distribution---*waves hands*---but hey, we're just building intuitions here.
+distribution[^map]---*waves hands*---but hey, we're just building intuitions 
+here.
 
 
 ```r
@@ -341,15 +341,8 @@ of the population has the illness, what is the chance of having the illness
 given a positive test? And yet, the video recapped Bayes' theorem with a
 three-panel visualization:
 
-{% include figure image_path="/assets/images/2020-03-bayes-screenshot.jpg" alt="Three panel illustrating Bayes' theorem. The left panel shows the space of all possible outcomes, the center shows the outcomes fitting the data, and the right panel shows the ratio behind the posterior probability." caption="Bayesian triptych used by 3Blue1Brown." %}
+{% include figure image_path="/assets/images/2020-03-bayes-screenshot.jpg" alt="Three panels illustrating Bayes' theorem. The left panel shows the space of all possible outcomes, the center shows the outcomes fitting the data, and the right panel shows the ratio behind the posterior probability." caption="Bayesian triptych used by 3Blue1Brown." %}
 
 The heart of Bayes' theorem indeed.
 
-
-
-
-
-
-
-
-
+[^map]: That would be the [MAP 🗺 (maximum a posteriori) estimate](https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation).
