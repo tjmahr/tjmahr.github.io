@@ -13,12 +13,64 @@ abbreviations:
   - &mee Erskine, M. E.
   - &pemn Natzke, P. E. M.
   - &kch Hustad, K. C.
+  - &as Sakash, A.
   - &where_srcld_poster >
     Poster session presented at the annual Symposium on Research in Child
     Language Disorders, Madison, WI.
 
 
 publications:
+
+
+
+
+
+  -
+    authors:
+      - *pemn
+      - *as
+      - *tjm
+      - *kch
+    when:
+      year: 2020
+    title: >
+      Measuring speech production development in children with cerebral palsy between 6 and 8 years of age: Relationships among measures
+    where:
+      journal: Language, Speech, and Hearing Services in Schools
+      # volume: todo - epub ahead of print
+      # pages: todo - epub ahead of print
+    doi: 10.1044/2020_LSHSS-19-00102
+
+  -
+    authors:
+      - *as
+      - *tjm
+      - *pemn
+      - *kch
+    when:
+      year: 2020
+    title: >
+      Effects of Rate Manipulation on Intelligibility in Children With Cerebral Palsy
+    where:
+      journal: American Journal of Speech-Language Pathology
+      volume: 29
+      pages: 127--141
+    doi: 10.1044/2019_AJSLP-19-0047
+
+  -
+    authors:
+      - Geller, J.
+      - Winn, M. B.
+      - *tjm
+      - Mirman, D.
+    when:
+      year: 2020
+    title: >
+      gazeR: A Package for Processing Gaze Position and Pupil Size data
+    where:
+      journal: Behavior Research Methods
+    doi: 10.3758/s13428-020-01374-8
+
   - authors:
     - *tjm
     - *jre
