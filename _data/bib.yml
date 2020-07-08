@@ -14,6 +14,7 @@ abbreviations:
   - &pemn Natzke, P. E. M.
   - &kch Hustad, K. C.
   - &as Sakash, A.
+  - &pjr Rathouz, P. J.
   - &where_srcld_poster >
     Poster session presented at the annual Symposium on Research in Child
     Language Disorders, Madison, WI.
@@ -21,9 +22,21 @@ abbreviations:
 
 publications:
 
-
-
-
+  -
+    authors:
+      - *kch
+      - *tjm
+      - *pemn
+      - *pjr
+    when:
+      year: 2020
+    title: >
+      Development of Speech Intelligibility Between 30 and 47 Months in Typically Developing Children: A Cross-Sectional Study of Growth
+    where:
+      journal: Journal of Speech, Language, and Hearing Research
+      # volume: todo - epub ahead of print
+      # pages: todo - epub ahead of print
+    doi: 10.1044/2020_JSLHR-20-00008
 
   -
     authors:
@@ -40,6 +53,22 @@ publications:
       # volume: todo - epub ahead of print
       # pages: todo - epub ahead of print
     doi: 10.1044/2020_LSHSS-19-00102
+
+  -
+    authors:
+      - *kch
+      - *tjm
+      - Broman, A. T.
+      - *pjr
+    when:
+      year: 2020
+    title: >
+      Longitudinal Growth in Single-Word Intelligibility Among Children With Cerebral Palsy From 24 to 96 Months of Age: Effects of Speech-Language Profile Group Membership on Outcomes
+    where:
+      journal: Journal of Speech, Language, and Hearing Research
+      volume: 63
+      pages: 32--48
+    doi: 10.1044/2019_JSLHR-19-00033
 
   -
     authors:
@@ -70,6 +99,24 @@ publications:
     where:
       journal: Behavior Research Methods
     doi: 10.3758/s13428-020-01374-8
+
+  -
+    authors:
+      - *cv
+      - Pomper, R.
+      - *tjm
+      - *jre
+      - *jrs
+      - *sew
+    when:
+      year: 2020
+    title: >
+      Comparing Automatic Eye Tracking and Manual Gaze Coding Methods in Young Children with Autism Spectrum Disorder
+    where:
+      journal: Autism Research
+      volume: 13
+      pages: 271--283
+    doi: 10.1002/aur.2225
 
   - authors:
     - *tjm
@@ -318,6 +365,7 @@ talks:
 
 
 posters:
+
 
   # SRCLD 2019
   - authors:
