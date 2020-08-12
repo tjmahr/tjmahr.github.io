@@ -1,0 +1,601 @@
+---
+title: Draft post (2020-08-05)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*update date when published*
+
+For a long time, I've been curious about something. It is a truth casually
+mentioned in textbooks, package documentation, and tweets: random effects and
+smoothing splines are the same thing.
+
+```{asis}
+<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><p lang="en" dir="ltr">random effects and splines are _the same_ thing. See also <a href="https://t.co/LgZTzZimH0">https://t.co/LgZTzZimH0</a></p>&mdash; DavidLawrenceMiller (@millerdl) <a href="https://twitter.com/millerdl/status/846719376338407424?ref_src=twsrc%5Etfw">March 28, 2017</a></blockquote> 
+```
+
+
+
+## Mixed model review
+
+Let's review what these things means. Mixed effects models, apparently the main
+focus of this blog over the years, are used to estimate random or varying
+effects.
+
+
+
+Here is an example from Gelman and Hill (2007). Radon measurements were
+taking in Minnesota counties. We would like to estimate the average radon
+measurement for county. Some counties have more observations than others. We
+have a repeated measures situation. We use a mixed effects model to estimate a
+population distribution of county estimates. These county level estimates are
+randomly varying effects.
+
+
+```{r}
+library(tidyverse)
+library(lme4)
+radon <- rstanarm::radon
+
+m <- lme4::lmer(log_radon ~ 1 + (1 | county), radon)
+radon_aug <- broom.mixed::augment(m, radon) 
+
+radon_aug <- radon_aug %>% 
+  group_by(county) %>% 
+  mutate(n = n(), mean = mean(log_radon)) %>% 
+  ungroup()
+
+# lattice::dotplot(ranef(m))
+
+okay <- radon_aug$county %>% 
+  fct_infreq() %>% 
+  fct_count() 
+
+# create_thresholder <- function(limit) {
+#   function(x) {
+#     x > limit
+#   }
+# }
+# 
+# over_100 <- Position(create_thresholder(100), okay$n, right = TRUE)
+# over_50 <- Position(create_thresholder(50), okay$n, right = TRUE)
+# over_25 <- Position(create_thresholder(25), okay$n, right = TRUE)
+# over_10 <- Position(create_thresholder(10), okay$n, right = TRUE)
+# over_5 <- Position(create_thresholder(5), okay$n, right = TRUE)
+
+
+p0 <- ggplot(radon_aug) + 
+  aes(x = fct_infreq(county)) + 
+  geom_bar() + 
+  labs(x = NULL, y = "n") + 
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  ) 
+  
+
+p1 <- ggplot(radon_aug) + 
+  aes(x = fct_infreq(county), y = log_radon) + 
+  stat_summary(
+    fun.data = mean_se,
+    color = "grey50", 
+    fatten = 2
+  ) + 
+  geom_point(aes(y = .fitted), color = "blue") + 
+  labs(x = "county", y = "log(radon)") +
+  geom_hline(
+    yintercept = fixef(m)[1]
+  ) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  ) 
+library(patchwork)
+p0 + p1 + plot_layout(ncol = 1, heights = c(1, 4))  
+
+vars <- broom.mixed::tidy(m, effects = "ran_pars", scales = "vcov")
+var_g <- vars$estimate[1]
+var_y <- vars$estimate[2]
+
+# another try: variance ratios
+
+# icc
+var_g / (var_y + var_g)
+
+# between group information is like this many observations within a county
+var_y / var_g
+
+# I wanted to add funneling lines to show the effect but messed up
+
+radon_aug <- radon_aug %>% 
+  mutate(
+    diff = mean - mean(log_radon),
+    diff2 = mean - .fixed,
+    # page 733 in CAR
+    denom = 1 + ((var_y) / (n * var_g)),
+    # page 76 in Davidian
+    blup = mean - ((var_y) / (n * var_g + var_y)) * (mean - .fixed),
+    blup1.8 = 1.8 - ((var_y) / (n * var_g + var_y)) * (1.8 - .fixed)
+  )
+
+sum(radon_aug$.hat)
+# sum(gam$edf)
+
+ggplot(radon_aug) + 
+  aes(x = n, y = diff2) + 
+  geom_point() + 
+  geom_line(aes(y = 1.8 - (1.8) / denom))
+
+# ggplot(radon_aug) + 
+#   aes(x = n, y = mean - .fitted) + 
+#   geom_point() + 
+#   geom_point(aes(y = .fitted - .fixed), color = "red") + 
+#   geom_point(aes(y = blup - .fixed), color = "pink") + 
+#   geom_line(aes(y = blup1.8))
+# 
+# Probably should replace mean with regression estimate.
+ggplot(radon_aug) + 
+  aes(x = n, y = mean - .fixed) + 
+  geom_point() +
+  scale_x_log10()
+
+# I want to know the effective degrees of freedom.
+# Wood p.83
+# Paraphrase of book: suppose b ~ N(0, sigmab). How many dfs with b? If sigmab
+# 0, then b does nothing. If sigmab is bigger and bigger, df = p groups, then we
+# have a fixed effects model. "This suggests that the effective degrees of
+# freedom for b should increase with sigma_b, from 0 up to p." 
+
+# ?summary.gam() says that edf comes from the trace of the influence matrix.
+
+icc <- var_g / (var_y + var_g)
+
+var_y / var_g
+deff = var_y / var_g
+
+ns <- table(radon$county)
+sum(ns / (1 + (ns - 1) * icc))
+
+deff = 1 * (nobs(m) - 1) * icc
+nobs(m) / deff
+
+```
+
+
+The first figure illustrates the observed county means and the estimated ones.
+We see a classic example of partial pooling. For counties with many
+observations, the estimate mean is hardly adjusted. For counties with less data,
+the estimate is pulled towards the group mean. 
+
+The contention behind the smooths = random effects claim is that what we just
+did is a case of *smoothing*.
+
+
+```{asis}
+<blockquote class="twitter-tweet" data-conversation="none" data-lang="en" data-dnt="true" data-theme="light">
+  <p lang="en" dir="ltr">Sadly, I feel like my career has peaked with the creation of this meme <a href="https://t.co/5ilRFonsy7">pic.twitter.com/5ilRFonsy7</a></p>
+
+  <img src="/assets/images/spider-smooth.jpg" alt="Spiderman (Penalized smooths) pointing at (and being pointed at) by Spiderman (Random effects)" />
+  
+  &mdash; Eric Pedersen (@ericJpedersen) <a href="https://twitter.com/ericJpedersen/status/1293508069016637440?ref_src=twsrc%5Etfw">August 12, 2020</a>
+</blockquote> 
+```
+
+
+### Smoothing example
+
+Let's do a smooth with a generalized additive model.
+
+```{r}
+library(mgcv)
+select <- dplyr::select
+
+mcycle <- MASS::mcycle %>% 
+  tibble::rowid_to_column()
+
+mcycle_smooth <- gam(
+  accel ~ 1 + s(times, bs = "cr", k = 15), 
+  data = mcycle, 
+  method = "ML"
+)
+
+mcycle$.fitted <- fitted(mcycle_smooth)
+
+ggplot(mcycle) + 
+  aes(x = times, y = accel) + 
+  geom_point() + 
+  geom_line(
+    aes(y = .fitted), 
+    color = "blue"
+  )
+
+```
+
+So what happened here? We start with some splines. These splines are a bunch of
+wiggly lines that are weighted and summed together to approximate some nonlinear
+function. We are decomposing the `times` predictor into a bunch of individual
+sub-trends that are weighted and summed together. My post on orthogonal
+polynomial illustrates the same principle but with polynomial trends.
+
+- [ ] link post
+
+
+An easy way to pull the wiggles is to use the model matrix. 
+
+<!-- The bumps here are a little pointy because the *x* values of line of the match -->
+<!-- the data. -->
+
+```{r}
+trunc_mat(model.matrix(mcycle_smooth))
+
+# Attach the `times` values onto the model matrix and convert to long format 
+basis_long <- mcycle %>% 
+  select(-rowid, -accel, -.fitted) %>% 
+  cbind(model.matrix(mcycle_smooth)) %>% 
+  distinct() %>%
+  # Now have the spline values for each timepoint
+  pivot_longer(c(-times))
+
+
+ggplot(basis_long) + 
+  aes(x = times, y = value, color = name) + 
+  geom_line()
+
+
+
+```
+
+Now we can weight these by multiplying by the model coefficients. Here we use
+the `diag(coef())` trick to prevent the weighted predictors from being summed together.
+
+
+```{r}
+basis_long <- mcycle %>% 
+  select(-rowid, -accel, -.fitted) %>% 
+  cbind(
+    model.matrix(mcycle_smooth) %*% diag(coef(mcycle_smooth))
+  ) %>% 
+  distinct() %>%
+  # Now have the spline values for each timepoint
+  pivot_longer(c(-times))
+
+ggplot(basis_long) + 
+  aes(x = times, y = value, color = name) + 
+  geom_line()
+```
+
+If we sum the lines together, we get the smoothed regression line.
+
+```{r}
+ggplot(basis_long) + 
+  aes(x = times, y = value) + 
+  # geom_point(aes(y = accel), data = mcycle) +
+  geom_line(
+    aes(group = name),
+    color = "grey30"
+  ) + 
+  stat_summary(
+    fun = "sum", 
+    geom = "line", 
+    color = "maroon", 
+    size = 1
+  ) 
+```
+
+What I have done so far is describe is regression with a basis function.
+Smoothing splines go one step further: They penalize wiggliness to prevent
+overfitting. The idea is as follows: We chose 15 knots for the last one. Where
+did that number come from? What if we specified 30 knots? That's 30 predictors.
+Isn't it really easy to overfit the data with this approach? 
+
+Well, let's look at the 30-knot version.
+
+```{r}
+mcycle_smooth30 <- gam(
+  accel ~ 1 + s(times, bs = "cr", k = 60), 
+  data = mcycle, 
+  method = "ML"
+)
+
+mcycle_smooth10 <- gam(
+  accel ~ 1 + s(times, bs = "cr", k = 60), 
+  data = mcycle, 
+  method = "ML", 
+  sp = 10
+)
+
+smoothers <- scales::log_breaks(10)(c(1, 1000000))
+coef(mcycle_smooth30)
+mcycle_smooth30$sp
+mcycle_smooth30$smooth[[1]] %>% str
+mcycle_smooth10$smooth[[1]] %>% str
+mcycle_smooth10$full.sp
+
+mcycle_smooth30$smooth[[1]][["S"]]
+
+model_work <- tibble(sp = c(smoothers, mcycle_smooth30$sp)) %>% 
+  mutate(
+    models = sp %>% map(function(sp) update(mcycle_smooth30, sp = sp)),
+    .fitted = models %>% map(function(model) cbind(mcycle, .fit = fitted(model), .resid = residuals(model))),
+    .deriv2 = models %>% map(gratia::derivatives, order = 2, newdata = mcycle),
+    .penalty = models %>% map(
+      function(m) {
+        
+        b <- coef(m)[-1]
+        k <- length(b)
+        d <- diff(diff(diag(k))) 
+        s <- crossprod(d)
+        as.vector(t(b) %*% s %*% b)
+      }
+    ),
+    sp = models %>% map("sp")
+  ) %>% 
+  select(-models) %>% 
+  unnest(.penalty)
+
+models <- model_work %>% 
+  select(-.deriv2) %>% 
+  unnest(.fitted)
+
+deriv2 <- model_work %>% 
+  select(-.fitted) %>% 
+  unnest(.deriv2)
+
+?s
+errors <- models %>% 
+  group_by(sp) %>% 
+  summarise(
+    .resid = sum(.resid ^ 2), 
+    .penalty = unique(.penalty),
+    .groups = "drop"
+  ) %>% 
+  mutate(
+    r = .resid + (1 / sqrt(sp)) * .penalty,
+    r2 = .resid + sqrt(1 / sp) * .penalty
+  )
+errors
+
+
+?smooth.construct
+derivative <- deriv2 %>% 
+  group_by(sp) %>% 
+  summarise(.derivative = sum(derivative ^ 2))
+
+errors %>% 
+  left_join(derivative) %>% 
+  mutate(
+    .resid + .derivative
+  )
+
+ggplot(models) + 
+  aes(x = times, y = .fit) + 
+  geom_line(aes(color = sp, group = sp)) 
+
+ggplot(models) + 
+  aes(x = times, y = .fit) + 
+  geom_line(aes(color = sp, group = sp))
+
+mcycle$.fitted30 <- fitted(mcycle_smooth30)
+
+summary()
+mcycle_smooth30$sp
+
+mcycle$.fitted30 <- fitted(mcycle_smooth30)
+
+ggplot(mcycle) + 
+  aes(x = times, y = accel) + 
+  geom_point() + 
+  # geom_line(aes(y = .fitted), color = "blue") + 
+  geom_line(aes(y = .fitted30), color = "blue")
+```
+
+Huh, they hardly look any different. What's going on?
+
+Penalties.
+
+
+Behind the scenes, the model is
+
+
+
+```{r}
+tk <- seq(min(t),max(t),length=k) ## knotsX<-apply(diag(k),1,function(y) approx(tk,y,t,rule=2)$y)b <- lm(a ~ X-1)
+
+
+d <- diff(diag(30), d = 2)
+s <- crossprod(d) 
+dim(s)
+s <- t(d) %*% d
+b <- coef(mcycle_smooth30)
+
+
+mcycle_smooth30
+mcycle_smooth30$smooth[[1]][["S"]]
+sum(mcycle_smooth30$edf2)
+sum(mcycle_smooth30$edf)
+
+mcycle_smooth$sp
+mcycle_smooth30$sp
+
+gam.vcomp(mcycle_smooth)
+gam.vcomp(mcycle_smooth30)
+X <- model.matrix(mcycle_smooth30)
+K <- 30
+D <- diff(diff(diag(K))) 
+## t(D)%*%D is penalty coef matrix
+sp <- 2 ## square root smoothing parameter
+XD <- rbind(X, D * sp)  ## augmented model matrix
+y0 <- c(mcycle$accel,rep(0,nrow(D))) ## augmented data
+b <- lm(y0~XD-1)     
+## fit augmented model
+plot(mcycle$times,mcycle$accel,ylab="accel",xlab="time")
+
+lines(mcycle$times, X %*% coef(b),col=2,lwd=2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, eval = FALSE}
+
+
+
+# diff(mcycle$times)
+# 
+# # 
+
+# 
+# basis <- gratia::basis(s(times, bs = "cr", k = 15), mcycle, knots = NULL, constraints = TRUE)
+# # # 
+# 
+# ggplot(mcycle) + geom_histogram(aes(times), binwidth = 5, boundary = 0)
+# 
+# ggplot(basis) +
+#   aes(x = times, y = value, group = factor(bf)) +
+#   geom_line()
+
+# 
+
+# # Construct the smoother
+# sm <- smoothCon(s(times, bs = "cr", k = 15), data = mcycle, knots = NULL)[[1]]
+# 
+# times <- seq(min(mcycle$times), max(mcycle$times), length = 200)  
+# 
+# # Create matrix of spline values
+# basis <- PredictMat(sm, data.frame(times = times))
+# 
+# dplyr::trunc_mat(basis)
+
+predict(mcycle_smooth, newdata = data.frame(times), type = )
+
+ 
+
+
+basis_long <- basis %>%
+  as.data.frame() %>% 
+  cbind(times, .) %>% 
+  as_tibble() %>% 
+  pivot_longer(c(-times))
+
+ggplot(basis_long) + aes(x = times, y = value, color = name) + geom_line()
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ggplot(basis_long) + aes(x = times, y = value, group = name) + geom_line()
+  
+nrow(model.matrix(mcycle_smooth))
+
+basis_long_w <- mcycle %>% 
+  cbind(model.matrix(mcycle_smooth) %*% diag(coef(mcycle_smooth))) %>% 
+  as_tibble() %>%
+  pivot_longer(c(-times, -accel, -rowid)) %>% 
+  select(-rowid, -accel) %>% 
+  distinct()
+
+
+
+
+geom_line(
+    data = . %>% 
+      group_by(times, rowid) %>% 
+      summarise(value = sum(value), .groups = "drop"),
+    color = "blue", 
+    size = 1
+  )
+  
+#   
+# ggplot(basis_long_w) + 
+#   aes(x = times, y = value) + 
+#   geom_line(aes(group = name)) + 
+#   geom_line(
+#     data = . %>% 
+#       group_by(times, rowid) %>% 
+#       summarise(value = sum(value), .groups = "drop"),
+#     color = "blue", 
+#     size = 1
+#   )
+```
+
+Now we can look at the output from the mgcv summary.
+
+```{r}
+summary(mcycle_smooth)
+gam.vcomp(mcycle_smooth)
+```
+
+```{r}
+mcycle_smooth2 <- mgcv::gam(accel ~ s(times, bs = "cr", fx = TRUE), data = mcycle, method = "ML")
+
+d2 <- gratia::derivatives(mcycle_smooth, order = 2, newdata = mcycle)
+d2b <- gratia::derivatives(mcycle_smooth, order = 2)
+summary(d2b)
+sum(d2b)
+
+summary(mcycle_smooth2)
+
+ggplot(d2) + 
+  aes(x = data, y = derivative) + 
+  geom_line() + 
+  geom_line(data = d2b)
+
+
+```
+
+
+Now games
+
+Here is 
+
+
+```{r}
+library(mgcv)
+m <- gam(log_radon ~ 1 + s(county, bs = "re"), data = radon, method = "ML")
+summary(m)
+gratia::observed_fitted_plot(m)
+
+
+
+
+gratia::basis(s(county, bs = "re"), data = radon)
+# radon_aug <- broom.mixed::augment(m, radon) 
+
+mgcv::gam.vcomp(m)
+
+```
+
+(m is derivative penalized)
