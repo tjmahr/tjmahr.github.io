@@ -305,6 +305,13 @@ mcycle_smooth30 <- gam(
   method = "ML"
 )
 
+library(brms)
+mcycle_smooth30_b <- brm(
+  accel ~ 1 + s(times, bs = "cr", k = 60), 
+  data = mcycle,
+  backend = "cmdstanr"
+)
+
 mcycle_smooth10 <- gam(
   accel ~ 1 + s(times, bs = "cr", k = 60), 
   data = mcycle, 
@@ -403,6 +410,7 @@ Penalties.
 
 
 Behind the scenes, the model is
+
 
 
 
@@ -599,3 +607,329 @@ mgcv::gam.vcomp(m)
 ```
 
 (m is derivative penalized)
+
+
+
+```{r}
+# trying to write a naive stan model to do this.
+
+n_fixed <- 1
+n_knots <- 59
+mcycle_smooth30_b
+sm <- smoothCon(s(times, bs = "cr", k = 60), mcycle, absorb.cons = TRUE, modCon = 3, diagonal.penalty = TRUE)[[1]]
+
+sm0 <- smoothCon(s(times, bs = "cr", k = 60), mcycle, absorb.cons = TRUE, modCon = 3, diagonal.penalty = FALSE)[[1]]
+
+
+matplot(sm$X, type = "l")
+matplot(sm$diagRP, type = "l")
+matplot(sm, type = "l")
+
+matplot(sm0$X, type = "l")
+matplot(sm0$S[[1]], type = "l")
+matplot(sm0$X %*% sm0$S[[1]], type = "l")
+
+dim(sm0$X)
+dim(sm0$S[[1]])
+
+
+matplot(sm, type = "l")
+str(sm)
+
+sd <- brms::make_standata(accel ~ 1 + s(times, bs = "cr", k = 60), data = mcycle)
+
+str(sm$S)
+str(sm)
+
+re <- smooth2random(sm, "", type = 2)
+head(re$Xf) 
+head(sd$Xs)
+
+matplot(sm$diagRP, type = "l")
+
+matplot(sd$Zs_1_1, type = "l")
+matplot(apply(sd$Zs_1_1, 2, function(x) x + sd$Xs), type = "l")
+matplot(sd$Xs, type = "l")
+matplot(sd$, type = "l")
+
+
+
+
+tf <- function(x,xk=seq(0,1,length=10),k=1) {
+  ## generate kth tent function from set defined by xk
+  yk <- xk*0;
+  yk[k] <- 1
+  approx(xk,yk,x)$y
+}
+tf.X <- function(x, xk=seq(0,1,length=10)) {
+  ## tent function basis matrix given knot sequence 
+  nk <- length(xk); 
+  n <- length(x)
+  X <- matrix(NA,n,nk)
+  for (i in 1:nk) X[,i] <- tf(x,xk,i)
+  X
+}
+K <- 40        
+## basis dimension
+t0 <- min(mcycle$times);
+t1 <- max(mcycle$times)
+tk=seq(t0,t1,length=K)        
+## knot sequence
+X <- tf.X(x=mcycle$times,xk=tk) 
+## model matrix
+b <- coef(lm(mcycle$accel~X-1)) 
+## fit model
+Xp <- tf.X(x=0:120/2,xk=tk)     
+## prediction matrix
+plot(mcycle$times,mcycle$accel,ylab="accel",xlab="time")
+lines(0:120/2,Xp%*%b,col=2,lwd=2)
+
+X0 <- sm$X
+K <- 59
+aug_d <- rbind(0, 0, diff(diag(K), difference = 2))
+diag(aug_d) <- 1
+aug_d
+
+X <- t(backsolve(t(aug_d), t(X0)))
+matplot(X0, type = "l")
+matplot(aug_d, type = "l")
+matplot(X, type = "l")
+Z <- X[, -c(1,2)]
+X <- X[, c(1:2)]
+matplot(X, type = "l")
+matplot(Z, type = "l")
+
+
+make_standata()
+
+sm <- smoothCon(s(times, bs = "cr", k = 60), mcycle, absorb.cons = TRUE, modCon = 3, diagonal.penalty = TRUE)[[1]]
+
+re <- smooth2random(sm, "test", 2)
+
+# random_effects
+re$rand$Xr
+# fixed effects
+re$Xf
+matplot(re$rand$Xr, type = "l")
+matplot(re$Xf, type = "l")
+matplot(re$trans.U, type = "l")
+matplot(re$trans.D, type = "l")
+
+
+
+
+data <- list(
+  N = length(mcycle_smooth30$y),
+  y = mcycle_smooth30$y,
+  n_fixed = 2,
+  n_knots = ncol(re$rand$Xr),
+  spline_matrix = re$rand$Xr, 
+  fixed_matrix = cbind(1, re$Xf)
+)
+
+m <- "
+data {
+  int<lower=0> N;               
+  vector[N] y;                     
+  int<lower=1> n_fixed;         
+  int<lower=1> n_knots;         
+  matrix[N,n_knots] spline_matrix;
+  matrix[N,n_fixed] fixed_matrix;
+}
+parameters {
+  real<lower=0> sigma_y;
+  real<lower=0> sigma_knots;
+  vector[n_fixed] beta_fixed;
+  vector[n_knots] beta_knots;
+}
+model {
+  sigma_y ~ normal(0, 100);
+  beta_fixed ~ normal(0, 50);
+  
+  sigma_knots ~ normal(0, 100);
+  beta_knots ~ normal(0, sigma_knots);
+
+  y ~ normal(fixed_matrix * beta_fixed + spline_matrix * beta_knots, sigma_y);
+}
+"
+
+# this doesn't seem to do any penalization. need to incorporate the penalty matrix?
+# but how to do i get that? how do i incorporate it?
+
+library(cmdstanr)
+spline_mod <- cmdstan_model(write_stan_tempfile(m))
+
+spline_fit <- spline_mod$sample(
+  data = data,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 2,
+  refresh = 500
+)
+
+spline_fit
+gam.vcomp(mcycle_smooth30, rescale = FALSE)
+
+
+
+# mcycle_smooth30_b$model
+# mcycle_smooth30_b$stanvars
+# mcycle_smooth30_b$data
+# mcycle_smooth30_b$fit@inits
+# mcycle_smooth30_b$fit@stanmodel
+
+library(mgcv)
+x <- runif(30)
+
+
+sm <- smoothCon(s(times, bs = "cr", k = 8), mcycle, absorb.cons = TRUE, modCon = 3)[[1]]
+matplot(sm$X, type = "l")
+
+sm2 <- smoothCon(s(times, bs = "cr", k = 8), mcycle, absorb.cons = TRUE, modCon = 3, diagonal.penalty = TRUE)[[1]]
+matplot(sm2$X, type = "l")
+
+sm3 <- smooth2random(sm2, "", type = 2)
+matplot(sm3$rand[[1]], type = "l")
+matplot(sm3$rand, type = "l")
+
+# this seems like a good lead but it feels like a cheat?
+str(re)
+# sm %*%
+
+matplot(sm$X, type = "l")
+matplot(sm$S[[1]], type = "l")
+matplot(re$rand$Xr, type = "l")
+
+matplot(sm$S[[1]], type = "l")
+
+
+matplot(re$rand$Xr$X)
+brms:::tidy_smef(mcycle_smooth30_b$formula, mcycle_smooth30_b$data)
+
+brms:::standata_basis(mcycle_smooth30_b)
+
+data_predictor(mcycle_smooth30_b$formula)
+
+# where does brms find its data?
+brms::standata(mcycle_smooth30_b)
+model.matrix(mcycle_smooth30)
+
+try <- rstan::read_stan_csv(spline_fit$output_files())
+l <- loo(try)
+
+summary(mcycle_smooth30)
+gam.vcomp(mcycle_smooth30, rescale = FALSE)
+```
+
+
+
+
+```{r}
+sm <- smoothCon(s(times, bs = "cr", k = 61), mcycle, absorb.cons = TRUE, modCon = 3)[[1]]
+
+```
+
+
+```{stan}
+data {
+  int<lower=0> N;               
+  vector[N] y;                     
+  int<lower=1> n_fixed;         
+  int<lower=1> n_knots;         
+  matrix[N,n_knots] spline_matrix;
+  matrix[N,n_fixed] fixed_matrix;
+}
+parameters {
+  real<lower=0> sigma_y;
+  real<lower=0> sigma_knots;
+  vector[n_fixed] beta_fixed;
+  vector[n_knots] beta_knots;
+}
+model {
+  sigma_y ~ normal(0, 100);
+  beta_fixed ~ normal(0, 50);
+  
+  sigma_knots ~ normal(0, 100);
+  beta_knots ~ normal(0, sigma_knots);
+
+  y ~ normal(fixed_matrix * beta_fixed + spline_matrix * beta_knots, sigma_y);
+}
+```
+
+
+```{r}
+
+m_big <- "
+data {
+  int<lower=0> N;               // n data
+  int<lower=0> y[N];            // data
+  int<lower=1> L;               // groups
+  int<lower=1,upper=L> ll[N];   // group membership
+}
+transformed data {
+  real group_counts[L];
+
+  group_counts = rep_array(0.0, L);
+
+  for (i in 1:N) {
+    group_counts[ll[i]] += ll[i];
+  }
+
+  real hm = mean(group_counts);
+
+}
+parameters {
+  real<lower=0> sigma_y;
+  real<lower=0> sigma_l;
+  real grand_mean;
+}
+transformed parameters {
+  real var_between = square(sigma_l);
+  real var_within = square(sigma_y);
+  real var_total = var_within + var_between;
+}
+model {
+  matrix[N,N] bigma;
+  vector[N] e;
+  vector[N] zeroes;
+
+  zeroes = rep_vector(0.0, N);
+  bigma = rep_matrix(0.0, N, N);
+
+  sigma_l ~ normal(0, 50);
+  sigma_y ~ normal(0, 50);
+  grand_mean ~ normal(0, 100);
+
+  for (i in 1:N) {
+    for (j in 1:N) {
+      if (ll[i] == ll[j]) {
+        if (i == j) {
+          bigma[i,j] = var_total;
+        } else {
+          // If you divide everything by var_total this becomes
+          // var_between / var_total which is the proportion of
+          // of variance explained by between-group variance which
+          // is the ICC
+          bigma[i,j] = var_between;
+        }
+      }
+    }
+  }
+
+  e = to_vector(y) - grand_mean;
+  e ~ multi_normal(zeroes, bigma);
+}
+generated quantities {
+  // how can we recover the group means?
+  real<lower = 0, upper = 1> icc;
+  icc = var_between / var_total;
+  real mean_1 = mean((to_vector(y) - grand_mean)[1:3]);
+  real mean_2 = mean((to_vector(y) - grand_mean)[4:6]);
+
+  // trying to do effective sample size
+  real deff = 1 + (hm - 1) * icc;
+}
+"
+
+```
+
