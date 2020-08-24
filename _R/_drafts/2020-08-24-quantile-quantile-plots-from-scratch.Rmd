@@ -1,0 +1,41 @@
+---
+title: QQ-Plots from Scratch (2020-08-24)
+excerpt: Less q q, more pew pew
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*update date when published*
+
+*figure out style for "QQ Plot"*
+
+Goals
+
+- create a quantile quantile plot from scratch
+- create a worm plot from scratch
+- create StatWorm
+- report history of QQplot?
+
+
+A quantile-quantile plot, or Q-Q plot, 
+
+
+```{r}
+
+```
+
+wikipedia uses an en-dash 
+
+Q–Q (quantile-quantile) plot
+
+https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot
+
+
+https://en.wikipedia.org/wiki/Normal_probability_plot
+
+https://en.wikipedia.org/wiki/Rankit
+
+this post https://seankross.com/2016/02/29/A-Q-Q-Plot-Dissection-Kit.html defines a quantile, provides examples of deviation and interpretation and take aways. 
