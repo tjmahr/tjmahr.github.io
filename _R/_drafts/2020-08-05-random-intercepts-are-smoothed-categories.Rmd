@@ -8,6 +8,10 @@ tags: ''
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
 *update date when published*
 
 For a long time, I've been curious about something. It is a truth casually
