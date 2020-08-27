@@ -9,6 +9,7 @@ header:
 tags:
   - r
   - ggplot2
+  - math
 ---
 
 
@@ -107,7 +108,7 @@ ppoints
 #>         (1L:n - a)/(n + 1 - 2 * a)
 #>     else numeric()
 #> }
-#> <bytecode: 0x000000001a56d8a0>
+#> <bytecode: 0x000000001a3d1ef8>
 #> <environment: namespace:stats>
 ```
 
@@ -186,7 +187,7 @@ We can think of this quantile-quantile procedure in terms of database operations
 
 If `a` and `b` were tables of real-life collected data, that's the procedure we
 would follow. For Q-Q plots, however, the second dataset `b` almost always isn't
-a table of observations. Instead, we "look up" of the values using math by
+a table of observations. Instead, we "look up" the values using math by
 computing values from a theoretical distribution. (Or in an older stats
 textbook, you actually would look up these values in a table in the back of the
 book.)
@@ -288,8 +289,28 @@ p +
 One problem with these Q-Q plots is that it is hard to tell whether the points
 are straying too far away from the line. We can include a 95% confidence band to
 support interpretation. Fox provides an equation for the standard error for a
-quantile. It appears to be the square root of [the variance of a
-quantile](https://en.wikipedia.org/wiki/Quantile#Estimating_quantiles_from_a_sample). The function `se_z()` applies the equation to a *z*-score (the theoretical values on the *x* axis). 
+quantile. 
+
+$$
+\mathrm{SE}(X_i) = \frac{\hat{\sigma}}{p(z_i)}\sqrt{\frac{P_i(1-P_i)}{n}} \\
+\begin{align}
+X_i &: \mathrm{the\ }{i}\mathrm{^{th}\ observation} \\
+P_i &: \mathrm{probabilities\ from\ }\mathtt{ppoints()} \\
+p() &: \mathrm{a\ probability\ density\ function\ like\ }\mathtt{dnorm()}  \\
+z_i &: \mathrm{theoretical\ quantile\ like\ }\mathtt{qnorm(}P_i\mathtt{)}  \\
+\hat{\sigma} &: \mathrm{estimated\ standard\ deviation}\\
+\end{align}
+$$
+
+The equation appears to be the square root of [the variance of a
+quantile](https://en.wikipedia.org/wiki/Quantile#Estimating_quantiles_from_a_sample).
+The right part under the square root also looks like [the standard error of
+proportion](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval),
+so we could think of this equation as rescaling the standard error of a
+proportion.
+
+The function `se_z()` applies the equation to a *z*-score (the theoretical
+values on the *x* axis).
 
 
 ```r
@@ -327,20 +348,20 @@ band <- tibble(
 ggplot(d) + 
   geom_point(aes(x = z_theoretical, y = x_sample)) + 
   geom_abline(
-    aes(intercept = mean, slope = sd, color = "Naive"),
+    aes(intercept = mean, slope = sd),
     data = tibble(sd = sd(d$x_sample), mean = mean(d$x_sample))
   ) +
   geom_ribbon(
-    aes(x = z, ymax = upper, ymin = lower, color = "Naive"), 
+    aes(x = z, ymax = upper, ymin = lower), 
     data = band, 
-    fill = NA, show.legend = FALSE
+    fill = NA, 
+    color = "black",
+    show.legend = FALSE
   ) +
   labs(
-    color = "Q-Q line",
     x = "theoretical quantiles", 
     y = "sample quantiles"
   ) + 
-  guides(color = guide_legend(nrow = 1)) +
   theme(legend.position = "top", legend.justification =  "left")
 ```
 
@@ -353,7 +374,9 @@ values are *pointwise* (applying to individual points) and not *simultaneous*
 (applying to the whole band), meaning there is "there is a greater probability
 that *at least point* point strays outside the envelope even if the data are
 sampled from the comparison distribution. [p. 39, footnote]". (I am not quite
-sure what that means, honestly.) 
+sure what that means, honestly. I know [what the distinction means for
+smooths](https://fromthebottomoftheheap.net/2016/12/15/simultaneous-interval-revisited/)
+but not for this case.) 
 
 Let's also check our work against the car package which provides robust
 confidence bands with its Q-Q plots. We first plot the car package's Q-Q plot
@@ -440,20 +463,17 @@ ggplot(d) +
     color = "black"
   ) +
   labs(
-    color = "Q-Q line",
     x = "theoretical quantiles", 
-    y = "centered sample quantiles"
-  ) + 
-  guides(color = guide_legend(nrow = 1)) +
-  theme(legend.position = "top", legend.justification =  "left")
+    y = "sample deviation"
+  )
 ```
 
 <img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp2-1.png" title="A worm plot from scratch" alt="A worm plot from scratch" width="66%" style="display: block; margin: auto;" />
 
-The values on the *y* axis differ between this plot and the one from `wp()`. That's
-because the data for `wp()` were fully rescaled with `scale()`: They were mean
-centered and divided by the standard deviation to become *z* scores. Here we
-only subtracted the mean line.
+The values on the *y* axis differ between this plot and the one from `wp()`.
+That's because the data for `wp()` were fully rescaled with `scale()`: They were
+mean-centered and divided by the standard deviation to become *z* scores. Here
+we only subtracted the mean line.
 
 ## Q-Q Recap
 
@@ -527,7 +547,7 @@ stat_worm <- function(
 ```
 
 The main work will be carried out by `stat = StatWorm`, the
-`ggProto` object that will to the calculations. The computed values will be
+`ggProto` object that will do the calculations. The computed values will be
 drawn, by default, with `geom = "point"`. I provide an option for `robust`
 estimates in the function arguments and in the list of `params`. 
 
@@ -535,9 +555,11 @@ estimates in the function arguments and in the list of `params`.
 Now we create `StatWorm`. The `default_aes` and `required_aes` set up the
 aesthetic mappings. The main work is in `compute_group()`. It will receive a
 dataframe `data` with a column of the `sample` values, and we compute naive or
-robust quantile values as above. The function returns an updated
-dataframe with the columns `sample` and `theoretical` which match the
-`after_stat()` calls in `default_aes`.
+robust quantile values as above. The function returns an updated dataframe with
+the columns `sample` and `theoretical` which match the `after_stat()` calls in
+`default_aes`. We also bundle up some other numbers we calculated along the way,
+like `quantiles` or `scaled_theoretical`, so they are available for more 
+advanced plotting situations.
 
 
 ```r
@@ -545,7 +567,7 @@ StatWorm <- ggproto(
   "StatWorm",
   Stat,
   default_aes = aes(
-    y = after_stat(sample), 
+    y = after_stat(sample_deviation), 
     x = after_stat(theoretical)
   ),
   required_aes = c("sample"),
@@ -566,8 +588,11 @@ StatWorm <- ggproto(
     theoretical <- qnorm(quantiles)
  
     data.frame(
+      sample = sample,
+      quantile = quantiles,
       # detrended
-      sample = sample - scaled_theoretical, 
+      sample_deviation = sample - scaled_theoretical, 
+      scaled_theoretical = scaled_theoretical,
       theoretical = theoretical
     )
   }
@@ -581,11 +606,10 @@ Let's give it a try:
 ggplot(d) + 
   stat_worm(aes(sample = x_sample), robust = FALSE) +
   # test against above code
-  geom_point(aes(x = z_theoretical, y = x_sample - line)) +
-  labs(y = "centered sample")
+  geom_point(aes(x = z_theoretical, y = x_sample - line))
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp3-1.png" title="Two plots of Q-Q points." alt="Two plots of Q-Q points." width="66%" style="display: block; margin: auto;" />
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp3-1.png" title="Two worm plots of Q-Q points." alt="Two worm plots of Q-Q points." width="66%" style="display: block; margin: auto;" />
 
 ```r
 
@@ -595,11 +619,10 @@ d$robust_line <-
 ggplot(d) + 
   stat_worm(aes(sample = x_sample), robust = TRUE) +
   # test against above code
-  geom_point(aes(x = z_theoretical, y = x_sample - robust_line)) +
-  labs(y = "centered sample")
+  geom_point(aes(x = z_theoretical, y = x_sample - robust_line))
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp3-2.png" title="Two plots of Q-Q points." alt="Two plots of Q-Q points." width="66%" style="display: block; margin: auto;" />
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp3-2.png" title="Two worm plots of Q-Q points." alt="Two worm plots of Q-Q points." width="66%" style="display: block; margin: auto;" />
 
 Now, we work through the same procedure with the confidence band. First, create
 the user-facing layer function that we want to use.
@@ -609,7 +632,7 @@ the user-facing layer function that we want to use.
 stat_worm_band <- function(
   mapping = NULL, 
   data = NULL,
-  geom = "ribbon", 
+  geom = GeomRibbonHollow, 
   position = "identity",
   ...,
   # important part
@@ -624,7 +647,7 @@ stat_worm_band <- function(
     mapping = mapping,
     # important part
     stat = StatWormBand,
-    geom = GeomRibbonHollow,
+    geom = geom,
     position = position,
     show.legend = show.legend,
     inherit.aes = inherit.aes,
@@ -641,7 +664,7 @@ stat_worm_band <- function(
 
 The easiest way to draw two lines in a confidence band is with `geom_ribbon()`,
 but `geom_ribbon()` by default draws a filled shape. It would fill the space
-between the lines with solid black. (It was pain while developing this code.)
+between the lines with solid black. (It was a pain while developing this code!)
 Fortunately, the vignette gives an example of modifying an existing geom to take
 new defaults. We follow that example and create a new `GeomRibbonHollow`:
 
@@ -662,9 +685,9 @@ GeomRibbonHollow <- ggproto(
   )
 ```
 
-Next, we create `StatWormBand`. It's the same kind of code as above, just
-operating generically on a dataframe called `data` with a column called
-`sample`.
+Next, we create `StatWormBand`. It's the same kind of code as above in the post,
+in this case written generically for a dataframe called `data` with a column
+called `sample`.
 
 
 ```r
@@ -687,10 +710,13 @@ StatWormBand <- ggproto(
       mean <- mean(sample)
       sd <- sd(sample)
     }
-    
+
     theoretical <- qnorm(quantiles)
-    z_range <- seq(min(theoretical), max(theoretical), length.out = 80)
-    
+    # at least 80 points for the curves
+    steps <- if (n < 80) 80 else n
+    z_range <- seq(min(theoretical), max(theoretical), length.out = steps)
+    scaled_theoretical <- z_range * sd + mean
+
     # i.e., convert .95 to .025 and .975 and convert those to z scores
     band_z <- qnorm((1 + c(-band_width, band_width)) / 2)
     
@@ -698,10 +724,15 @@ StatWormBand <- ggproto(
       sqrt(pnorm(z) * (1 - pnorm(z)) / n) / dnorm(z)
     }
     
+    ymin <- band_z[1] * se_z(z_range, n) * sd
+    ymax <- band_z[2] * se_z(z_range, n) * sd
+    
     data.frame(
+      quantile = quantiles,
       theoretical = z_range,
-      ymin = band_z[1] * se_z(z_range, n) * sd,
-      ymax = band_z[2] * se_z(z_range, n) * sd
+      scaled_theoretical = scaled_theoretical,
+      ymin = ymin,
+      ymax = ymax
     )
   }
 )
@@ -721,11 +752,10 @@ ggplot(d) +
     fill = NA,
     color = "blue"
   ) +
-  stat_worm_band(aes(sample = x_sample)) + 
-  labs(y = "centered sample")
+  stat_worm_band(aes(sample = x_sample)) 
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp5-1.png" title="A plot of Q-Q points with a confidence band." alt="A plot of Q-Q points with a confidence band." width="66%" style="display: block; margin: auto;" />
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp5-1.png" title="A worm plot of Q-Q points with a confidence band." alt="A worm plot of Q-Q points with a confidence band." width="66%" style="display: block; margin: auto;" />
 
 The bands differ slightly because `stat_worm_band()` uses 1.96 standard errors
 for its confidence band (instead of 2) and because `stat_worm_band()` matches
@@ -748,24 +778,187 @@ ggplot(d) +
     fill = NA,
     color = "blue"
   ) +
-  stat_worm_band(aes(sample = x_sample), robust = TRUE) + 
-  labs(y = "centered sample")
+  stat_worm_band(aes(sample = x_sample), robust = TRUE) 
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp6-1.png" title="A plot of Q-Q points with a confidence band using robust estimates." alt="A plot of Q-Q points with a confidence band using robust estimates." width="66%" style="display: block; margin: auto;" />
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp6-1.png" title="A worm plot of Q-Q points with a confidence band using robust estimates." alt="A worm plot of Q-Q points with a confidence band using robust estimates." width="66%" style="display: block; margin: auto;" />
 
-This is a decent start. A more complete version would support other reference
-distributions besides the normal distribution and allow some calculations to be
-fixed. That is, with this implementation, if we facet or color the lines, the
-statistics are calculated separately for each facet, color, etc. Each subgroup
-of data is a new dataset, not a highlighted part of the original distribution.
-Plotting different subsets of data in different colors, but keeping them part of
-the same quantile calculation, would be useful for exploring which subsets of
-data are deviating away from 0.
+This implementation is a decent start. A more complete version would support
+other reference distributions besides the normal distribution and allow some
+calculations to be fixed. That is, with this version, if we facet the data or
+color the lines, the statistics are calculated separately for each facet, color,
+etc. (We compute the statistics with the `compute_group()` function, separately
+for each aesthetic group.) Each group of data is a new dataset, not a
+highlighted part of the original distribution. Plotting different subsets of
+data in different colors but keeping them part of the same quantile
+calculation would be useful for exploring which subsets of data are deviating
+away from 0.
 
 
+## Bonus 2: A test run on some distributions
+
+[*Section added on 2020-08-27*.] It's time for the worm crawl through some dirt.
+We'll use the simulated datasets from [Sean Kross's tutorial][skqq] and look at
+how badly behaved distributions look for normal-distribution worm plots. First,
+let's create the diagnostic examples.
 
 
+```r
+set.seed(2-25-16)
+n <- 1000
+normal <- rnorm(n)
+
+draws <- list(
+  normal = normal,
+  `skew left`  = c(normal[normal < 0] * 2.5, normal),
+  `skew right` = c(normal[normal > 0] * 2.5, normal),
+  `fat tails` = c(normal * 2.5, normal),
+  # This will be different from the original post.
+  # Wikipedia says the uniform () is ~*platykurtotic*~ 
+  `thin tails` = c(rnorm(200), runif(800, -1.5, 1.5))
+)
+
+# create a list column then unnest() to get a tidy dataframe
+df <- tibble::tibble(
+  example = factor(names(draws), names(draws)), 
+  values = draws
+) 
+df <- tidyr::unnest(df, values)
+
+ggplot(df, aes(x = values)) + 
+  geom_histogram(
+    aes(y = after_stat(density)), 
+    bins = 30, 
+    color = "white"
+  ) + 
+  stat_function(fun = dnorm, color = "blue", size = 1, n = 200) +
+  facet_wrap("example", scales = "free_x")
+```
+
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/dx-1.png" title="Five histograms with density curves showing different data shapes." alt="Five histograms with density curves showing different data shapes." width="100%" style="display: block; margin: auto;" />
+
+First, let's start with a good worm plot. The points from a normal distribution
+almost all fall within the confidence band.
+
+
+```r
+p <- ggplot(subset(df, example == "normal")) + 
+  aes(sample = values) + 
+  stat_worm(shape = 1, alpha = .3) + 
+  stat_worm_band() + 
+  facet_wrap("example", scales = "free")
+p
+```
+
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp7-1.png" title="A worm plot for normally distributed data." alt="A worm plot for normally distributed data." width="66%" style="display: block; margin: auto;" />
+
+For skewed data, the worm takes on a *U* shape.
+
+
+```r
+# Use the `plot + list(data)` to replace the data in the plot
+p + 
+  list(
+    subset(df, example %in% c("skew left", "skew right"))
+  )
+```
+
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp8-1.png" title="Worm plots for skewed distributed data." alt="Worm plots for skewed distributed data." width="100%" style="display: block; margin: auto;" />
+
+We can think through why we are seeing what we are seeing here. It's not easy or
+obvious, but let's go for it: Sample quantiles that are larger than expected
+(based on the theoretical distribution) will break through the ceiling (upper
+confidence line), and sample quantiles that are smaller than expected will break
+through the floor (lower confidence line). In the left skewed data, there is a
+long tail to the left, so the left values fall through the floor: The
+empirical 5th percentile is smaller than the 5th percentile from the theoretical
+distribution. The peak of the skewed data---see the histogram above---occurs to
+the left of the theoretical peak. That earlier peak means those values are
+larger than expected, so the worm breaks through the ceiling. Finally, the right
+tail is thinner for the left skewed data compared to the normal distribution, so
+again the empirical values fall through the floor. 
+
+The code below compares quantiles from the *z*-scores for the observed data and
+*z*-scores from the theoretical distribution, showing that the signs change as I
+just described.
+
+
+```r
+# smaller than theoretical
+quantile(scale(draws$`skew left`), .05, names = FALSE)
+#> [1] -1.916239
+qnorm(.05)
+#> [1] -1.644854
+
+# bigger than theoretical
+quantile(scale(draws$`skew left`), .5, names = FALSE)
+#> [1] 0.1376894
+qnorm(.5)
+#> [1] 0
+
+# smaller than theoretical
+quantile(scale(draws$`skew left`), .95, names = FALSE)
+#> [1] 1.387601
+qnorm(.95)
+#> [1] 1.644854
+```
+
+The right skewed data would follow the same idea, but *flipped*. 
+
+
+The fat and thin tailed data show *S* shapes.
+
+
+```r
+p + 
+  list(
+    subset(df, example %in% c("fat tails", "thin tails"))
+  )
+```
+
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp9-1.png" title="A worm plot for fail tailed and thin tailed data." alt="A worm plot for fail tailed and thin tailed data." width="100%" style="display: block; margin: auto;" />
+
+The fat-tailed data has values that are smaller than expected on the left tail
+(falling through the floor) and larger than expected on the right tail (breaking
+through the ceiling), so that explains tails of that worm plot. The middle bumps
+are harder to figure out, but I think looking at the quantiles helps. (Note that
+this plot shows that including those extra columns in `StatWorm$compute_group()`
+has paid off because we can now access them with `after_stat()`.)
+
+
+```r
+ggplot(subset(df, example == "fat tails")) + 
+  aes(sample = values) +
+  geom_line(
+    aes(
+      x = after_stat(sample), 
+      y = after_stat(quantile), 
+      color = "empirical"
+    ), 
+    stat = "worm"
+  ) +
+  geom_line(
+    aes(
+      x = after_stat(scaled_theoretical), 
+      y = after_stat(quantile), 
+      color = "normal"
+    ), 
+    stat = "worm"
+  ) +
+  labs(color = "Quantile source") +
+  guides(color = guide_legend(nrow = 1)) +
+  theme(legend.position = "top", legend.justification =  "left")
+#> Error: Can't find `stat` called 'worm'
+```
+
+We can see how the lines switch places a few times. That the normal line is to
+right of the empirical line at *y* = .75 means that at that quantile, the normal
+distribution has larger values than the scaled empirical distribution. For the
+thin tailed data, the same reasoning applies but once again, it's *flipped*.
+
+Finally, I want to advertise that Table 2 in the [worm plot paper][wp]
+summarizes these heuristics (like *U*-shaped and *S*-shaped worms) and includes
+other heuristics about the slope and intercept of the worm.
 
 [^embo]: Fox uses a funny phrase in a footnote as he notes that the approach produces "cumulative proportions of 0 or 1, which would be an embarrassment [...] for distributions like the normal [...]". Definitely, not a good look.
 
