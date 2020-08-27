@@ -108,7 +108,7 @@ ppoints
 #>         (1L:n - a)/(n + 1 - 2 * a)
 #>     else numeric()
 #> }
-#> <bytecode: 0x000000001a3d1ef8>
+#> <bytecode: 0x000000001a3d1380>
 #> <environment: namespace:stats>
 ```
 
@@ -935,7 +935,7 @@ ggplot(subset(df, example == "fat tails")) +
       y = after_stat(quantile), 
       color = "empirical"
     ), 
-    stat = "worm"
+    stat = StatWorm
   ) +
   geom_line(
     aes(
@@ -943,13 +943,14 @@ ggplot(subset(df, example == "fat tails")) +
       y = after_stat(quantile), 
       color = "normal"
     ), 
-    stat = "worm"
+    stat = StatWorm
   ) +
   labs(color = "Quantile source") +
   guides(color = guide_legend(nrow = 1)) +
   theme(legend.position = "top", legend.justification =  "left")
-#> Error: Can't find `stat` called 'worm'
 ```
+
+<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp10-1.png" title="Two cumulative plots showing them trading places." alt="Two cumulative plots showing them trading places." width="80%" style="display: block; margin: auto;" />
 
 We can see how the lines switch places a few times. That the normal line is to
 right of the empirical line at *y* = .75 means that at that quantile, the normal

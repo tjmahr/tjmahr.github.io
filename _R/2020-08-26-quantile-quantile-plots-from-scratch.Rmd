@@ -857,7 +857,7 @@ ggplot(subset(df, example == "fat tails")) +
       y = after_stat(quantile), 
       color = "empirical"
     ), 
-    stat = "worm"
+    stat = StatWorm
   ) +
   geom_line(
     aes(
@@ -865,7 +865,7 @@ ggplot(subset(df, example == "fat tails")) +
       y = after_stat(quantile), 
       color = "normal"
     ), 
-    stat = "worm"
+    stat = StatWorm
   ) +
   labs(color = "Quantile source") +
   guides(color = guide_legend(nrow = 1)) +
