@@ -5,7 +5,7 @@ header:
   og_image: /assets/images/2020-08-qq-plot.png
   overlay_image: /assets/images/2020-08-qq-plot.png
   overlay_filter: rgba(255, 0, 0, 0.6)
-  caption: "As far as I can tell [**Hazen (1914)**](https://watershed.ucdavis.edu/shed/lund/Classes/Hazen1914.pdf) produced the first Q-Q plot."
+  caption: "A Q-Q plot in [**Hazen (1914)**](https://watershed.ucdavis.edu/shed/lund/Classes/Hazen1914.pdf)."
 tags:
   - r
   - ggplot2
@@ -46,6 +46,14 @@ plot][wp]. During this process I discovered that I misunderstood what is
 shown on the conventional Q-Q plot, and I feel like I need to document what
 these plots are really showing.
 
+
+**Update: Q-Q plots avant la lettre.** Originally, this post in its header image
+attributed the first Q-Q plots to [**Hazen
+(1914)**](https://watershed.ucdavis.edu/shed/lund/Classes/Hazen1914.pdf), but a
+reader sent [a French Wikipedia
+article](https://fr.wikipedia.org/wiki/Droite_de_Henry) that attributes Q-Q
+plots to P. J. P. Henri in the 1880s. [*Sept. 4, 2020*]
+{: .notice--info}
 
 
 ## The Q-Q points are easy to calculate
@@ -108,7 +116,7 @@ ppoints
 #>         (1L:n - a)/(n + 1 - 2 * a)
 #>     else numeric()
 #> }
-#> <bytecode: 0x000000001a3d1380>
+#> <bytecode: 0x000000001a36d1a8>
 #> <environment: namespace:stats>
 ```
 
