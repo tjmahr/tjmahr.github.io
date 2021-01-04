@@ -48,8 +48,8 @@ these plots are really showing.
 
 
 **Update: Q-Q plots avant la lettre.** Originally, this post in its header image
-attributed the first Q-Q plots to [**Hazen
-(1914)**](https://watershed.ucdavis.edu/shed/lund/Classes/Hazen1914.pdf), but a
+attributed the first Q-Q plots to [Hazen
+(1914)](https://watershed.ucdavis.edu/shed/lund/Classes/Hazen1914.pdf), but a
 reader sent [a French Wikipedia
 article](https://fr.wikipedia.org/wiki/Droite_de_Henry) that attributes Q-Q
 plots to P. J. P. Henri in the 1880s. [*Sept. 4, 2020*]
@@ -116,7 +116,7 @@ ppoints
 #>         (1L:n - a)/(n + 1 - 2 * a)
 #>     else numeric()
 #> }
-#> <bytecode: 0x000000001a36d1a8>
+#> <bytecode: 0x000000001a18ac90>
 #> <environment: namespace:stats>
 ```
 
