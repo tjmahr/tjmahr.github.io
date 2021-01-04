@@ -17,30 +17,75 @@ argument `...` is a series of expressions that get evaluated inside of the
 dataframe.
 
 ```{r, message = FALSE}
-library("dplyr")
+library(dplyr)
 
 # standardize and round
-z_round <- . %>% scale %>% as.numeric %>% round(2)
+z_round <- . %>% scale() %>% as.numeric() %>% round(2)
 
-# The two expressions defining zSL, zSW are the `...`
-iris %>% 
-  mutate_(zSL = ~ z_round(Sepal.Length), 
-          zSW = ~ z_round(Sepal.Width)) %>%
-  tbl_df
+# The two expressions defining zMPG, zHP are the `...`
+mtcars %>% 
+  mutate_(
+    zMPG = ~ z_round(mpg), 
+    zHP = ~ z_round(hp)
+  ) %>%
+  as_tibble()
 ```
 
 If we programmatically assemble or manipulate those expressions before calling
-`mutate_`, we can't use that `...`, because we have a _list_ of expressions, not
-a series of individual expressions. We use the `.dots` argument instead.
+`mutate_()`, we can't use that `...`, because we have a *list* of expressions,
+not a series of individual expressions. We use the `.dots` argument instead.
 
 ```{r}
 exps <- list(
-  zSL = ~ z_round(Sepal.Length), 
-  zSW = ~ z_round(Sepal.Width)
+  zMPG = ~ z_round(mpg), 
+  zHP = ~ z_round(hp)
 )
 
-iris %>% mutate_(exps)
+mtcars %>% 
+  mutate_(exps)
 
-iris %>% mutate_(.dots = exps) %>% tbl_df
+mtcars %>% 
+  mutate_(.dots = exps) %>% 
+  as_tibble()
 ```
 
+### [*Jan. 4, 2021*] Hello from the future
+
+Here is how you would go about this in 2021 in the tidy evaluation framework.
+Use an expression-list or a quosure-list and splice them in with `!!!`.
+
+```{r}
+exprs <- rlang::exprs(
+  zMPG = z_round(mpg), 
+  zHP = z_round(hp)
+)
+
+# These are just expressions
+exprs
+
+mtcars %>% 
+  mutate(!!! exprs) %>% 
+  as_tibble()
+
+quosures <- quos(
+  zMPG = z_round(mpg), 
+  zHP = z_round(hp)
+)
+
+# These are expression-environment pairs
+quosures
+
+mtcars %>% 
+  mutate(!!! quosures) %>% 
+  as_tibble()
+```
+
+***
+
+*Last knitted on `r format(Sys.Date())`. [Source code on
+GitHub](`r file.path(git2r::remote_url(remote = "origin"), "blob/master/_R", knitr::current_input())`).*[^si] 
+
+[^si]: 
+    ```{r, results = "markup"}
+    sessioninfo::session_info()
+    ```

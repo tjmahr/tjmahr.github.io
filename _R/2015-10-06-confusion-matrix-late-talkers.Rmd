@@ -46,7 +46,7 @@ group (assuming late-talking children remain delayed), and the observed
 `Outcome`.
 
 ```{r, message = FALSE}
-library("dplyr")
+library(dplyr)
 
 # LT: late talking
 # WNL: within normal limits
@@ -61,21 +61,26 @@ wnl_still_wnl <- 42
 wnl_delayed <- 4
 
 # Reproduce their data-set (one row per reported child)
-wnl_data <- data_frame(
+wnl_data <- tibble(
   Group = groups[1],
   Predicted = outcomes[1],
   Outcome = rep(outcomes, times = c(wnl_still_wnl, wnl_delayed))
 )
 
-lt_data <- data_frame(
+lt_data <- tibble(
   Group = "LT at 18m",
   Outcome = rep(outcomes, times = c(lt_bloomed, lt_still_delayed)),
   Predicted = outcomes[2]
 )
 
+
 all_kids <- bind_rows(wnl_data, lt_data) %>%
   mutate(ChildID = seq_along(Outcome)) %>% 
-  select(ChildID, Group, Predicted, Outcome)
+  select(ChildID, Group, Predicted, Outcome) %>% 
+  mutate(
+    Predicted = factor(Predicted, outcomes),
+    Outcome = factor(Outcome, outcomes)
+  )
 ```
 
 What we have looks like a real data-set now.
@@ -85,7 +90,8 @@ set.seed(20151006)
 ```
 
 ```{r}
-sample_n(all_kids, 8, replace = FALSE) %>% 
+all_kids %>% 
+  sample_n(8, replace = FALSE) %>% 
   arrange(Group, Predicted, Outcome)
 ```
 
@@ -107,4 +113,14 @@ calls)[^PPV] is 14/36 = `r ppv`. The negative predictive value is noteworthy;
 most children not diagnosed as late talkers did not show a delay one year later
 (NPV = 42/46 = `r npv`).
 
-[^PPV]: Technically, caret uses the [sensitivity, specificity and prevalance](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) form of the PPV calculation.
+***
+
+*Last knitted on `r format(Sys.Date())`. [Source code on
+GitHub](`r file.path(git2r::remote_url(remote = "origin"), "blob/master/_R", knitr::current_input())`).*[^si] 
+
+[^si]: 
+    ```{r, results = "markup"}
+    sessioninfo::session_info()
+    ```
+
+[^PPV]: Technically, caret uses the [sensitivity, specificity and prevalence](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) form of the PPV calculation.
