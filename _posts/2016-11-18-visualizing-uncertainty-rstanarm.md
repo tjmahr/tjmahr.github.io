@@ -37,21 +37,20 @@ library(ggplot2)
 msleep %>% 
   select(name, sleep_total, brainwt, bodywt, everything()) %>% 
   arrange(desc(brainwt / bodywt))
-#> # A tibble: 83 × 11
-#>                              name sleep_total brainwt bodywt        genus
-#>                             <chr>       <dbl>   <dbl>  <dbl>        <chr>
-#> 1  Thirteen-lined ground squirrel        13.8 0.00400  0.101 Spermophilus
-#> 2                      Owl monkey        17.0 0.01550  0.480        Aotus
-#> 3       Lesser short-tailed shrew         9.1 0.00014  0.005    Cryptotis
-#> 4                 Squirrel monkey         9.6 0.02000  0.743      Saimiri
-#> 5                         Macaque        10.1 0.17900  6.800       Macaca
-#> 6                Little brown bat        19.9 0.00025  0.010       Myotis
-#> 7                          Galago         9.8 0.00500  0.200       Galago
-#> 8                        Mole rat        10.6 0.00300  0.122       Spalax
-#> 9                      Tree shrew         8.9 0.00250  0.104       Tupaia
-#> 10                          Human         8.0 1.32000 62.000         Homo
-#> # ... with 73 more rows, and 6 more variables: vore <chr>, order <chr>,
-#> #   conservation <chr>, sleep_rem <dbl>, sleep_cycle <dbl>, awake <dbl>
+#> # A tibble: 83 x 11
+#>    name  sleep_total brainwt bodywt genus vore  order conservation sleep_rem
+#>    <chr>       <dbl>   <dbl>  <dbl> <chr> <chr> <chr> <chr>            <dbl>
+#>  1 Thir~        13.8 4.00e-3  0.101 Sper~ herbi Rode~ lc                 3.4
+#>  2 Owl ~        17   1.55e-2  0.48  Aotus omni  Prim~ <NA>               1.8
+#>  3 Less~         9.1 1.40e-4  0.005 Cryp~ omni  Sori~ lc                 1.4
+#>  4 Squi~         9.6 2.00e-2  0.743 Saim~ omni  Prim~ <NA>               1.4
+#>  5 Maca~        10.1 1.79e-1  6.8   Maca~ omni  Prim~ <NA>               1.2
+#>  6 Litt~        19.9 2.50e-4  0.01  Myot~ inse~ Chir~ <NA>               2  
+#>  7 Gala~         9.8 5.00e-3  0.2   Gala~ omni  Prim~ <NA>               1.1
+#>  8 Mole~        10.6 3.00e-3  0.122 Spal~ <NA>  Rode~ <NA>               2.4
+#>  9 Tree~         8.9 2.50e-3  0.104 Tupa~ omni  Scan~ <NA>               2.6
+#> 10 Human         8   1.32e+0 62     Homo  omni  Prim~ <NA>               1.9
+#> # ... with 73 more rows, and 2 more variables: sleep_cycle <dbl>, awake <dbl>
 
 ggplot(msleep) + 
   aes(x = brainwt, y = sleep_total) + 
@@ -59,7 +58,7 @@ ggplot(msleep) +
 #> Warning: Removed 27 rows containing missing values (geom_point).
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/brain-sleep-1.png" title="Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes." alt="Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2016-11-18-visualizing-uncertainty-rstanarm/brain-sleep-1.png" title="Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes." alt="Brain mass by sleep hours. This plot looks terrible because the masses span many orders of magnitudes." width="80%" style="display: block; margin: auto;" />
 
 Hmmm, not very helpful! We should put our measures on a log-10 scale. Also, 27
 of the species don't have brain mass data, so we'll exclude those rows for the
@@ -69,27 +68,32 @@ rest of this tutorial.
 ```r
 msleep <- msleep %>% 
   filter(!is.na(brainwt)) %>% 
-  mutate(log_brainwt = log10(brainwt), 
-         log_bodywt = log10(bodywt), 
-         log_sleep_total = log10(sleep_total))
+  mutate(
+    log_brainwt = log10(brainwt), 
+    log_bodywt = log10(bodywt), 
+    log_sleep_total = log10(sleep_total)
+  )
 ```
 
 Now, plot the log-transformed data. But let's also get a little fancy and label
-the points for some example critters :cat: so that we can get some intuition
+the points for some example critters 🐱 so that we can get some intuition
 about the data in this scaling. (Plus, I wanted to try out the [annotation
 tips][r4ds-labels] from the _R4DS_ book.)
 
 
 ```r
 # Create a separate data-frame of species to highlight
-ex_mammals <- c("Domestic cat", "Human", "Dog", "Cow", "Rabbit",
-                "Big brown bat", "House mouse", "Horse", "Golden hamster")
+ex_mammals <- c(
+  "Domestic cat", "Human", "Dog", "Cow", "Rabbit",
+  "Big brown bat", "House mouse", "Horse", "Golden hamster"
+)
 
 # We will give some familiar species shorter names
 renaming_rules <- c(
   "Domestic cat" = "Cat", 
   "Golden hamster" = "Hamster", 
-  "House mouse" = "Mouse")
+  "House mouse" = "Mouse"
+)
 
 ex_points <- msleep %>% 
   filter(name %in% ex_mammals) %>% 
@@ -113,9 +117,9 @@ ggplot(msleep) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_raw)
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/log-brain-sleep-1.png" title="Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted." alt="Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2016-11-18-visualizing-uncertainty-rstanarm/log-brain-sleep-1.png" title="Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted." alt="Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted." width="80%" style="display: block; margin: auto;" />
 
-As a child growing up on a dairy farm :cow:, it was remarkable to me how little 
+As a child growing up on a dairy farm 🐮, it was remarkable to me how little 
 I saw cows sleeping, compared to dogs or cats. Were they okay? Are they 
 constantly tired and groggy? Maybe they are asleep when I'm asleep? Here, it
 looks like they just don't need very much sleep.
@@ -157,9 +161,10 @@ ggplot(msleep) +
   stat_smooth(method = "lm", level = .95) + 
   scale_x_continuous(labels = function(x) 10 ^ x) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
+#> `geom_smooth()` using formula 'y ~ x'
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/log-brain-sleep-lm-fit-1.png" title="Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression." alt="Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2016-11-18-visualizing-uncertainty-rstanarm/log-brain-sleep-lm-fit-1.png" title="Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression." alt="Brain mass by sleep hours, log-10 scale, plus the predicted mean and 95% CI from a linear regression." width="80%" style="display: block; margin: auto;" />
 
 This interval conveys some uncertainty in the estimate of the mean, but this 
 interval has a [frequentist interpretation][interval-interp] which can be
@@ -195,7 +200,8 @@ m1 <- stan_glm(
   family = gaussian(), 
   data = msleep, 
   prior = normal(0, 3),
-  prior_intercept = normal(0, 3))
+  prior_intercept = normal(0, 3)
+)
 ```
 
 We now have 4,000 credible regressions lines for our data.
@@ -203,30 +209,36 @@ We now have 4,000 credible regressions lines for our data.
 
 ```r
 summary(m1)
-#> stan_glm(formula = log_sleep_total ~ log_brainwt, family = gaussian(), 
-#>     data = msleep, prior = normal(0, 3), prior_intercept = normal(0, 
-#>         3))
 #> 
-#> Family: gaussian (identity)
-#> Algorithm: sampling
-#> Posterior sample size: 4000
-#> Observations: 56
+#> Model Info:
+#>  function:     stan_glm
+#>  family:       gaussian [identity]
+#>  formula:      log_sleep_total ~ log_brainwt
+#>  algorithm:    sampling
+#>  sample:       4000 (posterior sample size)
+#>  priors:       see help('prior_summary')
+#>  observations: 56
+#>  predictors:   2
 #> 
 #> Estimates:
-#>                 mean   sd   2.5%   25%   50%   75%   97.5%
-#> (Intercept)    0.7    0.0  0.6    0.7   0.7   0.8   0.8   
-#> log_brainwt   -0.1    0.0 -0.2   -0.1  -0.1  -0.1  -0.1   
-#> sigma          0.2    0.0  0.1    0.2   0.2   0.2   0.2   
-#> mean_PPD       1.0    0.0  0.9    0.9   1.0   1.0   1.0   
-#> log-posterior 12.0    1.2  9.0   11.5  12.3  12.9  13.4   
+#>               mean   sd   10%   50%   90%
+#> (Intercept)  0.7    0.0  0.7   0.7   0.8 
+#> log_brainwt -0.1    0.0 -0.2  -0.1  -0.1 
+#> sigma        0.2    0.0  0.2   0.2   0.2 
 #> 
-#> Diagnostics:
+#> Fit Diagnostics:
+#>            mean   sd   10%   50%   90%
+#> mean_PPD 1.0    0.0  0.9   1.0   1.0  
+#> 
+#> The mean_ppd is the sample average posterior predictive distribution of the outcome variable (for details see help('summary.stanreg')).
+#> 
+#> MCMC diagnostics
 #>               mcse Rhat n_eff
-#> (Intercept)   0.0  1.0  3040 
-#> log_brainwt   0.0  1.0  3046 
-#> sigma         0.0  1.0  2862 
-#> mean_PPD      0.0  1.0  3671 
-#> log-posterior 0.0  1.0  2159 
+#> (Intercept)   0.0  1.0  3626 
+#> log_brainwt   0.0  1.0  3711 
+#> sigma         0.0  1.0  3492 
+#> mean_PPD      0.0  1.0  3855 
+#> log-posterior 0.0  1.0  1625 
 #> 
 #> For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
 ```
@@ -238,7 +250,7 @@ the median parameter values.
 ```r
 coef(m1)
 #> (Intercept) log_brainwt 
-#>   0.7354829  -0.1263922
+#>   0.7354402  -0.1267939
 coef(m1_classical)
 #> (Intercept) log_brainwt 
 #>   0.7363492  -0.1264049
@@ -258,23 +270,23 @@ data-frame with all 4,000 regression lines.
 # Coercing a model to a data-frame returns data-frame of posterior samples. 
 # One row per sample.
 fits <- m1 %>% 
-  as_data_frame %>% 
+  as_tibble() %>% 
   rename(intercept = `(Intercept)`) %>% 
   select(-sigma)
 fits
-#> # A tibble: 4,000 × 2
+#> # A tibble: 4,000 x 2
 #>    intercept log_brainwt
 #>        <dbl>       <dbl>
-#> 1  0.7529824  -0.1369554
-#> 2  0.7243708  -0.1266290
-#> 3  0.7575502  -0.1171410
-#> 4  0.7855554  -0.1031353
-#> 5  0.6327073  -0.1795992
-#> 6  0.6474521  -0.1714347
-#> 7  0.7512467  -0.1155559
-#> 8  0.7363273  -0.1162038
-#> 9  0.7490401  -0.1276618
-#> 10 0.7238091  -0.1305896
+#>  1     0.764      -0.125
+#>  2     0.672      -0.164
+#>  3     0.640      -0.192
+#>  4     0.704      -0.148
+#>  5     0.754      -0.110
+#>  6     0.691      -0.146
+#>  7     0.743      -0.128
+#>  8     0.728      -0.136
+#>  9     0.696      -0.153
+#> 10     0.669      -0.159
 #> # ... with 3,990 more rows
 ```
 
@@ -292,19 +304,25 @@ col_median <-  "#3366FF"
 ggplot(msleep) + 
   aes(x = log_brainwt, y = log_sleep_total) + 
   # Plot a random sample of rows as gray semi-transparent lines
-  geom_abline(aes(intercept = intercept, slope = log_brainwt), 
-              data = sample_n(fits, n_draws), color = col_draw, 
-              alpha = alpha_level) + 
+  geom_abline(
+    aes(intercept = intercept, slope = log_brainwt), 
+    data = sample_n(fits, n_draws), 
+    color = col_draw, 
+    alpha = alpha_level
+  ) + 
   # Plot the median values in blue
-  geom_abline(intercept = median(fits$intercept), 
-              slope = median(fits$log_brainwt), 
-              size = 1, color = col_median) +
+  geom_abline(
+    intercept = median(fits$intercept), 
+    slope = median(fits$log_brainwt), 
+    size = 1, 
+    color = col_median
+  ) +
   geom_point() + 
   scale_x_continuous(labels = function(x) 10 ^ x) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/pile-of-lines-plot-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median regression line and 500 random regressions lines sampled from the posterior." alt="Brain mass by sleep hours, log-10 scale, plus the median regression line and 500 random regressions lines sampled from the posterior." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2016-11-18-visualizing-uncertainty-rstanarm/pile-of-lines-plot-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median regression line and 500 random regressions lines sampled from the posterior." alt="Brain mass by sleep hours, log-10 scale, plus the median regression line and 500 random regressions lines sampled from the posterior." width="80%" style="display: block; margin: auto;" />
 
 Each of these light lines represents a credible prediction of the mean across 
 the values of _x_. As these line pile up on top of each other, they create an 
@@ -316,7 +334,7 @@ of the more extreme (yet still plausible) lines.
 
 The advantage of this plot is that it is a direct visualization of posterior 
 samples---one line per sample. It provides an estimate for the central tendency
-in the data but it also converys uncertainty around that estimate. 
+in the data but it also conveys uncertainty around that estimate. 
 
 This approach has limitations, however. Lines for subgroups require a little 
 more effort to undo interactions. Also, the regression lines span the whole _x_ 
@@ -341,23 +359,24 @@ sequence of 80 points along the range of the data.
 ```r
 x_rng <- range(msleep$log_brainwt) 
 x_steps <- seq(x_rng[1], x_rng[2], length.out = 80)
-new_data <- data_frame(
+new_data <- tibble(
   observation = seq_along(x_steps), 
-  log_brainwt = x_steps)
+  log_brainwt = x_steps
+)
 new_data
-#> # A tibble: 80 × 2
+#> # A tibble: 80 x 2
 #>    observation log_brainwt
 #>          <int>       <dbl>
-#> 1            1   -3.853872
-#> 2            2   -3.795509
-#> 3            3   -3.737146
-#> 4            4   -3.678784
-#> 5            5   -3.620421
-#> 6            6   -3.562058
-#> 7            7   -3.503695
-#> 8            8   -3.445332
-#> 9            9   -3.386970
-#> 10          10   -3.328607
+#>  1           1       -3.85
+#>  2           2       -3.80
+#>  3           3       -3.74
+#>  4           4       -3.68
+#>  5           5       -3.62
+#>  6           6       -3.56
+#>  7           7       -3.50
+#>  8           8       -3.45
+#>  9           9       -3.39
+#> 10          10       -3.33
 #> # ... with 70 more rows
 ```
 
@@ -380,43 +399,54 @@ have to do them again later in this post.
 
 
 ```r
-tidy_predictions <- function(mat_pred, df_data, obs_name = "observation",
-                             prob_lwr = .025, prob_upr = .975) {
+tidy_predictions <- function(
+  mat_pred, 
+  df_data, 
+  obs_name = "observation",
+  prob_lwr = .025, 
+  prob_upr = .975
+) {
   # Get data-frame with one row per fitted value per posterior sample
   df_pred <- mat_pred %>% 
-    as_data_frame %>% 
+    as_tibble() %>% 
     setNames(seq_len(ncol(.))) %>% 
     tibble::rownames_to_column("posterior_sample") %>% 
     tidyr::gather_(obs_name, "fitted", setdiff(names(.), "posterior_sample"))
-  df_pred
-  
+
   # Helps with joining later
   class(df_pred[[obs_name]]) <- class(df_data[[obs_name]])
   
   # Summarise prediction interval for each observation
   df_pred %>% 
     group_by_(obs_name) %>% 
-    summarise(median = median(fitted),
-              lower = quantile(fitted, prob_lwr), 
-              upper = quantile(fitted, prob_upr)) %>% 
+    summarise(
+      median = median(fitted),
+      lower = quantile(fitted, prob_lwr), 
+      upper = quantile(fitted, prob_upr)
+    ) %>% 
     left_join(df_data, by = obs_name)
 }
 
 df_pred_lin <- tidy_predictions(pred_lin, new_data)
+#> Warning: `group_by_()` is deprecated as of dplyr 0.7.0.
+#> Please use `group_by()` instead.
+#> See vignette('programming') for more help
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_warnings()` to see where this warning was generated.
 df_pred_lin
-#> # A tibble: 80 × 5
-#>    observation   median    lower    upper log_brainwt
-#>          <int>    <dbl>    <dbl>    <dbl>       <dbl>
-#> 1            1 1.223770 1.128224 1.320591   -3.853872
-#> 2            2 1.216516 1.122147 1.311214   -3.795509
-#> 3            3 1.209222 1.117190 1.301462   -3.737146
-#> 4            4 1.201831 1.112268 1.291821   -3.678784
-#> 5            5 1.194506 1.107512 1.282047   -3.620421
-#> 6            6 1.187240 1.102580 1.272930   -3.562058
-#> 7            7 1.179955 1.096945 1.263415   -3.503695
-#> 8            8 1.172608 1.091237 1.254113   -3.445332
-#> 9            9 1.165268 1.085800 1.244733   -3.386970
-#> 10          10 1.157932 1.080823 1.235356   -3.328607
+#> # A tibble: 80 x 5
+#>    observation median lower upper log_brainwt
+#>          <int>  <dbl> <dbl> <dbl>       <dbl>
+#>  1           1   1.22  1.12  1.32       -3.85
+#>  2           2   1.22  1.12  1.31       -3.80
+#>  3           3   1.21  1.11  1.30       -3.74
+#>  4           4   1.20  1.11  1.29       -3.68
+#>  5           5   1.19  1.10  1.28       -3.62
+#>  6           6   1.19  1.10  1.27       -3.56
+#>  7           7   1.18  1.09  1.26       -3.50
+#>  8           8   1.17  1.09  1.25       -3.45
+#>  9           9   1.16  1.08  1.25       -3.39
+#> 10          10   1.16  1.07  1.24       -3.33
 #> # ... with 70 more rows
 ```
 
@@ -427,16 +457,25 @@ band.
 ```r
 p_linpread <- ggplot(msleep) + 
   aes(x = log_brainwt) + 
-  geom_ribbon(aes(ymin = lower, ymax = upper), data = df_pred_lin, 
-              alpha = 0.4, fill = "grey60") + 
-  geom_line(aes(y = median), data = df_pred_lin, colour = "#3366FF", size = 1) + 
+  geom_ribbon(
+    aes(ymin = lower, ymax = upper), 
+    data = df_pred_lin, 
+    alpha = 0.4, 
+    fill = "grey60"
+  ) + 
+  geom_line(
+    aes(y = median), 
+    data = df_pred_lin, 
+    colour = "#3366FF", 
+    size = 1
+  ) + 
   geom_point(aes(y = log_sleep_total)) + 
   scale_x_continuous(labels = function(x) 10 ^ x) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 p_linpread
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-linpred-plot-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean." alt="Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2016-11-18-visualizing-uncertainty-rstanarm/posterior-linpred-plot-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean." alt="Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean." width="80%" style="display: block; margin: auto;" />
 
 This plot is just like the `stat_smooth()` plot, except the interval here is 
 interpreted in terms of post-data probabilities: We're 95% certain---given the 
@@ -454,10 +493,12 @@ types of models can make very similar estimates.
 
 
 ```r
-p_linpread + stat_smooth(aes(y = log_sleep_total), method = "lm")
+p_linpread + 
+  stat_smooth(aes(y = log_sleep_total), method = "lm")
+#> `geom_smooth()` using formula 'y ~ x'
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-linpred-plot-and-smooth-1.png" title="Previous line-plus-interval plot with the classical regression line and confidence interval overlaid." alt="Previous line-plus-interval plot with the classical regression line and confidence interval overlaid." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2016-11-18-visualizing-uncertainty-rstanarm/posterior-linpred-plot-and-smooth-1.png" title="Previous line-plus-interval plot with the classical regression line and confidence interval overlaid." alt="Previous line-plus-interval plot with the classical regression line and confidence interval overlaid." width="80%" style="display: block; margin: auto;" />
 
 The previous plot illustrates one limitation of this approach: Pragmatically
 speaking, `stat_smooth()` basically does the same thing, and we're
@@ -469,7 +510,7 @@ documentation:
 > Inference and model checking should generally be carried out using the 
 > posterior predictive distribution (see `posterior_predict`).
 
-_Occasionally convenient._ :open_mouth: And elsewhere:
+_Occasionally convenient._ 😮 And elsewhere:
 
 > See also: `posterior_predict` to draw from the posterior predictive 
 > distribution of the outcome, which is almost always preferable.
@@ -497,19 +538,19 @@ dim(pred_post)
 
 df_pred_post <- tidy_predictions(pred_post, new_data)
 df_pred_post
-#> # A tibble: 80 × 5
-#>    observation   median     lower    upper log_brainwt
-#>          <int>    <dbl>     <dbl>    <dbl>       <dbl>
-#> 1            1 1.224866 0.8685090 1.577798   -3.853872
-#> 2            2 1.207392 0.8395285 1.560691   -3.795509
-#> 3            3 1.209352 0.8499785 1.569175   -3.737146
-#> 4            4 1.203873 0.8333415 1.563349   -3.678784
-#> 5            5 1.204020 0.8537000 1.554171   -3.620421
-#> 6            6 1.183633 0.8284588 1.552674   -3.562058
-#> 7            7 1.182420 0.8234048 1.549418   -3.503695
-#> 8            8 1.177556 0.8111187 1.543201   -3.445332
-#> 9            9 1.164234 0.8238208 1.524496   -3.386970
-#> 10          10 1.161509 0.8130019 1.526353   -3.328607
+#> # A tibble: 80 x 5
+#>    observation median lower upper log_brainwt
+#>          <int>  <dbl> <dbl> <dbl>       <dbl>
+#>  1           1   1.22 0.871  1.57       -3.85
+#>  2           2   1.22 0.853  1.58       -3.80
+#>  3           3   1.21 0.851  1.58       -3.74
+#>  4           4   1.20 0.855  1.55       -3.68
+#>  5           5   1.19 0.845  1.55       -3.62
+#>  6           6   1.18 0.834  1.53       -3.56
+#>  7           7   1.18 0.826  1.53       -3.50
+#>  8           8   1.17 0.816  1.52       -3.45
+#>  9           9   1.16 0.809  1.52       -3.39
+#> 10          10   1.16 0.808  1.50       -3.33
 #> # ... with 70 more rows
 ```
 
@@ -519,15 +560,24 @@ And we can plot the interval in the same way.
 ```r
 ggplot(msleep) + 
   aes(x = log_brainwt) + 
-  geom_ribbon(aes(ymin = lower, ymax = upper), data = df_pred_post, 
-              alpha = 0.4, fill = "grey60") + 
-  geom_line(aes(y = median), data = df_pred_post, colour = "#3366FF", size = 1) + 
+  geom_ribbon(
+    aes(ymin = lower, ymax = upper), 
+    data = df_pred_post, 
+    alpha = 0.4, 
+    fill = "grey60"
+  ) + 
+  geom_line(
+    aes(y = median), 
+    data = df_pred_post, 
+    colour = "#3366FF", 
+    size = 1
+  ) + 
   geom_point(aes(y = log_sleep_total)) + 
   scale_x_continuous(labels = function(x) 10 ^ x) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-predict-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations." alt="Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2016-11-18-visualizing-uncertainty-rstanarm/posterior-predict-1.png" title="Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations." alt="Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations." width="80%" style="display: block; margin: auto;" />
 
 First, we can appreciate that this interval is **much wider**. That's because the
 interval doesn't summarize a particular statistic (like an average) but all of
@@ -564,11 +614,10 @@ last_plot() +
   geom_label(x = 0, y = log10(24), label = "24 hours")
 ```
 
-<img src="/figs//2016-11-18-visualizing-uncertainty-rstanarm/posterior-predict-24-hours-1.png" title="Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line." alt="Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2016-11-18-visualizing-uncertainty-rstanarm/posterior-predict-24-hours-1.png" title="Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line." alt="Previous plot updated to include a line indicating 24 hours. Same of the 95% interval goes above the line." width="80%" style="display: block; margin: auto;" />
 
 One faulty consequence of how our model was specified is that it predicts that
-some mammals sleep more than 24 hours per day---oh, what a life to live 
-:sleeping:.
+some mammals sleep more than 24 hours per day---oh, what a life to live 😴.
 
 ## Wrap up
 
@@ -583,8 +632,161 @@ posterior samples from a model. I'll be sure to demo it on this data-set once it
 goes live.
 
 
-[^1]: That is, if we map the plot's color aesthetic to a categorical variable in the data, `stat_smooth()` will fit a separate model for each color/category. I figured this out when I tried to write my own function `stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) and noticed that RStanARM was printing out MCMC sampling information for each color/category of the data. 
 
+***
+
+*Last knitted on 2021-02-02. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-11-18-visualizing-uncertainty-rstanarm.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-02                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  ! package      * version    date       lib source        
+    #>    abind          1.4-5      2016-07-21 [1] CRAN (R 4.0.0)
+    #>    arm            1.11-2     2020-07-27 [1] CRAN (R 4.0.2)
+    #>    assertthat     0.2.1      2019-03-21 [1] CRAN (R 4.0.2)
+    #>    backports      1.2.0      2020-11-02 [1] CRAN (R 4.0.3)
+    #>    base64enc      0.1-3      2015-07-28 [1] CRAN (R 4.0.0)
+    #>    bayesplot      1.8.0.9000 2021-02-01 [1] local         
+    #>    boot           1.3-26     2021-01-25 [1] CRAN (R 4.0.3)
+    #>    callr          3.5.1      2020-10-13 [1] CRAN (R 4.0.3)
+    #>    checkmate      2.0.0      2020-02-06 [1] CRAN (R 4.0.2)
+    #>    cli            2.2.0      2020-11-20 [1] CRAN (R 4.0.3)
+    #>    cluster        2.1.0      2019-06-19 [1] CRAN (R 4.0.2)
+    #>    coda           0.19-4     2020-09-30 [1] CRAN (R 4.0.2)
+    #>    codetools      0.2-18     2020-11-04 [1] CRAN (R 4.0.2)
+    #>    colorspace     2.0-0      2020-11-11 [1] CRAN (R 4.0.3)
+    #>    colourpicker   1.1.0      2020-09-14 [1] CRAN (R 4.0.2)
+    #>    crayon         1.3.4      2017-09-16 [1] CRAN (R 4.0.2)
+    #>    crosstalk      1.1.1      2021-01-12 [1] CRAN (R 4.0.3)
+    #>    curl           4.3        2019-12-02 [1] CRAN (R 4.0.2)
+    #>    data.table     1.13.6     2020-12-30 [1] CRAN (R 4.0.3)
+    #>    DBI            1.1.1      2021-01-15 [1] CRAN (R 4.0.3)
+    #>    digest         0.6.27     2020-10-24 [1] CRAN (R 4.0.3)
+    #>    dplyr        * 1.0.3      2021-01-15 [1] CRAN (R 4.0.3)
+    #>    DT             0.17       2021-01-06 [1] CRAN (R 4.0.3)
+    #>    dygraphs       1.1.1.6    2018-07-11 [1] CRAN (R 4.0.2)
+    #>    ellipsis       0.3.1      2020-05-15 [1] CRAN (R 4.0.2)
+    #>    evaluate       0.14       2019-05-28 [1] CRAN (R 4.0.2)
+    #>    fansi          0.4.2      2021-01-15 [1] CRAN (R 4.0.3)
+    #>    farver         2.0.3      2020-01-16 [1] CRAN (R 4.0.2)
+    #>    fastmap        1.1.0      2021-01-25 [1] CRAN (R 4.0.3)
+    #>    foreign        0.8-81     2020-12-22 [1] CRAN (R 4.0.3)
+    #>    Formula        1.2-4      2020-10-16 [1] CRAN (R 4.0.2)
+    #>    generics       0.1.0      2020-10-31 [1] CRAN (R 4.0.3)
+    #>    ggplot2      * 3.3.3      2020-12-30 [1] CRAN (R 4.0.3)
+    #>    ggrepel        0.9.1      2021-01-15 [1] CRAN (R 4.0.3)
+    #>    ggridges       0.5.3      2021-01-08 [1] CRAN (R 4.0.3)
+    #>    git2r          0.28.0     2021-01-10 [1] CRAN (R 4.0.3)
+    #>    glue           1.4.2      2020-08-27 [1] CRAN (R 4.0.2)
+    #>    gridExtra      2.3        2017-09-09 [1] CRAN (R 4.0.2)
+    #>    gtable         0.3.0      2019-03-25 [1] CRAN (R 4.0.2)
+    #>    gtools         3.8.2      2020-03-31 [1] CRAN (R 4.0.0)
+    #>    here           1.0.1      2020-12-13 [1] CRAN (R 4.0.3)
+    #>    highr          0.8        2019-03-20 [1] CRAN (R 4.0.2)
+    #>    Hmisc          4.4-2      2020-11-29 [1] CRAN (R 4.0.3)
+    #>    htmlTable      2.1.0      2020-09-16 [1] CRAN (R 4.0.2)
+    #>    htmltools      0.5.1.1    2021-01-22 [1] CRAN (R 4.0.3)
+    #>    htmlwidgets    1.5.3      2020-12-10 [1] CRAN (R 4.0.3)
+    #>    httpuv         1.5.5      2021-01-13 [1] CRAN (R 4.0.3)
+    #>    igraph         1.2.6      2020-10-06 [1] CRAN (R 4.0.2)
+    #>    inline         0.3.17     2020-12-01 [1] CRAN (R 4.0.3)
+    #>    jpeg           0.1-8.1    2019-10-24 [1] CRAN (R 4.0.0)
+    #>    jsonlite       1.7.2      2020-12-09 [1] CRAN (R 4.0.3)
+    #>    knitr        * 1.31       2021-01-27 [1] CRAN (R 4.0.3)
+    #>    labeling       0.4.2      2020-10-20 [1] CRAN (R 4.0.2)
+    #>    later          1.1.0.1    2020-06-05 [1] CRAN (R 4.0.2)
+    #>    lattice        0.20-41    2020-04-02 [1] CRAN (R 4.0.2)
+    #>    latticeExtra   0.6-29     2019-12-19 [1] CRAN (R 4.0.2)
+    #>    lifecycle      0.2.0      2020-03-06 [1] CRAN (R 4.0.2)
+    #>    lme4           1.1-26     2020-12-01 [1] CRAN (R 4.0.3)
+    #>    loo            2.4.1      2020-12-09 [1] CRAN (R 4.0.3)
+    #>    magrittr       2.0.1      2020-11-17 [1] CRAN (R 4.0.3)
+    #>    markdown       1.1        2019-08-07 [1] CRAN (R 4.0.2)
+    #>    MASS           7.3-53     2020-09-09 [1] CRAN (R 4.0.2)
+    #>    Matrix         1.2-18     2019-11-27 [1] CRAN (R 4.0.3)
+    #>    matrixStats    0.57.0     2020-09-25 [1] CRAN (R 4.0.2)
+    #>    mgcv           1.8-33     2020-08-27 [1] CRAN (R 4.0.2)
+    #>    mime           0.9        2020-02-04 [1] CRAN (R 4.0.0)
+    #>    miniUI         0.1.1.1    2018-05-18 [1] CRAN (R 4.0.2)
+    #>    minqa          1.2.4      2014-10-09 [1] CRAN (R 4.0.2)
+    #>    munsell        0.5.0      2018-06-12 [1] CRAN (R 4.0.2)
+    #>    nlme           3.1-151    2020-12-10 [1] CRAN (R 4.0.3)
+    #>    nloptr         1.2.2.2    2020-07-02 [1] CRAN (R 4.0.2)
+    #>    nnet           7.3-15     2021-01-24 [1] CRAN (R 4.0.3)
+    #>    pillar         1.4.7      2020-11-20 [1] CRAN (R 4.0.3)
+    #>    pkgbuild       1.2.0      2020-12-15 [1] CRAN (R 4.0.3)
+    #>    pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.0.2)
+    #>    plyr           1.8.6      2020-03-03 [1] CRAN (R 4.0.2)
+    #>    png            0.1-7      2013-12-03 [1] CRAN (R 4.0.0)
+    #>    prettyunits    1.1.1      2020-01-24 [1] CRAN (R 4.0.2)
+    #>    processx       3.4.5      2020-11-30 [1] CRAN (R 4.0.3)
+    #>    promises       1.1.1      2020-06-09 [1] CRAN (R 4.0.2)
+    #>    ps             1.5.0      2020-12-05 [1] CRAN (R 4.0.3)
+    #>    purrr          0.3.4      2020-04-17 [1] CRAN (R 4.0.2)
+    #>    R6             2.5.0      2020-10-28 [1] CRAN (R 4.0.2)
+    #>    RColorBrewer   1.1-2      2014-12-07 [1] CRAN (R 4.0.0)
+    #>    Rcpp         * 1.0.6      2021-01-15 [1] CRAN (R 4.0.3)
+    #>  D RcppParallel   5.0.2      2020-06-24 [1] CRAN (R 4.0.2)
+    #>    reshape2       1.4.4      2020-04-09 [1] CRAN (R 4.0.2)
+    #>    rlang          0.4.10     2020-12-30 [1] CRAN (R 4.0.3)
+    #>    rpart          4.1-15     2019-04-12 [1] CRAN (R 4.0.2)
+    #>    rprojroot      2.0.2      2020-11-15 [1] CRAN (R 4.0.3)
+    #>    rsconnect      0.8.16     2019-12-13 [1] CRAN (R 4.0.2)
+    #>    rstan          2.21.2     2020-07-27 [1] CRAN (R 4.0.2)
+    #>    rstanarm     * 2.21.1     2020-07-20 [1] CRAN (R 4.0.2)
+    #>    rstantools     2.1.1      2020-07-06 [1] CRAN (R 4.0.2)
+    #>    rstudioapi     0.13       2020-11-12 [1] CRAN (R 4.0.3)
+    #>    scales         1.1.1      2020-05-11 [1] CRAN (R 4.0.2)
+    #>    sessioninfo    1.1.1      2018-11-05 [1] CRAN (R 4.0.2)
+    #>    shiny          1.6.0      2021-01-25 [1] CRAN (R 4.0.3)
+    #>    shinyjs        2.0.0      2020-09-09 [1] CRAN (R 4.0.2)
+    #>    shinystan      2.5.0      2018-05-01 [1] CRAN (R 4.0.2)
+    #>    shinythemes    1.2.0      2021-01-25 [1] CRAN (R 4.0.3)
+    #>    StanHeaders    2.21.0-7   2020-12-17 [1] CRAN (R 4.0.3)
+    #>    statmod        1.4.35     2020-10-19 [1] CRAN (R 4.0.3)
+    #>    stringi        1.5.3      2020-09-09 [1] CRAN (R 4.0.2)
+    #>    stringr        1.4.0      2019-02-10 [1] CRAN (R 4.0.2)
+    #>    survival       3.2-7      2020-09-28 [1] CRAN (R 4.0.2)
+    #>    threejs        0.3.3      2020-01-21 [1] CRAN (R 4.0.2)
+    #>    tibble         3.0.5      2021-01-15 [1] CRAN (R 4.0.3)
+    #>    tidyr          1.1.2      2020-08-27 [1] CRAN (R 4.0.2)
+    #>    tidyselect     1.1.0      2020-05-11 [1] CRAN (R 4.0.2)
+    #>    utf8           1.1.4      2018-05-24 [1] CRAN (R 4.0.2)
+    #>    V8             3.4.0      2020-11-04 [1] CRAN (R 4.0.3)
+    #>    vctrs          0.3.6      2020-12-17 [1] CRAN (R 4.0.3)
+    #>    withr          2.4.1      2021-01-26 [1] CRAN (R 4.0.3)
+    #>    xfun           0.20       2021-01-06 [1] CRAN (R 4.0.3)
+    #>    xtable         1.8-4      2019-04-21 [1] CRAN (R 4.0.2)
+    #>    xts            0.12.1     2020-09-09 [1] CRAN (R 4.0.2)
+    #>    zoo            1.8-8      2020-05-02 [1] CRAN (R 4.0.2)
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    #> 
+    #>  D -- DLL MD5 mismatch, broken installation.
+    ```
+
+[^1]: That is, if we map the plot's color aesthetic to a categorical variable 
+    in the data, `stat_smooth()` will fit a separate model for each 
+    color/category. I figured this out when I tried to write my own function 
+    `stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) 
+    and noticed that RStanARM was printing out MCMC sampling information for 
+    each color/category of the data. 
 
 
 [ggplot2-mammals]: https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2/msleep.html

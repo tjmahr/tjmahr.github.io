@@ -27,12 +27,12 @@ write unnecessary comments about how to cite stuff in APA. And the problem is
 just subtle and pervasive enough that it doesn't make sense to manually fix
 the citations each time I generate my manuscript. My current project has 15 of
 these ill-formatted citations. That number is just big enough to make manual
-corrections an error-prone process--- easy to miss 1 in 15.
+corrections an error-prone process---easy to miss 1 in 15.
 
 ## Find and replace
 
-I wrote a quick R function that replaces all those inlined ampersands with
-"and"s. 
+I wrote a quick R function that replaces all those inline ampersands with
+*and*'s. 
 
 
 ```r
@@ -54,9 +54,9 @@ just four digits: `\\d{4}`.
   re_inline_year <- "[(]\\d{4}[)]"
 ```
 
-**What's in a name?** Here we have to stick our necks out a little bit more about
-our assumptions. I'm going to assume a last name is any combination of letters,
-hyphens and spaces (spaces needed for `von Name`).
+**What's in a name?** Here we have to stick our necks out a little bit more
+about our assumptions. I'm going to assume a last name is any combination of
+letters, hyphens and spaces (spaces needed for `von Name`).
 
 
 ```r
@@ -71,16 +71,16 @@ We define the ampersand.
   re_ampersand <- " & "
 ```
 
-**Lookaround, lookaround**. Our last regular expression trick is [positive lookahead][regex-lookaround]. 
-Suppose we want just the word "hot" from the larger word "hotdog".
-Using just `hot` would match too many things, like the "hot" in "hoth". Using
-`hotdog` would match the whole word "hotdog", which is more than we asked for.
-Lookaround patterns allow us to impose more constraints on a pattern.
-In the "hotdog"" example, positive lookahead `hot(?=dog)` says find "hot" if it
-precedes "dog".
+**Lookaround, lookaround**. Our last regular expression trick is [positive
+lookahead][regex-lookaround]. Suppose we want just the word "hot" from the
+larger word "hotdog". Using just `hot` would match too many things, like the
+"hot" in "hoth". Using `hotdog` would match the whole word "hotdog", which is
+more than we asked for. Lookaround patterns allow us to impose more constraints
+on a pattern. In the "hotdog"" example, positive lookahead `hot(?=dog)` says
+find "hot" if it precedes "dog".
 
 We use positive lookahead to find only the ampersands followed by an author name
-and a year. We replace the strings that match this pattern with and's.
+and a year. We replace the strings that match this pattern with *and*'s.
 
 
 
@@ -100,7 +100,8 @@ do_fix <- c(
   "Jones & Name (2005) found...",
   "Jones & Hyphen-Name (2005) found...",
   "Jones & Space Name (2005) found...",
-  "Marge, Maggie, & Lisa (2005) found...")
+  "Marge, Maggie, & Lisa (2005) found..."
+)
 
 fix_inline_citations(do_fix)
 #> [1] "Jones and Name (2005) found..."         
@@ -112,7 +113,8 @@ do_not_fix <- c(
   "...have been found (Jones & Name, 2005)",
   "...have been found (Jones & Hyphen-Name, 2005)",
   "...have been found (Jones & Space Name, 2005)",
-  "...have been found (Marge, Maggie, & Lisa, 2005)")  
+  "...have been found (Marge, Maggie, & Lisa, 2005)"
+)  
 
 fix_inline_citations(do_not_fix)
 #> [1] "...have been found (Jones & Name, 2005)"         
@@ -132,11 +134,11 @@ of managing complexity by combining/composing simpler primitives.)
 These are complications that arose as I tried to use the function on my actual
 manuscript:
 
-**Placing it in a build pipeline**. My text starts with an RMarkdown file
-that is knitted into a markdown file and rendered into other formats by
-pandoc. Because this function post-processes output from pandoc, I can't
-just hit the "Knit"" button in RStudio. I had to make a separate script to
-do `rmarkdown::render` to convert my .Rmd file into a .md file which can then be
+**Placing it in a build pipeline**. My text starts with an RMarkdown file that
+is knitted into a markdown file and rendered into other formats by pandoc.
+Because this function post-processes output from pandoc, I can't just hit the
+"Knit" button in RStudio. I had to make a separate script to do
+`rmarkdown::render()` to convert my .Rmd file into a .md file which can then be
 processed by this function.
 
 **Don't fix too much**. When pandoc does your references for you, it also does
@@ -144,9 +146,9 @@ a bibliography section. But it would be wrong to fix the ampersands there. So
 I have to do a bit of fussing around by finding the line `"## References"` and
 processing just the text up until that line.
 
-**Accounting for encoding**. I use `readr::read_lines` and
-`stringi::stri_write_lines` to read and write the text file to preserve the
-encoding of characters. (readr just released its own `write_lines` today
+**Accounting for encoding**. I use `readr::read_lines()` and
+`stringi::stri_write_lines()` to read and write the text file to preserve the
+encoding of characters. (readr just released its own `write_lines()` today
 actually, so I can't vouch for it yet.)
 
 **False matches are still possible**. Suppose I'm citing a publication by an
@@ -154,6 +156,51 @@ organization, like Johnson & Johnson, where that ampersand is part of the name.
 That citation would [wrongly be corrected][pandoc-issue]. I have yet to face
 that issue in practice though.
 
+
+
+***
+
+*Last knitted on 2021-02-02. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-08-04-fixing-apa-citations-from-pandoc.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-02                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package     * version date       lib source        
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
+    #>  cli           2.2.0   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  crayon        1.3.4   2017-09-16 [1] CRAN (R 4.0.2)
+    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.2)
+    #>  fansi         0.4.2   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
+    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
+    #>  knitr       * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
+    #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
+    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
+    #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
+    #>  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
+    #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
+    #>  withr         2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun          0.20    2021-01-06 [1] CRAN (R 4.0.3)
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```
 
 [pandoc-home]: http://pandoc.org/ "pandoc: a universal document converter"
 [apa-owl]: https://owl.english.purdue.edu/owl/section/2/10/ "Purdue Online Writing Lab: APA Style" 

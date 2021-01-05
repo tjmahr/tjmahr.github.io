@@ -80,12 +80,8 @@ mtcars %>%
   as_tibble()
 ```
 
-***
-
-*Last knitted on `r format(Sys.Date())`. [Source code on
-GitHub](`r file.path(git2r::remote_url(remote = "origin"), "blob/master/_R", knitr::current_input())`).*[^si] 
-
-[^si]: 
-    ```{r, results = "markup"}
-    sessioninfo::session_info()
-    ```
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```

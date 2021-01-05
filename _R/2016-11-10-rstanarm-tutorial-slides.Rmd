@@ -1,19 +1,26 @@
 ---
 title: "Slides from my RStanARM tutorial"
-excerpt: "Trial by :fire:"
+excerpt: "Trial by `r emo::ji('fire')`"
 tags:
   - rstanarm
   - bayesian
 ---
 
-Back in September, I gave a tutorial on [RStanARM](https://cran.rstudio.com/web/packages/rstanarm/) to the [Madison R user's group](https://www.meetup.com/MadR-Madison-R-Programming-UseRs-Group/). As I did for [my magrittr tutorial](https://github.com/tjmahr/MadR_Pipelines), I broke the content down into slide decks. They were:
+Back in September, I gave a tutorial on
+[RStanARM](https://cran.rstudio.com/web/packages/rstanarm/) to the [Madison R
+user's group](https://www.meetup.com/MadR-Madison-R-Programming-UseRs-Group/).
+As I did for [my magrittr tutorial](https://github.com/tjmahr/MadR_Pipelines), I
+broke the content down into slide decks. They were:
 
-- [How I got into Bayesian statistics](http://rpubs.com/tjmahr/rep-crisis)
-- [Some intuition-building about Bayes theorem](http://rpubs.com/tjmahr/bayes-theorem)
-- [Tour of RStanARM](http://rpubs.com/tjmahr/rstanarm-tour)
-- [Where to learn more about Bayesian statistics](http://rpubs.com/tjmahr/bayes-learn-more)
+  - [How I got into Bayesian statistics](http://rpubs.com/tjmahr/rep-crisis)
+  - [Some intuition-building about Bayes
+    theorem](http://rpubs.com/tjmahr/bayes-theorem)
+  - [Tour of RStanARM](http://rpubs.com/tjmahr/rstanarm-tour)
+  - [Where to learn more about Bayesian
+    statistics](http://rpubs.com/tjmahr/bayes-learn-more)
 
-The source code and supporting materials are [on Github](https://github.com/tjmahr/MadR_RStanARM).
+The source code and supporting materials are [on
+Github](https://github.com/tjmahr/MadR_RStanARM).
 
 
 Observations (training data) 
@@ -24,7 +31,7 @@ had to brush up on Bayesian statistics well enough to informally, hand-wavily
 teach about it to a crowd of R users. Like, I have good sense of how to fit 
 these models and interpret them in practice, but there's a gulf between 
 understanding something and teaching about it. It was a bit of trial by fire
-:fire:.
+`r emo::ji('fire')`.
 
 One thing I did was work through a toy Bayesian updating demo. What's the mean of
 some IQ scores, assuming a standard deviation of 15 and a flat prior over a 
@@ -55,5 +62,10 @@ We can fit vanilla regression models or get really, really fancy, but it all
 kind of emerges nicely from the general framework of writing out priors and a
 likelihood definition.
 
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
 [^1]: But I was taught the classical models first... I sometimes think that these models are only more intuitive because this is my second bite at the apple. This learning came more easily because the first time I learned regression, I was a total novice and had to learn everything. I had learn to about _t_-test, reductions in variance, collinearity, and what interactions do. Here, I can build off of that prior learning. Maybe if I learn everything again---as what? everything as a neural network?---it will be even more intuitive. 

@@ -135,12 +135,12 @@ quosures
 #> $zMPG
 #> <quosure>
 #> expr: ^z_round(mpg)
-#> env:  00000000165A9EC8
+#> env:  000000001693D798
 #> 
 #> $zHP
 #> <quosure>
 #> expr: ^z_round(hp)
-#> env:  00000000165A9EC8
+#> env:  000000001693D798
 
 mtcars %>% 
   mutate(!!! quosures) %>% 
@@ -161,9 +161,11 @@ mtcars %>%
 #> # ... with 22 more rows
 ```
 
+
+
 ***
 
-*Last knitted on 2021-01-04. [Source code on
+*Last knitted on 2021-02-02. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-03-23-setnames-dots.Rmd).*[^si] 
 
 [^si]: 
@@ -180,37 +182,40 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-03-23-set
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-01-04                  
+    #>  date     2021-02-02                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package     * version date       lib source        
     #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
     #>  cli           2.2.0   2020-11-20 [1] CRAN (R 4.0.3)
     #>  crayon        1.3.4   2017-09-16 [1] CRAN (R 4.0.2)
-    #>  dplyr       * 1.0.2   2020-08-18 [1] CRAN (R 4.0.2)
+    #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  dplyr       * 1.0.3   2021-01-15 [1] CRAN (R 4.0.3)
     #>  ellipsis      0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
     #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.2)
-    #>  fansi         0.4.1   2020-01-08 [1] CRAN (R 4.0.2)
+    #>  fansi         0.4.2   2021-01-15 [1] CRAN (R 4.0.3)
     #>  generics      0.1.0   2020-10-31 [1] CRAN (R 4.0.3)
-    #>  git2r         0.27.1  2020-05-03 [1] CRAN (R 4.0.2)
+    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
     #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
-    #>  knitr       * 1.30    2020-09-22 [1] CRAN (R 4.0.2)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
+    #>  knitr       * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
     #>  lifecycle     0.2.0   2020-03-06 [1] CRAN (R 4.0.2)
     #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
     #>  pillar        1.4.7   2020-11-20 [1] CRAN (R 4.0.3)
     #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.0.2)
     #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
     #>  R6            2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
-    #>  rlang         0.4.9   2020-11-26 [1] CRAN (R 4.0.3)
+    #>  rlang         0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
+    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
     #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
     #>  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
     #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
-    #>  tibble        3.0.4   2020-10-12 [1] CRAN (R 4.0.3)
+    #>  tibble        3.0.5   2021-01-15 [1] CRAN (R 4.0.3)
     #>  tidyselect    1.1.0   2020-05-11 [1] CRAN (R 4.0.2)
     #>  utf8          1.1.4   2018-05-24 [1] CRAN (R 4.0.2)
     #>  vctrs         0.3.6   2020-12-17 [1] CRAN (R 4.0.3)
-    #>  withr         2.3.0   2020-09-22 [1] CRAN (R 4.0.2)
-    #>  xfun          0.19    2020-10-30 [1] CRAN (R 4.0.3)
+    #>  withr         2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun          0.20    2021-01-06 [1] CRAN (R 4.0.3)
     #> 
     #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
     #> [2] C:/Program Files/R/R-4.0.3/library

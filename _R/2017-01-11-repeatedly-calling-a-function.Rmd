@@ -218,3 +218,10 @@ and [follow-up blog post
 here](https://tailrecursion.com/wondr/posts/tail-recursion-in-r.html). [_Oct.
 13, 2017_]
 {: .notice--info}
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```

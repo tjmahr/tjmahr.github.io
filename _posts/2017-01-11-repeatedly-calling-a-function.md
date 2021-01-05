@@ -209,12 +209,9 @@ microbenchmark::microbenchmark(
   times = 1000
 )
 #> Unit: microseconds
-#>        expr      min       lq     mean   median       uq      max neval
-#>  with_while  952.152 1006.612 1246.617 1051.803 1131.922 47775.11  1000
-#>  with_recur 1081.268 1154.930 1412.638 1218.662 1330.562 48546.50  1000
-#>  cld
-#>   a 
-#>    b
+#>        expr   min      lq      mean median      uq    max neval cld
+#>  with_while 894.6  922.00  988.7468  933.2  960.95 4283.7  1000  a 
+#>  with_recur 992.4 1034.25 1171.8250 1066.6 1142.50 6805.3  1000   b
 ```
 
 But I don't usually worry about performance unless I can notice the computation
@@ -226,7 +223,7 @@ recursion when I crank up the number of repetitions:
 
 ```r
 repeated(1:20, 1000, shuffle)
-#>  [1]  4  8  5  1 15  2  7 13 14 11  9  3 17 20 12  6 10 18 19 16
+#>  [1]  1 12 14  2  5  6 15 10  3 16  8 18  9  7 20 19 11 17  4 13
 rrrepeated(1:20, 1000, shuffle)
 #> Error: evaluation nested too deeply: infinite recursion / options(expressions=)?
 ```
@@ -248,3 +245,63 @@ and [follow-up blog post
 here](https://tailrecursion.com/wondr/posts/tail-recursion-in-r.html). [_Oct.
 13, 2017_]
 {: .notice--info}
+
+
+
+
+***
+
+*Last knitted on 2021-02-02. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-repeatedly-calling-a-function.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-02                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package        * version date       lib source        
+    #>  assertthat       0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
+    #>  cli              2.2.0   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  codetools        0.2-18  2020-11-04 [1] CRAN (R 4.0.2)
+    #>  crayon           1.3.4   2017-09-16 [1] CRAN (R 4.0.2)
+    #>  evaluate         0.14    2019-05-28 [1] CRAN (R 4.0.2)
+    #>  fansi            0.4.2   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  git2r            0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
+    #>  glue             1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  here             1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
+    #>  knitr          * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
+    #>  lattice          0.20-41 2020-04-02 [1] CRAN (R 4.0.2)
+    #>  magrittr         2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
+    #>  MASS             7.3-53  2020-09-09 [1] CRAN (R 4.0.2)
+    #>  Matrix           1.2-18  2019-11-27 [1] CRAN (R 4.0.3)
+    #>  microbenchmark   1.4-7   2019-09-24 [1] CRAN (R 4.0.3)
+    #>  multcomp         1.4-15  2020-11-14 [1] CRAN (R 4.0.3)
+    #>  mvtnorm          1.1-1   2020-06-09 [1] CRAN (R 4.0.0)
+    #>  purrr          * 0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
+    #>  rlang            0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
+    #>  rprojroot        2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
+    #>  sandwich         3.0-0   2020-10-02 [1] CRAN (R 4.0.2)
+    #>  sessioninfo      1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
+    #>  stringi          1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
+    #>  stringr          1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
+    #>  survival         3.2-7   2020-09-28 [1] CRAN (R 4.0.2)
+    #>  TH.data          1.0-10  2019-01-21 [1] CRAN (R 4.0.2)
+    #>  withr            2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun             0.20    2021-01-06 [1] CRAN (R 4.0.3)
+    #>  zoo              1.8-8   2020-05-02 [1] CRAN (R 4.0.2)
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```

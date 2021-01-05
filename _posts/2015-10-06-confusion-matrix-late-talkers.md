@@ -149,9 +149,11 @@ calls)[^PPV] is 14/36 = 0.913. The negative predictive value is noteworthy;
 most children not diagnosed as late talkers did not show a delay one year later
 (NPV = 42/46 = 0.3889).
 
+
+
 ***
 
-*Last knitted on 2021-01-05. [Source code on
+*Last knitted on 2021-02-02. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2015-10-06-confusion-matrix-late-talkers.Rmd).*[^si] 
 
 [^si]: 
@@ -168,68 +170,71 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2015-10-06-con
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-01-05                  
+    #>  date     2021-02-02                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package      * version    date       lib source        
     #>  assertthat     0.2.1      2019-03-21 [1] CRAN (R 4.0.2)
     #>  caret          6.0-86     2020-03-20 [1] CRAN (R 4.0.2)
-    #>  class          7.3-17     2020-04-26 [1] CRAN (R 4.0.2)
+    #>  class          7.3-18     2021-01-24 [1] CRAN (R 4.0.3)
     #>  cli            2.2.0      2020-11-20 [1] CRAN (R 4.0.3)
     #>  codetools      0.2-18     2020-11-04 [1] CRAN (R 4.0.2)
     #>  colorspace     2.0-0      2020-11-11 [1] CRAN (R 4.0.3)
     #>  crayon         1.3.4      2017-09-16 [1] CRAN (R 4.0.2)
-    #>  data.table     1.13.4     2020-12-08 [1] CRAN (R 4.0.3)
-    #>  dplyr        * 1.0.2      2020-08-18 [1] CRAN (R 4.0.2)
+    #>  data.table     1.13.6     2020-12-30 [1] CRAN (R 4.0.3)
+    #>  DBI            1.1.1      2021-01-15 [1] CRAN (R 4.0.3)
+    #>  dplyr        * 1.0.3      2021-01-15 [1] CRAN (R 4.0.3)
     #>  e1071          1.7-4      2020-10-14 [1] CRAN (R 4.0.3)
     #>  ellipsis       0.3.1      2020-05-15 [1] CRAN (R 4.0.2)
     #>  evaluate       0.14       2019-05-28 [1] CRAN (R 4.0.2)
-    #>  fansi          0.4.1      2020-01-08 [1] CRAN (R 4.0.2)
+    #>  fansi          0.4.2      2021-01-15 [1] CRAN (R 4.0.3)
     #>  foreach        1.5.1      2020-10-15 [1] CRAN (R 4.0.3)
     #>  generics       0.1.0      2020-10-31 [1] CRAN (R 4.0.3)
     #>  ggplot2        3.3.3      2020-12-30 [1] CRAN (R 4.0.3)
-    #>  git2r          0.27.1     2020-05-03 [1] CRAN (R 4.0.2)
+    #>  git2r          0.28.0     2021-01-10 [1] CRAN (R 4.0.3)
     #>  glue           1.4.2      2020-08-27 [1] CRAN (R 4.0.2)
     #>  gower          0.2.2      2020-06-23 [1] CRAN (R 4.0.2)
     #>  gtable         0.3.0      2019-03-25 [1] CRAN (R 4.0.2)
+    #>  here           1.0.1      2020-12-13 [1] CRAN (R 4.0.3)
     #>  ipred          0.9-9      2019-04-28 [1] CRAN (R 4.0.2)
     #>  iterators      1.0.13     2020-10-15 [1] CRAN (R 4.0.3)
-    #>  knitr        * 1.30       2020-09-22 [1] CRAN (R 4.0.2)
+    #>  knitr        * 1.31       2021-01-27 [1] CRAN (R 4.0.3)
     #>  lattice        0.20-41    2020-04-02 [1] CRAN (R 4.0.2)
     #>  lava           1.6.8.1    2020-11-04 [1] CRAN (R 4.0.2)
     #>  lifecycle      0.2.0      2020-03-06 [1] CRAN (R 4.0.2)
     #>  lubridate      1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)
     #>  magrittr       2.0.1      2020-11-17 [1] CRAN (R 4.0.3)
     #>  MASS           7.3-53     2020-09-09 [1] CRAN (R 4.0.2)
-    #>  Matrix         1.2-18     2019-11-27 [1] CRAN (R 4.0.2)
+    #>  Matrix         1.2-18     2019-11-27 [1] CRAN (R 4.0.3)
     #>  ModelMetrics   1.2.2.2    2020-03-17 [1] CRAN (R 4.0.2)
     #>  munsell        0.5.0      2018-06-12 [1] CRAN (R 4.0.2)
     #>  nlme           3.1-151    2020-12-10 [1] CRAN (R 4.0.3)
-    #>  nnet           7.3-14     2020-04-26 [1] CRAN (R 4.0.2)
+    #>  nnet           7.3-15     2021-01-24 [1] CRAN (R 4.0.3)
     #>  pillar         1.4.7      2020-11-20 [1] CRAN (R 4.0.3)
     #>  pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.0.2)
     #>  plyr           1.8.6      2020-03-03 [1] CRAN (R 4.0.2)
-    #>  pROC           1.16.2     2020-03-19 [1] CRAN (R 4.0.2)
+    #>  pROC           1.17.0.1   2021-01-13 [1] CRAN (R 4.0.3)
     #>  prodlim        2019.11.13 2019-11-17 [1] CRAN (R 4.0.2)
     #>  purrr          0.3.4      2020-04-17 [1] CRAN (R 4.0.2)
     #>  R6             2.5.0      2020-10-28 [1] CRAN (R 4.0.2)
-    #>  Rcpp           1.0.5      2020-07-06 [1] CRAN (R 4.0.2)
+    #>  Rcpp           1.0.6      2021-01-15 [1] CRAN (R 4.0.3)
     #>  recipes        0.1.15     2020-11-11 [1] CRAN (R 4.0.2)
     #>  reshape2       1.4.4      2020-04-09 [1] CRAN (R 4.0.2)
-    #>  rlang          0.4.9      2020-11-26 [1] CRAN (R 4.0.3)
+    #>  rlang          0.4.10     2020-12-30 [1] CRAN (R 4.0.3)
     #>  rpart          4.1-15     2019-04-12 [1] CRAN (R 4.0.2)
+    #>  rprojroot      2.0.2      2020-11-15 [1] CRAN (R 4.0.3)
     #>  scales         1.1.1      2020-05-11 [1] CRAN (R 4.0.2)
     #>  sessioninfo    1.1.1      2018-11-05 [1] CRAN (R 4.0.2)
     #>  stringi        1.5.3      2020-09-09 [1] CRAN (R 4.0.2)
     #>  stringr        1.4.0      2019-02-10 [1] CRAN (R 4.0.2)
     #>  survival       3.2-7      2020-09-28 [1] CRAN (R 4.0.2)
-    #>  tibble         3.0.4      2020-10-12 [1] CRAN (R 4.0.3)
+    #>  tibble         3.0.5      2021-01-15 [1] CRAN (R 4.0.3)
     #>  tidyselect     1.1.0      2020-05-11 [1] CRAN (R 4.0.2)
     #>  timeDate       3043.102   2018-02-21 [1] CRAN (R 4.0.0)
     #>  utf8           1.1.4      2018-05-24 [1] CRAN (R 4.0.2)
     #>  vctrs          0.3.6      2020-12-17 [1] CRAN (R 4.0.3)
-    #>  withr          2.3.0      2020-09-22 [1] CRAN (R 4.0.2)
-    #>  xfun           0.19       2020-10-30 [1] CRAN (R 4.0.3)
+    #>  withr          2.4.1      2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun           0.20       2021-01-06 [1] CRAN (R 4.0.3)
     #> 
     #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
     #> [2] C:/Program Files/R/R-4.0.3/library

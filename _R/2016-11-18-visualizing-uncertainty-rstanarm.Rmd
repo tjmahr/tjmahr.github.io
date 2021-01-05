@@ -53,26 +53,31 @@ rest of this tutorial.
 ```{r}
 msleep <- msleep %>% 
   filter(!is.na(brainwt)) %>% 
-  mutate(log_brainwt = log10(brainwt), 
-         log_bodywt = log10(bodywt), 
-         log_sleep_total = log10(sleep_total))
+  mutate(
+    log_brainwt = log10(brainwt), 
+    log_bodywt = log10(bodywt), 
+    log_sleep_total = log10(sleep_total)
+  )
 ```
 
 Now, plot the log-transformed data. But let's also get a little fancy and label
-the points for some example critters :cat: so that we can get some intuition
+the points for some example critters 🐱 so that we can get some intuition
 about the data in this scaling. (Plus, I wanted to try out the [annotation
 tips][r4ds-labels] from the _R4DS_ book.)
 
 ```{r log-brain-sleep, fig.cap = "Brain mass by sleep hours, now with both on a log-10 scale. Some species have their data highlighted."}
 # Create a separate data-frame of species to highlight
-ex_mammals <- c("Domestic cat", "Human", "Dog", "Cow", "Rabbit",
-                "Big brown bat", "House mouse", "Horse", "Golden hamster")
+ex_mammals <- c(
+  "Domestic cat", "Human", "Dog", "Cow", "Rabbit",
+  "Big brown bat", "House mouse", "Horse", "Golden hamster"
+)
 
 # We will give some familiar species shorter names
 renaming_rules <- c(
   "Domestic cat" = "Cat", 
   "Golden hamster" = "Hamster", 
-  "House mouse" = "Mouse")
+  "House mouse" = "Mouse"
+)
 
 ex_points <- msleep %>% 
   filter(name %in% ex_mammals) %>% 
@@ -96,7 +101,7 @@ ggplot(msleep) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_raw)
 ```
 
-As a child growing up on a dairy farm :cow:, it was remarkable to me how little 
+As a child growing up on a dairy farm 🐮, it was remarkable to me how little 
 I saw cows sleeping, compared to dogs or cats. Were they okay? Are they 
 constantly tired and groggy? Maybe they are asleep when I'm asleep? Here, it
 looks like they just don't need very much sleep.
@@ -167,7 +172,8 @@ m1 <- stan_glm(
   family = gaussian(), 
   data = msleep, 
   prior = normal(0, 3),
-  prior_intercept = normal(0, 3))
+  prior_intercept = normal(0, 3)
+)
 ```
 
 We now have 4,000 credible regressions lines for our data.
@@ -197,7 +203,7 @@ data-frame with all 4,000 regression lines.
 # Coercing a model to a data-frame returns data-frame of posterior samples. 
 # One row per sample.
 fits <- m1 %>% 
-  as_data_frame %>% 
+  as_tibble() %>% 
   rename(intercept = `(Intercept)`) %>% 
   select(-sigma)
 fits
@@ -216,13 +222,19 @@ col_median <-  "#3366FF"
 ggplot(msleep) + 
   aes(x = log_brainwt, y = log_sleep_total) + 
   # Plot a random sample of rows as gray semi-transparent lines
-  geom_abline(aes(intercept = intercept, slope = log_brainwt), 
-              data = sample_n(fits, n_draws), color = col_draw, 
-              alpha = alpha_level) + 
+  geom_abline(
+    aes(intercept = intercept, slope = log_brainwt), 
+    data = sample_n(fits, n_draws), 
+    color = col_draw, 
+    alpha = alpha_level
+  ) + 
   # Plot the median values in blue
-  geom_abline(intercept = median(fits$intercept), 
-              slope = median(fits$log_brainwt), 
-              size = 1, color = col_median) +
+  geom_abline(
+    intercept = median(fits$intercept), 
+    slope = median(fits$log_brainwt), 
+    size = 1, 
+    color = col_median
+  ) +
   geom_point() + 
   scale_x_continuous(labels = function(x) 10 ^ x) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
@@ -238,7 +250,7 @@ of the more extreme (yet still plausible) lines.
 
 The advantage of this plot is that it is a direct visualization of posterior 
 samples---one line per sample. It provides an estimate for the central tendency
-in the data but it also converys uncertainty around that estimate. 
+in the data but it also conveys uncertainty around that estimate. 
 
 This approach has limitations, however. Lines for subgroups require a little 
 more effort to undo interactions. Also, the regression lines span the whole _x_ 
@@ -262,9 +274,10 @@ sequence of 80 points along the range of the data.
 ```{r}
 x_rng <- range(msleep$log_brainwt) 
 x_steps <- seq(x_rng[1], x_rng[2], length.out = 80)
-new_data <- data_frame(
+new_data <- tibble(
   observation = seq_along(x_steps), 
-  log_brainwt = x_steps)
+  log_brainwt = x_steps
+)
 new_data
 ```
 
@@ -284,25 +297,31 @@ column included in `new_data`. I store these steps in a function because I
 have to do them again later in this post.
 
 ```{r}
-tidy_predictions <- function(mat_pred, df_data, obs_name = "observation",
-                             prob_lwr = .025, prob_upr = .975) {
+tidy_predictions <- function(
+  mat_pred, 
+  df_data, 
+  obs_name = "observation",
+  prob_lwr = .025, 
+  prob_upr = .975
+) {
   # Get data-frame with one row per fitted value per posterior sample
   df_pred <- mat_pred %>% 
-    as_data_frame %>% 
+    as_tibble() %>% 
     setNames(seq_len(ncol(.))) %>% 
     tibble::rownames_to_column("posterior_sample") %>% 
     tidyr::gather_(obs_name, "fitted", setdiff(names(.), "posterior_sample"))
-  df_pred
-  
+
   # Helps with joining later
   class(df_pred[[obs_name]]) <- class(df_data[[obs_name]])
   
   # Summarise prediction interval for each observation
   df_pred %>% 
     group_by_(obs_name) %>% 
-    summarise(median = median(fitted),
-              lower = quantile(fitted, prob_lwr), 
-              upper = quantile(fitted, prob_upr)) %>% 
+    summarise(
+      median = median(fitted),
+      lower = quantile(fitted, prob_lwr), 
+      upper = quantile(fitted, prob_upr)
+    ) %>% 
     left_join(df_data, by = obs_name)
 }
 
@@ -316,9 +335,18 @@ band.
 ```{r posterior-linpred-plot, fig.cap = "Brain mass by sleep hours, log-10 scale, plus the median and 95% uncertainty interval for the model-predicted mean."}
 p_linpread <- ggplot(msleep) + 
   aes(x = log_brainwt) + 
-  geom_ribbon(aes(ymin = lower, ymax = upper), data = df_pred_lin, 
-              alpha = 0.4, fill = "grey60") + 
-  geom_line(aes(y = median), data = df_pred_lin, colour = "#3366FF", size = 1) + 
+  geom_ribbon(
+    aes(ymin = lower, ymax = upper), 
+    data = df_pred_lin, 
+    alpha = 0.4, 
+    fill = "grey60"
+  ) + 
+  geom_line(
+    aes(y = median), 
+    data = df_pred_lin, 
+    colour = "#3366FF", 
+    size = 1
+  ) + 
   geom_point(aes(y = log_sleep_total)) + 
   scale_x_continuous(labels = function(x) 10 ^ x) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
@@ -340,7 +368,8 @@ virtually identical. With this much data and for this simple of a model, both
 types of models can make very similar estimates.
 
 ```{r posterior-linpred-plot-and-smooth, fig.cap = "Previous line-plus-interval plot with the classical regression line and confidence interval overlaid."}
-p_linpread + stat_smooth(aes(y = log_sleep_total), method = "lm")
+p_linpread + 
+  stat_smooth(aes(y = log_sleep_total), method = "lm")
 ```
 
 The previous plot illustrates one limitation of this approach: Pragmatically
@@ -353,7 +382,7 @@ documentation:
 > Inference and model checking should generally be carried out using the 
 > posterior predictive distribution (see `posterior_predict`).
 
-_Occasionally convenient._ :open_mouth: And elsewhere:
+_Occasionally convenient._ 😮 And elsewhere:
 
 > See also: `posterior_predict` to draw from the posterior predictive 
 > distribution of the outcome, which is almost always preferable.
@@ -386,9 +415,18 @@ And we can plot the interval in the same way.
 ```{r posterior-predict, fig.cap = "Brain mass by sleep hours, log-10 scale, plus the median and 95% interval for posterior predicted observations."}
 ggplot(msleep) + 
   aes(x = log_brainwt) + 
-  geom_ribbon(aes(ymin = lower, ymax = upper), data = df_pred_post, 
-              alpha = 0.4, fill = "grey60") + 
-  geom_line(aes(y = median), data = df_pred_post, colour = "#3366FF", size = 1) + 
+  geom_ribbon(
+    aes(ymin = lower, ymax = upper), 
+    data = df_pred_post, 
+    alpha = 0.4, 
+    fill = "grey60"
+  ) + 
+  geom_line(
+    aes(y = median), 
+    data = df_pred_post, 
+    colour = "#3366FF", 
+    size = 1
+  ) + 
   geom_point(aes(y = log_sleep_total)) + 
   scale_x_continuous(labels = function(x) 10 ^ x) +
   labs(x = lab_lines$brain_log, y = lab_lines$sleep_log)
@@ -434,8 +472,7 @@ last_plot() +
 ```
 
 One faulty consequence of how our model was specified is that it predicts that
-some mammals sleep more than 24 hours per day---oh, what a life to live 
-:sleeping:.
+some mammals sleep more than 24 hours per day---oh, what a life to live 😴.
 
 ## Wrap up
 
@@ -449,9 +486,18 @@ team. The README package shows off a lot of different ways to visualize
 posterior samples from a model. I'll be sure to demo it on this data-set once it
 goes live.
 
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
-[^1]: That is, if we map the plot's color aesthetic to a categorical variable in the data, `stat_smooth()` will fit a separate model for each color/category. I figured this out when I tried to write my own function `stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) and noticed that RStanARM was printing out MCMC sampling information for each color/category of the data. 
-
+[^1]: That is, if we map the plot's color aesthetic to a categorical variable 
+    in the data, `stat_smooth()` will fit a separate model for each 
+    color/category. I figured this out when I tried to write my own function 
+    `stat_smooth_stan()` based on [ggplot2's extensions vignette](https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html) 
+    and noticed that RStanARM was printing out MCMC sampling information for 
+    each color/category of the data. 
 
 
 [ggplot2-mammals]: https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2/msleep.html

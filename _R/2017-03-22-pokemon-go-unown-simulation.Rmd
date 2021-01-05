@@ -6,6 +6,7 @@ tags:
 ---
 
 ```{r setup, include = FALSE}
+set.seed(20210202)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -64,7 +65,7 @@ Unowns. An absolute, and frankly miraculous, lower bound on this number would be
 26, so let's draw 26 samples.
 
 ```{r batch-1}
-set.seed(252)  # For reproducble blogging
+set.seed(151)  # For reproducible blogging
 n_unique <- function(xs) length(unique(xs))
 
 # Unowns in the batch
@@ -259,18 +260,20 @@ this intuition.
 ```{r extra-sim-1}
 simulation_95_rate <- replicate(
   n = 10000, 
-  expr = simulate_unown_catches(n_unowns = 26, p_catch = .95))
+  expr = simulate_unown_catches(n_unowns = 26, p_catch = .95)
+)
 
 summary(simulation_95_rate)
 ```
 
 We can also simulate the case for 28 Unowns with a 100% encounter rate, and see
-that the average number of required encounters increases by approximately 10.
+that the average number of required encounters increases by approximately 5.
 
 ```{r extra-sim-2}
 simulation_28_unowns <- replicate(
   n = 10000, 
-  expr = simulate_unown_catches(n_unowns = 28, p_catch = 1))
+  expr = simulate_unown_catches(n_unowns = 28, p_catch = 1)
+)
 
 summary(simulation_28_unowns)
 ```
@@ -281,7 +284,8 @@ have 20 Unowns with 6 more to go.
 ```{r extra-sim-3}
 simulation_last_6 <- replicate(
   n = 10000, 
-  expr = simulate_unown_catches(n_unowns = 26, n_already = 20, p_catch = 1))
+  expr = simulate_unown_catches(n_unowns = 26, n_already = 20, p_catch = 1)
+)
 
 summary(simulation_last_6)
 ```
@@ -309,13 +313,15 @@ simulate_2k <- function(n_already) {
   n_sims <- 2000
   sim_results <- replicate(
     n = n_sims, 
-    expr = simulate_unown_catches(n_unowns = 26, n_already, p_catch = 1))
+    expr = simulate_unown_catches(n_unowns = 26, n_already, p_catch = 1)
+  )
 
   # Package everything together in a dataframe  
-  data_frame(
+  tibble::tibble(
     n_already = rep(n_already, times = n_sims),
     simulation = seq_len(n_sims),
-    n_encounters = sim_results)
+    n_encounters = sim_results
+  )
 }
 
 results <- Map(simulate_2k, n_already = 0:25)
@@ -330,11 +336,16 @@ so let's just appreciate the main trends in the results.
 ```{r plot-unown-home-stretch, fig.cap = "The painful home stretch of Unown completion"}
 ggplot(df_results) + 
   aes(x = n_already, y = n_encounters) + 
-  stat_summary(fun.y = mean, geom = "point") + 
-  labs(x = "Num. Unown types already encountered", 
-       y = "Expected num. encounters to find all 26") + 
-  theme(axis.title.x = element_text(hjust = .995),
-        axis.title.y = element_text(hjust = .995)) +
+  stat_summary(fun = mean, geom = "point") + 
+  labs(
+    x = "Num. Unown types already encountered", 
+    y = "Expected num. encounters to find all 26"
+  ) + 
+  expand_limits(y = 0) +
+  theme(
+    axis.title.x = element_text(hjust = .995),
+    axis.title.y = element_text(hjust = .995)
+  ) +
   ggtitle("The painful home stretch of Unown completion")
 ```
 
@@ -372,7 +383,11 @@ uncertainty by simulating new data from perturbed model parameters. This idea
 made enough sense to me to lure me into the chapters on formal Bayesian
 inference and learn that statistical framework.
 
-
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
 [bulbapedia]: http://bulbapedia.bulbagarden.net/wiki/Unown_(Pok%C3%A9mon)
   "Bulbapedia page on Unown"

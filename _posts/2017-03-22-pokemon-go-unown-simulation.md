@@ -54,11 +54,11 @@ Unown encounters.
 
 ```r
 sample(LETTERS, size = 1, replace = TRUE)
-#> [1] "W"
+#> [1] "B"
 sample(LETTERS, size = 5, replace = TRUE)
-#> [1] "D" "B" "J" "S" "J"
+#> [1] "X" "E" "C" "L" "E"
 sample(LETTERS, size = 10, replace = TRUE)
-#>  [1] "C" "G" "U" "Y" "A" "J" "Q" "M" "K" "V"
+#>  [1] "B" "N" "Q" "M" "F" "V" "I" "J" "W" "D"
 ```
 
 The question now is how many samples does it take to get the 26 different
@@ -67,66 +67,66 @@ Unowns. An absolute, and frankly miraculous, lower bound on this number would be
 
 
 ```r
-set.seed(252)  # For reproducble blogging
+set.seed(151)  # For reproducible blogging
 n_unique <- function(xs) length(unique(xs))
 
 # Unowns in the batch
 first_batch <- sample(LETTERS, size = 26, replace = TRUE)
 first_batch
-#>  [1] "X" "S" "I" "T" "R" "J" "L" "N" "F" "I" "P" "Q" "K" "D" "Q" "Q" "K"
-#> [18] "O" "S" "C" "F" "C" "P" "X" "V" "L"
+#>  [1] "M" "Q" "D" "R" "B" "X" "H" "C" "Q" "E" "F" "K" "V" "S" "R" "P" "N" "C" "F"
+#> [20] "E" "L" "A" "X" "J" "Q" "O"
 
 # Number of unique ones
 n_unique(first_batch)
-#> [1] 16
+#> [1] 19
 
 # Number of remaining Unowns we have not encountered yet
 leftover <- 26 - n_unique(first_batch)
 leftover
-#> [1] 10
+#> [1] 7
 ```
 
-We encountered 16 unique Unowns from the first batch of 
+We encountered 19 unique Unowns from the first batch of 
 samples. The best-case lower bound for the number of the encounters remaining is
-now 10, so let's take 10 more samples.
+now 7, so let's take 7 more samples.
 
 
 ```r
 second_batch <- sample(LETTERS, size = leftover, replace = TRUE)
 second_batch
-#>  [1] "Y" "X" "S" "F" "P" "Z" "F" "F" "Y" "G"
+#> [1] "N" "L" "I" "V" "L" "H" "L"
 
 # Combine the batches
 both_batches <- c(first_batch, second_batch)
 n_unique(both_batches)
-#> [1] 19
+#> [1] 20
 
 leftover <- 26 - n_unique(both_batches)
 leftover
-#> [1] 7
+#> [1] 6
 ```
 
-We found 3 new Unowns in this
-batch, and we have encountered 19 unique ones so far
-from 36 total samples. That means the lower bound is now 
-7.
+We found 1 new Unowns in this
+batch, and we have encountered 20 unique ones so far
+from 33 total samples. That means the lower bound is now 
+6.
 
 
 ```r
 third_batch <- sample(LETTERS, size = leftover, replace = TRUE)
 third_batch
-#> [1] "U" "A" "G" "P" "K" "L" "E"
+#> [1] "V" "J" "D" "D" "C" "D"
 
 all_batches <- c(both_batches, third_batch)
 n_unique(all_batches)
-#> [1] 22
+#> [1] 20
 
 leftover <- 26 - n_unique(all_batches)
 leftover
-#> [1] 4
+#> [1] 6
 ```
 
-We found 3 new Unowns in this---
+We found 0 new Unowns in this---
 
 Actually, this is getting tedious. We all know where this process is going: Take
 a sample, see how many you have left to find, take another sample of that size, 
@@ -160,11 +160,11 @@ returning how many encounters were required to find them all.
 
 ```r
 simulate_unown()
-#> [1] 111
+#> [1] 59
 simulate_unown()
-#> [1] 81
+#> [1] 108
 simulate_unown()
-#> [1] 116
+#> [1] 103
 ```
 
 We use `replicate()` to call this function thousands of times.
@@ -180,18 +180,18 @@ We can get summary statistics and other quantiles for these simulations.
 ```r
 summary(simulation)
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>    41.0    78.0    95.0   100.3   116.0   373.0
+#>    39.0    78.0    94.0   100.4   116.0   382.0
 quantile(simulation, probs = c(.05, .10, .25, .50, .75, .90, .95))
-#>  5% 10% 25% 50% 75% 90% 95% 
-#>  61  67  78  95 116 141 161
+#>     5%    10%    25%    50%    75%    90%    95% 
+#>  60.00  66.00  78.00  94.00 116.00 142.10 161.05
 ```
 
-The mean in our simulations 100.3 is very close to
-the analytic solution of 100.2. The median 95 is less than
+The mean in our simulations 100.4 is very close to
+the analytic solution of 100.2. The median 94 is less than
 the mean, which is a bit of good news: More than half of players will hit 26
 in less than the expected 100 encounters. The bad news is that there is a long
 tail to these simulations, as the RNG gods have cursed one player by requiring
-373 encounters.
+382 encounters.
 
 We can visualize the distribution with a histogram.
 
@@ -209,7 +209,7 @@ p1 <- ggplot(data.frame(x = simulation)) +
 p1
 ```
 
-<img src="/figs//2017-03-22-pokemon-go-unown-simulation/plot-encounters-1.png" title="A long-tail of unfortunate RNG for Unown completionists" alt="A long-tail of unfortunate RNG for Unown completionists" width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-03-22-pokemon-go-unown-simulation/plot-encounters-1.png" title="A long-tail of unfortunate RNG for Unown completionists" alt="A long-tail of unfortunate RNG for Unown completionists" width="80%" style="display: block; margin: auto;" />
 
 I haven't seen any of these Pokémon in the month since they were added to the 
 game. Assuming I see an Unown every month, I can expect to see them all in 100 
@@ -282,7 +282,7 @@ and give us similar results.
 simulation2 <- replicate(10000, simulate_unown_catches())
 summary(simulation2)
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>    38.0    78.0    94.0   100.2   115.0   369.0
+#>    34.0    78.0    95.0   100.3   116.0   330.0
 ```
 
 We should expect the average number of required encounters to catch all 26
@@ -293,25 +293,27 @@ this intuition.
 ```r
 simulation_95_rate <- replicate(
   n = 10000, 
-  expr = simulate_unown_catches(n_unowns = 26, p_catch = .95))
+  expr = simulate_unown_catches(n_unowns = 26, p_catch = .95)
+)
 
 summary(simulation_95_rate)
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>    41.0    82.0   100.0   106.2   124.0   338.0
+#>    38.0    82.0   100.0   105.9   123.0   329.0
 ```
 
 We can also simulate the case for 28 Unowns with a 100% encounter rate, and see
-that the average number of required encounters increases by approximately 10.
+that the average number of required encounters increases by approximately 5.
 
 
 ```r
 simulation_28_unowns <- replicate(
   n = 10000, 
-  expr = simulate_unown_catches(n_unowns = 28, p_catch = 1))
+  expr = simulate_unown_catches(n_unowns = 28, p_catch = 1)
+)
 
 summary(simulation_28_unowns)
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>    44.0    85.0   104.0   109.9   127.0   322.0
+#>    42.0    86.0   104.0   110.4   128.0   451.0
 ```
 
 Finally, we can simulate the home stretch of Unown completion where we
@@ -321,11 +323,12 @@ have 20 Unowns with 6 more to go.
 ```r
 simulation_last_6 <- replicate(
   n = 10000, 
-  expr = simulate_unown_catches(n_unowns = 26, n_already = 20, p_catch = 1))
+  expr = simulate_unown_catches(n_unowns = 26, n_already = 20, p_catch = 1)
+)
 
 summary(simulation_last_6)
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>    8.00   42.00   57.00   63.39   79.00  282.00
+#>   10.00   42.00   58.00   64.01   79.00  290.00
 ```
 
 This result is interesting: It says that we will spend the majority of our time
@@ -352,31 +355,33 @@ simulate_2k <- function(n_already) {
   n_sims <- 2000
   sim_results <- replicate(
     n = n_sims, 
-    expr = simulate_unown_catches(n_unowns = 26, n_already, p_catch = 1))
+    expr = simulate_unown_catches(n_unowns = 26, n_already, p_catch = 1)
+  )
 
   # Package everything together in a dataframe  
-  data_frame(
+  tibble::tibble(
     n_already = rep(n_already, times = n_sims),
     simulation = seq_len(n_sims),
-    n_encounters = sim_results)
+    n_encounters = sim_results
+  )
 }
 
 results <- Map(simulate_2k, n_already = 0:25)
 df_results <- bind_rows(results)
 df_results
-#> # A tibble: 52,000 × 3
+#> # A tibble: 52,000 x 3
 #>    n_already simulation n_encounters
 #>        <int>      <int>        <int>
-#> 1          0          1          157
-#> 2          0          2          125
-#> 3          0          3          129
-#> 4          0          4          107
-#> 5          0          5           69
-#> 6          0          6           65
-#> 7          0          7           70
-#> 8          0          8          147
-#> 9          0          9           69
-#> 10         0         10           77
+#>  1         0          1          112
+#>  2         0          2           69
+#>  3         0          3          128
+#>  4         0          4           67
+#>  5         0          5          108
+#>  6         0          6           67
+#>  7         0          7          115
+#>  8         0          8          124
+#>  9         0          9           66
+#> 10         0         10           88
 #> # ... with 51,990 more rows
 ```
 
@@ -388,15 +393,20 @@ so let's just appreciate the main trends in the results.
 ```r
 ggplot(df_results) + 
   aes(x = n_already, y = n_encounters) + 
-  stat_summary(fun.y = mean, geom = "point") + 
-  labs(x = "Num. Unown types already encountered", 
-       y = "Expected num. encounters to find all 26") + 
-  theme(axis.title.x = element_text(hjust = .995),
-        axis.title.y = element_text(hjust = .995)) +
+  stat_summary(fun = mean, geom = "point") + 
+  labs(
+    x = "Num. Unown types already encountered", 
+    y = "Expected num. encounters to find all 26"
+  ) + 
+  expand_limits(y = 0) +
+  theme(
+    axis.title.x = element_text(hjust = .995),
+    axis.title.y = element_text(hjust = .995)
+  ) +
   ggtitle("The painful home stretch of Unown completion")
 ```
 
-<img src="/figs//2017-03-22-pokemon-go-unown-simulation/plot-unown-home-stretch-1.png" title="The painful home stretch of Unown completion" alt="The painful home stretch of Unown completion" width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-03-22-pokemon-go-unown-simulation/plot-unown-home-stretch-1.png" title="The painful home stretch of Unown completion" alt="The painful home stretch of Unown completion" width="80%" style="display: block; margin: auto;" />
 
 Because the analytic solution for finding 26 Unowns starting from 0 is 100, we
 can also read the _y_-axis as a percentage. In other words, 60% of the work
@@ -433,6 +443,73 @@ made enough sense to me to lure me into the chapters on formal Bayesian
 inference and learn that statistical framework.
 
 
+
+***
+
+*Last knitted on 2021-02-02. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-03-22-pokemon-go-unown-simulation.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-02                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package     * version date       lib source        
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
+    #>  cli           2.2.0   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  colorspace    2.0-0   2020-11-11 [1] CRAN (R 4.0.3)
+    #>  crayon        1.3.4   2017-09-16 [1] CRAN (R 4.0.2)
+    #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  digest        0.6.27  2020-10-24 [1] CRAN (R 4.0.3)
+    #>  dplyr       * 1.0.3   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  ellipsis      0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
+    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.2)
+    #>  fansi         0.4.2   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  farver        2.0.3   2020-01-16 [1] CRAN (R 4.0.2)
+    #>  generics      0.1.0   2020-10-31 [1] CRAN (R 4.0.3)
+    #>  ggplot2     * 3.3.3   2020-12-30 [1] CRAN (R 4.0.3)
+    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
+    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.0.2)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
+    #>  highr         0.8     2019-03-20 [1] CRAN (R 4.0.2)
+    #>  knitr       * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
+    #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.0.2)
+    #>  lifecycle     0.2.0   2020-03-06 [1] CRAN (R 4.0.2)
+    #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
+    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.0.2)
+    #>  pillar        1.4.7   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.0.2)
+    #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
+    #>  R6            2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
+    #>  rlang         0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
+    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
+    #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.0.2)
+    #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
+    #>  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
+    #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
+    #>  tibble        3.0.5   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  tidyselect    1.1.0   2020-05-11 [1] CRAN (R 4.0.2)
+    #>  utf8          1.1.4   2018-05-24 [1] CRAN (R 4.0.2)
+    #>  vctrs         0.3.6   2020-12-17 [1] CRAN (R 4.0.3)
+    #>  withr         2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun          0.20    2021-01-06 [1] CRAN (R 4.0.3)
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```
 
 [bulbapedia]: http://bulbapedia.bulbagarden.net/wiki/Unown_(Pok%C3%A9mon)
   "Bulbapedia page on Unown"
