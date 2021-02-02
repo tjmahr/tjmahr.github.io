@@ -8,6 +8,9 @@ tags:
 ---
 
 ```{r setup, include = FALSE}
+library(ggplot2)
+library(dplyr)
+library(lme4)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -48,14 +51,15 @@ coartic_cols <- cols_only(
   ToDistractor = col_integer(),
   ToTarget = col_integer(),
   Proportion = col_double())
-d <- readr::read_csv("https://raw.githubusercontent.com/tjmahr/2015_Coartic/master/data/model_data.csv", 
-                     col_types = coartic_cols)
-
+d <- readr::read_csv(
+  "https://raw.githubusercontent.com/tjmahr/2015_Coartic/master/data/model_data.csv", 
+  col_types = coartic_cols
+)
 ```
 
 Here's how the data look, both in R and in a plot. 
 
-```{r raw-data, fig.cap= "Eyetracking data from Mahr et al. (2015)"}
+```{r raw-data, fig.cap = "Eyetracking data from Mahr et al. (2015)"}
 library(ggplot2)
 library(dplyr)
 
@@ -63,19 +67,22 @@ library(dplyr)
 d
 
 # Helper dataframe of where to put condition labels on the next plot
-df_labs <- data_frame(
+df_labs <- tibble(
   Time = c(650, 800),
   Proportion = c(.775, .625), 
-  Condition = c("facilitating", "neutral"))
+  Condition = c("facilitating", "neutral")
+)
 
 p <- ggplot(d) + 
   aes(x = Time, y = Proportion, color = Condition) + 
   geom_hline(yintercept = .5, size = 2, color = "white") +
   stat_summary(fun.data = mean_se) + 
   geom_text(aes(label = Condition), data = df_labs, size = 6) +
-  labs(x = "Time after noun onset [ms]", 
-       y = "Proportion looks to named image",
-       caption = "Mean ± SE. N = 29 children.") + 
+  labs(
+    x = "Time after noun onset [ms]", 
+    y = "Proportion looks to named image",
+    caption = "Mean ± SE. N = 29 children."
+  ) + 
   guides(color = "none")
 p
 ```
@@ -180,11 +187,16 @@ columns to the dataframe. (For speed here, I use a simplified random effects
 structure, estimating growth curve parameters for each Child x Condition
 combination.)
 
-```{r}
+```{r, warning = FALSE}
 library(lme4)
 
 d <- d %>% 
-  polypoly::poly_add_columns(Time, degree = 3, prefix = "ot", scale_width = 1) %>% 
+  polypoly::poly_add_columns(
+    Time, 
+    degree = 3, 
+    prefix = "ot", 
+    scale_width = 1
+  ) %>% 
   # Change the reference level
   mutate(Condition = factor(Condition, c("neutral", "facilitating")))
 
@@ -203,7 +215,7 @@ We can confirm that the model captures the overall shape of the growth curves.
 # individual fits (for each participant). That's why the caption is a little
 # weird.
 p + 
-  stat_summary(aes(y = fitted(m)), fun.y = mean, geom = "line") + 
+  stat_summary(aes(y = fitted(m)), fun = mean, geom = "line") + 
   labs(caption = "Line: Average of model-fitted values. Points: Mean ± SE.")
 ```
 
@@ -286,15 +298,21 @@ closer together in the probability-scale plot:
 ```{r logit-vs-probability, fig.show='hold', out.width="50%", fig.align = "default", fig.cap= "Comparison of the growth curves in logit scale and probability scale"}
 ggplot(df_both) +
   aes(x = observation, y = value, color = Condition) +
-  stat_summary(fun.y = sum, geom = "line") + 
+  stat_summary(fun = sum, geom = "line") + 
   ggtitle("logit scale") + 
   guides(color = "none")
 
 ggplot(df_both) +
   aes(x = observation, y = value, color = Condition) +
-  stat_summary(fun.y = function(xs) plogis(sum(xs)), geom = "line")  + 
+  stat_summary(fun = function(xs) plogis(sum(xs)), geom = "line")  + 
   ggtitle("probability scale") + 
   guides(color = "none")
+```
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
 ```
 
 [CRAN]: https://cran.r-project.org/web/packages/polypoly/index.html "CRAN page for polypoly"

@@ -49,39 +49,42 @@ library(dplyr)
 # The data
 d
 #> # A tibble: 986 x 6
-#>     Subj    Condition  Time ToDistractor ToTarget Proportion
-#>    <int>        <chr> <int>        <int>    <int>      <dbl>
-#>  1     1 facilitating   200            9        9  0.5000000
-#>  2     1 facilitating   250            9       10  0.5263158
-#>  3     1 facilitating   300            6       12  0.6666667
-#>  4     1 facilitating   350            6       12  0.6666667
-#>  5     1 facilitating   400            6       12  0.6666667
-#>  6     1 facilitating   450            6       12  0.6666667
-#>  7     1 facilitating   500            6       12  0.6666667
-#>  8     1 facilitating   550            6       12  0.6666667
-#>  9     1 facilitating   600            4       12  0.7500000
-#> 10     1 facilitating   650            3       15  0.8333333
+#>     Subj Condition     Time ToDistractor ToTarget Proportion
+#>    <int> <chr>        <int>        <int>    <int>      <dbl>
+#>  1     1 facilitating   200            9        9      0.5  
+#>  2     1 facilitating   250            9       10      0.526
+#>  3     1 facilitating   300            6       12      0.667
+#>  4     1 facilitating   350            6       12      0.667
+#>  5     1 facilitating   400            6       12      0.667
+#>  6     1 facilitating   450            6       12      0.667
+#>  7     1 facilitating   500            6       12      0.667
+#>  8     1 facilitating   550            6       12      0.667
+#>  9     1 facilitating   600            4       12      0.75 
+#> 10     1 facilitating   650            3       15      0.833
 #> # ... with 976 more rows
 
 # Helper dataframe of where to put condition labels on the next plot
-df_labs <- data_frame(
+df_labs <- tibble(
   Time = c(650, 800),
   Proportion = c(.775, .625), 
-  Condition = c("facilitating", "neutral"))
+  Condition = c("facilitating", "neutral")
+)
 
 p <- ggplot(d) + 
   aes(x = Time, y = Proportion, color = Condition) + 
   geom_hline(yintercept = .5, size = 2, color = "white") +
   stat_summary(fun.data = mean_se) + 
   geom_text(aes(label = Condition), data = df_labs, size = 6) +
-  labs(x = "Time after noun onset [ms]", 
-       y = "Proportion looks to named image",
-       caption = "Mean ± SE. N = 29 children.") + 
+  labs(
+    x = "Time after noun onset [ms]", 
+    y = "Proportion looks to named image",
+    caption = "Mean ± SE. N = 29 children."
+  ) + 
   guides(color = "none")
 p
 ```
 
-<img src="/figs//2017-05-30-polypoly-package-released/raw-data-1.png" title="Eyetracking data from Mahr et al. (2015)" alt="Eyetracking data from Mahr et al. (2015)" width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-05-30-polypoly-package-released/raw-data-1.png" title="Eyetracking data from Mahr et al. (2015)" alt="Eyetracking data from Mahr et al. (2015)" width="80%" style="display: block; margin: auto;" />
 
 Early on, children look equal amounts to both images on average (.5), and the
 proportion of looks to the named image increase as the word unfolds. In the
@@ -104,7 +107,7 @@ poly(unique(d$Time), 3) %>%
   polypoly::poly_plot()
 ```
 
-<img src="/figs//2017-05-30-polypoly-package-released/orthogonal-curves-1.png" title="Three orthogonal polynomial curves" alt="Three orthogonal polynomial curves" width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-05-30-polypoly-package-released/orthogonal-curves-1.png" title="Three orthogonal polynomial curves" alt="Three orthogonal polynomial curves" width="80%" style="display: block; margin: auto;" />
 
 I think people sometimes describe the contributions of these curves to the
 overall growth curve as _trends_: "A negative linear trend", "a significant
@@ -167,16 +170,18 @@ models %>%
   bind_rows(.id = "model") %>% 
   select(model:estimate) %>% 
   mutate(estimate = round(estimate, 2))
-#>   model        term estimate
-#> 1    m1 (Intercept)   367.07
-#> 2    m1           x   -39.54
-#> 3    m2 (Intercept)  -114.98
-#> 4    m2           x   201.48
-#> 5    m2      I(x^2)   -21.91
-#> 6    m3 (Intercept)    -2.14
-#> 7    m3           x   101.41
-#> 8    m3      I(x^2)    -0.21
-#> 9    m3      I(x^3)    -1.32
+#> # A tibble: 9 x 3
+#>   model term        estimate
+#>   <chr> <chr>          <dbl>
+#> 1 m1    (Intercept)    51.2 
+#> 2 m1    x              81.8 
+#> 3 m2    (Intercept)   -17.0 
+#> 4 m2    x             116.  
+#> 5 m2    I(x^2)         -3.1 
+#> 6 m3    (Intercept)    -2.43
+#> 7 m3    x             103.  
+#> 8 m3    I(x^2)         -0.3 
+#> 9 m3    I(x^3)         -0.17
 ```
 
 But with orthogonal polynomials, the parameter estimates don't change from model
@@ -195,16 +200,18 @@ models2 %>%
   bind_rows(.id = "model") %>% 
   select(model:estimate) %>% 
   mutate(estimate = round(estimate, 2))
-#>   model        term estimate
-#> 1    m1 (Intercept)   149.60
-#> 2    m1  poly(x, 1)  -359.14
-#> 3    m2 (Intercept)   149.60
-#> 4    m2 poly(x, 2)1  -359.14
-#> 5    m2 poly(x, 2)2  -503.48
-#> 6    m3 (Intercept)   149.60
-#> 7    m3 poly(x, 3)1  -359.14
-#> 8    m3 poly(x, 3)2  -503.48
-#> 9    m3 poly(x, 3)3   -73.09
+#> # A tibble: 9 x 3
+#>   model term        estimate
+#>   <chr> <chr>          <dbl>
+#> 1 m1    (Intercept)   501.  
+#> 2 m1    poly(x, 1)    742.  
+#> 3 m2    (Intercept)   501.  
+#> 4 m2    poly(x, 2)1   742.  
+#> 5 m2    poly(x, 2)2   -71.2 
+#> 6 m3    (Intercept)   501.  
+#> 7 m3    poly(x, 3)1   742.  
+#> 8 m3    poly(x, 3)2   -71.2 
+#> 9 m3    poly(x, 3)3    -9.42
 ```
 
 That's probably the simplest reason why orthogonal polynomials are preferred. (I
@@ -221,11 +228,14 @@ combination.)
 
 ```r
 library(lme4)
-#> Loading required package: Matrix
-#> Loading required package: methods
 
 d <- d %>% 
-  polypoly::poly_add_columns(Time, degree = 3, prefix = "ot", scale_width = 1) %>% 
+  polypoly::poly_add_columns(
+    Time, 
+    degree = 3, 
+    prefix = "ot", 
+    scale_width = 1
+  ) %>% 
   # Change the reference level
   mutate(Condition = factor(Condition, c("neutral", "facilitating")))
 
@@ -245,11 +255,11 @@ We can confirm that the model captures the overall shape of the growth curves.
 # individual fits (for each participant). That's why the caption is a little
 # weird.
 p + 
-  stat_summary(aes(y = fitted(m)), fun.y = mean, geom = "line") + 
+  stat_summary(aes(y = fitted(m)), fun = mean, geom = "line") + 
   labs(caption = "Line: Average of model-fitted values. Points: Mean ± SE.")
 ```
 
-<img src="/figs//2017-05-30-polypoly-package-released/with-model-fits-1.png" title="Eyetracking data with model fits overlaid" alt="Eyetracking data with model fits overlaid" width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-05-30-polypoly-package-released/with-model-fits-1.png" title="Eyetracking data with model fits overlaid" alt="Eyetracking data with model fits overlaid" width="80%" style="display: block; margin: auto;" />
 
 We can inspect the model summary as well.
 
@@ -379,7 +389,7 @@ ggplot(df_both) +
   facet_wrap("degree")
 ```
 
-<img src="/figs//2017-05-30-polypoly-package-released/trends-1.png" title="Each of the polynomial effects weighted by condition" alt="Each of the polynomial effects weighted by condition" width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-05-30-polypoly-package-released/trends-1.png" title="Each of the polynomial effects weighted by condition" alt="Each of the polynomial effects weighted by condition" width="80%" style="display: block; margin: auto;" />
 
 Visually, the quadratic effect on the neutral curve pulls down the values during
 the center (when the curves are most different) and pushes the values in the
@@ -399,17 +409,127 @@ closer together in the probability-scale plot:
 ```r
 ggplot(df_both) +
   aes(x = observation, y = value, color = Condition) +
-  stat_summary(fun.y = sum, geom = "line") + 
+  stat_summary(fun = sum, geom = "line") + 
   ggtitle("logit scale") + 
   guides(color = "none")
 
 ggplot(df_both) +
   aes(x = observation, y = value, color = Condition) +
-  stat_summary(fun.y = function(xs) plogis(sum(xs)), geom = "line")  + 
+  stat_summary(fun = function(xs) plogis(sum(xs)), geom = "line")  + 
   ggtitle("probability scale") + 
   guides(color = "none")
 ```
 
-<img src="/figs//2017-05-30-polypoly-package-released/logit-vs-probability-1.png" title="Comparison of the growth curves in logit scale and probability scale" alt="Comparison of the growth curves in logit scale and probability scale" width="50%" /><img src="/figs//2017-05-30-polypoly-package-released/logit-vs-probability-2.png" title="Comparison of the growth curves in logit scale and probability scale" alt="Comparison of the growth curves in logit scale and probability scale" width="50%" />
+<img src="/figs/2017-05-30-polypoly-package-released/logit-vs-probability-1.png" title="Comparison of the growth curves in logit scale and probability scale" alt="Comparison of the growth curves in logit scale and probability scale" width="50%" /><img src="/figs/2017-05-30-polypoly-package-released/logit-vs-probability-2.png" title="Comparison of the growth curves in logit scale and probability scale" alt="Comparison of the growth curves in logit scale and probability scale" width="50%" />
+
+
+
+***
+
+*Last knitted on 2021-02-02. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-30-polypoly-package-released.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-02                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package      * version date       lib source        
+    #>  abind          1.4-5   2016-07-21 [1] CRAN (R 4.0.0)
+    #>  arm            1.11-2  2020-07-27 [1] CRAN (R 4.0.2)
+    #>  assertthat     0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
+    #>  backports      1.2.0   2020-11-02 [1] CRAN (R 4.0.3)
+    #>  base64enc      0.1-3   2015-07-28 [1] CRAN (R 4.0.0)
+    #>  boot           1.3-26  2021-01-25 [1] CRAN (R 4.0.3)
+    #>  broom          0.7.3   2020-12-16 [1] CRAN (R 4.0.3)
+    #>  checkmate      2.0.0   2020-02-06 [1] CRAN (R 4.0.2)
+    #>  cli            2.2.0   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  cluster        2.1.0   2019-06-19 [1] CRAN (R 4.0.2)
+    #>  coda           0.19-4  2020-09-30 [1] CRAN (R 4.0.2)
+    #>  colorspace     2.0-0   2020-11-11 [1] CRAN (R 4.0.3)
+    #>  crayon         1.3.4   2017-09-16 [1] CRAN (R 4.0.2)
+    #>  curl           4.3     2019-12-02 [1] CRAN (R 4.0.2)
+    #>  data.table     1.13.6  2020-12-30 [1] CRAN (R 4.0.3)
+    #>  DBI            1.1.1   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  digest         0.6.27  2020-10-24 [1] CRAN (R 4.0.3)
+    #>  dplyr        * 1.0.3   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  ellipsis       0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
+    #>  evaluate       0.14    2019-05-28 [1] CRAN (R 4.0.2)
+    #>  fansi          0.4.2   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  farver         2.0.3   2020-01-16 [1] CRAN (R 4.0.2)
+    #>  foreign        0.8-81  2020-12-22 [1] CRAN (R 4.0.3)
+    #>  Formula        1.2-4   2020-10-16 [1] CRAN (R 4.0.2)
+    #>  generics       0.1.0   2020-10-31 [1] CRAN (R 4.0.3)
+    #>  ggplot2      * 3.3.3   2020-12-30 [1] CRAN (R 4.0.3)
+    #>  git2r          0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
+    #>  glue           1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  gridExtra      2.3     2017-09-09 [1] CRAN (R 4.0.2)
+    #>  gtable         0.3.0   2019-03-25 [1] CRAN (R 4.0.2)
+    #>  here           1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
+    #>  highr          0.8     2019-03-20 [1] CRAN (R 4.0.2)
+    #>  Hmisc          4.4-2   2020-11-29 [1] CRAN (R 4.0.3)
+    #>  hms            1.0.0   2021-01-13 [1] CRAN (R 4.0.3)
+    #>  htmlTable      2.1.0   2020-09-16 [1] CRAN (R 4.0.2)
+    #>  htmltools      0.5.1.1 2021-01-22 [1] CRAN (R 4.0.3)
+    #>  htmlwidgets    1.5.3   2020-12-10 [1] CRAN (R 4.0.3)
+    #>  jpeg           0.1-8.1 2019-10-24 [1] CRAN (R 4.0.0)
+    #>  knitr        * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
+    #>  labeling       0.4.2   2020-10-20 [1] CRAN (R 4.0.2)
+    #>  lattice        0.20-41 2020-04-02 [1] CRAN (R 4.0.2)
+    #>  latticeExtra   0.6-29  2019-12-19 [1] CRAN (R 4.0.2)
+    #>  lifecycle      0.2.0   2020-03-06 [1] CRAN (R 4.0.2)
+    #>  lme4         * 1.1-26  2020-12-01 [1] CRAN (R 4.0.3)
+    #>  magrittr       2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
+    #>  MASS           7.3-53  2020-09-09 [1] CRAN (R 4.0.2)
+    #>  Matrix       * 1.2-18  2019-11-27 [1] CRAN (R 4.0.3)
+    #>  minqa          1.2.4   2014-10-09 [1] CRAN (R 4.0.2)
+    #>  munsell        0.5.0   2018-06-12 [1] CRAN (R 4.0.2)
+    #>  nlme           3.1-151 2020-12-10 [1] CRAN (R 4.0.3)
+    #>  nloptr         1.2.2.2 2020-07-02 [1] CRAN (R 4.0.2)
+    #>  nnet           7.3-15  2021-01-24 [1] CRAN (R 4.0.3)
+    #>  pillar         1.4.7   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.0.2)
+    #>  plyr           1.8.6   2020-03-03 [1] CRAN (R 4.0.2)
+    #>  png            0.1-7   2013-12-03 [1] CRAN (R 4.0.0)
+    #>  polypoly       0.0.2   2017-05-27 [1] CRAN (R 4.0.2)
+    #>  purrr          0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
+    #>  R6             2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
+    #>  RColorBrewer   1.1-2   2014-12-07 [1] CRAN (R 4.0.0)
+    #>  Rcpp           1.0.6   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  readr        * 1.4.0   2020-10-05 [1] CRAN (R 4.0.2)
+    #>  reshape2       1.4.4   2020-04-09 [1] CRAN (R 4.0.2)
+    #>  rlang          0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
+    #>  rpart          4.1-15  2019-04-12 [1] CRAN (R 4.0.2)
+    #>  rprojroot      2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
+    #>  rstudioapi     0.13    2020-11-12 [1] CRAN (R 4.0.3)
+    #>  scales         1.1.1   2020-05-11 [1] CRAN (R 4.0.2)
+    #>  sessioninfo    1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
+    #>  statmod        1.4.35  2020-10-19 [1] CRAN (R 4.0.3)
+    #>  stringi        1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
+    #>  stringr        1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
+    #>  survival       3.2-7   2020-09-28 [1] CRAN (R 4.0.2)
+    #>  tibble         3.0.5   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  tidyr          1.1.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  tidyselect     1.1.0   2020-05-11 [1] CRAN (R 4.0.2)
+    #>  utf8           1.1.4   2018-05-24 [1] CRAN (R 4.0.2)
+    #>  vctrs          0.3.6   2020-12-17 [1] CRAN (R 4.0.3)
+    #>  withr          2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun           0.20    2021-01-06 [1] CRAN (R 4.0.3)
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```
 
 [CRAN]: https://cran.r-project.org/web/packages/polypoly/index.html "CRAN page for polypoly"
