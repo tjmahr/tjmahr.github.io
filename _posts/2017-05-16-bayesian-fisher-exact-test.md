@@ -43,9 +43,14 @@ matrix.
 
 ```r
 # Create a matrix representation of the data for the fisher test
-m <- matrix(c(9, 43, 4, 44), nrow = 2, byrow = TRUE,
-            dimnames = list(sex = c("male", "female"),
-                            handedness = c("left", "right")))
+m <- matrix(
+  c(9, 43, 4, 44), 
+  nrow = 2, 
+  byrow = TRUE,
+  dimnames = list(
+    sex = c("male", "female"), 
+    handedness = c("left", "right"))
+  )
 m
 #>         handedness
 #> sex      left right
@@ -93,15 +98,17 @@ fisher.test(m, alternative = "greater")
 #>   2.283832
 ```
 
-In both tests, we cannot reject the null hypothesis because the _p_-value is
-greater than .05 :x:, so we would conclude that the two groups are not different.
+In both tests, we cannot reject the null hypothesis because the *p*-value is
+greater than .05 ❌, so we would conclude that the two groups are
+not different.
 
 
 
 But I don't really know this test that well. We never covered it in any of my
 stats classes, and indeed, this post is the first time I ever used the function
-`fisher.test()`.  If I had never heard of the test, I am not quite sure what I
-would have done. Maybe a logistic regression (_p_&nbsp;= .191 :x:).
+`fisher.test()`. If I had never heard of the test, I am not quite sure what I
+would have done. Maybe a logistic regression (*p* = .191 ❌).
+
 
 ## Creating a Stan model
 
@@ -146,7 +153,7 @@ ggplot(data.frame(x = steps, y = dbeta(steps, shape1 = 1, shape2 = 1))) +
   labs(x = "p(left-handed)", y = "density", title = "beta(1,1)")
 ```
 
-<img src="/figs//2017-05-16-bayesian-fisher-exact-test/flat-1.png" title="Density plot of the flat, uninformative prior." alt="Density plot of the flat, uninformative prior." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-05-16-bayesian-fisher-exact-test/flat-1.png" title="Density plot of the flat, uninformative prior." alt="Density plot of the flat, uninformative prior." width="80%" style="display: block; margin: auto;" />
 
 But I also think that 10-ish% of people are left handed. (I don't know where I 
 first heard this number, but it'll serve as my prior information.) I toyed 
@@ -162,7 +169,7 @@ ggplot(data.frame(x = steps, y = dbeta(steps, shape1 = 5, shape2 = 40))) +
   labs(x = "p(left-handed)", y = "density", title = "beta(5,40)")
 ```
 
-<img src="/figs//2017-05-16-bayesian-fisher-exact-test/informative-1.png" title="Density plot of the informative prior." alt="Density plot of the informative prior." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-05-16-bayesian-fisher-exact-test/informative-1.png" title="Density plot of the informative prior." alt="Density plot of the informative prior." width="80%" style="display: block; margin: auto;" />
 
 Let's write out a really simple model in Stan. Okay, it _used to_ be really 
 simple. Then I made the parameters for the Beta prior data values, and then I
@@ -215,10 +222,17 @@ work later on.
 ```r
 library(rstan)
 #> Loading required package: StanHeaders
-#> rstan (Version 2.15.1, packaged: 2017-04-19 05:03:57 UTC, GitRev: 2e1f913d3ca3)
+#> rstan (Version 2.21.2, GitRev: 2e1f913d3ca3)
 #> For execution on a local, multicore CPU with excess RAM we recommend calling
+#> options(mc.cores = parallel::detectCores()).
+#> To avoid recompilation of unchanged Stan programs, we recommend calling
 #> rstan_options(auto_write = TRUE)
-#> options(mc.cores = parallel::detectCores())
+#> Do not specify '-march=native' in 'LOCAL_CPPFLAGS' or a Makevars file
+#> 
+#> Attaching package: 'rstan'
+#> The following object is masked from 'package:tidyr':
+#> 
+#>     extract
 ```
 
 I begin by compiling the model. This step will create an executable 
@@ -278,12 +292,12 @@ m_informative_pd
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.22  3047    1
-#> theta_2   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.21  2953    1
-#> diff      0.00    0.00 0.06  -0.13  -0.04   0.00   0.04   0.13  3072    1
-#> lp__    -32.40    0.02 0.99 -35.01 -32.81 -32.11 -31.68 -31.42  1776    1
+#> theta_1   0.11    0.00 0.05   0.04   0.08   0.10   0.14   0.22  3038    1
+#> theta_2   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.21  3346    1
+#> diff      0.00    0.00 0.07  -0.13  -0.04   0.00   0.04   0.13  3193    1
+#> lp__    -32.42    0.03 1.02 -35.23 -32.84 -32.12 -31.68 -31.42  1588    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Tue May 16 14:05:44 2017.
+#> Samples were drawn using NUTS(diag_e) at Tue Feb 02 13:53:00 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -295,12 +309,12 @@ m_flat_pd
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>          mean se_mean   sd  2.5%   25%   50%   75% 97.5% n_eff Rhat
-#> theta_1  0.49    0.01 0.28  0.03  0.25  0.49  0.74  0.97  3134    1
-#> theta_2  0.50    0.00 0.28  0.03  0.26  0.51  0.74  0.97  3247    1
-#> diff    -0.01    0.01 0.40 -0.77 -0.29 -0.01  0.28  0.75  3001    1
-#> lp__    -3.90    0.03 1.09 -6.86 -4.34 -3.56 -3.12 -2.81  1362    1
+#> theta_1  0.50    0.00 0.28  0.03  0.26  0.50  0.75  0.97  3849    1
+#> theta_2  0.50    0.00 0.29  0.03  0.26  0.50  0.74  0.98  3920    1
+#> diff     0.00    0.01 0.40 -0.77 -0.28  0.00  0.28  0.78  3783    1
+#> lp__    -3.95    0.03 1.15 -6.93 -4.44 -3.58 -3.10 -2.80  1670    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Tue May 16 14:05:45 2017.
+#> Samples were drawn using NUTS(diag_e) at Tue Feb 02 13:53:00 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -334,12 +348,12 @@ m_informative
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.14    0.00 0.04   0.08   0.12   0.14   0.17   0.22  3288    1
-#> theta_2   0.10    0.00 0.03   0.05   0.07   0.09   0.11   0.17  2837    1
-#> diff      0.05    0.00 0.05  -0.05   0.02   0.05   0.08   0.14  3020    1
-#> lp__    -70.65    0.02 1.05 -73.56 -71.09 -70.33 -69.89 -69.63  1834    1
+#> theta_1   0.14    0.00 0.04   0.08   0.12   0.14   0.17   0.22  2883    1
+#> theta_2   0.10    0.00 0.03   0.05   0.07   0.09   0.12   0.16  3493    1
+#> diff      0.05    0.00 0.05  -0.04   0.02   0.05   0.08   0.14  3140    1
+#> lp__    -70.60    0.02 0.99 -73.09 -71.01 -70.29 -69.88 -69.63  1613    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Tue May 16 14:05:45 2017.
+#> Samples were drawn using NUTS(diag_e) at Tue Feb 02 13:53:01 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -351,12 +365,12 @@ m_flat
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.19    0.00 0.05   0.09   0.15   0.18   0.22   0.30  2987    1
-#> theta_2   0.10    0.00 0.04   0.04   0.07   0.10   0.13   0.20  2511    1
-#> diff      0.09    0.00 0.07  -0.04   0.04   0.09   0.13   0.21  3042    1
-#> lp__    -43.14    0.02 1.00 -45.82 -43.54 -42.84 -42.43 -42.15  1768    1
+#> theta_1   0.18    0.00 0.05   0.09   0.15   0.18   0.22   0.30  3451    1
+#> theta_2   0.10    0.00 0.04   0.03   0.07   0.10   0.12   0.19  3390    1
+#> diff      0.09    0.00 0.07  -0.04   0.04   0.09   0.13   0.22  3341    1
+#> lp__    -43.16    0.02 1.01 -45.85 -43.55 -42.85 -42.44 -42.15  1807    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Tue May 16 14:05:46 2017.
+#> Samples were drawn using NUTS(diag_e) at Tue Feb 02 13:53:01 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -365,11 +379,12 @@ m_flat
 
 
 The flat model puts the difference at 0.09 and 90% of the plausible
-values fall in the interval [-0.02, 0.19]. The informative
-model is more skeptical of higher left-handedness rates, so it puts the difference
-at 0.05 with 90% of the values between [-0.03, 0.13].
-Both of these intervals contain 0 and negative values :x:, so there is not much
-evidence for higher left-handedness in the male group.
+values fall in the interval [-0.02, 0.2]. The informative
+model is more skeptical of higher left-handedness rates, so it puts the
+difference at 0.05 with 90% of the values between [-0.03,
+0.12]. Both of these intervals contain 0 and negative values
+❌, so there is not much evidence for higher left-handedness in
+the male group.
 
 To compute a "Bayesian _p_-value", we could ask what proportion of differences 
 are 0 or negative. There are more proper ways to make this inference in a
@@ -381,11 +396,11 @@ negative, then we assign a 10% probability to a negative group difference.
 ```r
 df_flat <- as.data.frame(m_flat)
 mean(df_flat$diff <= 0)
-#> [1] 0.09575
+#> [1] 0.0975
 
 df_informative <- as.data.frame(m_informative)
 mean(df_informative$diff <= 0)
-#> [1] 0.15525
+#> [1] 0.1565
 ```
 
 It's also worth comparing the two models. I've recently become a fan of the
@@ -401,18 +416,13 @@ trial-and-error, of course---to visualize the posterior samples in each model.
 
 ```r
 library(ggmcmc)
-#> Loading required package: tidyr
-#> 
-#> Attaching package: 'tidyr'
-#> The following object is masked from 'package:rstan':
-#> 
-#>     extract
 
 # A helper dataframe for relabeling parameters. I'm writing them in a way that
 # works with ?plotmath conventions.
 labels <- data.frame(
   Parameter = c("theta_1", "theta_2", "diff"), 
-  Label = c("theta[male]", "theta[female]", "theta[male] - theta[female]"))
+  Label = c("theta[male]", "theta[female]", "theta[male] - theta[female]")
+)
 
 # Get ggmcmc's tidy dataframe of each model.
 # ggs() doesn't like that labels I made have brackets so I am suppressing its
@@ -441,7 +451,7 @@ ggs_density(ggs_informative) +
   xlim(-.2, .5)
 ```
 
-<img src="/figs//2017-05-16-bayesian-fisher-exact-test/ggmcmc-density-1.png" title="Density plot of the MCMC samples for the parameters in each model." alt="Density plot of the MCMC samples for the parameters in each model." width="50%" /><img src="/figs//2017-05-16-bayesian-fisher-exact-test/ggmcmc-density-2.png" title="Density plot of the MCMC samples for the parameters in each model." alt="Density plot of the MCMC samples for the parameters in each model." width="50%" />
+<img src="/figs/2017-05-16-bayesian-fisher-exact-test/ggmcmc-density-1.png" title="Density plot of the MCMC samples for the parameters in each model." alt="Density plot of the MCMC samples for the parameters in each model." width="50%" /><img src="/figs/2017-05-16-bayesian-fisher-exact-test/ggmcmc-density-2.png" title="Density plot of the MCMC samples for the parameters in each model." alt="Density plot of the MCMC samples for the parameters in each model." width="50%" />
 
 
 
@@ -450,18 +460,26 @@ model dataframes into `ggs_caterpillar()`.
 
 
 ```r
-ggs_caterpillar(D = list(ggs_flat, ggs_informative), line = 0,
-                thick_ci = c(0.05, 0.95), thin_ci = c(0.025, 0.975)) +
+ggs_caterpillar(
+  D = list(ggs_flat, ggs_informative), 
+  line = 0,
+  thick_ci = c(0.05, 0.95), 
+  thin_ci = c(0.025, 0.975)
+) +
   # Parse the labels as formatted math
   scale_y_discrete(
     breaks = as.character(unique(ggs_flat$Parameter)),
-    labels = parse(text = as.character(unique(ggs_flat$Parameter)))) +
-  labs(caption = "Intervals: thick 90%, thin 95%. Point: median.", 
-       y = NULL, x = NULL) + 
+    labels = parse(text = as.character(unique(ggs_flat$Parameter)))
+  ) +
+  labs(
+    caption = "Intervals: thick 90%, thin 95%. Point: median.", 
+    y = NULL, 
+    x = NULL
+  ) + 
   theme_grey(base_size = 14)
 ```
 
-<img src="/figs//2017-05-16-bayesian-fisher-exact-test/ggmcmc-caterpillar-1.png" title="Caterpillar plot of the MCMC samples for the parameters in each model." alt="Caterpillar plot of the MCMC samples for the parameters in each model." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-05-16-bayesian-fisher-exact-test/ggmcmc-caterpillar-1.png" title="Caterpillar plot of the MCMC samples for the parameters in each model." alt="Caterpillar plot of the MCMC samples for the parameters in each model." width="80%" style="display: block; margin: auto;" />
 
 There's a lot of useful information here. First, the intervals in the flat prior
 model are wider than the ones for the informative model. The two models largely
@@ -496,6 +514,100 @@ a hole through my cheek if I used my left hand! So: Handedness may be a matter
 of degree. (Or maybe not. I mostly wanted to mention the dextrality quotient.
 It's fun to think about.)
 
+
+
+***
+
+*Last knitted on 2021-02-02. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-16-bayesian-fisher-exact-test.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-02                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  ! package      * version    date       lib source                     
+    #>    assertthat     0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
+    #>    callr          3.5.1      2020-10-13 [1] CRAN (R 4.0.3)             
+    #>    cli            2.2.0      2020-11-20 [1] CRAN (R 4.0.3)             
+    #>    codetools      0.2-18     2020-11-04 [1] CRAN (R 4.0.2)             
+    #>    colorspace     2.0-0      2020-11-11 [1] CRAN (R 4.0.3)             
+    #>    crayon         1.3.4      2017-09-16 [1] CRAN (R 4.0.2)             
+    #>    curl           4.3        2019-12-02 [1] CRAN (R 4.0.2)             
+    #>    DBI            1.1.1      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>    digest         0.6.27     2020-10-24 [1] CRAN (R 4.0.3)             
+    #>    dplyr        * 1.0.3      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>    ellipsis       0.3.1      2020-05-15 [1] CRAN (R 4.0.2)             
+    #>    emo            0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)
+    #>    evaluate       0.14       2019-05-28 [1] CRAN (R 4.0.2)             
+    #>    fansi          0.4.2      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>    farver         2.0.3      2020-01-16 [1] CRAN (R 4.0.2)             
+    #>    generics       0.1.0      2020-10-31 [1] CRAN (R 4.0.3)             
+    #>    GGally         2.1.0      2021-01-06 [1] CRAN (R 4.0.3)             
+    #>    ggmcmc       * 1.5.0      2020-08-29 [1] CRAN (R 4.0.3)             
+    #>    ggplot2      * 3.3.3      2020-12-30 [1] CRAN (R 4.0.3)             
+    #>    git2r          0.28.0     2021-01-10 [1] CRAN (R 4.0.3)             
+    #>    glue           1.4.2      2020-08-27 [1] CRAN (R 4.0.2)             
+    #>    gridExtra      2.3        2017-09-09 [1] CRAN (R 4.0.2)             
+    #>    gtable         0.3.0      2019-03-25 [1] CRAN (R 4.0.2)             
+    #>    here           1.0.1      2020-12-13 [1] CRAN (R 4.0.3)             
+    #>    highr          0.8        2019-03-20 [1] CRAN (R 4.0.2)             
+    #>    inline         0.3.17     2020-12-01 [1] CRAN (R 4.0.3)             
+    #>    jsonlite       1.7.2      2020-12-09 [1] CRAN (R 4.0.3)             
+    #>    knitr        * 1.31       2021-01-27 [1] CRAN (R 4.0.3)             
+    #>    labeling       0.4.2      2020-10-20 [1] CRAN (R 4.0.2)             
+    #>    lifecycle      0.2.0      2020-03-06 [1] CRAN (R 4.0.2)             
+    #>    loo            2.4.1      2020-12-09 [1] CRAN (R 4.0.3)             
+    #>    lubridate      1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
+    #>    magrittr       2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
+    #>    matrixStats    0.57.0     2020-09-25 [1] CRAN (R 4.0.2)             
+    #>    munsell        0.5.0      2018-06-12 [1] CRAN (R 4.0.2)             
+    #>    pillar         1.4.7      2020-11-20 [1] CRAN (R 4.0.3)             
+    #>    pkgbuild       1.2.0      2020-12-15 [1] CRAN (R 4.0.3)             
+    #>    pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.0.2)             
+    #>    plyr           1.8.6      2020-03-03 [1] CRAN (R 4.0.2)             
+    #>    prettyunits    1.1.1      2020-01-24 [1] CRAN (R 4.0.2)             
+    #>    processx       3.4.5      2020-11-30 [1] CRAN (R 4.0.3)             
+    #>    ps             1.5.0      2020-12-05 [1] CRAN (R 4.0.3)             
+    #>    purrr          0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
+    #>    R6             2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
+    #>    RColorBrewer   1.1-2      2014-12-07 [1] CRAN (R 4.0.0)             
+    #>    Rcpp           1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>  D RcppParallel   5.0.2      2020-06-24 [1] CRAN (R 4.0.2)             
+    #>    reshape        0.8.8      2018-10-23 [1] CRAN (R 4.0.2)             
+    #>    rlang          0.4.10     2020-12-30 [1] CRAN (R 4.0.3)             
+    #>    rprojroot      2.0.2      2020-11-15 [1] CRAN (R 4.0.3)             
+    #>    rstan        * 2.21.2     2020-07-27 [1] CRAN (R 4.0.3)             
+    #>    scales         1.1.1      2020-05-11 [1] CRAN (R 4.0.2)             
+    #>    sessioninfo    1.1.1      2018-11-05 [1] CRAN (R 4.0.2)             
+    #>    StanHeaders  * 2.21.0-7   2020-12-17 [1] CRAN (R 4.0.3)             
+    #>    stringi        1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
+    #>    stringr        1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
+    #>    tibble       * 3.0.5      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>    tidyr        * 1.1.2      2020-08-27 [1] CRAN (R 4.0.2)             
+    #>    tidyselect     1.1.0      2020-05-11 [1] CRAN (R 4.0.2)             
+    #>    V8             3.4.0      2020-11-04 [1] CRAN (R 4.0.3)             
+    #>    vctrs          0.3.6      2020-12-17 [1] CRAN (R 4.0.3)             
+    #>    withr          2.4.1      2021-01-26 [1] CRAN (R 4.0.3)             
+    #>    xfun           0.20       2021-01-06 [1] CRAN (R 4.0.3)             
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    #> 
+    #>  D -- DLL MD5 mismatch, broken installation.
+    ```
 
 [bc-youtube]: https://www.youtube.com/watch?v=qQFF4tPgeWI
 [bc-blog]: https://lingpipe-blog.com/2009/10/13/bayesian-counterpart-to-fisher-exact-test-on-contingency-tables/

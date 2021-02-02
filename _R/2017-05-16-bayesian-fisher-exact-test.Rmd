@@ -15,6 +15,7 @@ header:
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tibble)
+library(ggmcmc)
 library(dplyr, warn.conflicts = FALSE)
 
 # Create a matrix representation of the data for the fisher test
@@ -54,9 +55,14 @@ matrix.
 
 ```{r}
 # Create a matrix representation of the data for the fisher test
-m <- matrix(c(9, 43, 4, 44), nrow = 2, byrow = TRUE,
-            dimnames = list(sex = c("male", "female"),
-                            handedness = c("left", "right")))
+m <- matrix(
+  c(9, 43, 4, 44), 
+  nrow = 2, 
+  byrow = TRUE,
+  dimnames = list(
+    sex = c("male", "female"), 
+    handedness = c("left", "right"))
+  )
 m
 ```
 
@@ -76,18 +82,24 @@ group?
 fisher.test(m, alternative = "greater")
 ```
 
-In both tests, we cannot reject the null hypothesis because the _p_-value is
-greater than .05 :x:, so we would conclude that the two groups are not different.
+In both tests, we cannot reject the null hypothesis because the *p*-value is
+greater than .05 `r emo::ji("x")`, so we would conclude that the two groups are
+not different.
 
 ```{r, echo = FALSE, results = 'hide'}
-glm <- glm(cbind(`n left handed`, `n right handed`) ~ sex, binomial, df_version)
+glm <- glm(
+  cbind(`n left handed`, `n right handed`) ~ sex, 
+  family = binomial, 
+  data = df_version
+)
 summary(glm)
 ```
 
 But I don't really know this test that well. We never covered it in any of my
 stats classes, and indeed, this post is the first time I ever used the function
-`fisher.test()`.  If I had never heard of the test, I am not quite sure what I
-would have done. Maybe a logistic regression (_p_&nbsp;= .191 :x:).
+`fisher.test()`. If I had never heard of the test, I am not quite sure what I
+would have done. Maybe a logistic regression (*p* = .191 `r emo::ji("x")`).
+
 
 ## Creating a Stan model
 
@@ -198,7 +210,7 @@ I begin by compiling the model. This step will create an executable
 program that can sample from the model. I do the compilation in its own step so
 that I can re-use the program for different versions of the model.
 
-```{r model_program, cache = TRUE, dependson = "model_code", results = 'hide'}
+```{r model_program, cache = FALSE, dependson = "model_code", results = 'hide'}
 model_program <- stan_model(model_code = model_code)
 ```
 
@@ -294,10 +306,11 @@ median(df_informative$diff)
 
 The flat model puts the difference at `r q_flat[2]` and 90% of the plausible
 values fall in the interval [`r q_flat[1]`, `r q_flat[3]`]. The informative
-model is more skeptical of higher left-handedness rates, so it puts the difference
-at `r q_info[2]` with 90% of the values between [`r q_info[1]`, `r q_info[3]`].
-Both of these intervals contain 0 and negative values :x:, so there is not much
-evidence for higher left-handedness in the male group.
+model is more skeptical of higher left-handedness rates, so it puts the
+difference at `r q_info[2]` with 90% of the values between [`r q_info[1]`,
+`r q_info[3]`]. Both of these intervals contain 0 and negative values
+`r emo::ji("x")`, so there is not much evidence for higher left-handedness in
+the male group.
 
 To compute a "Bayesian _p_-value", we could ask what proportion of differences 
 are 0 or negative. There are more proper ways to make this inference in a
@@ -330,7 +343,8 @@ library(ggmcmc)
 # works with ?plotmath conventions.
 labels <- data.frame(
   Parameter = c("theta_1", "theta_2", "diff"), 
-  Label = c("theta[male]", "theta[female]", "theta[male] - theta[female]"))
+  Label = c("theta[male]", "theta[female]", "theta[male] - theta[female]")
+)
 
 # Get ggmcmc's tidy dataframe of each model.
 # ggs() doesn't like that labels I made have brackets so I am suppressing its
@@ -365,14 +379,22 @@ We can also compare the models together in a single plot by passing a list of
 model dataframes into `ggs_caterpillar()`.
 
 ```{r ggmcmc-caterpillar, fig.cap = "Caterpillar plot of the MCMC samples for the parameters in each model."}
-ggs_caterpillar(D = list(ggs_flat, ggs_informative), line = 0,
-                thick_ci = c(0.05, 0.95), thin_ci = c(0.025, 0.975)) +
+ggs_caterpillar(
+  D = list(ggs_flat, ggs_informative), 
+  line = 0,
+  thick_ci = c(0.05, 0.95), 
+  thin_ci = c(0.025, 0.975)
+) +
   # Parse the labels as formatted math
   scale_y_discrete(
     breaks = as.character(unique(ggs_flat$Parameter)),
-    labels = parse(text = as.character(unique(ggs_flat$Parameter)))) +
-  labs(caption = "Intervals: thick 90%, thin 95%. Point: median.", 
-       y = NULL, x = NULL) + 
+    labels = parse(text = as.character(unique(ggs_flat$Parameter)))
+  ) +
+  labs(
+    caption = "Intervals: thick 90%, thin 95%. Point: median.", 
+    y = NULL, 
+    x = NULL
+  ) + 
   theme_grey(base_size = 14)
 ```
 
@@ -409,6 +431,11 @@ a hole through my cheek if I used my left hand! So: Handedness may be a matter
 of degree. (Or maybe not. I mostly wanted to mention the dextrality quotient.
 It's fun to think about.)
 
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
 [bc-youtube]: https://www.youtube.com/watch?v=qQFF4tPgeWI
 [bc-blog]: https://lingpipe-blog.com/2009/10/13/bayesian-counterpart-to-fisher-exact-test-on-contingency-tables/
