@@ -61,7 +61,7 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
 }
 
 
-paths_current_posts <- list_rmds("./_R")[1:14] %>%
+paths_current_posts <- list_rmds("./_R")[1:16] %>%
   stringr::str_subset("_footer.Rmd", negate = TRUE)
 paths_draft_posts <- list_rmds("./_R/_drafts")
 

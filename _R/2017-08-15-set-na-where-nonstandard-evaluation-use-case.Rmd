@@ -12,13 +12,19 @@ header:
   caption: "Photo credit: [**Jovi Waqa**](https://unsplash.com/photos/gNJn5-C5enE)"
 ---
 
-In this post, I describe a recent case where I used rlang's 
-[tidy evaluation](http://rlang.tidyverse.org/articles/tidy-evaluation.html)
-system to do some data-cleaning. This example is not particularly involved, but
-it demonstrates is a basic but powerful idea: That we can capture the
-expressions that a user writes, pass them around as data, and make some 
-:dizzy: magic :sparkles: happen. This technique in R is called 
-[_nonstandard evaluation_](http://adv-r.had.co.nz/Computing-on-the-language.html).
+```{r, include = FALSE}
+# remotes::install_github("tjmahr/fillgaze")
+```
+
+
+In this post, I describe a recent case where I used rlang's [tidy
+evaluation](http://rlang.tidyverse.org/articles/tidy-evaluation.html)
+system to do some data-cleaning. This example is not particularly
+involved, but it demonstrates is a basic but powerful idea: That we can
+capture the expressions that a user writes, pass them around as data,
+and make some `r emo::ji("dizzy")` magic `r emo::ji("sparkles")` happen.
+This technique in R is called [*nonstandard
+evaluation*](http://adv-r.had.co.nz/Computing-on-the-language.html).
 
 ## Strange eyetracking data
 
@@ -62,14 +68,21 @@ p <- ggplot(head(df, 40)) +
   geom_hline(yintercept = 0, size = 2, color = "white") + 
   geom_point(aes(y = GazeX, color = "GazeX")) +
   geom_point(aes(y = GazeY, color = "GazeY")) + 
-  labs(x = "Time (ms)", y = "Screen location (pixels)", 
-       color = "Variable")
+  labs(
+    x = "Time (ms)", 
+    y = "Screen location (pixels)", 
+    color = "Variable"
+  )
 
 p + 
-  annotate("text", x = 50, y = -200, 
-           label = "offscreen", color = "grey20") + 
-  annotate("text", x = 50, y = 200, 
-           label = "onscreen", color = "grey20") 
+  annotate(
+    "text", x = 50, y = -200, 
+    label = "offscreen", color = "grey20"
+  ) + 
+  annotate(
+    "text", x = 50, y = 200, 
+    label = "onscreen", color = "grey20"
+  ) 
 ```
 
 It is physiologically impossible for a person's gaze to oscillate so quickly and
@@ -98,7 +111,8 @@ set_na_where <- function(data, ...) {
 set_na_where(
   data = df,
   GazeX = GazeX < -500 | 2200 < GazeX,
-  GazeY = GazeY < -200 | 1200 < GazeY)
+  GazeY = GazeY < -200 | 1200 < GazeY
+)
 ```
 
 That is, after specifying the `data`, we list off an arbitrary number of column
@@ -167,7 +181,8 @@ set_na_where <- function(data, ...) {
 spells <- set_na_where(
   data = df,
   GazeX = GazeX < -500 | 2200 < GazeX, 
-  GazeY = GazeY < -200 | 1200 < GazeY)
+  GazeY = GazeY < -200 | 1200 < GazeY
+)
 spells
 ```
 
@@ -225,7 +240,8 @@ set_na_where <- function(data, ...) {
 results <- set_na_where(
   data = df,
   GazeX = GazeX < -500 | 2200 < GazeX, 
-  GazeY = GazeY < -200 | 1200 < GazeY)
+  GazeY = GazeY < -200 | 1200 < GazeY
+)
 results
 ```
 
@@ -258,10 +274,12 @@ We can equalize these counts by running the function a second time with new rule
 df %>% 
   set_na_where(
     GazeX = GazeX < -500 | 2200 < GazeX, 
-    GazeY = GazeY < -200 | 1200 < GazeY) %>% 
+    GazeY = GazeY < -200 | 1200 < GazeY
+  ) %>% 
   set_na_where(
     GazeX = is.na(GazeY), 
-    GazeY = is.na(GazeX)) %>% 
+    GazeY = is.na(GazeX)
+  ) %>% 
   count_na(GazeX, GazeY)
 ```
 
@@ -272,10 +290,18 @@ on `GazeX` and `GazeY`.
 df %>% 
   set_na_where(
     GazeX = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY, 
-    GazeY = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY) %>% 
+    GazeY = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY
+  ) %>% 
   count_na(GazeX, GazeY)
 ```
 
 These last examples, where we compare different rules, showcases how nonstandard
 evaluation lets us write in a very succinct and convenient manner and quickly
 iterate over possible rules. Works like magic, indeed.
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```

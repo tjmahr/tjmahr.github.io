@@ -27,6 +27,7 @@ that takes a list of counts of people and returns the total number of people.
 That sum, however, is controlled by some of the function's arguments:
 
 ```{r}
+library(magrittr)
 head_count <- function(data, staff = FALSE, faculty = FALSE) {
   total <- data[["students"]]
   
@@ -144,17 +145,21 @@ the code yet. The formula form `~ parameter` "quotes" the variable name, so
 it doesn't appear as a global variable.
 {: .notice--info}
 
-We are going to wrap this code in an R function along with two annotation
-options: 
+We are going to wrap this code in an R function along with two
+annotation options:
 
-1. whether to draw point estimates (medians) over the intervals 
-2. whether to draw a vertical reference line at _x_ = 0
+1.  whether to draw point estimates (medians) over the intervals
+2.  whether to draw a vertical reference line at *x* = 0
 
-Here is how we might write the function with branching code. 
+Here is how we might write the function with branching code.
 
 ```{r test-1, out.width="50%", fig.show='hold', fig.align = "default", fig.cap = "A test of the plot_intervals() function"}
-plot_intervals <- function(data, draw_points = TRUE, draw_ref_line = TRUE,
-                           line_position = 0) {
+plot_intervals <- function(
+  data, 
+  draw_points = TRUE, 
+  draw_ref_line = TRUE,
+  line_position = 0
+) {
   p <- ggplot(data) + 
     aes_(y = ~ parameter, yend = ~ parameter) 
   
@@ -199,8 +204,12 @@ that strategy for the point estimates by toggling between the original data or
 zero-row alternative in the first line.
 
 ```{r test-2, out.width="50%", fig.show='hold', fig.align = "default", fig.cap = "A test of the plot_intervals() function"}
-plot_intervals <- function(data, draw_points = TRUE, draw_ref_line = TRUE,
-                           line_position = 0) {
+plot_intervals <- function(
+  data, 
+  draw_points = TRUE, 
+  draw_ref_line = TRUE,
+  line_position = 0
+) {
   maybe_points <- if (draw_points) data else data[0, ]
   
   p <- ggplot(data) + 
@@ -227,7 +236,7 @@ plot_intervals(interval_data, draw_points = FALSE) + ggtitle("No points")
 This is a marked improvement over the original, as most of the plot construction
 happens at the end of the function.
 
-## Do nothing with `geom_blank`
+## Do nothing with `geom_blank()`
 
 Another way to do nothing is to add `geom_blank()`. In fact, this is what
 ggplot2 does when we print a ggplot2 object without any geom layers.
@@ -249,8 +258,12 @@ As a first pass for technique, we toggle between the plotting functions
 construction to a single stream of plot additions.
 
 ```{r test-3, out.width="50%", fig.show='hold', fig.align = "default", fig.cap = "A test of the plot_intervals() function"}
-plot_intervals <- function(data, draw_points = TRUE, draw_ref_line = TRUE,
-                           line_position = 0) {
+plot_intervals <- function(
+  data, 
+  draw_points = TRUE, 
+  draw_ref_line = TRUE,
+  line_position = 0
+) {
   maybe_points <- if (draw_points) data else data[0, ]
   geom_maybe_vline <- if (draw_ref_line) geom_vline else geom_blank
     
@@ -272,21 +285,29 @@ plot_intervals(interval_data, draw_ref_line = FALSE) + ggtitle("No line")
 But it also issues a warning when it toggles to `geom_blank()`. That might alarm
 some users, so we need to fix that. For bayesplot, I wrote a helper called
 `geom_ignore()` as a version of `geom_blank()` that ignores any input arguments.
-The function recieves any number of arguments in the `...` placeholder argument,
+The function receives any number of arguments in the `...` placeholder argument,
 but the function does nothing with those dots. It just ignores them.
 
 ```{r}
 geom_ignore <- function(...) {
-  geom_blank(mapping = NULL, data = NULL,
-             show.legend = FALSE, inherit.aes = FALSE)
+  geom_blank(
+    mapping = NULL, 
+    data = NULL,
+    show.legend = FALSE, 
+    inherit.aes = FALSE
+  )
 }
 ```
 
 For completeness, here is the final form using `geom_ignore()`.
 
 ```{r test-4, out.width="50%", fig.show='hold', fig.align = "default", fig.cap = "A test of the plot_intervals() function"}
-plot_intervals <- function(data, draw_points = TRUE, draw_ref_line = TRUE,
-                           line_position = 0) {
+plot_intervals <- function(
+  data, 
+  draw_points = TRUE, 
+  draw_ref_line = TRUE,
+  line_position = 0
+) {
   maybe_points <- if (draw_points) data else data[0, ]
   geom_maybe_vline <- if (draw_ref_line) geom_vline else geom_ignore
     
@@ -317,22 +338,24 @@ nothing, but internally, we left a trace behind.
 p <- plot_intervals(
   interval_data, 
   draw_points = FALSE, 
-  draw_ref_line = FALSE)
+  draw_ref_line = FALSE
+)
 
 p[["layers"]][[1]]
 
 p[["layers"]][[4]]
 ```
 
-**Update** After some playing around, I discovered that adding `NULL` to a
-ggplot doesn't change it (e.g., `p + NULL` does not leave a trace), so it
-provides a stronger identity element for ggplot2 than invisible layers. In the
-original version of this post, I said that I would not use `NULL`  in this way
-because it seemed like an edge case that might break some day. But the creator
-of ggplot2, Hadley Wickham, [told me that using `NULL` as an identity element is
-a deliberate design
-feature](https://twitter.com/hadleywickham/status/918438633111203841). :tada:
-Cool! Now, we can make `geom_ignore()` even simpler.
+**Update** After some playing around, I discovered that adding `NULL` to
+a ggplot doesn't change it (e.g., `p + NULL` does not leave a trace), so
+it provides a stronger identity element for ggplot2 than invisible
+layers. In the original version of this post, I said that I would not
+use `NULL` in this way because it seemed like an edge case that might
+break some day. But the creator of ggplot2, Hadley Wickham, [told me
+that using `NULL` as an identity element is a deliberate design
+feature](https://twitter.com/hadleywickham/status/918438633111203841).
+`r emo::ji("tada")` Cool! Now, we can make `geom_ignore()` even
+simpler.
 
 ```{r}
 geom_ignore <- function(...) {
@@ -344,3 +367,8 @@ geom_ignore <- function(...) {
 
 
 
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```

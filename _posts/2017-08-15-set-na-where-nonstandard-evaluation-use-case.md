@@ -12,13 +12,17 @@ header:
   caption: "Photo credit: [**Jovi Waqa**](https://unsplash.com/photos/gNJn5-C5enE)"
 ---
 
-In this post, I describe a recent case where I used rlang's 
-[tidy evaluation](http://rlang.tidyverse.org/articles/tidy-evaluation.html)
-system to do some data-cleaning. This example is not particularly involved, but
-it demonstrates is a basic but powerful idea: That we can capture the
-expressions that a user writes, pass them around as data, and make some 
-:dizzy: magic :sparkles: happen. This technique in R is called 
-[_nonstandard evaluation_](http://adv-r.had.co.nz/Computing-on-the-language.html).
+
+
+
+In this post, I describe a recent case where I used rlang's [tidy
+evaluation](http://rlang.tidyverse.org/articles/tidy-evaluation.html)
+system to do some data-cleaning. This example is not particularly
+involved, but it demonstrates is a basic but powerful idea: That we can
+capture the expressions that a user writes, pass them around as data,
+and make some 💫 magic ✨ happen.
+This technique in R is called [*nonstandard
+evaluation*](http://adv-r.had.co.nz/Computing-on-the-language.html).
 
 ## Strange eyetracking data
 
@@ -51,16 +55,16 @@ df
 #> # A tibble: 14,823 x 8
 #>     Time Trial GazeX GazeY LEyeCoordX LEyeCoordY REyeCoordX REyeCoordY
 #>    <dbl> <dbl> <dbl> <dbl>      <dbl>      <dbl>      <dbl>      <dbl>
-#>  1   0.0     1  1176   643      0.659      0.589      0.566      0.602
-#>  2   3.5     1 -1920 -1080     -1.000     -1.000     -1.000     -1.000
-#>  3  20.2     1 -1920 -1080     -1.000     -1.000     -1.000     -1.000
+#>  1   0       1  1176   643      0.659      0.589      0.566      0.602
+#>  2   3.5     1 -1920 -1080     -1         -1         -1         -1    
+#>  3  20.2     1 -1920 -1080     -1         -1         -1         -1    
 #>  4  36.8     1  1184   648      0.664      0.593      0.570      0.606
-#>  5  40.0     1  1225   617      0.685      0.564      0.591      0.579
-#>  6  56.7     1 -1920 -1080     -1.000     -1.000     -1.000     -1.000
-#>  7  73.4     1  1188   641      0.665      0.587      0.572      0.600
+#>  5  40       1  1225   617      0.685      0.564      0.591      0.579
+#>  6  56.7     1 -1920 -1080     -1         -1         -1         -1    
+#>  7  73.4     1  1188   641      0.665      0.587      0.572      0.6  
 #>  8  76.6     1  1204   621      0.674      0.568      0.580      0.582
-#>  9  93.3     1 -1920 -1080     -1.000     -1.000     -1.000     -1.000
-#> 10 109.9     1  1189   665      0.666      0.609      0.572      0.622
+#>  9  93.3     1 -1920 -1080     -1         -1         -1         -1    
+#> 10 110.      1  1189   665      0.666      0.609      0.572      0.622
 #> # ... with 14,813 more rows
 ```
 
@@ -78,17 +82,24 @@ p <- ggplot(head(df, 40)) +
   geom_hline(yintercept = 0, size = 2, color = "white") + 
   geom_point(aes(y = GazeX, color = "GazeX")) +
   geom_point(aes(y = GazeY, color = "GazeY")) + 
-  labs(x = "Time (ms)", y = "Screen location (pixels)", 
-       color = "Variable")
+  labs(
+    x = "Time (ms)", 
+    y = "Screen location (pixels)", 
+    color = "Variable"
+  )
 
 p + 
-  annotate("text", x = 50, y = -200, 
-           label = "offscreen", color = "grey20") + 
-  annotate("text", x = 50, y = 200, 
-           label = "onscreen", color = "grey20") 
+  annotate(
+    "text", x = 50, y = -200, 
+    label = "offscreen", color = "grey20"
+  ) + 
+  annotate(
+    "text", x = 50, y = 200, 
+    label = "onscreen", color = "grey20"
+  ) 
 ```
 
-<img src="/figs//2017-08-15-set-na-where-nonstandard-evaluation-use-case/missing-data-plot-1.png" title="Offscreens looks occurred every two or three samples." alt="Offscreens looks occurred every two or three samples." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-08-15-set-na-where-nonstandard-evaluation-use-case/missing-data-plot-1.png" title="Offscreens looks occurred every two or three samples." alt="Offscreens looks occurred every two or three samples." width="80%" style="display: block; margin: auto;" />
 
 It is physiologically impossible for a person's gaze to oscillate so quickly and
 with such magnitude (the gaze is tracked on a large screen display), so
@@ -117,7 +128,8 @@ set_na_where <- function(data, ...) {
 set_na_where(
   data = df,
   GazeX = GazeX < -500 | 2200 < GazeX,
-  GazeY = GazeY < -200 | 1200 < GazeY)
+  GazeY = GazeY < -200 | 1200 < GazeY
+)
 ```
 
 That is, after specifying the `data`, we list off an arbitrary number of column
@@ -200,18 +212,20 @@ set_na_where <- function(data, ...) {
 spells <- set_na_where(
   data = df,
   GazeX = GazeX < -500 | 2200 < GazeX, 
-  GazeY = GazeY < -200 | 1200 < GazeY)
+  GazeY = GazeY < -200 | 1200 < GazeY
+)
 spells
+#> <list_of<quosure>>
+#> 
 #> $GazeX
-#> <quosure: frame>
-#> ~GazeX < -500 | 2200 < GazeX
+#> <quosure>
+#> expr: ^GazeX < -500 | 2200 < GazeX
+#> env:  00000000169D3620
 #> 
 #> $GazeY
-#> <quosure: frame>
-#> ~GazeY < -200 | 1200 < GazeY
-#> 
-#> attr(,"class")
-#> [1] "quosures"
+#> <quosure>
+#> expr: ^GazeY < -200 | 1200 < GazeY
+#> env:  00000000169D3620
 ```
 
 I call these results `spells` because it just contains the expressions stored as
@@ -223,8 +237,9 @@ stored data, and we can extract values (the quoted expressions).
 names(spells)
 #> [1] "GazeX" "GazeY"
 spells[[1]]
-#> <quosure: frame>
-#> ~GazeX < -500 | 2200 < GazeX
+#> <quosure>
+#> expr: ^GazeX < -500 | 2200 < GazeX
+#> env:  00000000169D3620
 ```
 
 ### Casting spells
@@ -241,8 +256,8 @@ xs_to_set_na <- eval_tidy(spells[[1]], data = df)
 
 # Just the first few bc there are 10000+ values
 xs_to_set_na[1:20]
-#>  [1] FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE
-#> [12]  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE
+#>  [1] FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE
+#> [13] FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE
 ```
 
 In fact, we can evaluate them all at once with by applying `eval_tidy()` on each
@@ -280,21 +295,22 @@ set_na_where <- function(data, ...) {
 results <- set_na_where(
   data = df,
   GazeX = GazeX < -500 | 2200 < GazeX, 
-  GazeY = GazeY < -200 | 1200 < GazeY)
+  GazeY = GazeY < -200 | 1200 < GazeY
+)
 results
 #> # A tibble: 14,823 x 8
 #>     Time Trial GazeX GazeY LEyeCoordX LEyeCoordY REyeCoordX REyeCoordY
 #>    <dbl> <dbl> <dbl> <dbl>      <dbl>      <dbl>      <dbl>      <dbl>
-#>  1   0.0     1  1176   643      0.659      0.589      0.566      0.602
-#>  2   3.5     1    NA    NA     -1.000     -1.000     -1.000     -1.000
-#>  3  20.2     1    NA    NA     -1.000     -1.000     -1.000     -1.000
+#>  1   0       1  1176   643      0.659      0.589      0.566      0.602
+#>  2   3.5     1    NA    NA     -1         -1         -1         -1    
+#>  3  20.2     1    NA    NA     -1         -1         -1         -1    
 #>  4  36.8     1  1184   648      0.664      0.593      0.570      0.606
-#>  5  40.0     1  1225   617      0.685      0.564      0.591      0.579
-#>  6  56.7     1    NA    NA     -1.000     -1.000     -1.000     -1.000
-#>  7  73.4     1  1188   641      0.665      0.587      0.572      0.600
+#>  5  40       1  1225   617      0.685      0.564      0.591      0.579
+#>  6  56.7     1    NA    NA     -1         -1         -1         -1    
+#>  7  73.4     1  1188   641      0.665      0.587      0.572      0.6  
 #>  8  76.6     1  1204   621      0.674      0.568      0.580      0.582
-#>  9  93.3     1    NA    NA     -1.000     -1.000     -1.000     -1.000
-#> 10 109.9     1  1189   665      0.666      0.609      0.572      0.622
+#>  9  93.3     1    NA    NA     -1         -1         -1         -1    
+#> 10 110.      1  1189   665      0.666      0.609      0.572      0.622
 #> # ... with 14,813 more rows
 ```
 
@@ -310,7 +326,7 @@ p %+% head(results, 40)
 #> Warning: Removed 15 rows containing missing values (geom_point).
 ```
 
-<img src="/figs//2017-08-15-set-na-where-nonstandard-evaluation-use-case/no-offscreen-plots-1.png" title="Offscreens are no longer plotted." alt="Offscreens are no longer plotted." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2017-08-15-set-na-where-nonstandard-evaluation-use-case/no-offscreen-plots-1.png" title="Offscreens are no longer plotted." alt="Offscreens are no longer plotted." width="80%" style="display: block; margin: auto;" />
 
 One of the quirks about some eyetracking data is that during a blink, sometimes
 the device will record the _x_ location but not the _y_ location. (I think this
@@ -340,10 +356,12 @@ We can equalize these counts by running the function a second time with new rule
 df %>% 
   set_na_where(
     GazeX = GazeX < -500 | 2200 < GazeX, 
-    GazeY = GazeY < -200 | 1200 < GazeY) %>% 
+    GazeY = GazeY < -200 | 1200 < GazeY
+  ) %>% 
   set_na_where(
     GazeX = is.na(GazeY), 
-    GazeY = is.na(GazeX)) %>% 
+    GazeY = is.na(GazeX)
+  ) %>% 
   count_na(GazeX, GazeY)
 #> $GazeX
 #> [1] 3069
@@ -360,7 +378,8 @@ on `GazeX` and `GazeY`.
 df %>% 
   set_na_where(
     GazeX = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY, 
-    GazeY = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY) %>% 
+    GazeY = GazeX < -500 | 2200 < GazeX | GazeY < -200 | 1200 < GazeY
+  ) %>% 
   count_na(GazeX, GazeY)
 #> $GazeX
 #> [1] 3069
@@ -372,3 +391,80 @@ df %>%
 These last examples, where we compare different rules, showcases how nonstandard
 evaluation lets us write in a very succinct and convenient manner and quickly
 iterate over possible rules. Works like magic, indeed.
+
+
+
+
+***
+
+*Last knitted on 2021-02-03. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-08-15-set-na-where-nonstandard-evaluation-use-case.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-03                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package     * version    date       lib source                     
+    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
+    #>  cli           2.2.0      2020-11-20 [1] CRAN (R 4.0.3)             
+    #>  colorspace    2.0-0      2020-11-11 [1] CRAN (R 4.0.3)             
+    #>  crayon        1.4.0      2021-01-30 [1] CRAN (R 4.0.3)             
+    #>  DBI           1.1.1      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>  digest        0.6.27     2020-10-24 [1] CRAN (R 4.0.3)             
+    #>  dplyr       * 1.0.3      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>  ellipsis      0.3.1      2020-05-15 [1] CRAN (R 4.0.2)             
+    #>  emo           0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)
+    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.0.2)             
+    #>  fansi         0.4.2      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>  farver        2.0.3      2020-01-16 [1] CRAN (R 4.0.2)             
+    #>  generics      0.1.0      2020-10-31 [1] CRAN (R 4.0.3)             
+    #>  ggplot2     * 3.3.3      2020-12-30 [1] CRAN (R 4.0.3)             
+    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.0.3)             
+    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.0.2)             
+    #>  gtable        0.3.0      2019-03-25 [1] CRAN (R 4.0.2)             
+    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.0.3)             
+    #>  highr         0.8        2019-03-20 [1] CRAN (R 4.0.2)             
+    #>  hms           1.0.0      2021-01-13 [1] CRAN (R 4.0.3)             
+    #>  knitr       * 1.31       2021-01-27 [1] CRAN (R 4.0.3)             
+    #>  labeling      0.4.2      2020-10-20 [1] CRAN (R 4.0.2)             
+    #>  lifecycle     0.2.0      2020-03-06 [1] CRAN (R 4.0.2)             
+    #>  lubridate     1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
+    #>  magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
+    #>  munsell       0.5.0      2018-06-12 [1] CRAN (R 4.0.2)             
+    #>  pillar        1.4.7      2020-11-20 [1] CRAN (R 4.0.3)             
+    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.0.2)             
+    #>  ps            1.5.0      2020-12-05 [1] CRAN (R 4.0.3)             
+    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
+    #>  R6            2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
+    #>  Rcpp          1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>  readr         1.4.0      2020-10-05 [1] CRAN (R 4.0.2)             
+    #>  rlang       * 0.4.10     2020-12-30 [1] CRAN (R 4.0.3)             
+    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.0.3)             
+    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.0.3)             
+    #>  scales        1.1.1      2020-05-11 [1] CRAN (R 4.0.2)             
+    #>  sessioninfo   1.1.1      2018-11-05 [1] CRAN (R 4.0.2)             
+    #>  stringi       1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
+    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
+    #>  tibble        3.0.6      2021-01-29 [1] CRAN (R 4.0.3)             
+    #>  tidyselect    1.1.0      2020-05-11 [1] CRAN (R 4.0.2)             
+    #>  utf8          1.1.4      2018-05-24 [1] CRAN (R 4.0.2)             
+    #>  vctrs         0.3.6      2020-12-17 [1] CRAN (R 4.0.3)             
+    #>  withr         2.4.1      2021-01-26 [1] CRAN (R 4.0.3)             
+    #>  xfun          0.20       2021-01-06 [1] CRAN (R 4.0.3)             
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```

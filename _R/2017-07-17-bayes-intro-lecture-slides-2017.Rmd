@@ -36,7 +36,7 @@ As I did with [my last Bayes talk](/rstanarm-tutorial-slides/), I'm going to not
 some questions from the audience, so I don't forget what kinds of questions
 people have when they are introduced to Bayesian statistics.
 
-One theme was frequentist baggage :handbag:. One person asked about 
+One theme was frequentist baggage `r emo::ji("handbag")`. One person asked about 
 [Type I and Type II error](https://twitter.com/chrisalbon/status/874683365865029632) 
 rates. I did not have a satisfactory (that is, _rehearsed_) answer ready for
 this question. I think I said something about how those terms are based on a
@@ -49,16 +49,18 @@ better.
 
 Other questions:
 
-* Another bit of frequentist baggage :handbag:. I mentioned that with a
-posterior predictive distribution, we can put an uncertainty interval on any
-statistic we can calculate, and this point brought up the question of _multiple
-comparisons_. These are a bad thing in classical statistics. But for Bayes, there
-is only one model, and the multiple comparisons are really only the implications 
-of one model.
-* Someone else said that they had heard that Bayesian models can provide evidence
-for a null effect---*how does that work?* I briefly described the 
-[ROPE approach](https://doingbayesiandataanalysis.blogspot.nl/2016/12/bayesian-assessment-of-null-values.html),
-ignoring the existence of Bayes factors entirely.
+  - Another bit of frequentist baggage `r emo::ji("handbag")`. I
+    mentioned that with a posterior predictive distribution, we can put
+    an uncertainty interval on any statistic we can calculate, and this
+    point brought up the question of *multiple comparisons*. These are a
+    bad thing in classical statistics. But for Bayes, there is only one
+    model, and the multiple comparisons are really only the implications
+    of one model.
+  - Someone else said that they had heard that Bayesian models can
+    provide evidence for a null effect---*how does that work?* I briefly
+    described the [ROPE
+    approach](https://doingbayesiandataanalysis.blogspot.nl/2016/12/bayesian-assessment-of-null-values.html),
+    ignoring the existence of Bayes factors entirely.
 
 For future iterations of this tutorial, I should have a worked example, maybe a
 blog post, on each of these issues. 
@@ -69,3 +71,9 @@ statistics. _Yes!_ I thought to myself. _I never have to worry about what the
 hell a confidence interval is ever again!_ Well, actually---no. I need to know
 this stuff even more thoroughly than ever if I am going to talk fluently about
 what makes Bayes different. ¯\\\_(ツ)\_/¯
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
