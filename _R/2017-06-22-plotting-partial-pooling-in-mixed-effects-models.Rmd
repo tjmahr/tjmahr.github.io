@@ -9,6 +9,7 @@ tags:
 ---
 
 ```{r setup, include = FALSE}
+library(dplyr)
 knitr::opts_chunk$set(echo = TRUE)
 asp_facet <- 1
 ```
@@ -22,7 +23,7 @@ intuitions about what these models are doing and what "partial pooling" means.
 
 For these examples, I'm going to use the `sleepstudy` dataset from the lme4
 package. The outcome measure is reaction time, the predictor measure is days of
-sleep deprivation, and these measurements are nested within participants&mdash;we
+sleep deprivation, and these measurements are nested within participants—we
 have 10 observations per participant. I am also going to add two fake
 participants with incomplete data to illustrate partial pooling.
 
@@ -39,8 +40,8 @@ sleepstudy <- sleepstudy %>%
 # Add two fake participants
 df_sleep <- bind_rows(
   sleepstudy,
-  data_frame(Reaction = c(286, 288), Days = 0:1, Subject = "374"),
-  data_frame(Reaction = 245, Days = 0, Subject = "373"))
+  tibble(Reaction = c(286, 288), Days = 0:1, Subject = "374"),
+  tibble(Reaction = 245, Days = 0, Subject = "373"))
 
 df_sleep
 ```
@@ -117,11 +118,12 @@ the combined data set, unaware that the data came from different participants.
 m_pooled <- lm(Reaction ~ Days, df_sleep) 
 
 # Repeat the intercept and slope terms for each participant
-df_pooled <- data_frame(
+df_pooled <- tibble(
   Model = "Complete pooling",
   Subject = unique(df_sleep$Subject),
   Intercept = coef(m_pooled)[1], 
-  Slope_Days = coef(m_pooled)[2])
+  Slope_Days = coef(m_pooled)[2]
+)
 
 head(df_pooled)
 ```
@@ -138,15 +140,17 @@ df_models <- bind_rows(df_pooled, df_no_pooling) %>%
 p_model_comparison <- ggplot(df_models) + 
   aes(x = Days, y = Reaction) + 
   # Set the color mapping in this layer so the points don't get a color
-  geom_abline(aes(intercept = Intercept, slope = Slope_Days, color = Model),
-              size = .75) + 
+  geom_abline(
+    aes(intercept = Intercept, slope = Slope_Days, color = Model),
+    size = .75
+  ) + 
   geom_point() +
   facet_wrap("Subject") +
   labs(x = xlab, y = ylab) + 
   scale_x_continuous(breaks = 0:4 * 2) + 
   # Fix the color palette 
   scale_color_brewer(palette = "Dark2") + 
-  theme(legend.position = "top")
+  theme(legend.position = "top", legend.justification = "left")
 
 p_model_comparison
 ```
@@ -163,18 +167,19 @@ negative slope in 335.
 
 The no pooling model cannot make a guess about 373. In [_Statistical
 Rethinking_](http://xcelab.net/rm/statistical-rethinking/), McElreath says these 
-models have amnesia :hushed::
+models have amnesia `r emo::ji("hushed")`:
 
 > Many statistical models also have anterograde amnesia. As the models move from
-one cluster&mdash;individual, group, location&mdash;in the data to another, estimating
-parameters for each cluster, they forget everything about the previous clusters.
-They behave this way, because the assumptions force them to. Any of the models
-from previous chapters that used dummy variables to handle categories
-are programmed for amnesia. These models implicitly assume that nothing learned
-about any one category informs estimates for the other categories&mdash;the parameters
-are independent of one another and learn from completely separate portions of
-the data. This would be like forgetting you had ever been in a café, each time 
-you go to a new café. Cafés do differ, but they are also alike.
+> one cluster—individual, group, location—in the data to another, estimating
+> parameters for each cluster, they forget everything about the previous
+> clusters. They behave this way, because the assumptions force them to. Any of
+> the models from previous chapters that used dummy variables to handle
+> categories are programmed for amnesia. These models implicitly assume that
+> nothing learned about any one category informs estimates for the other
+> categories—the parameters are independent of one another and learn from
+> completely separate portions of the data. This would be like forgetting you
+> had ever been in a café, each time you go to a new café. Cafés do differ, but
+> they are also alike.
 
 Once the no pooling model draws the line for 372, and it completely forgets
 everything it has seen and moves on to 373. It has to skip 373 because it cannot
@@ -264,10 +269,11 @@ participant.
 
 ```{r shrinkage-plot, fig.asp = .8, fig.cap = "Scatterplot of the model parameters showing how estimates from the no pooling model are pulled towards the completely pooled value."}
 # Also visualize the point for the fixed effects
-df_fixef <- data_frame(
+df_fixef <- tibble(
   Model = "Partial pooling (average)",
   Intercept = fixef(m)[1],
-  Slope_Days = fixef(m)[2])
+  Slope_Days = fixef(m)[2]
+)
 
 # Complete pooling / fixed effects are center of gravity in the plot
 df_gravity <- df_pooled %>% 
@@ -282,17 +288,21 @@ ggplot(df_pulled) +
   geom_point(size = 2) + 
   geom_point(data = df_gravity, size = 5) + 
   # Draw an arrow connecting the observations between models
-  geom_path(aes(group = Subject, color = NULL), 
-            arrow = arrow(length = unit(.02, "npc"))) + 
+  geom_path(
+    aes(group = Subject, color = NULL), 
+    arrow = arrow(length = unit(.02, "npc"))
+  ) + 
   # Use ggrepel to jitter the labels away from the points
   ggrepel::geom_text_repel(
     aes(label = Subject, color = NULL), 
-    data = df_no_pooling) + 
+    data = df_no_pooling
+  ) + 
   # Don't forget 373
   ggrepel::geom_text_repel(
     aes(label = Subject, color = NULL), 
-    data = filter(df_partial_pooling, Subject == "373")) + 
-  theme(legend.position = "bottom") + 
+    data = filter(df_partial_pooling, Subject == "373")
+  ) + 
+  theme(legend.position = "bottom", legend.justification = "left") + 
   ggtitle("Pooling of regression parameters") + 
   xlab("Intercept estimate") + 
   ylab("Slope estimate") + 
@@ -316,17 +326,17 @@ book](http://lme4.r-forge.r-project.org/), Douglas Bates provides an alternative
 to _shrinkage_:
 
 > The term "shrinkage" may have negative connotations. John Tukey preferred to
-refer to the process as the estimates for individual subjects "borrowing
-strength" from each other. This is a fundamental difference in the models
-underlying mixed-effects models versus strictly fixed effects models. In a
-mixed-effects model we assume that the levels of a grouping factor are a
-selection from a population and, as a result, can be expected to share
-characteristics to some degree. Consequently, the predictions from a
-mixed-effects model are attenuated relative to those from strictly fixed-effects
-models.
+> refer to the process as the estimates for individual subjects "borrowing
+> strength" from each other. This is a fundamental difference in the models
+> underlying mixed-effects models versus strictly fixed effects models. In a
+> mixed-effects model we assume that the levels of a grouping factor are a
+> selection from a population and, as a result, can be expected to share
+> characteristics to some degree. Consequently, the predictions from a
+> mixed-effects model are attenuated relative to those from strictly
+> fixed-effects models.
 
-Shrinkage, borrowing strength :muscle: ... Another term would also be
-_regularization_ if we think about how the model avoids overfitting by the
+Shrinkage, borrowing strength `r emo::ji("muscle")` ... Another term would also
+be *regularization* if we think about how the model avoids overfitting by the
 taming extreme estimates.
 
 **This feature is why I use mixed effects models in my work.** If I have a 
@@ -406,13 +416,19 @@ Then we add them onto our previous plot.
 ggplot(df_pulled) + 
   aes(x = Intercept, y = Slope_Days, color = Model) + 
   # Draw contour lines from the distribution of effects
-  geom_path(aes(group = level, color = NULL), data = df_ellipse, 
-            linetype = "dashed", color = "grey40") + 
+  geom_path(
+    aes(group = level, color = NULL), 
+    data = df_ellipse, 
+    linetype = "dashed", 
+    color = "grey40"
+  ) + 
   geom_point(data = df_gravity, size = 5) + 
   geom_point(size = 2) + 
-  geom_path(aes(group = Subject, color = NULL), 
-            arrow = arrow(length = unit(.02, "npc"))) + 
-  theme(legend.position = "bottom") + 
+  geom_path(
+    aes(group = Subject, color = NULL), 
+    arrow = arrow(length = unit(.02, "npc"))
+  ) + 
+  theme(legend.position = "bottom", legend.justification = "left") + 
   ggtitle("Topographic map of regression parameters") + 
   xlab("Intercept estimate") + 
   ylab("Slope estimate") + 
@@ -421,7 +437,7 @@ ggplot(df_pulled) +
 
 The ellipses provide a little more information about where the estimates are 
 being pulled. Even if some of the points are not being pulled directly towards 
-the center of gravity, nearlly all of them are being pulled into a higher
+the center of gravity, nearly all of them are being pulled into a higher
 confidence region.
 
 There are a few tweaks we might consider for this plot. I don't think the ovals 
@@ -435,16 +451,17 @@ last_plot() +
   coord_cartesian(
     xlim = range(df_pulled$Intercept), 
     ylim = range(df_pulled$Slope_Days),
-    expand = TRUE) 
+    expand = TRUE
+  ) 
 ```
 
-To go all out :sunglasses:, let's also label the contours with the confidence
-levels. I see that the lower left area is relatively free of points, so I can
-place the labels there. I filter down to just the ellipse points in the bottom
-25% of _x_ and _y_ values. That will keep points in that lower left quadrant.
-Then I find the (_x_, _y_) point with the farthest distance from the center as the
-location for my label. I make it sound so easy but it took a lot of trial and
-error (including an an attempt to use cosines).
+To go all out `r emo::ji("sunglasses")`, let's also label the contours with the
+confidence levels. I see that the lower left area is relatively free of points,
+so I can place the labels there. I filter down to just the ellipse points in the
+bottom 25% of *x* and *y* values. That will keep points in that lower left
+quadrant. Then I find the (*x*, *y*) point with the farthest distance from the
+center as the location for my label. I make it sound so easy but it took a lot
+of trial and error (including an an attempt to use cosines).
 
 ```{r topographic-map-3, fig.asp = .8, fig.cap = "Final variant of the above plot with the confidence regions labelled."}
 # Euclidean distance
@@ -457,19 +474,28 @@ contour_dist <- function(xs, ys, center_x, center_y) {
 # Find the point to label in each ellipse.
 df_label_locations <- df_ellipse %>% 
   group_by(level) %>%
-  filter(Intercept < quantile(Intercept, .25), 
-         Slope_Days < quantile(Slope_Days, .25)) %>% 
+  filter(
+    Intercept < quantile(Intercept, .25), 
+    Slope_Days < quantile(Slope_Days, .25)
+  ) %>% 
   # Compute distance from center.
-  mutate(dist = contour_dist(Intercept, Slope_Days, 
-                             fixef(m)[1], fixef(m)[2])) %>% 
+  mutate(
+    dist = contour_dist(Intercept, Slope_Days, fixef(m)[1], fixef(m)[2])
+  ) %>% 
   # Keep smallest values.
   top_n(-1, wt = dist) %>% 
   ungroup()
 
 # Tweak the last plot one more time!
 last_plot() +
-  geom_text(aes(label = level, color = NULL), data = df_label_locations, 
-            nudge_x = .5, nudge_y = .8, size = 3.5, color = "grey40")
+  geom_text(
+    aes(label = level, color = NULL), 
+    data = df_label_locations, 
+    nudge_x = .5, 
+    nudge_y = .8, 
+    size = 3.5, 
+    color = "grey40"
+  )
 ```
 
 Are you feeling satisfied? I feel satisfied.
@@ -477,7 +503,7 @@ Are you feeling satisfied? I feel satisfied.
 
 ## Bonus: Plotting lines from a Bayesian mixed effects model
 
-This last part is more of a code demo than a walkthough. I call myself a
+This last part is more of a code demo than a walkthrough. I call myself a
 Bayesian. Visualizing uncertainty is [one of my things
 here](/visualizing-uncertainty-rstanarm/), so I would be remiss if I didn't also
 demo how to do some plots using posterior samples. 
@@ -495,14 +521,18 @@ library(rstanarm)
 ```
 
 ```{r sleep-glmer-model, results='hide', cache = TRUE}
+# Update 2021-02: Prior to mid-2020 priors were autoscaled (so `autoscale =
+# TRUE`) was implicity set. But now they are no longer autoscaled. The code has
+# been updated to use the autoscaling.
 b <- stan_glmer(
   Reaction ~ Days + (Days | Subject),
   family = gaussian(),
   data = df_sleep,
-  prior = normal(0, 2),
-  prior_intercept = normal(0, 5),
+  prior = normal(0, 2, autoscale = TRUE),
+  prior_intercept = normal(0, 5, autoscale = TRUE),
   prior_covariance = decov(regularization = 2),
-  prior_aux = cauchy(0, 1))
+  prior_aux = cauchy(0, 1, autoscale = TRUE)
+)
 ```
 
 We get a similar overview as `arm::display()` when we print the model.
@@ -527,7 +557,7 @@ df_posterior <- b %>%
 ggplot(df_posterior) + 
   aes(x = `(Intercept)`, y = `Days`) + 
   # Calculate the density
-  stat_density_2d(aes(fill = ..level..), geom = "polygon") +
+  stat_density_2d(aes(fill = stat(level)), geom = "polygon") +
   ggtitle("Where's the average intercept and slope?") + 
   xlab("Estimate for average intercept") + 
   ylab("Estimate for average slope") +
@@ -535,7 +565,8 @@ ggplot(df_posterior) +
   coord_cartesian(
     xlim = range(df_pulled$Intercept), 
     ylim = range(df_pulled$Slope_Days),
-    expand = TRUE) + 
+    expand = TRUE
+  ) + 
   guides(fill = "none")
 ```
 
@@ -555,11 +586,13 @@ df_effects <- df_posterior %>%
   # df_posterior$`(Intercept)` to each of those columns.
   mutate_at(
     .vars = vars(matches("b\\[\\(Intercept")), 
-    .funs = funs(. + df_posterior$`(Intercept)`)) %>%
+    .funs = ~ . + df_posterior$`(Intercept)`
+  ) %>%
   # Again for slope
   mutate_at(
     .vars = vars(matches("b\\[Day")), 
-    .funs = funs(. + df_posterior$Days))
+    .funs = ~ . + df_posterior$Days
+  )
 
 # Convert to a long format
 df_long_effects <- df_effects %>%
@@ -593,8 +626,12 @@ df_samples
 
 ggplot(df_sleep) +
   aes(x = Days, y = Reaction) +
-  geom_abline(aes(intercept = Intercept, slope = Slope_Day), 
-              data = df_samples, color = "#3366FF", alpha = .1) +
+  geom_abline(
+    aes(intercept = Intercept, slope = Slope_Day), 
+    data = df_samples, 
+    color = "#3366FF", 
+    alpha = .1
+  ) +
   geom_point() +
   facet_wrap("Subject") + 
   scale_x_continuous(breaks = 0:4 * 2) + 
@@ -613,11 +650,15 @@ the landscape of parameter values.
 ```{r posterior-of-indvidual-parameters, fig.asp = .8, fig.cap = "Density contour plots for each participant to visualize the larger uncertainty in the participants with incomplete data."}
 ggplot(df_long_effects %>% tidyr::spread(Effect, Value)) + 
   aes(x = Intercept, y = Slope_Day) + 
-  stat_density_2d(aes(fill = ..level..), geom = "polygon") +
+  stat_density_2d(
+    aes(fill = stat(level)), 
+    geom = "polygon", 
+    # normalized density so all colors appear in each plot
+    contour_var = "ndensity"
+  ) +
   facet_wrap("Subject") + 
   xlab("Intercept estimate") + 
   ylab("Slope estimate") +
-  theme(legend.position = "bottom") +
   guides(fill = "none")
 ```
 
@@ -644,4 +685,11 @@ book](http://amzn.to/2rVRZmw) and [_Statistical
 Rethinking_](http://amzn.to/2ty0C3T) both discuss the partial pooling
 description of these models. (Ooooh, as I added the _Rethinking_ link, I just
 noticed that I created a ggplot2 version of the plot from the cover of that
-book. :satisfied:)
+book. `r emo::ji("satisfied")`)
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
