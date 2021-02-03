@@ -34,10 +34,11 @@ enthusiastically received.
 
 ## Creating tibbles
 
-Create a fresh tibble using `tibble()` and vectors of values for each column.
-The column definitions are evaluated sequentially, so additional columns can be 
-created by manipulating earlier defined ones. Below `x` is defined and then the 
-values of `x` are manipulated to create the column `x_squared`.
+Create a fresh tibble using `tibble()` and vectors of values for each
+column. The column definitions are evaluated sequentially, so additional
+columns can be created by manipulating earlier defined ones. Below `x`
+is defined and then the values of `x` are manipulated to create the
+column `x_squared`.
 
 ```{r, error = TRUE}
 library(tibble)
@@ -46,39 +47,50 @@ library(magrittr)
 tibble(x = 1:5, x_squared = x ^ 2)
 ```
 
-Note that this sequential evaluation does not work on classical dataframes.
+Note that this sequential evaluation does not work on classical
+dataframes.
 
 ```{r, error = TRUE}
 data.frame(x = 1:5, x_squared = x ^ 2)
 ```
 
-The function `data_frame()`---note the underscore instead of a dot---is an alias
-for `tibble()`, which might be more transparent if your audience has never 
-heard of tibbles.
+The function `data_frame()`---note the underscore instead of a dot---is
+an alias for `tibble()`, which might be more transparent if your
+audience has never heard of tibbles. [*Update Feb. 3, 2021*] Or maybe
+not! `data_frame()` is now deprecated. Time to rip the bandaid off and
+embrace `tibble()`.
 
 ```{r}
-data_frame(x = 1:5, x_squared = x ^ 2)
+# This is deprecated now.
+# data_frame(x = 1:5, x_squared = x ^ 2) 
+
+# That's better.
+tibble(x = 1:5, x_squared = x ^ 2)
 ```
 
-In `tibble()`, the data are defined column-by-column. We can use `tribble()` to 
-write out tibbles row-by-row. Formulas like `~x` are used to denote column names.
+In `tibble()`, the data are defined column-by-column. We can use
+`tribble()` to write out tibbles row-by-row. Formulas like `~x` are used
+to denote column names.
 
 ```{r}
 tribble(
   ~ Film, ~ Year,
   "A New Hope", 1977,
   "The Empire Strikes Back", 1980,
-  "Return of the Jedi", 1983)
+  "Return of the Jedi", 1983
+)
 ```
 
-The name "tribble" is short for "transposed tibble" (the _transposed_
-part referring to change from column-wise creation in `tibble()` to row-wise
-creation in `tribble()`).
+The name "tribble" is short for "transposed tibble" (the *transposed*
+part referring to change from column-wise creation in `tibble()` to
+row-wise creation in `tribble()`).
 
 I like to use light-weight tribbles for two particular tasks:
 
-* Recoding: Create a tribble of, say, labels for a plot and join it onto a dataset.
-* Exclusion: Identify observations to exclude, and remove them with an anti-join.
+  - Recoding: Create a tribble of, say, labels for a plot and join it
+    onto a dataset.
+  - Exclusion: Identify observations to exclude, and remove them with an
+    anti-join.
 
 Pretend that we have a tibble called `dataset`. The code below shows
 examples of these tasks with `dataset`.
@@ -195,12 +207,14 @@ df %>%
 We can similarly add columns with `add_column()`.
 
 ```{r}
-df %>% add_column(comment2 = "inserted column", .after = "comment")
+df %>% 
+  add_column(comment2 = "inserted column", .after = "comment")
 ```
 
-Typically, with dplyr loaded, you would create new columns by using `mutate()`,
-although I have recently started to prefer using `add_column()` for cases like
-the above example, where I add a column with a single recycled value. 
+Typically, with dplyr loaded, you would create new columns by using
+`mutate()`, although I have recently started to prefer using
+`add_column()` for cases like the above example, where I add a column
+with a single recycled value.
 
 ## Row names and identifiers
 
@@ -211,9 +225,9 @@ as_tibble(mtcars)
 ```
 
 The row numbers in the converted dataframe have an asterisk `*` above them. That
-means that the dataframe has row-names. Row-names are clunky and quirky; they are 
-just a column of data (labels) that umm :confused: we store away from the rest
-of the data. 
+means that the dataframe has row-names. Row-names are clunky and quirky; they
+are just a column of data (labels) that umm `r emo::ji("confused")` we store
+away from the rest of the data. 
 
 We should move those row-names into an explicit column, and
 `rownames_to_column()` does just that.
@@ -245,7 +259,14 @@ samples for use in a plot, all while preserving the draw number.
 
 *** 
 
-...And that covers the main functionality of the tibble package. I hope you
-discovered a new useful feature of the tibble package. To learn more about the
-technical differences between tibbles and dataframes, see [the tibble chapter in
-_R for Data Science_](http://r4ds.had.co.nz/tibbles.html).
+And that covers the main functionality of the tibble package. I hope
+you discovered a new useful feature of the tibble package. To learn more
+about the technical differences between tibbles and dataframes, see [the
+tibble chapter in *R for Data
+Science*](http://r4ds.had.co.nz/tibbles.html).
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
