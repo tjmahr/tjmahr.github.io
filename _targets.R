@@ -61,7 +61,7 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
 }
 
 
-paths_current_posts <- list_rmds("./_R")[c(1:16, 28)] %>%
+paths_current_posts <- list_rmds("./_R")[c(1:17, 28)] %>%
   stringr::str_subset("_footer.Rmd", negate = TRUE)
 paths_draft_posts <- list_rmds("./_R/_drafts")
 
@@ -130,8 +130,9 @@ list(
       # abbreviations
       "APA", "PPV", "NPV", "btw", "DS",
       # code names
-      "bayesplot", "dplyr", "dplyring", "gganimate",
-      "ggmcmc", "ggplot", "GitHub",
+      "bayesplot",
+      "DiagrammeR", "dplyr", "dplyring",
+      "gganimate","ggmcmc", "ggplot", "GitHub",
       "knitr",
       "lazyeval", "lme",
       "magrittr", "pandoc", "polypoly", "printy",
@@ -148,12 +149,18 @@ list(
       "anterograde", "autocomplete", "autocompletion", "offscreen",
       "eyetracker",
       "coarticulation",
+      "else's",
+      "Hamilitonian",
+      "nibling",
+      "ooooooh", "ooooh",
+      "Pokémon",
       "recode", "recoding",
       "rewrap", "rewrapping",
       "reknitted",
       # names
       "Sitka",
-      "Fernald", "Marchman", "Hadley", "Gelman", "Mirman's", "Wickham"
+      "Fernald", "Marchman", "Hadley", "Gelman", "Mirman's", "Wickham",
+      "TJ"
     )
   ),
 
