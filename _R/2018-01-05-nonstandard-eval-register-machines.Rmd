@@ -18,6 +18,13 @@ header:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, echo = FALSE}
+# I dunno why this doesn't work inside of knitr :(
+print.register_machine <- function(x, ...) {
+  utils::str(x, ...)
+  invisible(x)
+}
+```
 
 I recently completed all 25 days of [Advent of Code 2017][aoc-2017], an annual
 series of recreational programming puzzles. Each day describes a programming
@@ -87,8 +94,9 @@ input contains 1,000 instructions.
 ```{r}
 library(magrittr)
 full_input <- "https://raw.githubusercontent.com" %>% 
-  file.path("tjmahr", "adventofcode17", "master", 
-            "inst", "input08.txt") %>% 
+  file.path(
+    "tjmahr", "adventofcode17", "master", "inst", "input08.txt"
+  ) %>% 
   readr::read_lines()
 
 length(full_input)
@@ -174,8 +182,10 @@ condition as well as its parts.
 
 ```{r}
 # Combine the sub-patterns together
-re <- sprintf("%s %s %s if (%s %s %s)", re_name, re_verb, 
-              re_number, re_name, re_op, re_number)
+re <- sprintf(
+  "%s %s %s if (%s %s %s)", 
+  re_name, re_verb, re_number, re_name, re_op, re_number
+)
 re
 
 text <- "b inc 5 if a > 1"
@@ -186,7 +196,7 @@ stringr::str_match(text, re)
 ```
 
 We can package this step into a function that takes an instruction's
-text and returns a list with the labelled parts of that instruction.
+text and returns a list with the labeled parts of that instruction.
 
 ```{r}
 parse_instruction <- function(text) {
@@ -196,8 +206,9 @@ parse_instruction <- function(text) {
   text %>% 
     stringr::str_match(re) %>% 
     as.list() %>% 
-    setNames(c("instruction", "target", "verb", "num1",
-               "cond", "s1", "op", "num2"))
+    setNames(
+      c("instruction", "target", "verb", "num1", "cond", "s1", "op", "num2")
+    )
 }
 
 str(parse_instruction(text))
@@ -227,9 +238,10 @@ addition and subtraction, we replace them with the appropriate math operations.
 ```{r}
 create_r_instruction <- function(parsed) {
   parsed$math <- if (parsed$verb == "inc") "+" else "-"
-  code <- sprintf("if (%s) %s %s %s else %s", parsed$cond, 
-                  parsed$target, parsed$math, parsed$num1, 
-                  parsed$target)
+  code <- sprintf(
+    "if (%s) %s %s %s else %s", 
+    parsed$cond, parsed$target, parsed$math, parsed$num1, parsed$target
+  )
   rlang::parse_expr(code)
 }
 
@@ -312,6 +324,9 @@ extract the symbol directly using the code's [abstract syntax tree (AST)][ast].
 
 ```{r}
 pryr::call_tree(r_code)
+
+# Update 2021-02-08: lobstr is now the preferred package.
+lobstr::ast(!! r_code)
 ```
 
 We can extract elements from the tree like elements in a list by selecting 
@@ -376,24 +391,22 @@ registers in an instruction. Otherwise, we raise an error.
 ```{r, error = TRUE}
 create_register_machine() %>% 
   eval_instruction(quote(if (a > 1) b - 100 else b))
-
-# "Overscope" is the tidy evaluation term for the data context, so failing to
-# find the name in the data is failing to find the name in the overscope.
 ```
 
 To solve the problem, we could study the 1,000 lines of input beforehand,
 extract the register names, initialize them to 0 and then evaluate the
-instructions.[^starthere] Or... or... we could procrastinate and only
+instructions.[^start-here] Or... or... we could procrastinate and only
 initialize a register name to 0 when the machine encounters a name it doesn't
 recognize. If, for some reason, our machine received instructions 
 one at a time, like over a network connection, then the procrastinated approach
 seems even more reasonable.
 
-This latter strategy will involve some _very_ nonstandard evaluation. I
-emphasize the "very" because **we are changing one of the fundamental rules of R
-evaluation** :smiling_imp:. R throws an error if you ask it to evaluate the name
-of a variable that doesn't exist. But here we are going to detect those missing
-variables and set them to 0 before they get evaluated.
+This latter strategy will involve some *very* nonstandard evaluation. I
+emphasize the "very" because **we are changing one of the fundamental
+rules of R evaluation** `r emo::ji("smiling_imp")`. R throws an error if
+you ask it to evaluate the name of a variable that doesn't exist. But
+here we are going to detect those missing variables and set them to 0
+before they get evaluated.
 
 To find the brand-new register names, we can inspect the call tree and find the
 names of the registers. We already know where the target is. The other place 
@@ -405,8 +418,9 @@ pryr::call_tree(r_code)
 extract_register_names <- function(instruction) {
   reg_target <- rlang::as_string(instruction[[4]])
   reg_condition <- rlang::as_string(instruction[[2]][[2]])
-  list(target = reg_target,
-       registers = unique(c(reg_target, reg_condition))
+  list(
+    target = reg_target,
+    registers = unique(c(reg_target, reg_condition))
   )
 }
 
@@ -486,7 +500,8 @@ for (each_instruction in full_input) {
 r
 ```
 
-:star: Ta-da! The maximum register value is 4,832. **Problem solved!** 
+`r emo::ji("star")` Ta-da! The maximum register value is 4,832.
+**Problem solved!** 
 
 
 ## And then the rules change
@@ -496,8 +511,8 @@ behind Part 2 until we complete Part 1. In this case, after submitting our
 solution for Part 1, we receive the following requirement:
 
 > To be safe, the CPU also needs to know **the highest value held in any
-register during this process** so that it can decide how much memory to allocate
-to these operations.
+> register during this process** so that it can decide how much memory
+> to allocate to these operations.
 
 Accounting for this twist requires a small change to the evaluation code. We 
 add another metadata variable to track the highest value ever stored in a 
@@ -534,10 +549,10 @@ eval_instruction <- function(register_machine, instruction) {
 }
 ```
 
-Admittedly, `eval_instruction()` is starting to get bloated. Conceptually, we
-could probably the break this function down into three functions: pre-evaluation
-steps, evaluation, and post-evaluation steps.[^brainstorm] But this is good
-enough for now.
+Admittedly, `eval_instruction()` is starting to get bloated.
+Conceptually, we could probably the break this function down into three
+functions: pre-evaluation steps, evaluation, and post-evaluation
+steps.[^brainstorm] But this is good enough for now.
 
 We run the instructions again to get the updated metadata.
 
@@ -554,36 +569,42 @@ for (each_instruction in full_input) {
 r$.metadata
 ```
 
-:star2: And boom! **Another problem solved.**
+`r emo::ji("star2")` And boom! **Another problem solved.**
 
 ## `eval(thoughts, envir = this_problem)`
 
-I like this kind of nonstandard evaluation approach for converting problems into
-R code, but it's mostly useful when the problem describes a series of
-instructions that can be parsed and evaluated. For problems like this register
-machine simulation, the nonstandard evaluation route is straightforward. But
-it's also a viable problem-solving strategy when the "machine" or the
-"instructions" are subtler, as in 
-[this problem about simulating "dance" moves][dance-moves].
+I like this kind of nonstandard evaluation approach for converting
+problems into R code, but it's mostly useful when the problem describes
+a series of instructions that can be parsed and evaluated. For problems
+like this register machine simulation, the nonstandard evaluation route
+is straightforward. But it's also a viable problem-solving strategy when
+the "machine" or the "instructions" are subtler, as in [this problem
+about simulating "dance" moves][dance-moves].
 
-Odds are, you'll never have to write an interpreter for a toy machine or 
-language. Nevertheless, here are some R functions that we used for this 
+Odds are, you'll never have to write an interpreter for a toy machine or
+language. Nevertheless, here are some R functions that we used for this
 puzzle that are helpful in other contexts:
 
-- `stringr::str_match()` to extract all the groups in a regular 
-  expression at once.
-- `rlang::parse_expr()` to convert a string of text into an R expression.
-- `pryr::call_tree()` to visualize an expression's syntax tree and 
-  `expression[[i]][[j]]` to pluck out symbols from locations in a tree.
-- `rlang::as_string()` to convert a symbol into a string.
-- `rlang::eval_tidy()` to evaluate an expression inside of a data 
-  context.
+  - `stringr::str_match()` to extract all the groups in a regular
+    expression at once.
+  - `rlang::parse_expr()` to convert a string of text into an R
+    expression.
+  - `pryr::call_tree()` to visualize an expression's syntax tree and
+    `expression[[i]][[j]]` to pluck out symbols from locations in a
+    tree.
+  - `rlang::as_string()` to convert a symbol into a string.
+  - `rlang::eval_tidy()` to evaluate an expression inside of a data
+    context.
 
 
-***
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
 
-[^starthere]: That actually would be pretty easy. Get a dataframe with 
+[^start-here]: That actually would be pretty easy. Get a dataframe with 
     `purrr::map_df(full_input, parse_instruction)`. Find the unique register 
     names. Create a list of 0's with those names. Use `do.call()` to call 
     `create_register_machine()` with that list. With no special evaluation 

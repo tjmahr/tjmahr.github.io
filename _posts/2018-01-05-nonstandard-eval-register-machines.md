@@ -17,6 +17,7 @@ header:
 
 
 
+
 I recently completed all 25 days of [Advent of Code 2017][aoc-2017], an annual
 series of recreational programming puzzles. Each day describes a programming
 puzzle and illustrates a handful of simple examples of the problem. The puzzle
@@ -87,8 +88,9 @@ input contains 1,000 instructions.
 ```r
 library(magrittr)
 full_input <- "https://raw.githubusercontent.com" %>% 
-  file.path("tjmahr", "adventofcode17", "master", 
-            "inst", "input08.txt") %>% 
+  file.path(
+    "tjmahr", "adventofcode17", "master", "inst", "input08.txt"
+  ) %>% 
   readr::read_lines()
 
 length(full_input)
@@ -182,8 +184,10 @@ condition as well as its parts.
 
 ```r
 # Combine the sub-patterns together
-re <- sprintf("%s %s %s if (%s %s %s)", re_name, re_verb, 
-              re_number, re_name, re_op, re_number)
+re <- sprintf(
+  "%s %s %s if (%s %s %s)", 
+  re_name, re_verb, re_number, re_name, re_op, re_number
+)
 re
 #> [1] "(\\w+) (inc|dec) (-?\\d+) if ((\\w+) (>|<|==|!=|>=|<=) (-?\\d+))"
 
@@ -197,7 +201,7 @@ stringr::str_match(text, re)
 ```
 
 We can package this step into a function that takes an instruction's
-text and returns a list with the labelled parts of that instruction.
+text and returns a list with the labeled parts of that instruction.
 
 
 ```r
@@ -208,8 +212,9 @@ parse_instruction <- function(text) {
   text %>% 
     stringr::str_match(re) %>% 
     as.list() %>% 
-    setNames(c("instruction", "target", "verb", "num1",
-               "cond", "s1", "op", "num2"))
+    setNames(
+      c("instruction", "target", "verb", "num1", "cond", "s1", "op", "num2")
+    )
 }
 
 str(parse_instruction(text))
@@ -252,9 +257,10 @@ addition and subtraction, we replace them with the appropriate math operations.
 ```r
 create_r_instruction <- function(parsed) {
   parsed$math <- if (parsed$verb == "inc") "+" else "-"
-  code <- sprintf("if (%s) %s %s %s else %s", parsed$cond, 
-                  parsed$target, parsed$math, parsed$num1, 
-                  parsed$target)
+  code <- sprintf(
+    "if (%s) %s %s %s else %s", 
+    parsed$cond, parsed$target, parsed$math, parsed$num1, parsed$target
+  )
   rlang::parse_expr(code)
 }
 
@@ -288,9 +294,11 @@ print.register_machine <- function(x, ...) {
 }
 
 create_register_machine()
-#> List of 1
-#>  $ .metadata: list()
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $.metadata
+#> list()
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 ```
 
 For now, we can initialize registers by using named arguments to the function.
@@ -298,11 +306,17 @@ For now, we can initialize registers by using named arguments to the function.
 
 ```r
 create_register_machine(a = 0, b = 0)
-#> List of 3
-#>  $ a        : num 0
-#>  $ b        : num 0
-#>  $ .metadata: list()
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $a
+#> [1] 0
+#> 
+#> $b
+#> [1] 0
+#> 
+#> $.metadata
+#> list()
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 ```
 
 
@@ -355,6 +369,9 @@ extract the symbol directly using the code's [abstract syntax tree (AST)][ast].
 
 ```r
 pryr::call_tree(r_code)
+#> Registered S3 method overwritten by 'pryr':
+#>   method      from
+#>   print.bytes Rcpp
 #> \- ()
 #>   \- `if
 #>   \- ()
@@ -366,6 +383,17 @@ pryr::call_tree(r_code)
 #>     \- `b
 #>     \-  5
 #>   \- `b
+
+# Update 2021-02-08: lobstr is now the preferred package.
+lobstr::ast(!! r_code)
+#> o-`if` 
+#> +-o-`>` 
+#> | +-a 
+#> | \-1 
+#> +-o-`+` 
+#> | +-b 
+#> | \-5 
+#> \-b
 ```
 
 We can extract elements from the tree like elements in a list by selecting 
@@ -405,11 +433,17 @@ We can also use list lookup syntax with assignment to _modify_ the register.
 ```r
 r[[target]] <- rlang::eval_tidy(r_code, data = r)
 r
-#> List of 3
-#>  $ a        : num 4
-#>  $ b        : num 12
-#>  $ .metadata: list()
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $a
+#> [1] 4
+#> 
+#> $b
+#> [1] 12
+#> 
+#> $.metadata
+#> list()
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 ```
 
 Let's wrap these steps into a function. 
@@ -426,11 +460,17 @@ eval_instruction <- function(register_machine, instruction) {
 
 create_register_machine(a = 2, b = 0) %>% 
   eval_instruction(r_code)
-#> List of 3
-#>  $ a        : num 2
-#>  $ b        : num 5
-#>  $ .metadata: list()
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $a
+#> [1] 2
+#> 
+#> $b
+#> [1] 5
+#> 
+#> $.metadata
+#> list()
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 
 create_register_machine(a = 2, b = 0) %>% 
   # For quick testing, we pass in quoted expressions
@@ -439,11 +479,17 @@ create_register_machine(a = 2, b = 0) %>%
   eval_instruction(quote(if (a < 1) b + 5 else b)) %>% 
   # Should run
   eval_instruction(quote(if (a > 1) a + 10 else a))
-#> List of 3
-#>  $ a        : num 12
-#>  $ b        : num -100
-#>  $ .metadata: list()
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $a
+#> [1] 12
+#> 
+#> $b
+#> [1] -100
+#> 
+#> $.metadata
+#> list()
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 ```
 
 ## Time for some *extra* nonstandard evaluation
@@ -455,25 +501,23 @@ registers in an instruction. Otherwise, we raise an error.
 ```r
 create_register_machine() %>% 
   eval_instruction(quote(if (a > 1) b - 100 else b))
-#> Error in overscope_eval_next(overscope, expr): object 'a' not found
-
-# "Overscope" is the tidy evaluation term for the data context, so failing to
-# find the name in the data is failing to find the name in the overscope.
+#> Error in rlang::eval_tidy(expr = instruction, data = register_machine): object 'a' not found
 ```
 
 To solve the problem, we could study the 1,000 lines of input beforehand,
 extract the register names, initialize them to 0 and then evaluate the
-instructions.[^starthere] Or... or... we could procrastinate and only
+instructions.[^start-here] Or... or... we could procrastinate and only
 initialize a register name to 0 when the machine encounters a name it doesn't
 recognize. If, for some reason, our machine received instructions 
 one at a time, like over a network connection, then the procrastinated approach
 seems even more reasonable.
 
-This latter strategy will involve some _very_ nonstandard evaluation. I
-emphasize the "very" because **we are changing one of the fundamental rules of R
-evaluation** :smiling_imp:. R throws an error if you ask it to evaluate the name
-of a variable that doesn't exist. But here we are going to detect those missing
-variables and set them to 0 before they get evaluated.
+This latter strategy will involve some *very* nonstandard evaluation. I
+emphasize the "very" because **we are changing one of the fundamental
+rules of R evaluation** 😈. R throws an error if
+you ask it to evaluate the name of a variable that doesn't exist. But
+here we are going to detect those missing variables and set them to 0
+before they get evaluated.
 
 To find the brand-new register names, we can inspect the call tree and find the
 names of the registers. We already know where the target is. The other place 
@@ -497,8 +541,9 @@ pryr::call_tree(r_code)
 extract_register_names <- function(instruction) {
   reg_target <- rlang::as_string(instruction[[4]])
   reg_condition <- rlang::as_string(instruction[[2]][[2]])
-  list(target = reg_target,
-       registers = unique(c(reg_target, reg_condition))
+  list(
+    target = reg_target,
+    registers = unique(c(reg_target, reg_condition))
   )
 }
 
@@ -530,21 +575,39 @@ initialize_new_registers <- function(register_machine, registers) {
 
 # Before
 r
-#> List of 3
-#>  $ a        : num 4
-#>  $ b        : num 12
-#>  $ .metadata: list()
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $a
+#> [1] 4
+#> 
+#> $b
+#> [1] 12
+#> 
+#> $.metadata
+#> list()
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 
 initialize_new_registers(r, c("a", "b", "w", "a", "s", "j"))
-#> List of 6
-#>  $ a        : num 4
-#>  $ b        : num 12
-#>  $ .metadata: list()
-#>  $ w        : num 0
-#>  $ s        : num 0
-#>  $ j        : num 0
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $a
+#> [1] 4
+#> 
+#> $b
+#> [1] 12
+#> 
+#> $.metadata
+#> list()
+#> 
+#> $w
+#> [1] 0
+#> 
+#> $s
+#> [1] 0
+#> 
+#> $j
+#> [1] 0
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 ```
 
 Finally, we update our evaluation function to do this step automatically. I'm
@@ -583,14 +646,25 @@ create_register_machine() %>%
   eval_instruction(quote(if (b > 1) c + 10 else c)) %>% 
   # b gets 5 more
   eval_instruction(quote(if (a < 1) b + 5 else b))
-#> List of 5
-#>  $ .metadata:List of 1
-#>   ..$ max: num 10
-#>  $ b        : num 10
-#>  $ d        : num 0
-#>  $ c        : num 10
-#>  $ a        : num 0
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $.metadata
+#> $.metadata$max
+#> [1] 10
+#> 
+#> 
+#> $b
+#> [1] 10
+#> 
+#> $d
+#> [1] 0
+#> 
+#> $c
+#> [1] 10
+#> 
+#> $a
+#> [1] 0
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 ```
 
 Now, for the moment of truth... Let's process all 1,000 instructions.
@@ -607,39 +681,95 @@ for (each_instruction in full_input) {
 }
 
 r
-#> List of 27
-#>  $ .metadata:List of 1
-#>   ..$ max: num 4832
-#>  $ kd       : num -2334
-#>  $ gm       : num -4239
-#>  $ x        : num -345
-#>  $ kjn      : num -1813
-#>  $ ey       : num 209
-#>  $ n        : num -764
-#>  $ t        : num 2997
-#>  $ f        : num 4468
-#>  $ msg      : num -3906
-#>  $ ic       : num -263
-#>  $ zv       : num -599
-#>  $ gub      : num 2025
-#>  $ yp       : num -2530
-#>  $ lyr      : num -2065
-#>  $ j        : num 3619
-#>  $ e        : num -4230
-#>  $ riz      : num 863
-#>  $ lzd      : num 4832
-#>  $ ucy      : num -3947
-#>  $ i        : num 3448
-#>  $ omz      : num -3365
-#>  $ djq      : num 392
-#>  $ bxy      : num 1574
-#>  $ tj       : num 1278
-#>  $ y        : num 1521
-#>  $ m        : num 2571
-#>  - attr(*, "class")= chr [1:2] "register_machine" "list"
+#> $.metadata
+#> $.metadata$max
+#> [1] 4832
+#> 
+#> 
+#> $kd
+#> [1] -2334
+#> 
+#> $gm
+#> [1] -4239
+#> 
+#> $x
+#> [1] -345
+#> 
+#> $kjn
+#> [1] -1813
+#> 
+#> $ey
+#> [1] 209
+#> 
+#> $n
+#> [1] -764
+#> 
+#> $t
+#> [1] 2997
+#> 
+#> $f
+#> [1] 4468
+#> 
+#> $msg
+#> [1] -3906
+#> 
+#> $ic
+#> [1] -263
+#> 
+#> $zv
+#> [1] -599
+#> 
+#> $gub
+#> [1] 2025
+#> 
+#> $yp
+#> [1] -2530
+#> 
+#> $lyr
+#> [1] -2065
+#> 
+#> $j
+#> [1] 3619
+#> 
+#> $e
+#> [1] -4230
+#> 
+#> $riz
+#> [1] 863
+#> 
+#> $lzd
+#> [1] 4832
+#> 
+#> $ucy
+#> [1] -3947
+#> 
+#> $i
+#> [1] 3448
+#> 
+#> $omz
+#> [1] -3365
+#> 
+#> $djq
+#> [1] 392
+#> 
+#> $bxy
+#> [1] 1574
+#> 
+#> $tj
+#> [1] 1278
+#> 
+#> $y
+#> [1] 1521
+#> 
+#> $m
+#> [1] 2571
+#> 
+#> attr(,"class")
+#> [1] "register_machine" "list"
 ```
 
-:star: Ta-da! The maximum register value is 4,832. **Problem solved!** 
+⭐ Ta-da! The maximum register value is 4,832.
+**Problem solved!** 
 
 
 ## And then the rules change
@@ -649,8 +779,8 @@ behind Part 2 until we complete Part 1. In this case, after submitting our
 solution for Part 1, we receive the following requirement:
 
 > To be safe, the CPU also needs to know **the highest value held in any
-register during this process** so that it can decide how much memory to allocate
-to these operations.
+> register during this process** so that it can decide how much memory
+> to allocate to these operations.
 
 Accounting for this twist requires a small change to the evaluation code. We 
 add another metadata variable to track the highest value ever stored in a 
@@ -688,10 +818,10 @@ eval_instruction <- function(register_machine, instruction) {
 }
 ```
 
-Admittedly, `eval_instruction()` is starting to get bloated. Conceptually, we
-could probably the break this function down into three functions: pre-evaluation
-steps, evaluation, and post-evaluation steps.[^brainstorm] But this is good
-enough for now.
+Admittedly, `eval_instruction()` is starting to get bloated.
+Conceptually, we could probably the break this function down into three
+functions: pre-evaluation steps, evaluation, and post-evaluation
+steps.[^brainstorm] But this is good enough for now.
 
 We run the instructions again to get the updated metadata.
 
@@ -714,36 +844,101 @@ r$.metadata
 #> [1] 5443
 ```
 
-:star2: And boom! **Another problem solved.**
+🌟 And boom! **Another problem solved.**
 
 ## `eval(thoughts, envir = this_problem)`
 
-I like this kind of nonstandard evaluation approach for converting problems into
-R code, but it's mostly useful when the problem describes a series of
-instructions that can be parsed and evaluated. For problems like this register
-machine simulation, the nonstandard evaluation route is straightforward. But
-it's also a viable problem-solving strategy when the "machine" or the
-"instructions" are subtler, as in 
-[this problem about simulating "dance" moves][dance-moves].
+I like this kind of nonstandard evaluation approach for converting
+problems into R code, but it's mostly useful when the problem describes
+a series of instructions that can be parsed and evaluated. For problems
+like this register machine simulation, the nonstandard evaluation route
+is straightforward. But it's also a viable problem-solving strategy when
+the "machine" or the "instructions" are subtler, as in [this problem
+about simulating "dance" moves][dance-moves].
 
-Odds are, you'll never have to write an interpreter for a toy machine or 
-language. Nevertheless, here are some R functions that we used for this 
+Odds are, you'll never have to write an interpreter for a toy machine or
+language. Nevertheless, here are some R functions that we used for this
 puzzle that are helpful in other contexts:
 
-- `stringr::str_match()` to extract all the groups in a regular 
-  expression at once.
-- `rlang::parse_expr()` to convert a string of text into an R expression.
-- `pryr::call_tree()` to visualize an expression's syntax tree and 
-  `expression[[i]][[j]]` to pluck out symbols from locations in a tree.
-- `rlang::as_string()` to convert a symbol into a string.
-- `rlang::eval_tidy()` to evaluate an expression inside of a data 
-  context.
+  - `stringr::str_match()` to extract all the groups in a regular
+    expression at once.
+  - `rlang::parse_expr()` to convert a string of text into an R
+    expression.
+  - `pryr::call_tree()` to visualize an expression's syntax tree and
+    `expression[[i]][[j]]` to pluck out symbols from locations in a
+    tree.
+  - `rlang::as_string()` to convert a symbol into a string.
+  - `rlang::eval_tidy()` to evaluate an expression inside of a data
+    context.
+
+
 
 
 ***
 
+*Last knitted on 2021-02-08. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-05-nonstandard-eval-register-machines.Rmd).*[^si] 
 
-[^starthere]: That actually would be pretty easy. Get a dataframe with 
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-08                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package     * version    date       lib source                     
+    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
+    #>  cli           2.2.0      2020-11-20 [1] CRAN (R 4.0.3)             
+    #>  codetools     0.2-18     2020-11-04 [1] CRAN (R 4.0.2)             
+    #>  crayon        1.4.0      2021-01-30 [1] CRAN (R 4.0.3)             
+    #>  curl          4.3        2019-12-02 [1] CRAN (R 4.0.2)             
+    #>  ellipsis      0.3.1      2020-05-15 [1] CRAN (R 4.0.2)             
+    #>  emo           0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)
+    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.0.2)             
+    #>  fansi         0.4.2      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>  generics      0.1.0      2020-10-31 [1] CRAN (R 4.0.3)             
+    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.0.3)             
+    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.0.2)             
+    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.0.3)             
+    #>  hms           1.0.0      2021-01-13 [1] CRAN (R 4.0.3)             
+    #>  knitr       * 1.31       2021-01-27 [1] CRAN (R 4.0.3)             
+    #>  lifecycle     0.2.0      2020-03-06 [1] CRAN (R 4.0.2)             
+    #>  lobstr        1.1.1      2019-07-02 [1] CRAN (R 4.0.2)             
+    #>  lubridate     1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
+    #>  magrittr    * 2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
+    #>  pillar        1.4.7      2020-11-20 [1] CRAN (R 4.0.3)             
+    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.0.2)             
+    #>  pryr          0.1.4      2018-02-18 [1] CRAN (R 4.0.3)             
+    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
+    #>  R6            2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
+    #>  Rcpp          1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>  readr         1.4.0      2020-10-05 [1] CRAN (R 4.0.2)             
+    #>  rlang         0.4.10     2020-12-30 [1] CRAN (R 4.0.3)             
+    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.0.3)             
+    #>  sessioninfo   1.1.1      2018-11-05 [1] CRAN (R 4.0.2)             
+    #>  stringi       1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
+    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
+    #>  tibble        3.0.6      2021-01-29 [1] CRAN (R 4.0.3)             
+    #>  vctrs         0.3.6      2020-12-17 [1] CRAN (R 4.0.3)             
+    #>  withr         2.4.1      2021-01-26 [1] CRAN (R 4.0.3)             
+    #>  xfun          0.20       2021-01-06 [1] CRAN (R 4.0.3)             
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```
+
+
+[^start-here]: That actually would be pretty easy. Get a dataframe with 
     `purrr::map_df(full_input, parse_instruction)`. Find the unique register 
     names. Create a list of 0's with those names. Use `do.call()` to call 
     `create_register_machine()` with that list. With no special evaluation 

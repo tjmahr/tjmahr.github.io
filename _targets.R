@@ -60,8 +60,7 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
   path_out
 }
 
-
-paths_current_posts <- list_rmds("./_R")[c(1:17, 28)] %>%
+paths_current_posts <- list_rmds("./_R")[c(1:18, 28)] %>%
   stringr::str_subset("_footer.Rmd", negate = TRUE)
 paths_draft_posts <- list_rmds("./_R/_drafts")
 
@@ -147,16 +146,20 @@ list(
       "programmatically", "variadic", "hoth", "si", "th", "quosure",
       "toolset", "affordances", "unintuitive", "hmmm", "wavily",
       "anterograde", "autocomplete", "autocompletion", "offscreen",
-      "eyetracker",
+      "AST",
       "coarticulation",
       "else's",
+      "eyetracker",
       "Hamilitonian",
       "nibling",
       "ooooooh", "ooooh",
       "Pokémon",
+      "pre",
       "recode", "recoding",
       "rewrap", "rewrapping",
       "reknitted",
+      "ta", "da",
+      "ummm",
       # names
       "Sitka",
       "Fernald", "Marchman", "Hadley", "Gelman", "Mirman's", "Wickham",
