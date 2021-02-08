@@ -130,17 +130,30 @@ list(
       # abbreviations
       "APA", "PPV", "NPV", "btw", "DS",
       # code names
-      "bayesplot", "dplyr", "gganimate", "ggplot", "GitHub", "lazyeval",
-      "magrittr", "pandoc",
+      "bayesplot", "dplyr", "dplyring", "gganimate",
+      "ggmcmc", "ggplot", "GitHub",
+      "knitr",
+      "lazyeval", "lme",
+      "magrittr", "pandoc", "polypoly", "printy",
       "readr", "RMarkdown", "RStanARM",
-      "RStudio", "setNames", "stringr",
+      "RStudio", "RStudio's", "setNames", "stringr",
+      "WrapRmd",
+      "tibble", "tribble",
       "md", "Rmd", "README",
+      "Ctrl", "csvs",
       # words
       "eyetracking", "hotdog", "lookahead", "lookaround",
       "programmatically", "variadic", "hoth", "si", "th", "quosure",
       "toolset", "affordances", "unintuitive", "hmmm", "wavily",
+      "anterograde", "autocomplete", "autocompletion", "offscreen",
+      "eyetracker",
+      "coarticulation",
+      "recode", "recoding",
+      "rewrap", "rewrapping",
+      "reknitted",
       # names
-      "Fernald", "Marchman"
+      "Sitka",
+      "Fernald", "Marchman", "Hadley", "Gelman", "Mirman's", "Wickham"
     )
   ),
 

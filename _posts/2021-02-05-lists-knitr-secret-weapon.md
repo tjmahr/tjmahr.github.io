@@ -18,18 +18,24 @@ header:
 
 
 
-I am going to describe my favorite knitr trick: **Using lists to simplify inline reporting**. *Trick* might not do it justice. I consider this a *best practice* for working with knitr.
+I am going to describe my favorite knitr trick: **Using lists to
+simplify inline reporting**. *Trick* might not do it justice. I consider
+this a *best practice* for working with knitr.
 
 
 ## Plug it in
 
-[Inline reporting](https://bookdown.org/yihui/rmarkdown-cookbook/r-code.html) lets you insert R expressions inside of
+[Inline reporting][inline] lets you insert R expressions inside of
 markdown text. Those expressions are evaluated and their results are
 plugged in as text. The following example shows a common use case:
-Reporting descriptive statistics. The [`sitka`
-dataset](https://rdrr.io/cran/gamair/man/sitka.html) describes the
-longitudinal growth of Sitka spruce trees in different ozone conditions, so here are some lines we might report:
+Reporting descriptive statistics. The [`sitka` dataset][sitka]
+describes the longitudinal growth of Sitka spruce trees in different
+ozone conditions, so here are some lines we might report:
 
+<!-- If I remove the backtick+r+single-quote-single-quote+backtick sequence, -->
+<!-- the R code will run and be syntax highlighted. But there will be a blank -->
+<!-- line before it. I can't figure out how to get rid of it. So we do it -->
+<!-- this way. -->
 
 ````md
 ```{r}
@@ -72,7 +78,7 @@ Read more about [`knitr::knit()`](`r knitted_doc_url`)`.
 
 ::::
 
-Reported prepared on 2021-02-05 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
+Reported prepared on 2021-02-08 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
 with knitr version 1.31 😄.
 Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`. 
 ````
@@ -82,15 +88,18 @@ Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`.
 In this last example, I used prefixes in variable names to convey that
 the data were related. `knitted_when`, `knitted_where` and
 `knitted_with` are all facts about the knitting process. They are all
-reported in the narrative text pretty close to each other. The 
-prefix informally bundles them together. The prefix also helps with 
-writing our code because we have to
-remember less. We can type `knitted_` and press <kbd>Tab</kbd> and let
-autocompletion remind us which variables are available.
+reported in the narrative text pretty close to each other. The prefix
+informally bundles them together. The prefix also helps with writing our
+code because we have to remember less. We can type `knitted_` and press
+<kbd>Tab</kbd> and let autocompletion remind us which variables are
+available.
+
+<!-- This works interactively but not during knitting. -->
 
 
 ```r
-# simulate tab completion
+# Simulate tab completion (what happens when we press Tab in after 
+# `knitted_` in RStudio). The definition of `tab()` is not important.
 "knitted_" %>% tab()
 #> knitted_doc_url
 #> knitted_when
@@ -118,8 +127,8 @@ Read more about [`knitr::knit()`](`r knitted$doc_url`)`.
 
 ::::
 
-Reported prepared on 2021-02-05 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
-with knitr version 1.31 😆. 
+Reported prepared on 2021-02-08 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
+with knitr version 1.31 😃. 
 Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`. 
 ````
 
@@ -141,7 +150,7 @@ process all at once.
 ```r
 knitted
 #> $when
-#> [1] "2021-02-05"
+#> [1] "2021-02-08"
 #> 
 #> $where
 #> [1] "2021-02-05-lists-knitr-secret-weapon.Rmd"
@@ -156,11 +165,11 @@ knitted
 Basically, using a list formalizes the relationship we had implicitly
 set out by using our naming convention, but so what? How does this help
 inline reporting? Lists have all the nice benefits of using a naming
-convention, plus one important feature: **We can create lists programmatically**.
+convention, plus one important feature: **We can create lists
+programmatically**.
 
 
 ## Set up model results with `tidy()`
-
 
 Let's say we model the growth of each tree in each ozone condition and
 want to know how much steeper the growth rate is for the ozone treatment
@@ -263,7 +272,7 @@ text_ready <- tidy(m, conf.int = TRUE) %>%
       printy::fmt_fix_digits, 
       2
     ),
-    se = round(std.error, 3),
+    se = printy::fmt_fix_digits(std.error, 3),
     # use a minus sign instead of a hyphen for negative numbers
     across(
       c(estimate, conf.low, conf.high), 
@@ -274,14 +283,13 @@ text_ready <- tidy(m, conf.int = TRUE) %>%
   select(term, estimate, se, ci)
 text_ready
 #> # A tibble: 4 x 4
-#>   term            estimate       se ci                        
-#>   <chr>           <chr>       <dbl> <glue>                    
+#>   term            estimate    se    ci                        
+#>   <chr>           <chr>       <chr> <glue>                    
 #> 1 (Intercept)     4.25        0.131 [4.00, 4.51]              
 #> 2 hund_days       0.34        0.013 [0.31, 0.36]              
 #> 3 ozone           &minus;0.14 0.158 [&minus;0.45, 0.17]       
 #> 4 hund_days:ozone &minus;0.04 0.015 [&minus;0.07, &minus;0.01]
 ```
-
 
 
 
@@ -331,22 +339,22 @@ str(stats)
 #>  $ hund_days      : tibble [1 x 4] (S3: tbl_df/tbl/data.frame)
 #>   ..$ term    : chr "hund_days"
 #>   ..$ estimate: chr "0.34"
-#>   ..$ se      : num 0.013
+#>   ..$ se      : chr "0.013"
 #>   ..$ ci      : 'glue' chr "[0.31, 0.36]"
 #>  $ hund_days_ozone: tibble [1 x 4] (S3: tbl_df/tbl/data.frame)
 #>   ..$ term    : chr "hund_days_ozone"
 #>   ..$ estimate: chr "&minus;0.04"
-#>   ..$ se      : num 0.015
+#>   ..$ se      : chr "0.015"
 #>   ..$ ci      : 'glue' chr "[&minus;0.07, &minus;0.01]"
 #>  $ intercept      : tibble [1 x 4] (S3: tbl_df/tbl/data.frame)
 #>   ..$ term    : chr "intercept"
 #>   ..$ estimate: chr "4.25"
-#>   ..$ se      : num 0.131
+#>   ..$ se      : chr "0.131"
 #>   ..$ ci      : 'glue' chr "[4.00, 4.51]"
 #>  $ ozone          : tibble [1 x 4] (S3: tbl_df/tbl/data.frame)
 #>   ..$ term    : chr "ozone"
 #>   ..$ estimate: chr "&minus;0.14"
-#>   ..$ se      : num 0.158
+#>   ..$ se      : chr "0.158"
 #>   ..$ ci      : 'glue' chr "[&minus;0.45, 0.17]"
 ```
 
@@ -404,7 +412,17 @@ significantly slower, *diff* = &minus;0.04,
 
 Isn't that RMarkdown text just *a joy* to read? Everything so neatly named
 and organized, and we got all of that for free by using `tidy()` and
-`split()` to make a list.
+`split()` to make a list. 
+
+**Wrap it up, put a bow on it.** By the way, we can also make the
+RMarkdown source even neater by using my [WrapRmd RStudio
+plugin][wraprmd] which wraps the text so lines of text are all less
+than a given width. Some other tools for rewrapping markdown text will
+insert line breaks inside of spans of inline reporting and break them. I
+have my RStudio set so that
+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>/</kbd> will rewrap
+the RMarkdown text.
+{: .notice--info}
 
 ## Splitting splits of splits
 
@@ -419,7 +437,7 @@ with `split()`.
 
 ```r
 car_means <- mtcars %>%
-  group_by(cyl, am) %>% 
+  group_by(cyl, am) %>%
   summarise(
     n = n(), 
     mean_mpg = mean(mpg), 
@@ -513,7 +531,7 @@ to let me refer to the variable names directly.
 
 ***
 
-*Last knitted on 2021-02-05. [Source code on
+*Last knitted on 2021-02-08. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lists-knitr-secret-weapon.Rmd).*[^si] 
 
 [^si]: 
@@ -530,7 +548,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-05                  
+    #>  date     2021-02-08                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  ! package     * version    date       lib source                        
@@ -617,3 +635,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #> 
     #>  D -- DLL MD5 mismatch, broken installation.
     ```
+
+[inline]: https://bookdown.org/yihui/rmarkdown-cookbook/r-code.html "Inline reporting page in a RMarkdown Cookbook"
+[sitka]: https://rdrr.io/cran/gamair/man/sitka.html "Documentation of sitka dataset"
+[wraprmd]: https://github.com/tjmahr/WrapRmd "WrapRmd GitHub page"
