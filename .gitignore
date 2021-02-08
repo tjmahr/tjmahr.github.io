@@ -15,3 +15,4 @@ node_modules
 npm-debug.log*
 .Rproj.user
 README.html
+_caches
