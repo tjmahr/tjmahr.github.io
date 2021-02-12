@@ -37,27 +37,108 @@ For this release, I [rewrote the function][pull-request] so that it uses the
 [ggridges][ggridges] package. I had noticed that the shapes it produced had
 different areas. Here's an example of how the plots have changed.
 
-```{r version-differences, warning = FALSE, fig.width = 5, fig.height = 3, out.width = "80%", fig.cap="Comparison of mcmc_areas() in bayesplot 1.4.0 and 1.5.0"}
+### Update: A reproducibility puzzle
+
+Hello from February 2021. I decided to rebuild this blog post. But at
+this time, the bayesplot had moved onto version 1.8.0 so the content of
+the post would not be describing the behavior of 1.5.0. This situation
+created a little reproducibility puzzle. Full
+reproducibility---traveling back in time and using the versions of
+ggplot2, ggridges, etc.---would be too difficult, and frankly, not 
+worth the hassle. But it is important for this version next plot to 
+reproduce how the area definition for `mcmc_areas()` changed from 
+v1.4.0 to v1.5.0---and while we are at it---from v1.5.0 to now. 
+
+After some troubleshooting and experimenting, I came up with the
+following plan.
+
+  - Augment the library paths ([`.libPaths()`][libpaths]) to include
+    a temporary folder, install bayesplot v1.5.0 in it, and `library()`
+    the package. This will give me bayesplot v1.5.0 for the rest of the
+    post.
+  - In a separate R session (via [`callr::r()`][callr]), do the same
+    thing---temporarily install v1.4.0---and create the plot. Here we
+    use [`withr::with_temp_libpaths()`][withr-temp-libpaths] to
+    automate the temporary library-path manipulation.
+  - In a separate R session, create the plot using my regular library
+    paths (`old_lib_paths`) in the code below. 
+
+[libpaths]: `r downlit::autolink_url(".libPaths()")` "Documentation of .libPaths()"
+[callr]: `r downlit::autolink_url("callr::r()")` "Documentation of callr:r()"
+[withr-temp-libpaths]: `r downlit::autolink_url("withr::with_temp_libpaths()")` "Documentation of withr::with_temp_libpaths()"
+
+
+```{r version-differences-setup, warning = FALSE}
+# 2021-02-12: This section was overhauled so that 
+# this post could temporarily reinstall bayesplot 1.5.0
+# so the plots in the post are accurate
 library(ggplot2)
 
-# Temporarily install the previous version of bayesplot and 
-# make an mcmc_areas() plot.
-withr::with_temp_libpaths({
-  versions::install.versions("bayesplot", "1.4.0", quiet = TRUE)
-  
-  example_data <- bayesplot::example_mcmc_draws()
-  p_a <- bayesplot::mcmc_areas(example_data, pars = c("beta[1]", "beta[2]")) +
-    ggtitle("Version 1.4.0") +
-    bayesplot::theme_default()
-})
+# Set a temporary library folder for the rest of the post. It
+# will house bayesplot 1.5.0 so this post is reproducible
+old_lib_paths <- .libPaths()
+temp_lib_paths <- c(tempdir(), .libPaths())
+.libPaths(temp_lib_paths)
+
+remotes::install_github(
+  "stan-dev/bayesplot", 
+  ref = "v1.5.0",
+  quiet = TRUE
+)
 
 library(bayesplot)
-p_b <- mcmc_areas(example_data, c("beta[1]", "beta[2]")) + 
-  ggtitle("Version 1.5.0") +
-  bayesplot::theme_default()
+example_data <- example_mcmc_draws()
 
-# Show the two together
-cowplot::plot_grid(p_a, p_b)
+p_1.5.0 <- mcmc_areas(example_data, c("beta[1]", "beta[2]")) + 
+  ggtitle(paste0("Version ", packageVersion("bayesplot"))) +
+  theme_default()
+
+plot_with_v1.4.0 <- function(data) {
+  # Temporarily install the previous version of bayesplot and 
+  # make an mcmc_areas() plot.
+  withr::with_temp_libpaths({
+    remotes::install_github(
+      "stan-dev/bayesplot", 
+      ref = "v1.4.0",
+      quiet = TRUE
+    )
+    library(ggplot2)
+    library(bayesplot)
+  
+    p <- mcmc_areas(data, pars = c("beta[1]", "beta[2]")) +
+      ggtitle(paste0("Version ", packageVersion("bayesplot"))) +
+      theme_default()
+  })
+  p
+}
+
+plot_with_dev <- function(data) {
+  library(ggplot2)
+  library(bayesplot)
+
+  p <- mcmc_areas(
+    data, 
+    pars = c("beta[1]", "beta[2]")
+  ) +
+    ggtitle(paste0("Version ", packageVersion("bayesplot"))) +
+    theme_default()
+  p
+}
+
+p_1.4.0 <- callr::r(plot_with_v1.4.0, list(data = example_data))
+
+p_current <- callr::r(
+  plot_with_dev, 
+  list(data = example_data), 
+  libpath = old_lib_paths
+)
+```
+
+### Back to the original post
+
+```{r version-differences, warning = FALSE, fig.width = 7, fig.height = 3, out.width = "100%", fig.cap="Comparison of mcmc_areas() in bayesplot 1.4.0, 1.5.0 and my current version."}
+# Show the three together
+cowplot::plot_grid(p_1.4.0, p_1.5.0, p_current, nrow = 1)
 ```
 
 In the plot on the left, the shapes have different areas. Eyeballing it, it
@@ -65,7 +146,7 @@ looks like `beta[2]` would fit inside `beta[1]`. Area is width times height.
 These shapes have different widths because they cover different values---that
 makes sense. Therefore, the problem is the height---namely, the fact that the
 shapes have the same height. To make the areas more similar, we adjust the
-heights, and that's what's happening in the plot on the right. The distribution
+heights, and that's what's happening in the plot in the center. The distribution
 for `beta[2]` is concentrated to a more narrow range, and that feature manifests
 in that shape's much higher peak.
 
@@ -84,10 +165,11 @@ be shaded, and 3) a narrow "point" interval.
 ```{r}
 library(dplyr, warn.conflicts = FALSE)
 
-d <- mcmc_areas_data(example_data, c("beta[1]", "beta[2]")) %>% 
+d <- example_data %>% 
+  mcmc_areas_data(c("beta[1]", "beta[2]")) %>% 
   mutate(
-    interval = factor(interval, c("outer", "inner", "point")))
-
+    interval = factor(interval, c("outer", "inner", "point"))
+  )
 d
 ```
 
@@ -105,8 +187,12 @@ p_base <- ggplot(d) +
   # For reference include the full-range. 
   # `stat = "identity"` means that ggridges should not scale the heights
   ggridges::geom_density_ridges(
-    stat = "identity", data = full_range, color = "grey80",
-    size = 1, fill = NA) + 
+    stat = "identity", 
+    data = full_range, 
+    color = "grey80",
+    size = 1, 
+    fill = NA
+  ) + 
   ggridges::geom_density_ridges(stat = "identity") + 
   scale_fill_brewer(type = "seq") + 
   guides(fill = FALSE)
@@ -144,7 +230,7 @@ treatment effect for each school (thetas) and an overall average effect (mu).
 m <- shinystan::eight_schools@posterior_sample
 
 mcmc_areas_ridges(m, pars = "mu", regex_pars = "theta") +
-  ggplot2::ggtitle("Treatment effect on eight schools (Rubin, 1981)")
+  ggtitle("Treatment effect on eight schools (Rubin, 1981)")
 ```
 
 If we really want to go for the *Unknown Pleasures* look, we can manually plot
@@ -152,7 +238,8 @@ the densities in a white-on-black theme. Most of the work here is padding zero
 values onto the ridgelines so that they all have the same width.
 
 ```{r unknown, fig.height = 3, fig.width = 3, out.width = "50%", fig.cap = "The above plot rethemed to look like Unknown Pleausres", fig.asp=1}
-d <- mcmc_areas_ridges_data(m, pars = "mu", regex_pars = "theta") %>% 
+d <- m %>% 
+  mcmc_areas_ridges_data(pars = "mu", regex_pars = "theta") %>% 
   filter(interval == "outer") 
 
 zeroes <- d %>%
@@ -165,28 +252,37 @@ zeroes <- d %>%
     # On each row, make a data-frame of zeroes from absolute minimum 
     # value to this parameter's minimum value
     lower_df = purrr::map2(
-      min, pmin, 
-      ~ data.frame(x = seq(.x, .y, length.out = 20), density = 0)),
+      min, 
+      pmin, 
+      ~ data.frame(x = seq(.x, .y, length.out = 20), density = 0)
+    ),
     # Make a dataframe of zeroes from each parameter's max to the 
     # overall max
     upper_df = purrr::map2(
-      pmax, max, 
-      ~ data.frame(x = seq(.x, .y, length.out = 20), density = 0)),
+      pmax, 
+      max, 
+      ~ data.frame(x = seq(.x, .y, length.out = 20), density = 0)
+    ),
     # Gather the zeroes together
-    df = purrr::map2(lower_df, upper_df, bind_rows)) %>% 
+    df = purrr::map2(lower_df, upper_df, bind_rows)
+  ) %>% 
   select(parameter, df) %>% 
   tidyr::unnest(df)
 
 ggplot(bind_rows(d, zeroes)) + 
   aes(x = x, y = parameter, height = density) +
   ggridges::geom_density_ridges(
-    stat = "identity", fill = NA, 
-    color = "grey70", scale = 5) + 
+    stat = "identity", 
+    fill = NA, 
+    color = "grey70", 
+    scale = 5
+  ) + 
   theme_void() + 
   theme(
     plot.background = element_rect(fill = "black"), 
     plot.margin = unit(c(.25, .25, .25, .25), units = "npc"),
-    axis.ticks = element_blank())
+    axis.ticks = element_blank()
+  )
 ```
 
 ## Densities of different sampling chains
@@ -223,7 +319,8 @@ ggplot(cake) +
   labs(
     x = "Replicate", 
     y = "Angle of breakage", 
-    caption = "Letters: Recipe. Points: Replicate Mean ± SE")
+    caption = "Letters: Recipe. Points: Replicate Mean ± SE"
+  )
 ```
 
 It looks like the first few replications showed larger breakage angles compared
@@ -232,13 +329,25 @@ due to replication. There could be variation due to recipe × replication
 effects, so we will model the data at that level of detail.
 
 ```{r, results = 'hide'}
-library(rstanarm)
-m <- stan_glmer(
-  angle ~ recipe * temp + (1 | recipe:replicate), 
-  family = gaussian(), 
-  data = cake,
-  prior = normal(0, 1),
-  seed = 20180405)
+# Update 2020-02-12: Fit the model in a separate R session because rstanarm
+# currently errors because the version of bayesplot is too old for this post
+fit_model <- function(data) {
+  library(rstanarm)
+  m <- stan_glmer(
+    angle ~ recipe * temp + (1 | recipe:replicate), 
+    family = gaussian(), 
+    data = data,
+    prior = normal(0, 1, autoscale = TRUE),
+    seed = 20180405
+  )
+  as.array(m)
+}
+
+m <- callr::r(
+  fit_model, 
+  list(data = cake), 
+  libpath = old_lib_paths
+)
 ```
 
 This models predicts the breakage angle using an average recipe, temperature,
@@ -252,13 +361,11 @@ narrow the parameters to be plotted by naming them individually with `pars` or
 by selecting all the parameters that match a regular expression pattern with
 `regex_pars`.
 
-```{r cake-model-results, fig.width = 5, fig.height = 5, out.width = "60%", fig.cap="Replications effects for recipe A"}
+```{r cake-model-results, fig.width = 5, fig.height = 5, out.width = "80%", fig.cap="Replications effects for recipe A"}
 # Revert to the bayesplot default theme
 theme_set(bayesplot::theme_default())
 
-mcmc_areas_ridges(
-  as.matrix(m), 
-  regex_pars = "recipe:replicate:A") 
+mcmc_areas_ridges(m, regex_pars = c("recipe:replicate:A"))
 ```
 
 The effects describe deviations from the recipe average. A faint line is drawn
@@ -267,6 +374,11 @@ below average and those to the right are above average. We can see that the
 model captured how the first three replications had particular high breakage
 angles.
 
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
 [bayesplot]: http://mc-stan.org/bayesplot/index.html
   "bayesplot package website"
@@ -288,4 +400,3 @@ angles.
 
 [early-ridgeline-tweet]: https://twitter.com/mikedecr/status/886376620004700160?lang=en
   "Tweet with a plot containing ridgelines from a hierarchical model"
-

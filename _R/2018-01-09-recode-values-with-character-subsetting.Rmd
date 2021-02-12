@@ -56,7 +56,8 @@ lookup <- c(
   "AL" = "Alabama",
   "AK" = "Alaska",
   "AZ" = "Arizona",
-  "WI" = "Wisconsin")
+  "WI" = "Wisconsin"
+)
 ```
 
 For example, subsetting with the string `"AL"` will retrieve the value with the
@@ -109,8 +110,12 @@ synonymous names and differences in capitalization with many-to-one matching.
 
 ```{r}
 lookup <- c(
-  "python" = "Python", "r" = "R", "node" = "Javascript", 
-  "js" = "Javascript", "javascript" = "Javascript")
+  "python" = "Python", 
+  "r" = "R", 
+  "node" = "Javascript", 
+  "js" = "Javascript", 
+  "javascript" = "Javascript"
+)
 
 languages <- c("JS", "js", "Node", "R", "Python", "r", "JAvascript")
 
@@ -127,12 +132,12 @@ I'm motivated to write about character subsetting today because I used it in a
 Here is my paraphrasing of the problem.
 
 > Let's say I have a long character string, and I'd like to use
-`stringr::str_replace_all` to replace certain letters with others. According to
-the documentation, `str_replace_all` can take a named vector and replaces the
-name with the value. That works fine for 1 replacement, but for multiple, it
-seems to do the replacements iteratively, so that one replacement can replace
-another one.
->
+> `stringr::str_replace_all` to replace certain letters with others.
+> According to the documentation, `str_replace_all` can take a named
+> vector and replaces the name with the value. That works fine for 1
+> replacement, but for multiple, it seems to do the replacements
+> iteratively, so that one replacement can replace another one.
+> 
 >     library(tidyverse)
 >     text_string = "developer"
 >     
@@ -219,3 +224,8 @@ strings <- c("application", "developer")
 str_replace_chars(strings, rules)
 ```
 
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
