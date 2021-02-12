@@ -21,7 +21,7 @@ literature as a way to quantify the similarity (*correlation*) of data within
 measurement units (*intra* *classes*). In a multilevel model example, the ICC
 might estimate the similarity of test scores *within* classrooms (as opposed to
 *between* classrooms). For interrater reliability checks, the ICC estimates how
-similar raters’ scores are within each participant (hence, between raters). 
+similar raters' scores are within each participant (hence, between raters). 
 The ICC ranges from 0 to 1, and it is usually interpreted as the proportion of
 variance explained by between-participant differences. 
 
@@ -86,12 +86,12 @@ more than others. The vowel in *knife* is worth 3 points, the final /f/ .5 point
 correctly yields an overall score of 100 points.
 
 We had 2 graduate students each score 130 administrations of the test. We are
-talking abouts thousands of data points. The possible routes through the data 
+talking about thousands of data points. The possible routes through the data 
 are numerous To name a few options:
 
 * Overall agreement percentage.
 * Overall agreement percentage, weighting by item scores.
-* Compute the argreement percentages by child, report the range. 
+* Compute the agreement percentages by child, report the range. 
 * Weighted version of the above.
 * Logistic mixed effects model with varying effects for child, item, and rater.
 
@@ -246,22 +246,27 @@ inside the app change so that lme4 can properly credited.
 ***
 
 If you do interrater reliability measures, let me know what works, what doesn't
-work, what's wrong and what's confusing on [the Github
+work, what's wrong and what's confusing on [the GitHub
 repository](https://github.com/tjmahr/iccbot). Your feedback will help the app
 continue its *organic* growth.
 
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
 [^gelman-hill]: When they briefly cover the ICC, Gelman and Hill (2007) do 
     something very cools with the numbers from the lme4 printout. They interpret 
     the variances in terms of 
     [partial pooling](/plotting-partial-pooling-in-mixed-effects-models/). They 
     are describing the example of repeated radon measurements in counties. They 
-    have *σ*<sub>*α* (county)</sub> = .33 and 
-    *σ*<sub>*y* (residual)</sub> = .76, so an ICC of .16.
+    have *&sigma;*<sub>*&alpha;* (county)</sub> = .33 and 
+    *&sigma;*<sub>*y* (residual)</sub> = .76, so an ICC of .16.
     
-    > One way to interpret the variation between counties, *σ*<sub>*α*</sub>, 
+    > One way to interpret the variation between counties, *&sigma;*<sub>*&alpha;*</sub>, 
     is to consider the variance ratio, 
-    *σ*<sub>*α*</sub><sup>2</sup>/*σ*<sub>*y*</sub><sup>2</sup>, 
+    *&sigma;*<sub>*&alpha;*</sub><sup>2</sup>/*&sigma;*<sub>*y*</sub><sup>2</sup>, 
     which inthis example is estimated at 
     0.33<sup>2</sup>/0.76<sup>2</sup> = 0.19 or about one-fifth. Thus, the 
     standard deviation of the average radon levels 
@@ -273,7 +278,7 @@ continue its *organic* growth.
     with a sample size of less than 5, there is more information in the 
     group-level model than in the county's data; for a county, with more than 
     5 observations, the within-country measurements are more informative 
-    (in the sense of providing a lower-variance estiamte of the county's 
+    (in the sense of providing a lower-variance estimate of the county's 
     average radon level.) As a result, the multilevel regression line in a 
     county is closer to the complete-pooling estimate when sample size is 
     less than 5 and, closer to the no-pooling estimate when the sample size 

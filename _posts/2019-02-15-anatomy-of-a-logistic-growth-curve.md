@@ -57,11 +57,11 @@ for each of those visits.
 
 ```r
 library(tidyverse)
-#> -- Attaching packages ----------------------------- tidyverse 1.2.1 --
-#> √ ggplot2 3.1.0     √ readr   1.3.1
-#> √ tibble  2.0.1     √ purrr   0.3.0
-#> √ tidyr   0.8.2     √ stringr 1.4.0
-#> √ ggplot2 3.1.0     √ forcats 0.4.0
+#> -- Attaching packages ----------------------------- tidyverse 1.3.0 --
+#> v ggplot2 3.3.3     v purrr   0.3.4
+#> v tibble  3.0.6     v dplyr   1.0.4
+#> v tidyr   1.1.2     v stringr 1.4.0
+#> v readr   1.4.0     v forcats 0.5.1
 #> -- Conflicts -------------------------------- tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
@@ -91,7 +91,7 @@ ggplot(points) +
     labels = scales::percent_format(accuracy = 1))
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/raw-data-1.png" title="Simulated intelligibility data." alt="Simulated intelligibility data." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/raw-data-1.png" title="Simulated intelligibility data." alt="Simulated intelligibility data." width="80%" style="display: block; margin: auto;" />
 
 One of the interesting features of speech development is that it finishes:
 Children stop making the usual developmental speech patterns and converge on a
@@ -139,7 +139,7 @@ ggplot(points) +
     labels = scales::percent_format(accuracy = 1))
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/logistic-curve-1.png" title="Data with logistic curve added. It asymptotes at 80%." alt="Data with logistic curve added. It asymptotes at 80%." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/logistic-curve-1.png" title="Data with logistic curve added. It asymptotes at 80%." alt="Data with logistic curve added. It asymptotes at 80%." width="80%" style="display: block; margin: auto;" />
 
 Now, let's add some labels to mark some key parts of the equation. One
 unfamiliar bit of ggplot technology here might be `annotate()`. Geometry
@@ -203,7 +203,7 @@ p <- ggplot(points) +
 p
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/fit-mid-asym-1.png" title="The figure with the asymptote and midpoint added parameters labelled." alt="The figure with the asymptote and midpoint added parameters labelled." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/fit-mid-asym-1.png" title="The figure with the asymptote and midpoint added parameters labelled." alt="The figure with the asymptote and midpoint added parameters labelled." width="80%" style="display: block; margin: auto;" />
 
 Okay, that just leaves the scale parameter. 
 
@@ -270,7 +270,7 @@ p <- p +
 p
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/fit-mid-asym-scale-1.png" title="The figure with the asymptote, midpoint and scale added parameters labelled." alt="The figure with the asymptote, midpoint and scale added parameters labelled." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/fit-mid-asym-scale-1.png" title="The figure with the asymptote, midpoint and scale added parameters labelled." alt="The figure with the asymptote, midpoint and scale added parameters labelled." width="80%" style="display: block; margin: auto;" />
 
 
 ## Adding the equation
@@ -302,7 +302,7 @@ ggplot(tibble(x = 1:3)) +
 # (I don't know what this warning is about.)
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/plotmath-demo-1.png" title="Demo of plotmath" alt="Demo of plotmath" width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/plotmath-demo-1.png" title="Demo of plotmath" alt="Demo of plotmath" width="80%" style="display: block; margin: auto;" />
 
 For this plot, we're going to create a helper function that pre-sets `parse` to
 `TRUE` and pre-sets the location for the equation.
@@ -325,7 +325,7 @@ p + annotate_eq(
     color = colors$fit)
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/fit-eq1-1.png" title="Labelled plot from earlier with an equation added to it." alt="Labelled plot from earlier with an equation added to it." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/fit-eq1-1.png" title="Labelled plot from earlier with an equation added to it." alt="Labelled plot from earlier with an equation added to it." width="80%" style="display: block; margin: auto;" />
 
 This is a perfectly serviceable plot, but we can get fancier. I gave the
 parameter annotations different colors for a reason 😉.
@@ -350,7 +350,7 @@ p1 <- p +
 p1
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/fit-eq2a-1.png" title="Labelled plot from earlier with an equation added to it, except there are blanks for 'asymptote', 'mid', and 'scale'." alt="Labelled plot from earlier with an equation added to it, except there are blanks for 'asymptote', 'mid', and 'scale'." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/fit-eq2a-1.png" title="Labelled plot from earlier with an equation added to it, except there are blanks for 'asymptote', 'mid', and 'scale'." alt="Labelled plot from earlier with an equation added to it, except there are blanks for 'asymptote', 'mid', and 'scale'." width="80%" style="display: block; margin: auto;" />
 
 Then we layer on the other parts of the equation in different colors, using
 `phantom()` as needed so we don't overwrite the black parts. We also use
@@ -370,7 +370,7 @@ p2 <- p1 +
 p2
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/fit-eq2b-1.png" title="Labelled plot from earlier with an equation added to it, except there are blanks for 'mid', and 'scale'. 'Asymptote' is in equation in color." alt="Labelled plot from earlier with an equation added to it, except there are blanks for 'mid', and 'scale'. 'Asymptote' is in equation in color." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/fit-eq2b-1.png" title="Labelled plot from earlier with an equation added to it, except there are blanks for 'mid', and 'scale'. 'Asymptote' is in equation in color." alt="Labelled plot from earlier with an equation added to it, except there are blanks for 'mid', and 'scale'. 'Asymptote' is in equation in color." width="80%" style="display: block; margin: auto;" />
 
 But the other parameters are not that simple. The plotmath help page states that
 "A mathematical expression must obey the normal rules of syntax for any R
@@ -406,7 +406,7 @@ p2 +
     color = colors$mid)
 ```
 
-<img src="/figs//2019-02-15-anatomy-of-a-logistic-growth-curve/fit-eq2c-1.png" title="Labelled plot from earlier with an equation added to it. All three parameters appear in color in the equation." alt="Labelled plot from earlier with an equation added to it. All three parameters appear in color in the equation." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2019-02-15-anatomy-of-a-logistic-growth-curve/fit-eq2c-1.png" title="Labelled plot from earlier with an equation added to it. All three parameters appear in color in the equation." alt="Labelled plot from earlier with an equation added to it. All three parameters appear in color in the equation." width="80%" style="display: block; margin: auto;" />
 
 There we have it---my wonderful, colorful diagram! Take *that* word count! 
 
@@ -417,7 +417,93 @@ the parameters in the logistic growth curve relate to its shape.
 By the way, if you know a better way to plot partially colorized math equations
 or how to blank out subexpressions in an easier way, I would love to hear it.
 
+
+
 ***
+
+*Last knitted on 2021-02-12. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-02-15-anatomy-of-a-logistic-growth-curve.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-12                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package     * version date       lib source        
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
+    #>  backports     1.2.1   2020-12-09 [1] CRAN (R 4.0.3)
+    #>  broom         0.7.4   2021-01-29 [1] CRAN (R 4.0.3)
+    #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.0.2)
+    #>  cli           2.3.0   2021-01-31 [1] CRAN (R 4.0.3)
+    #>  colorspace    2.0-0   2020-11-11 [1] CRAN (R 4.0.3)
+    #>  crayon        1.4.1   2021-02-08 [1] CRAN (R 4.0.3)
+    #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  dbplyr        2.1.0   2021-02-03 [1] CRAN (R 4.0.3)
+    #>  digest        0.6.27  2020-10-24 [1] CRAN (R 4.0.3)
+    #>  dplyr       * 1.0.4   2021-02-02 [1] CRAN (R 4.0.3)
+    #>  ellipsis      0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
+    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.2)
+    #>  farver        2.0.3   2020-01-16 [1] CRAN (R 4.0.2)
+    #>  forcats     * 0.5.1   2021-01-27 [1] CRAN (R 4.0.3)
+    #>  fs            1.5.0   2020-07-31 [1] CRAN (R 4.0.2)
+    #>  generics      0.1.0   2020-10-31 [1] CRAN (R 4.0.3)
+    #>  ggplot2     * 3.3.3   2020-12-30 [1] CRAN (R 4.0.3)
+    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
+    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.0.2)
+    #>  haven         2.3.1   2020-06-01 [1] CRAN (R 4.0.2)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
+    #>  highr         0.8     2019-03-20 [1] CRAN (R 4.0.2)
+    #>  hms           1.0.0   2021-01-13 [1] CRAN (R 4.0.3)
+    #>  httr          1.4.2   2020-07-20 [1] CRAN (R 4.0.2)
+    #>  jsonlite      1.7.2   2020-12-09 [1] CRAN (R 4.0.3)
+    #>  knitr       * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
+    #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.0.2)
+    #>  lifecycle     0.2.0   2020-03-06 [1] CRAN (R 4.0.2)
+    #>  lubridate     1.7.9.2 2020-11-13 [1] CRAN (R 4.0.3)
+    #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
+    #>  modelr        0.1.8   2020-05-19 [1] CRAN (R 4.0.2)
+    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.0.2)
+    #>  pillar        1.4.7   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.0.2)
+    #>  purrr       * 0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
+    #>  R6            2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
+    #>  Rcpp          1.0.6   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  readr       * 1.4.0   2020-10-05 [1] CRAN (R 4.0.2)
+    #>  readxl        1.3.1   2019-03-13 [1] CRAN (R 4.0.2)
+    #>  reprex        1.0.0   2021-01-27 [1] CRAN (R 4.0.3)
+    #>  rlang         0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
+    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
+    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.0.3)
+    #>  rvest         0.3.6   2020-07-25 [1] CRAN (R 4.0.2)
+    #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.0.2)
+    #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
+    #>  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
+    #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
+    #>  tibble      * 3.0.6   2021-01-29 [1] CRAN (R 4.0.3)
+    #>  tidyr       * 1.1.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  tidyselect    1.1.0   2020-05-11 [1] CRAN (R 4.0.2)
+    #>  tidyverse   * 1.3.0   2019-11-21 [1] CRAN (R 4.0.2)
+    #>  vctrs         0.3.6   2020-12-17 [1] CRAN (R 4.0.3)
+    #>  withr         2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun          0.20    2021-01-06 [1] CRAN (R 4.0.3)
+    #>  xml2          1.3.2   2020-04-23 [1] CRAN (R 4.0.2)
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```
 
 [^other-terms]: By the way, some other ways to describe the asymptote besides 
     "ceiling" or "plateau" would be "saturation" which emphasizes how things 

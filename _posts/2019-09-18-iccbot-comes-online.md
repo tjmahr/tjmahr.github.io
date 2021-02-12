@@ -19,7 +19,7 @@ literature as a way to quantify the similarity (*correlation*) of data within
 measurement units (*intra* *classes*). In a multilevel model example, the ICC
 might estimate the similarity of test scores *within* classrooms (as opposed to
 *between* classrooms). For interrater reliability checks, the ICC estimates how
-similar raters’ scores are within each participant (hence, between raters). 
+similar raters' scores are within each participant (hence, between raters). 
 The ICC ranges from 0 to 1, and it is usually interpreted as the proportion of
 variance explained by between-participant differences. 
 
@@ -85,12 +85,12 @@ more than others. The vowel in *knife* is worth 3 points, the final /f/ .5 point
 correctly yields an overall score of 100 points.
 
 We had 2 graduate students each score 130 administrations of the test. We are
-talking abouts thousands of data points. The possible routes through the data 
+talking about thousands of data points. The possible routes through the data 
 are numerous To name a few options:
 
 * Overall agreement percentage.
 * Overall agreement percentage, weighting by item scores.
-* Compute the argreement percentages by child, report the range. 
+* Compute the agreement percentages by child, report the range. 
 * Weighted version of the above.
 * Logistic mixed effects model with varying effects for child, item, and rater.
 
@@ -241,8 +241,8 @@ m
 #> Random effects:
 #>  Groups      Name        Std.Dev.
 #>  participant (Intercept) 1.3027  
-#>  rater       (Intercept) 2.7302  
-#>  Residual                0.9907  
+#>  rater       (Intercept) 2.7301  
+#>  Residual                0.9906  
 #> Number of obs: 12, groups:  participant, 6; rater, 3
 #> Fixed Effects:
 #> (Intercept)  
@@ -271,10 +271,10 @@ are due to rounding.)
 
 ```r
 psych::ICC(d)[["results"]]["Single_random_raters", ]
-#>                      type       ICC        F df1 df2          p
-#> Single_random_raters ICC2 0.1674744 6.187133   5  10 0.00725818
-#>                      lower bound upper bound
-#> Single_random_raters -0.01886028   0.6403929
+#>                      type       ICC        F df1 df2          p lower bound
+#> Single_random_raters ICC2 0.1674984 6.188005   5  10 0.00725461 -0.00694722
+#>                      upper bound
+#> Single_random_raters   0.5524727
 ```
 
 And this is what ICC Bot does too. If there is no missing data, `irr::icc()` runs
@@ -309,22 +309,123 @@ inside the app change so that lme4 can properly credited.
 ***
 
 If you do interrater reliability measures, let me know what works, what doesn't
-work, what's wrong and what's confusing on [the Github
+work, what's wrong and what's confusing on [the GitHub
 repository](https://github.com/tjmahr/iccbot). Your feedback will help the app
 continue its *organic* growth.
 
+
+
+***
+
+*Last knitted on 2021-02-12. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-iccbot-comes-online.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-12                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package     * version date       lib source                        
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)                
+    #>  backports     1.2.1   2020-12-09 [1] CRAN (R 4.0.3)                
+    #>  boot          1.3-26  2021-01-25 [1] CRAN (R 4.0.3)                
+    #>  broom         0.7.4   2021-01-29 [1] CRAN (R 4.0.3)                
+    #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.0.2)                
+    #>  cli           2.3.0   2021-01-31 [1] CRAN (R 4.0.3)                
+    #>  colorspace    2.0-0   2020-11-11 [1] CRAN (R 4.0.3)                
+    #>  crayon        1.4.1   2021-02-08 [1] CRAN (R 4.0.3)                
+    #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.0.3)                
+    #>  dbplyr        2.1.0   2021-02-03 [1] CRAN (R 4.0.3)                
+    #>  dplyr       * 1.0.4   2021-02-02 [1] CRAN (R 4.0.3)                
+    #>  ellipsis      0.3.1   2020-05-15 [1] CRAN (R 4.0.2)                
+    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.2)                
+    #>  fansi         0.4.2   2021-01-15 [1] CRAN (R 4.0.3)                
+    #>  forcats     * 0.5.1   2021-01-27 [1] CRAN (R 4.0.3)                
+    #>  fs            1.5.0   2020-07-31 [1] CRAN (R 4.0.2)                
+    #>  generics      0.1.0   2020-10-31 [1] CRAN (R 4.0.3)                
+    #>  ggplot2     * 3.3.3   2020-12-30 [1] CRAN (R 4.0.3)                
+    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.0.3)                
+    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.0.2)                
+    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.0.2)                
+    #>  haven         2.3.1   2020-06-01 [1] CRAN (R 4.0.2)                
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.0.3)                
+    #>  hms           1.0.0   2021-01-13 [1] CRAN (R 4.0.3)                
+    #>  httr          1.4.2   2020-07-20 [1] CRAN (R 4.0.2)                
+    #>  iccbot        0.0.2   2020-11-30 [1] Github (tjmahr/iccbot@b6c566d)
+    #>  irr           0.84.1  2019-01-26 [1] CRAN (R 4.0.0)                
+    #>  jsonlite      1.7.2   2020-12-09 [1] CRAN (R 4.0.3)                
+    #>  knitr       * 1.31    2021-01-27 [1] CRAN (R 4.0.3)                
+    #>  lattice       0.20-41 2020-04-02 [1] CRAN (R 4.0.2)                
+    #>  lifecycle     0.2.0   2020-03-06 [1] CRAN (R 4.0.2)                
+    #>  lme4          1.1-26  2020-12-01 [1] CRAN (R 4.0.3)                
+    #>  lpSolve       5.6.15  2020-01-24 [1] CRAN (R 4.0.0)                
+    #>  lubridate     1.7.9.2 2020-11-13 [1] CRAN (R 4.0.3)                
+    #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)                
+    #>  MASS          7.3-53  2020-09-09 [1] CRAN (R 4.0.2)                
+    #>  Matrix        1.2-18  2019-11-27 [1] CRAN (R 4.0.3)                
+    #>  minqa         1.2.4   2014-10-09 [1] CRAN (R 4.0.2)                
+    #>  mnormt        2.0.2   2020-09-01 [1] CRAN (R 4.0.2)                
+    #>  modelr        0.1.8   2020-05-19 [1] CRAN (R 4.0.2)                
+    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.0.2)                
+    #>  nlme          3.1-152 2021-02-04 [1] CRAN (R 4.0.3)                
+    #>  nloptr        1.2.2.2 2020-07-02 [1] CRAN (R 4.0.2)                
+    #>  pillar        1.4.7   2020-11-20 [1] CRAN (R 4.0.3)                
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.0.2)                
+    #>  ps            1.5.0   2020-12-05 [1] CRAN (R 4.0.3)                
+    #>  psych         2.0.12  2020-12-16 [1] CRAN (R 4.0.3)                
+    #>  purrr       * 0.3.4   2020-04-17 [1] CRAN (R 4.0.2)                
+    #>  R6            2.5.0   2020-10-28 [1] CRAN (R 4.0.2)                
+    #>  Rcpp          1.0.6   2021-01-15 [1] CRAN (R 4.0.3)                
+    #>  readr       * 1.4.0   2020-10-05 [1] CRAN (R 4.0.2)                
+    #>  readxl        1.3.1   2019-03-13 [1] CRAN (R 4.0.2)                
+    #>  reprex        1.0.0   2021-01-27 [1] CRAN (R 4.0.3)                
+    #>  rlang         0.4.10  2020-12-30 [1] CRAN (R 4.0.3)                
+    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.3)                
+    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.0.3)                
+    #>  rvest         0.3.6   2020-07-25 [1] CRAN (R 4.0.2)                
+    #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.0.2)                
+    #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.2)                
+    #>  statmod       1.4.35  2020-10-19 [1] CRAN (R 4.0.3)                
+    #>  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)                
+    #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.0.2)                
+    #>  tibble      * 3.0.6   2021-01-29 [1] CRAN (R 4.0.3)                
+    #>  tidyr       * 1.1.2   2020-08-27 [1] CRAN (R 4.0.2)                
+    #>  tidyselect    1.1.0   2020-05-11 [1] CRAN (R 4.0.2)                
+    #>  tidyverse   * 1.3.0   2019-11-21 [1] CRAN (R 4.0.2)                
+    #>  tmvnsim       1.0-2   2016-12-15 [1] CRAN (R 4.0.0)                
+    #>  utf8          1.1.4   2018-05-24 [1] CRAN (R 4.0.2)                
+    #>  vctrs         0.3.6   2020-12-17 [1] CRAN (R 4.0.3)                
+    #>  withr         2.4.1   2021-01-26 [1] CRAN (R 4.0.3)                
+    #>  xfun          0.20    2021-01-06 [1] CRAN (R 4.0.3)                
+    #>  xml2          1.3.2   2020-04-23 [1] CRAN (R 4.0.2)                
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```
 
 [^gelman-hill]: When they briefly cover the ICC, Gelman and Hill (2007) do 
     something very cools with the numbers from the lme4 printout. They interpret 
     the variances in terms of 
     [partial pooling](/plotting-partial-pooling-in-mixed-effects-models/). They 
     are describing the example of repeated radon measurements in counties. They 
-    have *σ*<sub>*α* (county)</sub> = .33 and 
-    *σ*<sub>*y* (residual)</sub> = .76, so an ICC of .16.
+    have *&sigma;*<sub>*&alpha;* (county)</sub> = .33 and 
+    *&sigma;*<sub>*y* (residual)</sub> = .76, so an ICC of .16.
     
-    > One way to interpret the variation between counties, *σ*<sub>*α*</sub>, 
+    > One way to interpret the variation between counties, *&sigma;*<sub>*&alpha;*</sub>, 
     is to consider the variance ratio, 
-    *σ*<sub>*α*</sub><sup>2</sup>/*σ*<sub>*y*</sub><sup>2</sup>, 
+    *&sigma;*<sub>*&alpha;*</sub><sup>2</sup>/*&sigma;*<sub>*y*</sub><sup>2</sup>, 
     which inthis example is estimated at 
     0.33<sup>2</sup>/0.76<sup>2</sup> = 0.19 or about one-fifth. Thus, the 
     standard deviation of the average radon levels 
@@ -336,7 +437,7 @@ continue its *organic* growth.
     with a sample size of less than 5, there is more information in the 
     group-level model than in the county's data; for a county, with more than 
     5 observations, the within-country measurements are more informative 
-    (in the sense of providing a lower-variance estiamte of the county's 
+    (in the sense of providing a lower-variance estimate of the county's 
     average radon level.) As a result, the multilevel regression line in a 
     county is closer to the complete-pooling estimate when sample size is 
     less than 5 and, closer to the no-pooling estimate when the sample size 
