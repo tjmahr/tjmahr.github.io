@@ -44,10 +44,10 @@ this time, the bayesplot had moved onto version 1.8.0 so the content of
 the post would not be describing the behavior of 1.5.0. This situation
 created a little reproducibility puzzle. Full
 reproducibility---traveling back in time and using the versions of
-ggplot2, ggridges, etc.---would be too difficult, and frankly, not 
-worth the hassle. But it is important for this version next plot to 
-reproduce how the area definition for `mcmc_areas()` changed from 
-v1.4.0 to v1.5.0---and while we are at it---from v1.5.0 to now. 
+ggplot2, ggridges, etc.---would be too difficult, and frankly, not worth
+the hassle. But it is important for the next plot to reproduce how the
+area definition in bayesplot for `mcmc_areas()` changed from v1.4.0 to
+v1.5.0---and while we are at it---from v1.5.0 to now. 
 
 After some troubleshooting and experimenting, I came up with the
 following plan.
@@ -61,7 +61,7 @@ following plan.
     use [`withr::with_temp_libpaths()`][withr-temp-libpaths] to
     automate the temporary library-path manipulation.
   - In a separate R session, create the plot using my regular library
-    paths (`old_lib_paths`) in the code below. 
+    paths (`old_lib_paths` in the code below). 
 
 [libpaths]: https://rdrr.io/r/base/libPaths.html "Documentation of .libPaths()"
 [callr]: https://rdrr.io/pkg/callr/man/r.html "Documentation of callr:r()"
@@ -540,7 +540,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-rid
     #>    yaml           2.2.1    2020-02-01 [2] CRAN (R 4.0.0)                     
     #>    zoo            1.8-8    2020-05-02 [2] CRAN (R 4.0.2)                     
     #> 
-    #> [1] C:/Users/Tristan/AppData/Local/Temp/RtmpEDZMlQ
+    #> [1] C:/Users/Tristan/AppData/Local/Temp/RtmpAL2KbA
     #> [2] C:/Users/Tristan/Documents/R/win-library/4.0
     #> [3] C:/Program Files/R/R-4.0.3/library
     #> 
