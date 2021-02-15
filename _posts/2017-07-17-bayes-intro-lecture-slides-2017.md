@@ -74,7 +74,7 @@ what makes Bayes different. ¯\\\_(ツ)\_/¯
 
 ***
 
-*Last knitted on 2021-02-03. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-07-17-bayes-intro-lecture-slides-2017.Rmd).*[^si] 
 
 [^si]: 
@@ -91,16 +91,15 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-07-17-bay
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-03                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package     * version    date       lib source                     
     #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
-    #>  cli           2.2.0      2020-11-20 [1] CRAN (R 4.0.3)             
-    #>  crayon        1.3.4      2017-09-16 [1] CRAN (R 4.0.2)             
+    #>  cli           2.3.0      2021-01-31 [1] CRAN (R 4.0.3)             
+    #>  crayon        1.4.1      2021-02-08 [1] CRAN (R 4.0.3)             
     #>  emo           0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)
     #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.0.2)             
-    #>  fansi         0.4.2      2021-01-15 [1] CRAN (R 4.0.3)             
     #>  generics      0.1.0      2020-10-31 [1] CRAN (R 4.0.3)             
     #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.0.3)             
     #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.0.2)             
@@ -109,13 +108,15 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-07-17-bay
     #>  lubridate     1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
     #>  magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
     #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
+    #>  ragg          0.4.1      2021-01-11 [1] CRAN (R 4.0.3)             
     #>  Rcpp          1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
     #>  rlang         0.4.10     2020-12-30 [1] CRAN (R 4.0.3)             
     #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.0.3)             
-    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.0.3)             
     #>  sessioninfo   1.1.1      2018-11-05 [1] CRAN (R 4.0.2)             
     #>  stringi       1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
     #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
+    #>  systemfonts   1.0.0      2021-02-01 [1] CRAN (R 4.0.3)             
+    #>  textshaping   0.2.1      2020-11-13 [1] CRAN (R 4.0.3)             
     #>  withr         2.4.1      2021-01-26 [1] CRAN (R 4.0.3)             
     #>  xfun          0.20       2021-01-06 [1] CRAN (R 4.0.3)             
     #> 

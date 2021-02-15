@@ -78,7 +78,7 @@ Read more about [`knitr::knit()`](`r knitted_doc_url`)`.
 
 ::::
 
-Reported prepared on 2021-02-08 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
+Reported prepared on 2021-02-15 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
 with knitr version 1.31 😄.
 Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`. 
 ````
@@ -127,7 +127,7 @@ Read more about [`knitr::knit()`](`r knitted$doc_url`)`.
 
 ::::
 
-Reported prepared on 2021-02-08 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
+Reported prepared on 2021-02-15 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
 with knitr version 1.31 😃. 
 Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`. 
 ````
@@ -150,7 +150,7 @@ process all at once.
 ```r
 knitted
 #> $when
-#> [1] "2021-02-08"
+#> [1] "2021-02-15"
 #> 
 #> $where
 #> [1] "2021-02-05-lists-knitr-secret-weapon.Rmd"
@@ -524,14 +524,14 @@ super_split <- function(.data, ...) {
 The first variable splits the list at depth 0, the second variable
 splits the sublists at depth 1 (which were created in the prior split),
 and so on. The business with
-[`enquos(...)`](https://rlang.r-lib.org/reference/nse-defuse.html) is there
+[`enquos(...)`](https://rdrr.io/pkg/rlang/man/nse-defuse.html) is there
 to let me refer to the variable names directly.
 
 
 
 ***
 
-*Last knitted on 2021-02-08. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lists-knitr-secret-weapon.Rmd).*[^si] 
 
 [^si]: 
@@ -548,24 +548,24 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-08                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  ! package     * version    date       lib source                        
     #>    assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.0.2)                
-    #>    backports     1.2.0      2020-11-02 [1] CRAN (R 4.0.3)                
-    #>    boot          1.3-26     2021-01-25 [1] CRAN (R 4.0.3)                
-    #>    broom         0.7.3      2020-12-16 [1] CRAN (R 4.0.3)                
+    #>    backports     1.2.1      2020-12-09 [1] CRAN (R 4.0.3)                
+    #>    boot          1.3-27     2021-02-12 [1] CRAN (R 4.0.3)                
+    #>    broom         0.7.4      2021-01-29 [1] CRAN (R 4.0.3)                
     #>    broom.mixed * 0.2.6      2020-05-17 [1] CRAN (R 4.0.2)                
     #>    cellranger    1.1.0      2016-07-27 [1] CRAN (R 4.0.2)                
-    #>    cli           2.2.0      2020-11-20 [1] CRAN (R 4.0.3)                
+    #>    cli           2.3.0      2021-01-31 [1] CRAN (R 4.0.3)                
     #>    coda          0.19-4     2020-09-30 [1] CRAN (R 4.0.2)                
     #>    colorspace    2.0-0      2020-11-11 [1] CRAN (R 4.0.3)                
-    #>    crayon        1.4.0      2021-01-30 [1] CRAN (R 4.0.3)                
+    #>    crayon        1.4.1      2021-02-08 [1] CRAN (R 4.0.3)                
     #>    DBI           1.1.1      2021-01-15 [1] CRAN (R 4.0.3)                
-    #>    dbplyr        2.0.0      2020-11-03 [1] CRAN (R 4.0.2)                
+    #>    dbplyr        2.1.0      2021-02-03 [1] CRAN (R 4.0.3)                
     #>    downlit       0.2.1      2020-11-04 [1] CRAN (R 4.0.2)                
-    #>    dplyr       * 1.0.3      2021-01-15 [1] CRAN (R 4.0.3)                
+    #>    dplyr       * 1.0.4      2021-02-02 [1] CRAN (R 4.0.3)                
     #>    ellipsis      0.3.1      2020-05-15 [1] CRAN (R 4.0.2)                
     #>    emo           0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)   
     #>    evaluate      0.14       2019-05-28 [1] CRAN (R 4.0.2)                
@@ -585,16 +585,16 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>    jsonlite      1.7.2      2020-12-09 [1] CRAN (R 4.0.3)                
     #>    knitr       * 1.31       2021-01-27 [1] CRAN (R 4.0.3)                
     #>    lattice       0.20-41    2020-04-02 [1] CRAN (R 4.0.2)                
-    #>    lifecycle     0.2.0      2020-03-06 [1] CRAN (R 4.0.2)                
+    #>    lifecycle     1.0.0      2021-02-15 [1] CRAN (R 4.0.3)                
     #>    lme4        * 1.1-26     2020-12-01 [1] CRAN (R 4.0.3)                
     #>    lubridate     1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)                
     #>    magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.0.3)                
-    #>    MASS          7.3-53     2020-09-09 [1] CRAN (R 4.0.2)                
+    #>    MASS          7.3-53     2020-09-09 [1] CRAN (R 4.0.3)                
     #>    Matrix      * 1.2-18     2019-11-27 [1] CRAN (R 4.0.3)                
     #>    minqa         1.2.4      2014-10-09 [1] CRAN (R 4.0.2)                
     #>    modelr        0.1.8      2020-05-19 [1] CRAN (R 4.0.2)                
     #>    munsell       0.5.0      2018-06-12 [1] CRAN (R 4.0.2)                
-    #>    nlme          3.1-151    2020-12-10 [1] CRAN (R 4.0.3)                
+    #>    nlme          3.1-152    2021-02-04 [1] CRAN (R 4.0.3)                
     #>    nloptr        1.2.2.2    2020-07-02 [1] CRAN (R 4.0.2)                
     #>    pillar        1.4.7      2020-11-20 [1] CRAN (R 4.0.3)                
     #>    pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.0.2)                
@@ -603,6 +603,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>    ps            1.5.0      2020-12-05 [1] CRAN (R 4.0.3)                
     #>    purrr       * 0.3.4      2020-04-17 [1] CRAN (R 4.0.2)                
     #>    R6            2.5.0      2020-10-28 [1] CRAN (R 4.0.2)                
+    #>    ragg          0.4.1      2021-01-11 [1] CRAN (R 4.0.3)                
     #>    Rcpp          1.0.6      2021-01-15 [1] CRAN (R 4.0.3)                
     #>    readr       * 1.4.0      2020-10-05 [1] CRAN (R 4.0.2)                
     #>    readxl        1.3.1      2019-03-13 [1] CRAN (R 4.0.2)                
@@ -618,11 +619,13 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>    statmod       1.4.35     2020-10-19 [1] CRAN (R 4.0.3)                
     #>    stringi       1.5.3      2020-09-09 [1] CRAN (R 4.0.2)                
     #>    stringr     * 1.4.0      2019-02-10 [1] CRAN (R 4.0.2)                
+    #>    systemfonts   1.0.0      2021-02-01 [1] CRAN (R 4.0.3)                
+    #>    textshaping   0.2.1      2020-11-13 [1] CRAN (R 4.0.3)                
     #>    tibble      * 3.0.6      2021-01-29 [1] CRAN (R 4.0.3)                
     #>    tidyr       * 1.1.2      2020-08-27 [1] CRAN (R 4.0.2)                
     #>    tidyselect    1.1.0      2020-05-11 [1] CRAN (R 4.0.2)                
     #>    tidyverse   * 1.3.0      2019-11-21 [1] CRAN (R 4.0.2)                
-    #>  D TMB           1.7.18     2020-07-27 [1] CRAN (R 4.0.2)                
+    #>  D TMB           1.7.19     2021-02-05 [1] CRAN (R 4.0.3)                
     #>    utf8          1.1.4      2018-05-24 [1] CRAN (R 4.0.2)                
     #>    vctrs         0.3.6      2020-12-17 [1] CRAN (R 4.0.3)                
     #>    withr         2.4.1      2021-01-26 [1] CRAN (R 4.0.3)                

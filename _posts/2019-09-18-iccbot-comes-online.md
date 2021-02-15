@@ -317,7 +317,7 @@ continue its *organic* growth.
 
 ***
 
-*Last knitted on 2021-02-12. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-iccbot-comes-online.Rmd).*[^si] 
 
 [^si]: 
@@ -334,13 +334,13 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-icc
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-12                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package     * version date       lib source                        
     #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)                
     #>  backports     1.2.1   2020-12-09 [1] CRAN (R 4.0.3)                
-    #>  boot          1.3-26  2021-01-25 [1] CRAN (R 4.0.3)                
+    #>  boot          1.3-27  2021-02-12 [1] CRAN (R 4.0.3)                
     #>  broom         0.7.4   2021-01-29 [1] CRAN (R 4.0.3)                
     #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.0.2)                
     #>  cli           2.3.0   2021-01-31 [1] CRAN (R 4.0.3)                
@@ -368,12 +368,12 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-icc
     #>  jsonlite      1.7.2   2020-12-09 [1] CRAN (R 4.0.3)                
     #>  knitr       * 1.31    2021-01-27 [1] CRAN (R 4.0.3)                
     #>  lattice       0.20-41 2020-04-02 [1] CRAN (R 4.0.2)                
-    #>  lifecycle     0.2.0   2020-03-06 [1] CRAN (R 4.0.2)                
+    #>  lifecycle     1.0.0   2021-02-15 [1] CRAN (R 4.0.3)                
     #>  lme4          1.1-26  2020-12-01 [1] CRAN (R 4.0.3)                
     #>  lpSolve       5.6.15  2020-01-24 [1] CRAN (R 4.0.0)                
     #>  lubridate     1.7.9.2 2020-11-13 [1] CRAN (R 4.0.3)                
     #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)                
-    #>  MASS          7.3-53  2020-09-09 [1] CRAN (R 4.0.2)                
+    #>  MASS          7.3-53  2020-09-09 [1] CRAN (R 4.0.3)                
     #>  Matrix        1.2-18  2019-11-27 [1] CRAN (R 4.0.3)                
     #>  minqa         1.2.4   2014-10-09 [1] CRAN (R 4.0.2)                
     #>  mnormt        2.0.2   2020-09-01 [1] CRAN (R 4.0.2)                
@@ -387,6 +387,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-icc
     #>  psych         2.0.12  2020-12-16 [1] CRAN (R 4.0.3)                
     #>  purrr       * 0.3.4   2020-04-17 [1] CRAN (R 4.0.2)                
     #>  R6            2.5.0   2020-10-28 [1] CRAN (R 4.0.2)                
+    #>  ragg          0.4.1   2021-01-11 [1] CRAN (R 4.0.3)                
     #>  Rcpp          1.0.6   2021-01-15 [1] CRAN (R 4.0.3)                
     #>  readr       * 1.4.0   2020-10-05 [1] CRAN (R 4.0.2)                
     #>  readxl        1.3.1   2019-03-13 [1] CRAN (R 4.0.2)                
@@ -400,6 +401,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-icc
     #>  statmod       1.4.35  2020-10-19 [1] CRAN (R 4.0.3)                
     #>  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)                
     #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.0.2)                
+    #>  systemfonts   1.0.0   2021-02-01 [1] CRAN (R 4.0.3)                
+    #>  textshaping   0.2.1   2020-11-13 [1] CRAN (R 4.0.3)                
     #>  tibble      * 3.0.6   2021-01-29 [1] CRAN (R 4.0.3)                
     #>  tidyr       * 1.1.2   2020-08-27 [1] CRAN (R 4.0.2)                
     #>  tidyselect    1.1.0   2020-05-11 [1] CRAN (R 4.0.2)                
