@@ -38,7 +38,8 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
       cache.path = path_cache,
       fig.cap = "center",
       comment = "#>",
-      collapse = TRUE
+      collapse = TRUE,
+      dev = "ragg_png"
     )
     render_markdown()
 
@@ -60,7 +61,7 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
   path_out
 }
 
-paths_current_posts <- list_rmds("./_R")[c(1:18, 28)] %>%
+paths_current_posts <- list_rmds("./_R")[c(1:24, 28)] %>%
   stringr::str_subset("_footer.Rmd", negate = TRUE)
 paths_draft_posts <- list_rmds("./_R/_drafts")
 
@@ -126,17 +127,32 @@ list(
   tar_target(
     spellcheck_exceptions,
     c(
+      # urls
+      "shinyapps", "io", "https", "tristan", "icc",
       # abbreviations
-      "APA", "PPV", "NPV", "btw", "DS",
+      "APA", "PPV", "NPV", "btw", "DS", "ICC",
       # code names
       "bayesplot",
-      "DiagrammeR", "dplyr", "dplyring",
-      "gganimate","ggmcmc", "ggplot", "GitHub",
+      "callr",
+      "DiagrammeR",
+      "dplyr", "dplyring",
+      "flexdashboard",
+      "gganimate", "ggmcmc", "ggplot", "ggridges",
+      "GitHub",
+      "iccbot",
       "knitr",
-      "lazyeval", "lme",
+      "lazyeval",
+      "libPaths", "libpaths",
+      "lme",
       "magrittr", "pandoc", "polypoly", "printy",
+      "plotmath",
+      "purrr", "purrr's",
       "readr", "RMarkdown", "RStanARM",
-      "RStudio", "RStudio's", "setNames", "stringr",
+      "rlang", "rlang's",
+      "RStudio", "RStudio's",
+      "setNames", "stringr",
+      "ShinyApps",
+      "withr",
       "WrapRmd",
       "tibble", "tribble",
       "md", "Rmd", "README",
@@ -147,23 +163,50 @@ list(
       "toolset", "affordances", "unintuitive", "hmmm", "wavily",
       "anterograde", "autocomplete", "autocompletion", "offscreen",
       "AST",
+      "asymptote",
       "coarticulation",
+      "dextrality",
       "else's",
       "eyetracker",
       "Hamilitonian",
+      "idemnotic",
+      "intra",
+      "intraclass",
+      "interrater",
+      "iteratively",
+      "joyplots",
+      "monoid",
+      "na",
       "nibling",
       "ooooooh", "ooooh",
+      "png",
       "Pokémon",
       "pre",
       "recode", "recoding",
-      "rewrap", "rewrapping",
       "reknitted",
+      "reparameterize",
+      "rewrap", "rewrapping",
+      "reproducibility",
+      "ridgeline",
       "ta", "da",
-      "ummm",
+      "ummm", "umm",
+      "vaganotic",
+      "walkthrough",
       # names
+      "Unown",
+      "TheSilphRoad",
       "Sitka",
-      "Fernald", "Marchman", "Hadley", "Gelman", "Mirman's", "Wickham",
-      "TJ"
+      "Fernald",
+      "Marchman",
+      "Fleiss", "Shrout",
+      "Gabry",
+      "Gelman", "gelman",
+      "Mirman", "Mirman's",
+      "Wickham", "Hadley",
+      "TJ",
+      # latex
+      "frac",
+      "operatorname"
     )
   ),
 
