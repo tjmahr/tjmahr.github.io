@@ -32,7 +32,7 @@ diagnostic plots for an `lm()` model is Q-Q plot of the residual errors.
 plot(lm(mpg ~ wt, mtcars), which = 2, id.n = 0)
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/example-qq-1.png" title="A diagnostic Q-Q plot for a linear model." alt="A diagnostic Q-Q plot for a linear model." width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/example-qq-1.png" title="A diagnostic Q-Q plot for a linear model." alt="A diagnostic Q-Q plot for a linear model." width="66%" style="display: block; margin: auto;" />
 
 Reading these plots is a bit of an art, but Sean Kross provides [a tutorial on
 how to interpret these plots][skqq] and walks through diagnostic examples
@@ -116,7 +116,7 @@ ppoints
 #>         (1L:n - a)/(n + 1 - 2 * a)
 #>     else numeric()
 #> }
-#> <bytecode: 0x000000001a18ac90>
+#> <bytecode: 0x0000000014c78a48>
 #> <environment: namespace:stats>
 ```
 
@@ -163,7 +163,7 @@ ggplot(d) +
   )
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/qq1-1.png" title="A Q-Q plot by using `qnorm(ppoints(length(x)), mean(x), sd(x))`, more or less." alt="A Q-Q plot by using `qnorm(ppoints(length(x)), mean(x), sd(x))`, more or less." width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/qq1-1.png" title="A Q-Q plot by using `qnorm(ppoints(length(x)), mean(x), sd(x))`, more or less." alt="A Q-Q plot by using `qnorm(ppoints(length(x)), mean(x), sd(x))`, more or less." width="66%" style="display: block; margin: auto;" />
 
 If we project onto the *z*-score distribution---that is, a "unit normal", a
 normal with mean 0 and standard deviation 1---our points (black) match
@@ -182,7 +182,7 @@ ggplot(d) +
   )
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/qq2-1.png" title="A Q-Q plot by using `qnorm(ppoints(length(x)), 0, 1)`." alt="A Q-Q plot by using `qnorm(ppoints(length(x)), 0, 1)`." width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/qq2-1.png" title="A Q-Q plot by using `qnorm(ppoints(length(x)), 0, 1)`." alt="A Q-Q plot by using `qnorm(ppoints(length(x)), 0, 1)`." width="66%" style="display: block; margin: auto;" />
 
 ### A math-less description of what we are doing
 
@@ -232,7 +232,7 @@ p <- ggplot(d) +
 p
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/qq3-1.png" title="A Q-Q plot showing two disagreeing reference lines." alt="A Q-Q plot showing two disagreeing reference lines." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/qq3-1.png" title="A Q-Q plot showing two disagreeing reference lines." alt="A Q-Q plot showing two disagreeing reference lines." width="80%" style="display: block; margin: auto;" />
 
 This recent discovery mystified me. This line from the help page for
 [`qqline()`][qqnorm] offered a clue:
@@ -262,7 +262,7 @@ p +
   )
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/qq4-1.png" title="The previous plot updated with crosses marking the quartiles of each distribution. R's line passes through the lines." alt="The previous plot updated with crosses marking the quartiles of each distribution. R's line passes through the lines." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/qq4-1.png" title="The previous plot updated with crosses marking the quartiles of each distribution. R's line passes through the lines." alt="The previous plot updated with crosses marking the quartiles of each distribution. R's line passes through the lines." width="80%" style="display: block; margin: auto;" />
 
 Fox explains that this is a "robust" estimate for the line: 
 
@@ -290,7 +290,7 @@ p +
   ) 
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/qq5-1.png" title="The earlier plot with two lines with a third line added. But we only see two lines because the robust line matches the default reference line." alt="The earlier plot with two lines with a third line added. But we only see two lines because the robust line matches the default reference line." width="100%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/qq5-1.png" title="The earlier plot with two lines with a third line added. But we only see two lines because the robust line matches the default reference line." alt="The earlier plot with two lines with a third line added. But we only see two lines because the robust line matches the default reference line." width="100%" style="display: block; margin: auto;" />
 
 ## A confidence band helps
 
@@ -373,7 +373,7 @@ ggplot(d) +
   theme(legend.position = "top", legend.justification =  "left")
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/qq6-1.png" title="A Q-Q plot with a confidence band." alt="A Q-Q plot with a confidence band." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/qq6-1.png" title="A Q-Q plot with a confidence band." alt="A Q-Q plot with a confidence band." width="80%" style="display: block; margin: auto;" />
 
 We would like to see these points track along the reference line, but the
 confidence band shows that we can expect the quantiles in the tails will be a
@@ -413,7 +413,7 @@ p2 <- wrap_elements(~ {
 p1 + p2
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/car-bake-off-1.png" title="Two Q-Q plots side by side. First one shows the default from the car package. The second one is the same but draws black lines over the original blue lines to confirm that our calculations worked." alt="Two Q-Q plots side by side. First one shows the default from the car package. The second one is the same but draws black lines over the original blue lines to confirm that our calculations worked." width="100%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/car-bake-off-1.png" title="Two Q-Q plots side by side. First one shows the default from the car package. The second one is the same but draws black lines over the original blue lines to confirm that our calculations worked." alt="Two Q-Q plots side by side. First one shows the default from the car package. The second one is the same but draws black lines over the original blue lines to confirm that our calculations worked." width="100%" style="display: block; margin: auto;" />
 
 
 ## Worm plots 🐛
@@ -445,7 +445,7 @@ gamlss::wp(
 #> Error in coef(fit): object 'fit' not found
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp1-1.png" title="A worm plot!" alt="A worm plot!" width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp1-1.png" title="A worm plot!" alt="A worm plot!" width="66%" style="display: block; margin: auto;" />
 
 This plot shows the basic idea: We are comparing quantiles along a line and we
 have a confidence band that helps us gauge the deviation around that line.
@@ -476,7 +476,7 @@ ggplot(d) +
   )
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp2-1.png" title="A worm plot from scratch" alt="A worm plot from scratch" width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp2-1.png" title="A worm plot from scratch" alt="A worm plot from scratch" width="66%" style="display: block; margin: auto;" />
 
 The values on the *y* axis differ between this plot and the one from `wp()`.
 That's because the data for `wp()` were fully rescaled with `scale()`: They were
@@ -617,7 +617,7 @@ ggplot(d) +
   geom_point(aes(x = z_theoretical, y = x_sample - line))
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp3-1.png" title="Two worm plots of Q-Q points." alt="Two worm plots of Q-Q points." width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp3-1.png" title="Two worm plots of Q-Q points." alt="Two worm plots of Q-Q points." width="66%" style="display: block; margin: auto;" />
 
 ```r
 
@@ -630,7 +630,7 @@ ggplot(d) +
   geom_point(aes(x = z_theoretical, y = x_sample - robust_line))
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp3-2.png" title="Two worm plots of Q-Q points." alt="Two worm plots of Q-Q points." width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp3-2.png" title="Two worm plots of Q-Q points." alt="Two worm plots of Q-Q points." width="66%" style="display: block; margin: auto;" />
 
 Now, we work through the same procedure with the confidence band. First, create
 the user-facing layer function that we want to use.
@@ -763,7 +763,7 @@ ggplot(d) +
   stat_worm_band(aes(sample = x_sample)) 
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp5-1.png" title="A worm plot of Q-Q points with a confidence band." alt="A worm plot of Q-Q points with a confidence band." width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp5-1.png" title="A worm plot of Q-Q points with a confidence band." alt="A worm plot of Q-Q points with a confidence band." width="66%" style="display: block; margin: auto;" />
 
 The bands differ slightly because `stat_worm_band()` uses 1.96 standard errors
 for its confidence band (instead of 2) and because `stat_worm_band()` matches
@@ -789,7 +789,7 @@ ggplot(d) +
   stat_worm_band(aes(sample = x_sample), robust = TRUE) 
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp6-1.png" title="A worm plot of Q-Q points with a confidence band using robust estimates." alt="A worm plot of Q-Q points with a confidence band using robust estimates." width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp6-1.png" title="A worm plot of Q-Q points with a confidence band using robust estimates." alt="A worm plot of Q-Q points with a confidence band using robust estimates." width="66%" style="display: block; margin: auto;" />
 
 This implementation is a decent start. A more complete version would support
 other reference distributions besides the normal distribution and allow some
@@ -843,7 +843,7 @@ ggplot(df, aes(x = values)) +
   facet_wrap("example", scales = "free_x")
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/dx-1.png" title="Five histograms with density curves showing different data shapes." alt="Five histograms with density curves showing different data shapes." width="100%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/dx-1.png" title="Five histograms with density curves showing different data shapes." alt="Five histograms with density curves showing different data shapes." width="100%" style="display: block; margin: auto;" />
 
 First, let's start with a good worm plot. The points from a normal distribution
 almost all fall within the confidence band.
@@ -858,7 +858,7 @@ p <- ggplot(subset(df, example == "normal")) +
 p
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp7-1.png" title="A worm plot for normally distributed data." alt="A worm plot for normally distributed data." width="66%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp7-1.png" title="A worm plot for normally distributed data." alt="A worm plot for normally distributed data." width="66%" style="display: block; margin: auto;" />
 
 For skewed data, the worm takes on a *U* shape.
 
@@ -871,7 +871,7 @@ p +
   )
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp8-1.png" title="Worm plots for skewed distributed data." alt="Worm plots for skewed distributed data." width="100%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp8-1.png" title="Worm plots for skewed distributed data." alt="Worm plots for skewed distributed data." width="100%" style="display: block; margin: auto;" />
 
 We can think through why we are seeing what we are seeing here. It's not easy or
 obvious, but let's go for it: Sample quantiles that are larger than expected
@@ -924,7 +924,7 @@ p +
   )
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp9-1.png" title="A worm plot for fail tailed and thin tailed data." alt="A worm plot for fail tailed and thin tailed data." width="100%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp9-1.png" title="A worm plot for fail tailed and thin tailed data." alt="A worm plot for fail tailed and thin tailed data." width="100%" style="display: block; margin: auto;" />
 
 The fat-tailed data has values that are smaller than expected on the left tail
 (falling through the floor) and larger than expected on the right tail (breaking
@@ -958,7 +958,7 @@ ggplot(subset(df, example == "fat tails")) +
   theme(legend.position = "top", legend.justification =  "left")
 ```
 
-<img src="/figs//2020-08-26-quantile-quantile-plots-from-scratch/wp10-1.png" title="Two cumulative plots showing them trading places." alt="Two cumulative plots showing them trading places." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp10-1.png" title="Two cumulative plots showing them trading places." alt="Two cumulative plots showing them trading places." width="80%" style="display: block; margin: auto;" />
 
 We can see how the lines switch places a few times. That the normal line is to
 right of the empirical line at *y* = .75 means that at that quantile, the normal
@@ -969,8 +969,103 @@ Finally, I want to advertise that Table 2 in the [worm plot paper][wp]
 summarizes these heuristics (like *U*-shaped and *S*-shaped worms) and includes
 other heuristics about the slope and intercept of the worm.
 
-[^embo]: Fox uses a funny phrase in a footnote as he notes that the approach produces "cumulative proportions of 0 or 1, which would be an embarrassment [...] for distributions like the normal [...]". Definitely, not a good look.
 
+
+***
+
+*Last knitted on 2021-02-15. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2020-08-26-quantile-quantile-plots-from-scratch.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.0.3 (2020-10-10)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-02-15                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package      * version date       lib source        
+    #>  abind          1.4-5   2016-07-21 [1] CRAN (R 4.0.0)
+    #>  assertthat     0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
+    #>  car            3.0-10  2020-09-29 [1] CRAN (R 4.0.2)
+    #>  carData        3.0-4   2020-05-22 [1] CRAN (R 4.0.0)
+    #>  cellranger     1.1.0   2016-07-27 [1] CRAN (R 4.0.2)
+    #>  cli            2.3.0   2021-01-31 [1] CRAN (R 4.0.3)
+    #>  colorspace     2.0-0   2020-11-11 [1] CRAN (R 4.0.3)
+    #>  crayon         1.4.1   2021-02-08 [1] CRAN (R 4.0.3)
+    #>  curl           4.3     2019-12-02 [1] CRAN (R 4.0.2)
+    #>  data.table     1.13.6  2020-12-30 [1] CRAN (R 4.0.3)
+    #>  DBI            1.1.1   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  digest         0.6.27  2020-10-24 [1] CRAN (R 4.0.3)
+    #>  dplyr          1.0.4   2021-02-02 [1] CRAN (R 4.0.3)
+    #>  ellipsis       0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
+    #>  evaluate       0.14    2019-05-28 [1] CRAN (R 4.0.2)
+    #>  farver         2.0.3   2020-01-16 [1] CRAN (R 4.0.2)
+    #>  forcats        0.5.1   2021-01-27 [1] CRAN (R 4.0.3)
+    #>  foreign        0.8-81  2020-12-22 [1] CRAN (R 4.0.3)
+    #>  gamlss         5.2-0   2020-09-12 [1] CRAN (R 4.0.2)
+    #>  gamlss.data    5.1-4   2019-05-15 [1] CRAN (R 4.0.0)
+    #>  gamlss.dist    5.1-7   2020-07-13 [1] CRAN (R 4.0.2)
+    #>  generics       0.1.0   2020-10-31 [1] CRAN (R 4.0.3)
+    #>  ggplot2      * 3.3.3   2020-12-30 [1] CRAN (R 4.0.3)
+    #>  git2r          0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
+    #>  glue           1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  gridGraphics   0.5-1   2020-12-13 [1] CRAN (R 4.0.3)
+    #>  gtable         0.3.0   2019-03-25 [1] CRAN (R 4.0.2)
+    #>  haven          2.3.1   2020-06-01 [1] CRAN (R 4.0.2)
+    #>  here           1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
+    #>  highr          0.8     2019-03-20 [1] CRAN (R 4.0.2)
+    #>  hms            1.0.0   2021-01-13 [1] CRAN (R 4.0.3)
+    #>  knitr        * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
+    #>  labeling       0.4.2   2020-10-20 [1] CRAN (R 4.0.2)
+    #>  lattice        0.20-41 2020-04-02 [1] CRAN (R 4.0.2)
+    #>  lifecycle      1.0.0   2021-02-15 [1] CRAN (R 4.0.3)
+    #>  magrittr       2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
+    #>  MASS           7.3-53  2020-09-09 [1] CRAN (R 4.0.3)
+    #>  Matrix         1.2-18  2019-11-27 [1] CRAN (R 4.0.3)
+    #>  munsell        0.5.0   2018-06-12 [1] CRAN (R 4.0.2)
+    #>  nlme           3.1-152 2021-02-04 [1] CRAN (R 4.0.3)
+    #>  openxlsx       4.2.3   2020-10-27 [1] CRAN (R 4.0.3)
+    #>  patchwork    * 1.1.1   2020-12-17 [1] CRAN (R 4.0.3)
+    #>  pillar         1.4.7   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.0.2)
+    #>  purrr          0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
+    #>  R6             2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
+    #>  ragg           0.4.1   2021-01-11 [1] CRAN (R 4.0.3)
+    #>  Rcpp           1.0.6   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  readxl         1.3.1   2019-03-13 [1] CRAN (R 4.0.2)
+    #>  rio            0.5.16  2018-11-26 [1] CRAN (R 4.0.2)
+    #>  rlang          0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
+    #>  rprojroot      2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
+    #>  scales         1.1.1   2020-05-11 [1] CRAN (R 4.0.2)
+    #>  sessioninfo    1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
+    #>  stringi        1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
+    #>  stringr        1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
+    #>  survival       3.2-7   2020-09-28 [1] CRAN (R 4.0.2)
+    #>  systemfonts    1.0.0   2021-02-01 [1] CRAN (R 4.0.3)
+    #>  textshaping    0.2.1   2020-11-13 [1] CRAN (R 4.0.3)
+    #>  tibble       * 3.0.6   2021-01-29 [1] CRAN (R 4.0.3)
+    #>  tidyr          1.1.2   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  tidyselect     1.1.0   2020-05-11 [1] CRAN (R 4.0.2)
+    #>  vctrs          0.3.6   2020-12-17 [1] CRAN (R 4.0.3)
+    #>  withr          2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun           0.20    2021-01-06 [1] CRAN (R 4.0.3)
+    #>  zip            2.1.1   2020-08-27 [1] CRAN (R 4.0.2)
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
+    #> [2] C:/Program Files/R/R-4.0.3/library
+    ```
+
+[^embo]: Fox uses a funny phrase in a footnote as he notes that the approach produces "cumulative proportions of 0 or 1, which would be an embarrassment [...] for distributions like the normal [...]". Definitely, not a good look.
 
 [skqq]: https://seankross.com/2016/02/29/A-Q-Q-Plot-Dissection-Kit.html "A Q-Q Plot Dissection Kit"
 [gldrm]: https://journal.r-project.org/archive/2018/RJ-2018-027/index.html "GLDRM models"

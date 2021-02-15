@@ -889,8 +889,13 @@ Finally, I want to advertise that Table 2 in the [worm plot paper][wp]
 summarizes these heuristics (like *U*-shaped and *S*-shaped worms) and includes
 other heuristics about the slope and intercept of the worm.
 
-[^embo]: Fox uses a funny phrase in a footnote as he notes that the approach produces "cumulative proportions of 0 or 1, which would be an embarrassment [...] for distributions like the normal [...]". Definitely, not a good look.
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
+[^embo]: Fox uses a funny phrase in a footnote as he notes that the approach produces "cumulative proportions of 0 or 1, which would be an embarrassment [...] for distributions like the normal [...]". Definitely, not a good look.
 
 [skqq]: https://seankross.com/2016/02/29/A-Q-Q-Plot-Dissection-Kit.html "A Q-Q Plot Dissection Kit"
 [gldrm]: https://journal.r-project.org/archive/2018/RJ-2018-027/index.html "GLDRM models"
