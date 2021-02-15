@@ -382,7 +382,11 @@ the parameters in the logistic growth curve relate to its shape.
 By the way, if you know a better way to plot partially colorized math equations
 or how to blank out subexpressions in an easier way, I would love to hear it.
 
-***
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
 [^other-terms]: By the way, some other ways to describe the asymptote besides 
     "ceiling" or "plateau" would be "saturation" which emphasizes how things 
