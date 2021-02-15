@@ -312,4 +312,10 @@ three-panel visualization:
 
 The heart of Bayes' theorem indeed.
 
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
+
 [^map]: That would be the [MAP `r emo::ji("world_map")` (maximum a posteriori) estimate](https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation).

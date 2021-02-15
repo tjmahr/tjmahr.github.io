@@ -427,9 +427,14 @@ plot_grid(
 )
 ```
 
-
 That's it! It's amazing how much work tidybayes and cowplot save us in making
 these plots. In fact, without being aware of them or their capabilities, I might
 have been discouraged from even trying to create this diagram.
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
 
 [^cow]: As I've mentioned elsewhere on this site, I grew up on a dairy farm `r emo::ji("cow")`, so I always read *cowplot* with an agricultural reading: These are plots of space that are being fenced off and gridded together, like one might see in [an aerial shot of farmland](https://pixels.com/featured/aerial-of-agricultural-fields-james-p-blair.html). But the package author is Claus O. Wilke, so it's probably just C.O.W.'s plotting package. *Probably.* I've never asked and don't intend to. I don't want my pastoral notions dispelled.
