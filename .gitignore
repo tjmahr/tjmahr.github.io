@@ -13,6 +13,7 @@ example/_site
 Gemfile.lock
 node_modules
 npm-debug.log*
+vendor/bundle
 .Rproj.user
 README.html
 _caches
