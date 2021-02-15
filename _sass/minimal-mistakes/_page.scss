@@ -306,6 +306,12 @@ body {
   text-transform: uppercase;
 }
 
+.page__meta-sep::before {
+  content: "\2022";
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
 /*
    Page taxonomy
    ========================================================================== */
@@ -359,11 +365,11 @@ body {
 
 .taxonomy__title {
   margin-bottom: 0.5em;
-  color: lighten($text-color, 60%);
+  color: $muted-text-color;
 }
 
 .taxonomy__count {
-  color: lighten($text-color, 50%);
+  color: $muted-text-color;
 }
 
 .taxonomy__index {
@@ -396,7 +402,7 @@ body {
 .back-to-top {
   display: block;
   clear: both;
-  color: lighten($text-color, 50%);
+  color: $muted-text-color;
   font-size: 0.6em;
   text-transform: uppercase;
   text-align: right;
