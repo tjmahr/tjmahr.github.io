@@ -443,7 +443,7 @@ geom_ignore <- function(...) {
 
 ***
 
-*Last knitted on 2021-02-03. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggplot2-how-to-do-nothing.Rmd).*[^si] 
 
 [^si]: 
@@ -460,7 +460,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggp
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-03                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  ! package      * version    date       lib source                     
@@ -468,16 +468,16 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggp
     #>    base64enc      0.1-3      2015-07-28 [1] CRAN (R 4.0.0)             
     #>    bayesplot    * 1.8.0.9000 2021-02-01 [1] local                      
     #>    callr          3.5.1      2020-10-13 [1] CRAN (R 4.0.3)             
-    #>    cli            2.2.0      2020-11-20 [1] CRAN (R 4.0.3)             
+    #>    cli            2.3.0      2021-01-31 [1] CRAN (R 4.0.3)             
     #>    codetools      0.2-18     2020-11-04 [1] CRAN (R 4.0.2)             
     #>    colorspace     2.0-0      2020-11-11 [1] CRAN (R 4.0.3)             
     #>    colourpicker   1.1.0      2020-09-14 [1] CRAN (R 4.0.2)             
-    #>    crayon         1.4.0      2021-01-30 [1] CRAN (R 4.0.3)             
+    #>    crayon         1.4.1      2021-02-08 [1] CRAN (R 4.0.3)             
     #>    crosstalk      1.1.1      2021-01-12 [1] CRAN (R 4.0.3)             
     #>    curl           4.3        2019-12-02 [1] CRAN (R 4.0.2)             
     #>    DBI            1.1.1      2021-01-15 [1] CRAN (R 4.0.3)             
     #>    digest         0.6.27     2020-10-24 [1] CRAN (R 4.0.3)             
-    #>    dplyr        * 1.0.3      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>    dplyr        * 1.0.4      2021-02-02 [1] CRAN (R 4.0.3)             
     #>    DT             0.17       2021-01-06 [1] CRAN (R 4.0.3)             
     #>    dygraphs       1.1.1.6    2018-07-11 [1] CRAN (R 4.0.2)             
     #>    ellipsis       0.3.1      2020-05-15 [1] CRAN (R 4.0.2)             
@@ -506,13 +506,13 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggp
     #>    labeling       0.4.2      2020-10-20 [1] CRAN (R 4.0.2)             
     #>    later          1.1.0.1    2020-06-05 [1] CRAN (R 4.0.2)             
     #>    lattice        0.20-41    2020-04-02 [1] CRAN (R 4.0.2)             
-    #>    lifecycle      0.2.0      2020-03-06 [1] CRAN (R 4.0.2)             
+    #>    lifecycle      1.0.0      2021-02-15 [1] CRAN (R 4.0.3)             
     #>    loo            2.4.1      2020-12-09 [1] CRAN (R 4.0.3)             
     #>    lubridate      1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
     #>    magrittr     * 2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
     #>    markdown       1.1        2019-08-07 [1] CRAN (R 4.0.2)             
-    #>    matrixStats    0.57.0     2020-09-25 [1] CRAN (R 4.0.2)             
-    #>    mime           0.9        2020-02-04 [1] CRAN (R 4.0.0)             
+    #>    matrixStats    0.58.0     2021-01-29 [1] CRAN (R 4.0.3)             
+    #>    mime           0.9        2020-02-04 [1] CRAN (R 4.0.3)             
     #>    miniUI         0.1.1.1    2018-05-18 [1] CRAN (R 4.0.2)             
     #>    munsell        0.5.0      2018-06-12 [1] CRAN (R 4.0.2)             
     #>    pillar         1.4.7      2020-11-20 [1] CRAN (R 4.0.3)             
@@ -521,10 +521,11 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggp
     #>    plyr           1.8.6      2020-03-03 [1] CRAN (R 4.0.2)             
     #>    prettyunits    1.1.1      2020-01-24 [1] CRAN (R 4.0.2)             
     #>    processx       3.4.5      2020-11-30 [1] CRAN (R 4.0.3)             
-    #>    promises       1.1.1      2020-06-09 [1] CRAN (R 4.0.2)             
+    #>    promises       1.1.1      2020-06-09 [1] CRAN (R 4.0.3)             
     #>    ps             1.5.0      2020-12-05 [1] CRAN (R 4.0.3)             
     #>    purrr          0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
     #>    R6             2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
+    #>    ragg           0.4.1      2021-01-11 [1] CRAN (R 4.0.3)             
     #>    Rcpp           1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
     #>  D RcppParallel   5.0.2      2020-06-24 [1] CRAN (R 4.0.2)             
     #>    reshape2       1.4.4      2020-04-09 [1] CRAN (R 4.0.2)             
@@ -541,6 +542,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggp
     #>    StanHeaders    2.21.0-7   2020-12-17 [1] CRAN (R 4.0.3)             
     #>    stringi        1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
     #>    stringr        1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
+    #>    systemfonts    1.0.0      2021-02-01 [1] CRAN (R 4.0.3)             
+    #>    textshaping    0.2.1      2020-11-13 [1] CRAN (R 4.0.3)             
     #>    threejs        0.3.3      2020-01-21 [1] CRAN (R 4.0.2)             
     #>    tibble         3.0.6      2021-01-29 [1] CRAN (R 4.0.3)             
     #>    tidyselect     1.1.0      2020-05-11 [1] CRAN (R 4.0.2)             

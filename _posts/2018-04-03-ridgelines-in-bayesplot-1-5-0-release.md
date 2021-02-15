@@ -7,6 +7,9 @@ tags:
   - r
 ---
 
+
+
+
 At the end of March, Jonah Gabry and I released
 [bayesplot 1.5.0][bayesplot]. The major additions to the package were
 visualizations using ridgelines and a new plot for PIT diagnostics from LOO
@@ -84,7 +87,8 @@ temp_lib_paths <- c(tempdir(), .libPaths())
 remotes::install_github(
   "stan-dev/bayesplot", 
   ref = "v1.5.0",
-  quiet = TRUE
+  quiet = TRUE,
+  upgrade = "never"
 )
 
 library(bayesplot)
@@ -104,7 +108,8 @@ plot_with_v1.4.0 <- function(data) {
     remotes::install_github(
       "stan-dev/bayesplot", 
       ref = "v1.4.0",
-      quiet = TRUE
+      quiet = TRUE,
+      upgrade = "never"
     )
     library(ggplot2)
     library(bayesplot)
@@ -418,7 +423,7 @@ angles.
 
 ***
 
-*Last knitted on 2021-02-12. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-ridgelines-in-bayesplot-1-5-0-release.Rmd).*[^si] 
 
 [^si]: 
@@ -435,14 +440,14 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-rid
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-12                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  ! package      * version  date       lib source                             
     #>    assertthat     0.2.1    2019-03-21 [2] CRAN (R 4.0.2)                     
     #>    base64enc      0.1-3    2015-07-28 [2] CRAN (R 4.0.0)                     
-    #>    bayesplot    * 1.5.0    2021-02-12 [1] Github (stan-dev/bayesplot@e7b1934)
-    #>    boot           1.3-26   2021-01-25 [2] CRAN (R 4.0.3)                     
+    #>    bayesplot    * 1.5.0    2021-02-15 [1] Github (stan-dev/bayesplot@e7b1934)
+    #>    boot           1.3-27   2021-02-12 [2] CRAN (R 4.0.3)                     
     #>    callr          3.5.1    2020-10-13 [2] CRAN (R 4.0.3)                     
     #>    cli            2.3.0    2021-01-31 [2] CRAN (R 4.0.3)                     
     #>    codetools      0.2-18   2020-11-04 [2] CRAN (R 4.0.2)                     
@@ -483,15 +488,15 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-rid
     #>    labeling       0.4.2    2020-10-20 [2] CRAN (R 4.0.2)                     
     #>    later          1.1.0.1  2020-06-05 [2] CRAN (R 4.0.2)                     
     #>    lattice        0.20-41  2020-04-02 [2] CRAN (R 4.0.2)                     
-    #>    lifecycle      0.2.0    2020-03-06 [2] CRAN (R 4.0.2)                     
+    #>    lifecycle      1.0.0    2021-02-15 [2] CRAN (R 4.0.3)                     
     #>    lme4           1.1-26   2020-12-01 [2] CRAN (R 4.0.3)                     
     #>    loo            2.4.1    2020-12-09 [2] CRAN (R 4.0.3)                     
     #>    magrittr       2.0.1    2020-11-17 [2] CRAN (R 4.0.3)                     
     #>    markdown       1.1      2019-08-07 [2] CRAN (R 4.0.2)                     
-    #>    MASS           7.3-53   2020-09-09 [2] CRAN (R 4.0.2)                     
+    #>    MASS           7.3-53   2020-09-09 [2] CRAN (R 4.0.3)                     
     #>    Matrix         1.2-18   2019-11-27 [2] CRAN (R 4.0.3)                     
     #>    matrixStats    0.58.0   2021-01-29 [2] CRAN (R 4.0.3)                     
-    #>    mime           0.9      2020-02-04 [2] CRAN (R 4.0.0)                     
+    #>    mime           0.9      2020-02-04 [2] CRAN (R 4.0.3)                     
     #>    miniUI         0.1.1.1  2018-05-18 [2] CRAN (R 4.0.2)                     
     #>    minqa          1.2.4    2014-10-09 [2] CRAN (R 4.0.2)                     
     #>    munsell        0.5.0    2018-06-12 [2] CRAN (R 4.0.2)                     
@@ -503,10 +508,11 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-rid
     #>    plyr           1.8.6    2020-03-03 [2] CRAN (R 4.0.2)                     
     #>    prettyunits    1.1.1    2020-01-24 [2] CRAN (R 4.0.2)                     
     #>    processx       3.4.5    2020-11-30 [2] CRAN (R 4.0.3)                     
-    #>    promises       1.1.1    2020-06-09 [2] CRAN (R 4.0.2)                     
+    #>    promises       1.1.1    2020-06-09 [2] CRAN (R 4.0.3)                     
     #>    ps             1.5.0    2020-12-05 [2] CRAN (R 4.0.3)                     
     #>    purrr          0.3.4    2020-04-17 [2] CRAN (R 4.0.2)                     
     #>    R6             2.5.0    2020-10-28 [2] CRAN (R 4.0.2)                     
+    #>    ragg           0.4.1    2021-01-11 [2] CRAN (R 4.0.3)                     
     #>    RColorBrewer   1.1-2    2014-12-07 [2] CRAN (R 4.0.0)                     
     #>    Rcpp           1.0.6    2021-01-15 [2] CRAN (R 4.0.3)                     
     #>  D RcppParallel   5.0.2    2020-06-24 [2] CRAN (R 4.0.2)                     
@@ -526,6 +532,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-rid
     #>    statmod        1.4.35   2020-10-19 [2] CRAN (R 4.0.3)                     
     #>    stringi        1.5.3    2020-09-09 [2] CRAN (R 4.0.2)                     
     #>    stringr        1.4.0    2019-02-10 [2] CRAN (R 4.0.2)                     
+    #>    systemfonts    1.0.0    2021-02-01 [2] CRAN (R 4.0.3)                     
+    #>    textshaping    0.2.1    2020-11-13 [2] CRAN (R 4.0.3)                     
     #>    threejs        0.3.3    2020-01-21 [2] CRAN (R 4.0.2)                     
     #>    tibble         3.0.6    2021-01-29 [2] CRAN (R 4.0.3)                     
     #>    tidyr          1.1.2    2020-08-27 [2] CRAN (R 4.0.2)                     
@@ -540,7 +548,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-rid
     #>    yaml           2.2.1    2020-02-01 [2] CRAN (R 4.0.0)                     
     #>    zoo            1.8-8    2020-05-02 [2] CRAN (R 4.0.2)                     
     #> 
-    #> [1] C:/Users/Tristan/AppData/Local/Temp/RtmpAL2KbA
+    #> [1] C:/Users/Tristan/AppData/Local/Temp/RtmpU19Snj
     #> [2] C:/Users/Tristan/Documents/R/win-library/4.0
     #> [3] C:/Program Files/R/R-4.0.3/library
     #> 

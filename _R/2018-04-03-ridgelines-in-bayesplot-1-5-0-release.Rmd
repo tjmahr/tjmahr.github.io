@@ -7,6 +7,11 @@ tags:
   - r
 ---
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(dev = "png")
+```
+
+
 At the end of March, Jonah Gabry and I released
 [bayesplot 1.5.0][bayesplot]. The major additions to the package were
 visualizations using ridgelines and a new plot for PIT diagnostics from LOO
@@ -83,7 +88,8 @@ temp_lib_paths <- c(tempdir(), .libPaths())
 remotes::install_github(
   "stan-dev/bayesplot", 
   ref = "v1.5.0",
-  quiet = TRUE
+  quiet = TRUE,
+  upgrade = "never"
 )
 
 library(bayesplot)
@@ -100,7 +106,8 @@ plot_with_v1.4.0 <- function(data) {
     remotes::install_github(
       "stan-dev/bayesplot", 
       ref = "v1.4.0",
-      quiet = TRUE
+      quiet = TRUE,
+      upgrade = "never"
     )
     library(ggplot2)
     library(bayesplot)

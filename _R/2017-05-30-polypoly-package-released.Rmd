@@ -135,6 +135,9 @@ estimates will change as different predictors are added. Here we simulate some
 fake data, and fit three models with 1-, 2- and 3-degree raw polynomials.
 
 ```{r}
+# for reproducible blogging
+set.seed(20210215)
+
 x <- 1:10
 y <- x + 
   rnorm(1, mean = 100) * (x) +

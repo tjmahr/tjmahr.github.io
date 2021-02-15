@@ -220,12 +220,12 @@ spells
 #> $GazeX
 #> <quosure>
 #> expr: ^GazeX < -500 | 2200 < GazeX
-#> env:  00000000169D3620
+#> env:  0000000016955328
 #> 
 #> $GazeY
 #> <quosure>
 #> expr: ^GazeY < -200 | 1200 < GazeY
-#> env:  00000000169D3620
+#> env:  0000000016955328
 ```
 
 I call these results `spells` because it just contains the expressions stored as
@@ -239,7 +239,7 @@ names(spells)
 spells[[1]]
 #> <quosure>
 #> expr: ^GazeX < -500 | 2200 < GazeX
-#> env:  00000000169D3620
+#> env:  0000000016955328
 ```
 
 ### Casting spells
@@ -397,7 +397,7 @@ iterate over possible rules. Works like magic, indeed.
 
 ***
 
-*Last knitted on 2021-02-03. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-08-15-set-na-where-nonstandard-evaluation-use-case.Rmd).*[^si] 
 
 [^si]: 
@@ -414,17 +414,17 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-08-15-set
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-03                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package     * version    date       lib source                     
     #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
-    #>  cli           2.2.0      2020-11-20 [1] CRAN (R 4.0.3)             
+    #>  cli           2.3.0      2021-01-31 [1] CRAN (R 4.0.3)             
     #>  colorspace    2.0-0      2020-11-11 [1] CRAN (R 4.0.3)             
-    #>  crayon        1.4.0      2021-01-30 [1] CRAN (R 4.0.3)             
+    #>  crayon        1.4.1      2021-02-08 [1] CRAN (R 4.0.3)             
     #>  DBI           1.1.1      2021-01-15 [1] CRAN (R 4.0.3)             
     #>  digest        0.6.27     2020-10-24 [1] CRAN (R 4.0.3)             
-    #>  dplyr       * 1.0.3      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>  dplyr       * 1.0.4      2021-02-02 [1] CRAN (R 4.0.3)             
     #>  ellipsis      0.3.1      2020-05-15 [1] CRAN (R 4.0.2)             
     #>  emo           0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)
     #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.0.2)             
@@ -440,7 +440,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-08-15-set
     #>  hms           1.0.0      2021-01-13 [1] CRAN (R 4.0.3)             
     #>  knitr       * 1.31       2021-01-27 [1] CRAN (R 4.0.3)             
     #>  labeling      0.4.2      2020-10-20 [1] CRAN (R 4.0.2)             
-    #>  lifecycle     0.2.0      2020-03-06 [1] CRAN (R 4.0.2)             
+    #>  lifecycle     1.0.0      2021-02-15 [1] CRAN (R 4.0.3)             
     #>  lubridate     1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
     #>  magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
     #>  munsell       0.5.0      2018-06-12 [1] CRAN (R 4.0.2)             
@@ -449,6 +449,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-08-15-set
     #>  ps            1.5.0      2020-12-05 [1] CRAN (R 4.0.3)             
     #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
     #>  R6            2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
+    #>  ragg          0.4.1      2021-01-11 [1] CRAN (R 4.0.3)             
     #>  Rcpp          1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
     #>  readr         1.4.0      2020-10-05 [1] CRAN (R 4.0.2)             
     #>  rlang       * 0.4.10     2020-12-30 [1] CRAN (R 4.0.3)             
@@ -458,6 +459,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-08-15-set
     #>  sessioninfo   1.1.1      2018-11-05 [1] CRAN (R 4.0.2)             
     #>  stringi       1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
     #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
+    #>  systemfonts   1.0.0      2021-02-01 [1] CRAN (R 4.0.3)             
+    #>  textshaping   0.2.1      2020-11-13 [1] CRAN (R 4.0.3)             
     #>  tibble        3.0.6      2021-01-29 [1] CRAN (R 4.0.3)             
     #>  tidyselect    1.1.0      2020-05-11 [1] CRAN (R 4.0.2)             
     #>  utf8          1.1.4      2018-05-24 [1] CRAN (R 4.0.2)             

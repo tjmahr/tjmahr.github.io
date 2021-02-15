@@ -147,6 +147,9 @@ fake data, and fit three models with 1-, 2- and 3-degree raw polynomials.
 
 
 ```r
+# for reproducible blogging
+set.seed(20210215)
+
 x <- 1:10
 y <- x + 
   rnorm(1, mean = 100) * (x) +
@@ -173,15 +176,15 @@ models %>%
 #> # A tibble: 9 x 3
 #>   model term        estimate
 #>   <chr> <chr>          <dbl>
-#> 1 m1    (Intercept)    51.2 
-#> 2 m1    x              81.8 
-#> 3 m2    (Intercept)   -17.0 
-#> 4 m2    x             116.  
-#> 5 m2    I(x^2)         -3.1 
-#> 6 m3    (Intercept)    -2.43
+#> 1 m1    (Intercept)   626.  
+#> 2 m1    x            -136.  
+#> 3 m2    (Intercept)  -194.  
+#> 4 m2    x             275.  
+#> 5 m2    I(x^2)        -37.3 
+#> 6 m3    (Intercept)    -0.43
 #> 7 m3    x             103.  
-#> 8 m3    I(x^2)         -0.3 
-#> 9 m3    I(x^3)         -0.17
+#> 8 m3    I(x^2)         -0.08
+#> 9 m3    I(x^3)         -2.25
 ```
 
 But with orthogonal polynomials, the parameter estimates don't change from model
@@ -203,15 +206,15 @@ models2 %>%
 #> # A tibble: 9 x 3
 #>   model term        estimate
 #>   <chr> <chr>          <dbl>
-#> 1 m1    (Intercept)   501.  
-#> 2 m1    poly(x, 1)    742.  
-#> 3 m2    (Intercept)   501.  
-#> 4 m2    poly(x, 2)1   742.  
-#> 5 m2    poly(x, 2)2   -71.2 
-#> 6 m3    (Intercept)   501.  
-#> 7 m3    poly(x, 3)1   742.  
-#> 8 m3    poly(x, 3)2   -71.2 
-#> 9 m3    poly(x, 3)3    -9.42
+#> 1 m1    (Intercept)    -119.
+#> 2 m1    poly(x, 1)    -1231.
+#> 3 m2    (Intercept)    -119.
+#> 4 m2    poly(x, 2)1   -1231.
+#> 5 m2    poly(x, 2)2    -857.
+#> 6 m3    (Intercept)    -119.
+#> 7 m3    poly(x, 3)1   -1231.
+#> 8 m3    poly(x, 3)2    -857.
+#> 9 m3    poly(x, 3)3    -125.
 ```
 
 That's probably the simplest reason why orthogonal polynomials are preferred. (I
@@ -426,7 +429,7 @@ ggplot(df_both) +
 
 ***
 
-*Last knitted on 2021-02-02. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-30-polypoly-package-released.Rmd).*[^si] 
 
 [^si]: 
@@ -443,28 +446,28 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-30-pol
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-02                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package      * version date       lib source        
     #>  abind          1.4-5   2016-07-21 [1] CRAN (R 4.0.0)
     #>  arm            1.11-2  2020-07-27 [1] CRAN (R 4.0.2)
     #>  assertthat     0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
-    #>  backports      1.2.0   2020-11-02 [1] CRAN (R 4.0.3)
+    #>  backports      1.2.1   2020-12-09 [1] CRAN (R 4.0.3)
     #>  base64enc      0.1-3   2015-07-28 [1] CRAN (R 4.0.0)
-    #>  boot           1.3-26  2021-01-25 [1] CRAN (R 4.0.3)
-    #>  broom          0.7.3   2020-12-16 [1] CRAN (R 4.0.3)
+    #>  boot           1.3-27  2021-02-12 [1] CRAN (R 4.0.3)
+    #>  broom          0.7.4   2021-01-29 [1] CRAN (R 4.0.3)
     #>  checkmate      2.0.0   2020-02-06 [1] CRAN (R 4.0.2)
-    #>  cli            2.2.0   2020-11-20 [1] CRAN (R 4.0.3)
-    #>  cluster        2.1.0   2019-06-19 [1] CRAN (R 4.0.2)
+    #>  cli            2.3.0   2021-01-31 [1] CRAN (R 4.0.3)
+    #>  cluster        2.1.0   2019-06-19 [1] CRAN (R 4.0.3)
     #>  coda           0.19-4  2020-09-30 [1] CRAN (R 4.0.2)
     #>  colorspace     2.0-0   2020-11-11 [1] CRAN (R 4.0.3)
-    #>  crayon         1.3.4   2017-09-16 [1] CRAN (R 4.0.2)
+    #>  crayon         1.4.1   2021-02-08 [1] CRAN (R 4.0.3)
     #>  curl           4.3     2019-12-02 [1] CRAN (R 4.0.2)
     #>  data.table     1.13.6  2020-12-30 [1] CRAN (R 4.0.3)
     #>  DBI            1.1.1   2021-01-15 [1] CRAN (R 4.0.3)
     #>  digest         0.6.27  2020-10-24 [1] CRAN (R 4.0.3)
-    #>  dplyr        * 1.0.3   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  dplyr        * 1.0.4   2021-02-02 [1] CRAN (R 4.0.3)
     #>  ellipsis       0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
     #>  evaluate       0.14    2019-05-28 [1] CRAN (R 4.0.2)
     #>  fansi          0.4.2   2021-01-15 [1] CRAN (R 4.0.3)
@@ -489,14 +492,14 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-30-pol
     #>  labeling       0.4.2   2020-10-20 [1] CRAN (R 4.0.2)
     #>  lattice        0.20-41 2020-04-02 [1] CRAN (R 4.0.2)
     #>  latticeExtra   0.6-29  2019-12-19 [1] CRAN (R 4.0.2)
-    #>  lifecycle      0.2.0   2020-03-06 [1] CRAN (R 4.0.2)
+    #>  lifecycle      1.0.0   2021-02-15 [1] CRAN (R 4.0.3)
     #>  lme4         * 1.1-26  2020-12-01 [1] CRAN (R 4.0.3)
     #>  magrittr       2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
-    #>  MASS           7.3-53  2020-09-09 [1] CRAN (R 4.0.2)
+    #>  MASS           7.3-53  2020-09-09 [1] CRAN (R 4.0.3)
     #>  Matrix       * 1.2-18  2019-11-27 [1] CRAN (R 4.0.3)
     #>  minqa          1.2.4   2014-10-09 [1] CRAN (R 4.0.2)
     #>  munsell        0.5.0   2018-06-12 [1] CRAN (R 4.0.2)
-    #>  nlme           3.1-151 2020-12-10 [1] CRAN (R 4.0.3)
+    #>  nlme           3.1-152 2021-02-04 [1] CRAN (R 4.0.3)
     #>  nloptr         1.2.2.2 2020-07-02 [1] CRAN (R 4.0.2)
     #>  nnet           7.3-15  2021-01-24 [1] CRAN (R 4.0.3)
     #>  pillar         1.4.7   2020-11-20 [1] CRAN (R 4.0.3)
@@ -506,6 +509,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-30-pol
     #>  polypoly       0.0.2   2017-05-27 [1] CRAN (R 4.0.2)
     #>  purrr          0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
     #>  R6             2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
+    #>  ragg           0.4.1   2021-01-11 [1] CRAN (R 4.0.3)
     #>  RColorBrewer   1.1-2   2014-12-07 [1] CRAN (R 4.0.0)
     #>  Rcpp           1.0.6   2021-01-15 [1] CRAN (R 4.0.3)
     #>  readr        * 1.4.0   2020-10-05 [1] CRAN (R 4.0.2)
@@ -520,7 +524,9 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-30-pol
     #>  stringi        1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
     #>  stringr        1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
     #>  survival       3.2-7   2020-09-28 [1] CRAN (R 4.0.2)
-    #>  tibble         3.0.5   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  systemfonts    1.0.0   2021-02-01 [1] CRAN (R 4.0.3)
+    #>  textshaping    0.2.1   2020-11-13 [1] CRAN (R 4.0.3)
+    #>  tibble         3.0.6   2021-01-29 [1] CRAN (R 4.0.3)
     #>  tidyr          1.1.2   2020-08-27 [1] CRAN (R 4.0.2)
     #>  tidyselect     1.1.0   2020-05-11 [1] CRAN (R 4.0.2)
     #>  utf8           1.1.4   2018-05-24 [1] CRAN (R 4.0.2)

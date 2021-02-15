@@ -446,7 +446,7 @@ inference and learn that statistical framework.
 
 ***
 
-*Last knitted on 2021-02-02. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-03-22-pokemon-go-unown-simulation.Rmd).*[^si] 
 
 [^si]: 
@@ -463,17 +463,17 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-03-22-pok
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-02                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package     * version date       lib source        
     #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
-    #>  cli           2.2.0   2020-11-20 [1] CRAN (R 4.0.3)
+    #>  cli           2.3.0   2021-01-31 [1] CRAN (R 4.0.3)
     #>  colorspace    2.0-0   2020-11-11 [1] CRAN (R 4.0.3)
-    #>  crayon        1.3.4   2017-09-16 [1] CRAN (R 4.0.2)
+    #>  crayon        1.4.1   2021-02-08 [1] CRAN (R 4.0.3)
     #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.0.3)
     #>  digest        0.6.27  2020-10-24 [1] CRAN (R 4.0.3)
-    #>  dplyr       * 1.0.3   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  dplyr       * 1.0.4   2021-02-02 [1] CRAN (R 4.0.3)
     #>  ellipsis      0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
     #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.2)
     #>  fansi         0.4.2   2021-01-15 [1] CRAN (R 4.0.3)
@@ -487,20 +487,23 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-03-22-pok
     #>  highr         0.8     2019-03-20 [1] CRAN (R 4.0.2)
     #>  knitr       * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
     #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.0.2)
-    #>  lifecycle     0.2.0   2020-03-06 [1] CRAN (R 4.0.2)
+    #>  lifecycle     1.0.0   2021-02-15 [1] CRAN (R 4.0.3)
     #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
     #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.0.2)
     #>  pillar        1.4.7   2020-11-20 [1] CRAN (R 4.0.3)
     #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.0.2)
     #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
     #>  R6            2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
+    #>  ragg          0.4.1   2021-01-11 [1] CRAN (R 4.0.3)
     #>  rlang         0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
     #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
     #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.0.2)
     #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
     #>  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
     #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
-    #>  tibble        3.0.5   2021-01-15 [1] CRAN (R 4.0.3)
+    #>  systemfonts   1.0.0   2021-02-01 [1] CRAN (R 4.0.3)
+    #>  textshaping   0.2.1   2020-11-13 [1] CRAN (R 4.0.3)
+    #>  tibble        3.0.6   2021-01-29 [1] CRAN (R 4.0.3)
     #>  tidyselect    1.1.0   2020-05-11 [1] CRAN (R 4.0.2)
     #>  utf8          1.1.4   2018-05-24 [1] CRAN (R 4.0.2)
     #>  vctrs         0.3.6   2020-12-17 [1] CRAN (R 4.0.3)

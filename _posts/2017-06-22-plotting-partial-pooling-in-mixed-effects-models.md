@@ -663,18 +663,18 @@ b
 #>  observations: 183
 #> ------
 #>             Median MAD_SD
-#> (Intercept) 252.1    6.1 
-#> Days         10.3    1.7 
+#> (Intercept) 252.5    6.2 
+#> Days         10.3    1.6 
 #> 
 #> Auxiliary parameter(s):
 #>       Median MAD_SD
-#> sigma 25.7    1.5  
+#> sigma 25.7    1.6  
 #> 
 #> Error terms:
 #>  Groups   Name        Std.Dev. Corr
-#>  Subject  (Intercept) 23.8         
-#>           Days         6.9     0.08
-#>  Residual             25.8         
+#>  Subject  (Intercept) 24           
+#>           Days         7       0.06
+#>  Residual             26           
 #> Num. levels: Subject 20 
 #> 
 #> ------
@@ -761,16 +761,16 @@ df_long_effects
 #> # A tibble: 160,000 x 4
 #>     draw Subject Effect    Value
 #>    <int> <chr>   <chr>     <dbl>
-#>  1     1 308     Intercept  261.
-#>  2     2 308     Intercept  253.
-#>  3     3 308     Intercept  262.
-#>  4     4 308     Intercept  228.
-#>  5     5 308     Intercept  257.
-#>  6     6 308     Intercept  251.
-#>  7     7 308     Intercept  249.
-#>  8     8 308     Intercept  247.
-#>  9     9 308     Intercept  257.
-#> 10    10 308     Intercept  250.
+#>  1     1 308     Intercept  257.
+#>  2     2 308     Intercept  265.
+#>  3     3 308     Intercept  249.
+#>  4     4 308     Intercept  243.
+#>  5     5 308     Intercept  248.
+#>  6     6 308     Intercept  249.
+#>  7     7 308     Intercept  252.
+#>  8     8 308     Intercept  272.
+#>  9     9 308     Intercept  253.
+#> 10    10 308     Intercept  262.
 #> # ... with 159,990 more rows
 ```
 
@@ -786,16 +786,16 @@ df_samples
 #> # A tibble: 1,000 x 4
 #>     draw Subject Intercept Slope_Day
 #>    <int> <chr>       <dbl>     <dbl>
-#>  1    96 308          226.     24.3 
-#>  2    96 309          225.      1.47
-#>  3    96 310          210.      5.30
-#>  4    96 330          303.      2.85
-#>  5    96 331          245.     12.4 
-#>  6    96 332          282.      5.56
-#>  7    96 333          273.      6.29
-#>  8    96 334          239.     11.5 
-#>  9    96 335          258.     -1.70
-#> 10    96 337          271.     20.8 
+#>  1    70 308          246.    17.0  
+#>  2    70 309          196.     6.84 
+#>  3    70 310          223.     4.57 
+#>  4    70 330          261.     8.11 
+#>  5    70 331          261.     9.95 
+#>  6    70 332          260.    11.0  
+#>  7    70 333          257.    12.3  
+#>  8    70 334          253.    11.3  
+#>  9    70 335          246.     0.351
+#> 10    70 337          269.    22.2  
 #> # ... with 990 more rows
 
 ggplot(df_sleep) +
@@ -871,7 +871,7 @@ book. 😆)
 
 ***
 
-*Last knitted on 2021-02-03. [Source code on
+*Last knitted on 2021-02-15. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plotting-partial-pooling-in-mixed-effects-models.Rmd).*[^si] 
 
 [^si]: 
@@ -888,32 +888,32 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plo
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-03                  
+    #>  date     2021-02-15                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  ! package      * version    date       lib source                     
     #>    abind          1.4-5      2016-07-21 [1] CRAN (R 4.0.0)             
     #>    arm            1.11-2     2020-07-27 [1] CRAN (R 4.0.2)             
     #>    assertthat     0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
-    #>    backports      1.2.0      2020-11-02 [1] CRAN (R 4.0.3)             
+    #>    backports      1.2.1      2020-12-09 [1] CRAN (R 4.0.3)             
     #>    base64enc      0.1-3      2015-07-28 [1] CRAN (R 4.0.0)             
     #>    bayesplot      1.8.0.9000 2021-02-01 [1] local                      
-    #>    boot           1.3-26     2021-01-25 [1] CRAN (R 4.0.3)             
+    #>    boot           1.3-27     2021-02-12 [1] CRAN (R 4.0.3)             
     #>    callr          3.5.1      2020-10-13 [1] CRAN (R 4.0.3)             
     #>    checkmate      2.0.0      2020-02-06 [1] CRAN (R 4.0.2)             
-    #>    cli            2.2.0      2020-11-20 [1] CRAN (R 4.0.3)             
-    #>    cluster        2.1.0      2019-06-19 [1] CRAN (R 4.0.2)             
+    #>    cli            2.3.0      2021-01-31 [1] CRAN (R 4.0.3)             
+    #>    cluster        2.1.0      2019-06-19 [1] CRAN (R 4.0.3)             
     #>    coda           0.19-4     2020-09-30 [1] CRAN (R 4.0.2)             
     #>    codetools      0.2-18     2020-11-04 [1] CRAN (R 4.0.2)             
     #>    colorspace     2.0-0      2020-11-11 [1] CRAN (R 4.0.3)             
     #>    colourpicker   1.1.0      2020-09-14 [1] CRAN (R 4.0.2)             
-    #>    crayon         1.3.4      2017-09-16 [1] CRAN (R 4.0.2)             
+    #>    crayon         1.4.1      2021-02-08 [1] CRAN (R 4.0.3)             
     #>    crosstalk      1.1.1      2021-01-12 [1] CRAN (R 4.0.3)             
     #>    curl           4.3        2019-12-02 [1] CRAN (R 4.0.2)             
     #>    data.table     1.13.6     2020-12-30 [1] CRAN (R 4.0.3)             
     #>    DBI            1.1.1      2021-01-15 [1] CRAN (R 4.0.3)             
     #>    digest         0.6.27     2020-10-24 [1] CRAN (R 4.0.3)             
-    #>    dplyr        * 1.0.3      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>    dplyr        * 1.0.4      2021-02-02 [1] CRAN (R 4.0.3)             
     #>    DT             0.17       2021-01-06 [1] CRAN (R 4.0.3)             
     #>    dygraphs       1.1.1.6    2018-07-11 [1] CRAN (R 4.0.2)             
     #>    ellipse      * 0.4.2      2020-05-27 [1] CRAN (R 4.0.2)             
@@ -951,21 +951,21 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plo
     #>    later          1.1.0.1    2020-06-05 [1] CRAN (R 4.0.2)             
     #>    lattice        0.20-41    2020-04-02 [1] CRAN (R 4.0.2)             
     #>    latticeExtra   0.6-29     2019-12-19 [1] CRAN (R 4.0.2)             
-    #>    lifecycle      0.2.0      2020-03-06 [1] CRAN (R 4.0.2)             
+    #>    lifecycle      1.0.0      2021-02-15 [1] CRAN (R 4.0.3)             
     #>    lme4         * 1.1-26     2020-12-01 [1] CRAN (R 4.0.3)             
     #>    loo            2.4.1      2020-12-09 [1] CRAN (R 4.0.3)             
     #>    lubridate      1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
     #>    magrittr       2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
     #>    markdown       1.1        2019-08-07 [1] CRAN (R 4.0.2)             
-    #>    MASS           7.3-53     2020-09-09 [1] CRAN (R 4.0.2)             
+    #>    MASS           7.3-53     2020-09-09 [1] CRAN (R 4.0.3)             
     #>    Matrix       * 1.2-18     2019-11-27 [1] CRAN (R 4.0.3)             
-    #>    matrixStats    0.57.0     2020-09-25 [1] CRAN (R 4.0.2)             
+    #>    matrixStats    0.58.0     2021-01-29 [1] CRAN (R 4.0.3)             
     #>    mgcv           1.8-33     2020-08-27 [1] CRAN (R 4.0.2)             
-    #>    mime           0.9        2020-02-04 [1] CRAN (R 4.0.0)             
+    #>    mime           0.9        2020-02-04 [1] CRAN (R 4.0.3)             
     #>    miniUI         0.1.1.1    2018-05-18 [1] CRAN (R 4.0.2)             
     #>    minqa          1.2.4      2014-10-09 [1] CRAN (R 4.0.2)             
     #>    munsell        0.5.0      2018-06-12 [1] CRAN (R 4.0.2)             
-    #>    nlme           3.1-151    2020-12-10 [1] CRAN (R 4.0.3)             
+    #>    nlme           3.1-152    2021-02-04 [1] CRAN (R 4.0.3)             
     #>    nloptr         1.2.2.2    2020-07-02 [1] CRAN (R 4.0.2)             
     #>    nnet           7.3-15     2021-01-24 [1] CRAN (R 4.0.3)             
     #>    pillar         1.4.7      2020-11-20 [1] CRAN (R 4.0.3)             
@@ -975,10 +975,11 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plo
     #>    png            0.1-7      2013-12-03 [1] CRAN (R 4.0.0)             
     #>    prettyunits    1.1.1      2020-01-24 [1] CRAN (R 4.0.2)             
     #>    processx       3.4.5      2020-11-30 [1] CRAN (R 4.0.3)             
-    #>    promises       1.1.1      2020-06-09 [1] CRAN (R 4.0.2)             
+    #>    promises       1.1.1      2020-06-09 [1] CRAN (R 4.0.3)             
     #>    ps             1.5.0      2020-12-05 [1] CRAN (R 4.0.3)             
     #>    purrr          0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
     #>    R6             2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
+    #>    ragg           0.4.1      2021-01-11 [1] CRAN (R 4.0.3)             
     #>    RColorBrewer   1.1-2      2014-12-07 [1] CRAN (R 4.0.0)             
     #>    Rcpp         * 1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
     #>  D RcppParallel   5.0.2      2020-06-24 [1] CRAN (R 4.0.2)             
@@ -1002,8 +1003,10 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plo
     #>    stringi        1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
     #>    stringr        1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
     #>    survival       3.2-7      2020-09-28 [1] CRAN (R 4.0.2)             
+    #>    systemfonts    1.0.0      2021-02-01 [1] CRAN (R 4.0.3)             
+    #>    textshaping    0.2.1      2020-11-13 [1] CRAN (R 4.0.3)             
     #>    threejs        0.3.3      2020-01-21 [1] CRAN (R 4.0.2)             
-    #>    tibble       * 3.0.5      2021-01-15 [1] CRAN (R 4.0.3)             
+    #>    tibble       * 3.0.6      2021-01-29 [1] CRAN (R 4.0.3)             
     #>    tidyr          1.1.2      2020-08-27 [1] CRAN (R 4.0.2)             
     #>    tidyselect     1.1.0      2020-05-11 [1] CRAN (R 4.0.2)             
     #>    utf8           1.1.4      2018-05-24 [1] CRAN (R 4.0.2)             
