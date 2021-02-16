@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(eval = TRUE)
 ```
 
 *update date when published*
@@ -33,11 +33,11 @@ effects.
 
 
 Here is an example from Gelman and Hill (2007). Radon measurements were
-taking in Minnesota counties. We would like to estimate the average radon
-measurement for county. Some counties have more observations than others. We
-have a repeated measures situation. We use a mixed effects model to estimate a
-population distribution of county estimates. These county level estimates are
-randomly varying effects.
+taken in Minnesota counties. We would like to estimate the average radon
+measurement for each county. We have a repeated measures situation. Some
+counties have more observations than others. We use a mixed effects
+model to estimate a population distribution of county estimates. These
+county level estimates are randomly varying effects.
 
 
 ```{r}
@@ -96,6 +96,15 @@ p1 <- ggplot(radon_aug) +
   geom_hline(
     yintercept = fixef(m)[1]
   ) +
+  annotate(
+    "text", x = 6, label = "mean +- se", y = 2.15, color = "grey50", hjust = 0
+  ) +
+  annotate(
+    "text", x = 4, label = "mixed model\nestimate", y = 1.7, color = "blue", hjust = 0
+  ) +
+  annotate(
+    "text", x = 10, label = "population\nmean\nestimate", y = 1.5, color = "black", hjust = 0
+  ) +
   theme(
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
@@ -118,25 +127,25 @@ var_g / (var_y + var_g)
 var_y / var_g
 
 # I wanted to add funneling lines to show the effect but messed up
-
-radon_aug <- radon_aug %>% 
-  mutate(
-    diff = mean - mean(log_radon),
-    diff2 = mean - .fixed,
-    # page 733 in CAR
-    denom = 1 + ((var_y) / (n * var_g)),
-    # page 76 in Davidian
-    blup = mean - ((var_y) / (n * var_g + var_y)) * (mean - .fixed),
-    blup1.8 = 1.8 - ((var_y) / (n * var_g + var_y)) * (1.8 - .fixed)
-  )
-
-sum(radon_aug$.hat)
-# sum(gam$edf)
-
-ggplot(radon_aug) + 
-  aes(x = n, y = diff2) + 
-  geom_point() + 
-  geom_line(aes(y = 1.8 - (1.8) / denom))
+# 
+# radon_aug <- radon_aug %>% 
+#   mutate(
+#     diff = mean - mean(log_radon),
+#     diff2 = mean - .fixed,
+#     # page 733 in CAR
+#     denom = 1 + ((var_y) / (n * var_g)),
+#     # page 76 in Davidian
+#     blup = mean - ((var_y) / (n * var_g + var_y)) * (mean - .fixed),
+#     blup1.8 = 1.8 - ((var_y) / (n * var_g + var_y)) * (1.8 - .fixed)
+#   )
+# 
+# sum(radon_aug$.hat)
+# # sum(gam$edf)
+# 
+# ggplot(radon_aug) + 
+#   aes(x = n, y = diff2) + 
+#   geom_point() + 
+#   geom_line(aes(y = 1.8 - (1.8) / denom))
 
 # ggplot(radon_aug) + 
 #   aes(x = n, y = mean - .fitted) + 
@@ -146,10 +155,10 @@ ggplot(radon_aug) +
 #   geom_line(aes(y = blup1.8))
 # 
 # Probably should replace mean with regression estimate.
-ggplot(radon_aug) + 
-  aes(x = n, y = mean - .fixed) + 
-  geom_point() +
-  scale_x_log10()
+# ggplot(radon_aug) + 
+#   aes(x = n, y = mean - .fixed) + 
+#   geom_point() +
+#   scale_x_log10()
 
 # I want to know the effective degrees of freedom.
 # Wood p.83
@@ -194,9 +203,87 @@ did is a case of *smoothing*.
 ```
 
 
+### First let's make a helper function for plotting matrices
+
+Base R includes a nice function for plotting each column of a matrix, so that e.g., we can draw a line for each column of the matrix. In this example, `poly()` creates a column for each polynomial term and `matplot()` plots a line for each one.
+
+```{r}
+xs <- sort(rnorm(100))
+polynomials <- cbind(xs, polynomials)
+x <- polynomials
+focal_column <- 1
+head(polynomials)
+
+polynomials <- poly(xs, 3)
+matplot(polynomials, type = "l")
+
+
+```
+
+We are going to recreate this in ggplot2 for convenience.
+
+
+```{r}
+# ggplot2 version of matplot(x, type = "l")
+ggmatplot <- function(x, focal_column = NULL, n_colors = 6) {
+  # reshape into a long dataframe
+  ux <- unique(x)
+  
+  if (!is.null(focal_column)) {
+    focal_label <- rlang::expr_label(substitute(x[, focal_column]))
+  } else {
+    ux <- cbind(seq_len(nrow(ux)), ux)
+    focal_column <- 1
+    focal_label <- "unique row number"
+  }
+  
+  rownames(ux) <- seq_len(nrow(ux))
+  # colnames(ux) <- seq_len(nrow(ux))
+
+  long_ux <- reshape2::melt(
+    ux[, -focal_column, drop = FALSE], 
+    c(".row", ".column")
+  )
+  
+  focal <- reshape2::melt(
+    ux[, focal_column, drop = FALSE], 
+    c(".row", ".focal_name"), 
+    value.name = focal_label
+  )
+  long_ux <- merge(long_ux, focal)
+  
+  
+  # cycle through colors like matplot()
+  column_numbers <- match(long_ux$.column, unique(long_ux$.column))
+  long_ux$.color_cycle <- factor(column_numbers %% n_colors)
+  ggplot(long_ux) + 
+    # cycle the colors
+    aes(x = !! rlang::sym(focal_label), y = value, color = .color_cycle) + 
+    geom_line(aes(group = .column)) + 
+    guides(color = FALSE) +
+    scale_color_manual(
+      values = unname(palette.colors(n_colors, palette = "R4"))
+    ) +
+    labs(title = rlang::expr_label(substitute(x)))
+}
+
+
+ggmatplot(polynomials)
+
+ggmatplot(cbind(xs, polynomials), 1)
+
+
+```
+
+
+
 ### Smoothing example
 
-Let's do a smooth with a generalized additive model.
+Let's do a smooth with a generalized additive model. Here we use the
+`mcycle` dataset which gives the head acceleration in a simiulated
+motorcycle accident. Here are going to fit a model and plot the smooth from it. And then we are going to work through what the model did.
+
+
 
 ```{r}
 library(mgcv)
@@ -224,31 +311,7 @@ ggplot(mcycle) +
 ```
 
 
-```{r}
-# ggplot2 version of matplot(x, type = "l")
-ggmatplot <- function(x, ..., n_colors = 6) {
-  # reshape into a long dataframe
-  ux <- unique(x)
-  rownames(ux) <- seq_len(nrow(ux))
-  lux <- reshape2::melt(ux, c("unique row", "column"))
-  # cycle through colors like matplot()
-  column_numbers <- match(lux$column, unique(lux$column))
-  lux$color_cycle <- factor(column_numbers %% n_colors)
-  ggplot(lux) + 
-    # cycle the colors
-    aes(x = `unique row`, y = value, color = color_cycle) + 
-    geom_line(aes(group = column)) + 
-    guides(color = FALSE) +
-    scale_color_manual(
-      values = unname(palette.colors(n_colors, palette = "R4"))
-    ) +
-    labs(title = rlang::expr_label(substitute(x)))
-}
-
-```
-
-
-So what happened here? We start with some splines. These splines are a bunch of
+So what happened here? We start with some *splines*. These splines are a bunch of
 wiggly lines that are weighted and summed together to approximate some nonlinear
 function. We are decomposing the `times` predictor into a bunch of individual
 sub-trends that are weighted and summed together. My post on orthogonal
@@ -271,9 +334,15 @@ annotate_grey <- function(label, x, y, size = 4, ...) {
   )
 }
 
+m <- cbind(mcycle$times, model.matrix(mcycle_smooth))
+
 ggmatplot(model.matrix(mcycle_smooth)) +
   annotate_grey("intercept", 5, .9, size = 5) +
   annotate_grey("splines at x values", 60, .66, size = 5)
+
+ggmatplot(m, 1) +
+  annotate_grey("intercept", 5, .9, size = 5) +
+  annotate_grey("splines at x values", 40, .66, size = 5)
 ```
 
 Now we can weight these by multiplying by the model coefficients. Here we use
@@ -288,13 +357,6 @@ ggmatplot(weighted_coefs) +
   annotate_grey("weighted splines at x values", 5, 26, size = 5)
 
 ggmatplot(weighted_coefs, n_colors = 1) + 
-  stat_summary(
-    aes(group = 1), 
-    color = "maroon", 
-    fun = sum, 
-    geom = "line", 
-    size = 2
-  ) +
   annotate_grey("sum", 20, -70, size = 5, color = "maroon") + 
   annotate_grey("weighted splines", 10, 25, size = 5, ) +
   annotate_grey("intercept", 60, -25, size = 5, )
@@ -311,7 +373,7 @@ ggmatplot(weighted_coefs, n_colors = 1) +
     geom = "line", 
     size = 2
   ) +
-  annotate_grey("sum", 30, -70, size = 5)
+  annotate_grey("sum", 20, -70, size = 5, color = "maroon")
 
 
 mcycle$.fitted <- fitted(mcycle_smooth)
@@ -338,102 +400,121 @@ mcycle_smooth60 <- gam(
   method = "ML"
 )
 
-mcycle_smooth10 <- gam(
-  accel ~ 1 + s(times, bs = "ps", k = 60), 
-  data = mcycle, 
-  method = "ML",
-  sp = 10
-)
 
-library(brms)
-mcycle_smooth60_b <- brm(
-  accel ~ 1 + s(times, bs = "ps", k = 60), 
-  data = mcycle,
-  backend = "cmdstanr"
-)
+# X The model matrix from this term. This may have an "offset" attribute: a
+# vector of length nrow(X) containing any contribution of the smooth to the
+# model offset term. by variables do not need to be dealt with here, but if they
+# are then an item by.done must be added to the object.
+ggmatplot(x[[1]]$X)
+#
+# S A list of positive semi-definite penalty matrices that apply to this term.
+# The list will be empty if the term is to be left un-penalized.
+ggmatplot(x[[1]]$S[[1]])
 
-mcycle_smooth60_b
+#
+# rank An array giving the ranks of the penalties.
+x <- smoothCon(s(times, bs = "ps", k = 10), mcycle, scale.penalty = FALSE, absorb.cons = FALSE)
+x
+ggmatplot(x[[1]]$X )
 
-gam.vcomp(mcycle_smooth60, rescale = FALSE)
-
-smoothers <- scales::log_breaks(10)(c(1, 1000000))
-coef(mcycle_smooth60)
-mcycle_smooth60$sp
-mcycle_smooth60$smooth[[1]]
-mcycle_smooth10$full.sp
-mcycle_smooth10$smooth[[1]][["S"]]
-
-mcycle_smooth60$smooth[[1]][["S"]]
-
-
-mcycle_smooth60$cmX
-mcycle_smooth60$sp
-mcycle_smooth60$smooth[[1]][["S"]]
-mcycle_smooth60$smooth[[1]][["S.scale"]]
-# mcycle_smooth60$smooth[[1]][[sp]]
-
-model_work <- tibble(sp = c(smoothers, mcycle_smooth60$sp)) %>% 
-  mutate(
-    models = sp %>% map(function(sp) update(mcycle_smooth60, sp = sp)),
-    .fitted = models %>% map(function(model) cbind(mcycle, .fit = fitted(model), .resid = residuals(model))),
-    .deriv2 = models %>% map(gratia::derivatives, order = 2, newdata = mcycle),
-    .penalty = models %>% map(
-      function(m) {
-        b <- coef(m)
-        k <- length(b)
-        # s <- m$smooth[[1]][["S"]][[1]]
-        d <- m$smooth[[1]][["D"]]
-        s <- crossprod(d)
-        as.vector(t(b) %*% s %*% b)
-      }
-    ),
-    sp2 = models %>% map_dbl(pluck, "smooth", 1, "sp")
-  ) %>% 
-  select(-models) %>% 
-  unnest(.penalty)
-
-list(mcycle_smooth) %>% 
-str(models)
-
-models <- model_work %>% 
-  select(-.deriv2) %>% 
-  unnest(.fitted)
-
-deriv2 <- model_work %>% 
-  select(-.fitted) %>% 
-  unnest(.deriv2)
-
-errors <- models %>% 
-  group_by(sp, sp2) %>% 
-  summarise(
-    .resid = sum(.resid ^ 2), 
-    .penalty = unique(.penalty),
-    .groups = "drop"
-  ) %>% 
-  mutate(
-    r = .resid + (1 / sp) * .penalty,
-    r2 = .resid + (1 / sqrt(sp)) * .penalty
-  )
-
-m$aic
-
-derivative <- deriv2 %>% 
-  group_by(sp) %>% 
-  summarise(.derivative = sum(derivative ^ 2))
-
-errors %>% 
-  left_join(derivative) %>% 
-  mutate(
-    .resid + .derivative
-  )
-
-mcycle$.fitted30 <- fitted(mcycle_smooth60)
+str(x)
+# 
+# mcycle_smooth10 <- gam(
+#   accel ~ 1 + s(times, bs = "ps", k = 60), 
+#   data = mcycle, 
+#   method = "ML",
+#   sp = 10
+# )
+# 
+# library(brms)
+# mcycle_smooth60_b <- brm(
+#   accel ~ 1 + s(times, bs = "ps", k = 60), 
+#   data = mcycle,
+#   backend = "cmdstanr"
+# )
+# 
+# mcycle_smooth60_b
+# 
+# gam.vcomp(mcycle_smooth60, rescale = FALSE)
+# 
+# smoothers <- scales::log_breaks(10)(c(1, 1000000))
+# coef(mcycle_smooth60)
+# mcycle_smooth60$sp
+# mcycle_smooth60$smooth[[1]]
+# mcycle_smooth10$full.sp
+# mcycle_smooth10$smooth[[1]][["S"]]
+# 
+# mcycle_smooth60$smooth[[1]][["S"]]
+# 
+# 
+# mcycle_smooth60$cmX
+# mcycle_smooth60$sp
+# mcycle_smooth60$smooth[[1]][["S"]]
+# mcycle_smooth60$smooth[[1]][["S.scale"]]
+# # mcycle_smooth60$smooth[[1]][[sp]]
+# 
+# model_work <- tibble(sp = c(smoothers, mcycle_smooth60$sp)) %>% 
+#   mutate(
+#     models = sp %>% map(function(sp) update(mcycle_smooth60, sp = sp)),
+#     .fitted = models %>% map(function(model) cbind(mcycle, .fit = fitted(model), .resid = residuals(model))),
+#     .deriv2 = models %>% map(gratia::derivatives, order = 2, newdata = mcycle),
+#     .penalty = models %>% map(
+#       function(m) {
+#         b <- coef(m)
+#         k <- length(b)
+#         # s <- m$smooth[[1]][["S"]][[1]]
+#         d <- m$smooth[[1]][["D"]]
+#         s <- crossprod(d)
+#         as.vector(t(b) %*% s %*% b)
+#       }
+#     ),
+#     sp2 = models %>% map_dbl(pluck, "smooth", 1, "sp")
+#   ) %>% 
+#   select(-models) %>% 
+#   unnest(.penalty)
+# 
+# list(mcycle_smooth) %>% 
+# str(models)
+# 
+# models <- model_work %>% 
+#   select(-.deriv2) %>% 
+#   unnest(.fitted)
+# 
+# deriv2 <- model_work %>% 
+#   select(-.fitted) %>% 
+#   unnest(.deriv2)
+# 
+# errors <- models %>% 
+#   group_by(sp, sp2) %>% 
+#   summarise(
+#     .resid = sum(.resid ^ 2), 
+#     .penalty = unique(.penalty),
+#     .groups = "drop"
+#   ) %>% 
+#   mutate(
+#     r = .resid + (1 / sp) * .penalty,
+#     r2 = .resid + (1 / sqrt(sp)) * .penalty
+#   )
+# 
+# m$aic
+# 
+# derivative <- deriv2 %>% 
+#   group_by(sp) %>% 
+#   summarise(.derivative = sum(derivative ^ 2))
+# 
+# errors %>% 
+#   left_join(derivative) %>% 
+#   mutate(
+#     .resid + .derivative
+#   )
+# 
+mcycle$.fitted60 <- fitted(mcycle_smooth60)
 
 ggplot(mcycle) + 
   aes(x = times, y = accel) + 
   geom_point() + 
   # geom_line(aes(y = .fitted), color = "blue") + 
-  geom_line(aes(y = .fitted30), color = "blue")
+  geom_line(aes(y = .fitted60), color = "blue")
 ```
 
 Huh, they hardly look any different. What's going on?
@@ -452,6 +533,11 @@ $$
 We are going to plot a lot of matrices to show what the splines are up to.
 
 ```{r}
+d <- diff(diag(60), d = 2)
+s <- crossprod(d)
+dim(s)
+s <- t(d) %*% d
+b <- coef(mcycle_smooth60)
 
 ```
 
@@ -459,38 +545,33 @@ We are going to plot a lot of matrices to show what the splines are up to.
 
 
 ```{r}
-tk <- seq(min(t),max(t),length=k) ## knotsX<-apply(diag(k),1,function(y) approx(tk,y,t,rule=2)$y)b <- lm(a ~ X-1)
+# tk <- seq(min(t),max(t),length=k) ## knotsX<-apply(diag(k),1,function(y) approx(tk,y,t,rule=2)$y)b <- lm(a ~ X-1)
 
+# 
 
-d <- diff(diag(30), d = 2)
-s <- crossprod(d) 
-dim(s)
-s <- t(d) %*% d
-b <- coef(mcycle_smooth60)
-
-
-mcycle_smooth60
-mcycle_smooth60$smooth[[1]][["S"]]
-sum(mcycle_smooth60$edf2)
-sum(mcycle_smooth60$edf)
-
-mcycle_smooth$sp
-mcycle_smooth60$sp
-
-gam.vcomp(mcycle_smooth)
-gam.vcomp(mcycle_smooth60)
-X <- model.matrix(mcycle_smooth60)
-K <- 30
-D <- diff(diff(diag(K))) 
-## t(D)%*%D is penalty coef matrix
-sp <- 2 ## square root smoothing parameter
-XD <- rbind(X, D * sp)  ## augmented model matrix
-y0 <- c(mcycle$accel,rep(0,nrow(D))) ## augmented data
-b <- lm(y0~XD-1)     
-## fit augmented model
-plot(mcycle$times,mcycle$accel,ylab="accel",xlab="time")
-
-lines(mcycle$times, X %*% coef(b),col=2,lwd=2)
+# 
+# mcycle_smooth60
+# mcycle_smooth60$smooth[[1]][["S"]]
+# sum(mcycle_smooth60$edf2)
+# sum(mcycle_smooth60$edf)
+# 
+# mcycle_smooth$sp
+# mcycle_smooth60$sp
+# 
+# gam.vcomp(mcycle_smooth)
+# gam.vcomp(mcycle_smooth60)
+# X <- model.matrix(mcycle_smooth60)
+# K <- 30
+# D <- diff(diff(diag(K))) 
+# ## t(D)%*%D is penalty coef matrix
+# sp <- 2 ## square root smoothing parameter
+# XD <- rbind(X, D * sp)  ## augmented model matrix
+# y0 <- c(mcycle$accel,rep(0,nrow(D))) ## augmented data
+# b <- lm(y0~XD-1)     
+# ## fit augmented model
+# plot(mcycle$times,mcycle$accel,ylab="accel",xlab="time")
+# 
+# lines(mcycle$times, X %*% coef(b),col=2,lwd=2)
 ```
 
 
@@ -507,6 +588,14 @@ lines(mcycle$times, X %*% coef(b),col=2,lwd=2)
 
 
 
+```{r}
+gratia::penalty(mcycle_smooth, rescale = TRUE) %>% 
+  mutate(
+    row = row %>% stringr::str_replace("^f(\\d)$", "f0\\1"),
+    col = col %>% stringr::str_replace("^f(\\d)$", "f0\\1"),
+  ) %>% 
+gratia::draw()
+```
 
 
 
@@ -579,7 +668,8 @@ ggmatplot(model.matrix(m) %*% diag(coef(m)), n_colors = 1) +
   annotate_grey("\"weighted\" random effects", 10, .4, size = 5) +
   annotate_grey("intercept", 80, 1.1, size = 5) +
   coord_cartesian(xlim = c(0, 92))
-tjmisc::ggpreview()
+
+# tjmisc::ggpreview()
 re <- m$smooth[[1]]
 ggmatplot(model.matrix(m))
 # ggmatplot(re$S[[1]])
@@ -598,17 +688,17 @@ ggmatplot(model.matrix(m) %*% diag(coef(m))) + stat_summary(fun = sum, color = "
 
 ggmatplot(model.matrix(mf) %*% diag(coef(mf)))  + stat_summary(fun = sum, color = "red", geom = "line")
 
-mgcv::gam.vcomp(m)
+# mgcv::gam.vcomp(m)
 
 m <- gam(log_radon ~ 1 + s(county, bs = "re"), data = radon, method = "ML", fit = FALSE)
-str(m)
+# str(m)
 ```
 
 (m is derivative penalized)
 
 
 
-```{r}
+```{r, eval = FALSE}
 # trying to write a naive stan model to do this.
 matplotl <- function(...) matplot(..., type = "l")
 z <- model.matrix(mcycle_smooth60)[, -1]
@@ -655,19 +745,18 @@ mcycle_smooth60_b
 # use by PredictMat."
 sm <- smoothCon(s(times, bs = "cr", k = 60), mcycle, absorb.cons = TRUE, modCon = 3, diagonal.penalty = TRUE)[[1]]
 
-matplot(sm$X, type = "l")
-matplot(sm$diagRP, type = "l")
-matplotl(sm$S[[1]])
-matplotl(solve(t(sm$diagRP)))
-matplotl(sm$S[[1]] * t(sm$diagRP))
+ggmatplot(sm$X)
+ggmatplot(sm$diagRP)
+ggmatplot(sm$S[[1]])
+ggmatplot(solve(t(sm$diagRP)))
 
 # No diagonal penalty
 sm0 <- smoothCon(s(times, bs = "cr", k = 60), mcycle, absorb.cons = TRUE, modCon = 3, diagonal.penalty = FALSE)[[1]]
 
 
-matplot(sm0$X, type = "l")
-matplot(sm0$S[[1]], type = "l")
-matplot(sm0$X %*% sm0$S[[1]], type = "l")
+ggmatplot(sm0$X)
+ggmatplot(sm0$S[[1]])
+ggmatplot(sm0$X %*% sm0$S[[1]])
 
 X0 <- sm0$X
 K <- sm0$rank
@@ -675,36 +764,35 @@ K <- sm0$rank
 aug_d <- rbind(0, 0, diff(diag(K), difference = 2))
 diag(aug_d) <- 1
 X <- t(backsolve(t(aug_d), t(X0)))
-matplotl(sm0$X)
-matplotl(aug_d)
-matplotl(X[-c(1, 2)])
+ggmatplot(sm0$X)
+ggmatplot(aug_d)
+ggmatplot(X[-c(1, 2)])
 
 
-# No diagonal penalty
-sm0 <- smoothCon(s(times, bs = "cr", k = 60), mcycle, absorb.cons = FALSE, modCon = 3, diagonal.penalty = FALSE)[[1]]
-
-dim(sm0$X)
-sm0$rank
-matplot(sm0$X, type = "l")
-matplot(sm0$S[[1]], type = "l")
-matplot(sm0$X %*% sm0$S[[1]], type = "l")
-X0 <- sm0$X
-K <- sm0$rank
-# K <- 10
-aug_d <- rbind(0, 0, diff(diag(K), difference = 2))
-diag(aug_d) <- 1
-X <- t(backsolve(t(aug_d), t(X0)))
-matplotl(sm0$X)
-matplotl(aug_d)
-matplotl(X[c(1, 2)])
-matplotl(X[, 1] + X[, 2] + X[, 3])
-matplotl(X[, 50])
+# # No diagonal penalty
+# sm0 <- smoothCon(s(times, bs = "cr", k = 60), mcycle, absorb.cons = FALSE, modCon = 3, diagonal.penalty = FALSE)[[1]]
+# 
+# ggmatplot(sm0$X)
+# ggmatplot(sm0$S[[1]])
+# ggmatplot(sm0$X %*% sm0$S[[1]])
+# 
+# X0 <- sm0$X
+# K <- sm0$rank
+# # K <- 10
+# aug_d <- rbind(0, 0, diff(diag(K), difference = 2))
+# diag(aug_d) <- 1
+# X <- t(backsolve(t(aug_d), t(X0)))
+# matplotl(sm0$X)
+# matplotl(aug_d)
+# matplotl(X[c(1, 2)])
+# matplotl(X[, 1] + X[, 2] + X[, 3])
+# matplotl(X[, 50])
 
 
 
 
 # Should be the penalty matrix
-matplot(crossprod(diff(diag(59), differences = 2)), type = "l")
+ggmatplot(crossprod(diff(diag(59), differences = 2)))
 # matplot(crossprod(diff(diag(59), differences = 2)), type = "l")
 
 dim(sm0$X)
@@ -725,10 +813,10 @@ dim(sm0$S[[1]])
 
 
 # looking at what standata is doing
-sd <- brms::make_standata(accel ~ 1 + s(times, bs = "cr", k = 60), data = mcycle)
-matplot(sd$Zs_1_1, type = "l")
+sd <- brms::make_standata(accel ~ 1 + s(times, bs = "ps", k = 60), data = mcycle)
+ggmatplot(sd$Zs_1_1)
 
-matplot(matrix(rep(sd$Xs, sd$knots_1), ncol = sd$knots_1) + sd$Zs_1_1, type = "l")
+ggmatplot(matrix(rep(sd$Xs, sd$knots_1), ncol = sd$knots_1) + sd$Zs_1_1)
 
 str(sm$S)
 str(sm)
@@ -748,11 +836,9 @@ aug_d <- rbind(0, 0, diff(diag(K), difference = 2))
 diag(aug_d) <- 1
 X <- t(backsolve(t(aug_d), t(X0)))
 
-matplot(X0, type = "l")
+ggmatplot(X0)
 
-matplot(t(X0), type = "l")
-matplot(t(aug_d), type = "l")
-matplotl(X)
+ggmatplot(X)
 
 # K <- 40        
 # ## basis dimension
@@ -775,13 +861,13 @@ aug_d <- rbind(0, 0, diff(diag(K), difference = 2))
 diag(aug_d) <- 1
 
 X <- t(backsolve(t(aug_d), t(X0)))
-matplot(X0, type = "l")
-matplot(aug_d, type = "l")
-matplot(X, type = "l")
+ggmatplot(X0)
+ggmatplot(aug_d)
+gmatplot(X)
 Z <- X[, -c(1,2)]
 X <- X[, c(1:2)]
-matplot(X, type = "l")
-matplot(Z, type = "l")
+matplot(X)
+matplot(Z)
 
 
 
@@ -792,8 +878,8 @@ sm_no_diag <- smoothCon(
   modCon = 3, 
   diagonal.penalty = FALSE)[[1]]
 
-matplotl(sm_no_diag$X)
-matplotl(sm_no_diag$S[[1]])
+ggmatplot(sm_no_diag$X)
+ggmatplot(sm_no_diag$S[[1]])
 
 sm <- smoothCon(
   s(times, bs = "cr", k = 60), 
@@ -802,115 +888,10 @@ sm <- smoothCon(
   modCon = 3, 
   diagonal.penalty = TRUE)[[1]]
 
-matplotl(sm$X)
-matplotl(sm$diagRP)
-matplotl(sm$X)
+ggmatplot(sm$X)
+ggmatplot(sm$diagRP)
 
-matplotl(sm$X %*% diag(sm$diagRP))
-
-
-PredictMat(sm0, mcycle) %>% str
-
-matplotl(sm0$S[[1]])
-matplotl(sm0$S[[1]])
-matplotl(sm0$diagRP)
-matplotl(sm0$X)
-
-
-
-make_standata()
-
-sm <- smoothCon(
-  s(times, bs = "cr", k = 60), 
-  mcycle, 
-  absorb.cons = TRUE, 
-  modCon = 3, 
-  diagonal.penalty = TRUE)[[1]]
-
-matplotl <- function(...) matplot(..., type = "l")
-
-
-# trans.D	
-# A vector, trans.D, that transforms coefs, in order [rand1, rand2,... fix] back to original parameterization. If null, then taken as vector of ones. b.original = trans.U %*% (trans.D*b.fit).
-# 
-
-matplotl(sm$X)
-matplotl(sm$S[[1]])
-
-# random_effects
-re$rand$Xr
-# fixed effects
-re$Xf
-matplot(re$rand$Xr, type = "l")
-matplot(re$Xf, type = "l")
-
-matplotl(matrix(rep(re$Xf, 58), ncol = 58) + re$rand$Xr)
-
-# trans.U	
-# A matrix, trans.U, that transforms coefs, in order [rand1, rand2,... fix] back to original parameterization. If null, then not needed. If null then taken as identity.
-re <- smooth2random(sm, "test", 2)
-
-
-
-matplot(sm$X, type = "l")
-matplot(sm$S[[1]], type = "l")
-matplot(sm$diagRP, type = "l")
-
-sm$S %>% str()
-
-matplot(re$trans.D, type = "l")
-
-
-
-object <- sm
-ev <- eigen(object$S[[1]], symmetric = TRUE)
-# str(ev)  
-# matplotl(ev$vectors)
-
-null.rank <- object$df - object$rank
-
-p.rank <- object$rank
-if (p.rank > ncol(object$X)) p.rank <- ncol(object$X)
-U <- ev$vectors
-D <- c(ev$values[1:p.rank], rep(1, null.rank))
-D <- 1/sqrt(D)
-UD <- t(t(U) * D)
-matplotl(object$X)
-matplotl(UD)
-X <- object$X %*% UD
-matplotl(X)
-
-  if (p.rank < object$df) {
-    Xf <- X[, (p.rank + 1):object$df, drop = FALSE]
-  } else { 
-    Xf <- matrix(0, nrow(object$X), 0)
-  }
-  
-term.name <- new.name("Xr", vnames)
-  if (type == 1) {
-    form <- as.formula(paste("~", term.name, "-1", sep = ""), 
-      env = .GlobalEnv)
-    random <- list(pdIdnot(form))
-    group.name <- new.name("g", vnames)
-    names(random) <- group.name
-    attr(random[[1]], "group") <- factor(rep(1, nrow(X)))
-    attr(random[[1]], "Xr.name") <- term.name
-    attr(random[[1]], "Xr") <- X[, 1:p.rank, drop = FALSE]
-  }
-  else {
-    random <- list(X[, 1:p.rank, drop = FALSE])
-    names(random)[1] <- term.name
-    attr(random[[1]], "s.label") <- object$label
-  }
-  rind <- 1:p.rank
-  pen.ind <- rep(0, ncol(object$X))
-  pen.ind[rind] <- 1
-  rinc <- rep(p.rank, p.rank)
-  list(rand = random, Xf = Xf, trans.U = U, trans.D = D, fixed = FALSE, 
-    rind = rind, rinc = rinc, pen.ind = pen.ind)
-
-
-
+ggmatplot(sm$X %*% diag(sm$diagRP))
 
 
 
@@ -1008,55 +989,28 @@ matplot(re$rand$Xr, type = "l")
 matplot(sm$S[[1]], type = "l")
 
 
-matplot(re$rand$Xr$X)
-brms:::tidy_smef(mcycle_smooth60_b$formula, mcycle_smooth60_b$data)
+# matplot(re$rand$Xr$X)
+# brms:::tidy_smef(mcycle_smooth60_b$formula, mcycle_smooth60_b$data)
 
-brms:::standata_basis(mcycle_smooth60_b)
+# brms:::standata_basis(mcycle_smooth60_b)
 
-data_predictor(mcycle_smooth60_b$formula)
-
-# where does brms find its data?
-brms::standata(mcycle_smooth60_b)
-model.matrix(mcycle_smooth60)
-
-try <- rstan::read_stan_csv(spline_fit$output_files())
-l <- loo(try)
-
-summary(mcycle_smooth60)
-gam.vcomp(mcycle_smooth60, rescale = FALSE)
+# data_predictor(mcycle_smooth60_b$formula)
+# 
+# # where does brms find its data?
+# brms::standata(mcycle_smooth60_b)
+# model.matrix(mcycle_smooth60)
+# 
+# try <- rstan::read_stan_csv(spline_fit$output_files())
+# l <- loo(try)
+# 
+# summary(mcycle_smooth60)
+# gam.vcomp(mcycle_smooth60, rescale = FALSE)
 ```
 
 
 
 
 
-
-
-```{stan}
-data {
-  int<lower=0> N;               
-  vector[N] y;                     
-  int<lower=1> n_fixed;         
-  int<lower=1> n_knots;         
-  matrix[N,n_knots] spline_matrix;
-  matrix[N,n_fixed] fixed_matrix;
-}
-parameters {
-  real<lower=0> sigma_y;
-  real<lower=0> sigma_knots;
-  vector[n_fixed] beta_fixed;
-  vector[n_knots] beta_knots;
-}
-model {
-  sigma_y ~ normal(0, 100);
-  beta_fixed ~ normal(0, 50);
-  
-  sigma_knots ~ normal(0, 100);
-  beta_knots ~ normal(0, sigma_knots);
-
-  y ~ normal(fixed_matrix * beta_fixed + spline_matrix * beta_knots, sigma_y);
-}
-```
 
 ```{r}
 sm <- smoothCon(s(times, bs = "ps", k = 60), mcycle, absorb.cons = TRUE, modCon = 3)[[1]]
@@ -1257,7 +1211,7 @@ spline_mixed_fit <- spline_mod$sample(
 )
 spline_mixed_fit
 
-mgcv
+
 ```
 
 
