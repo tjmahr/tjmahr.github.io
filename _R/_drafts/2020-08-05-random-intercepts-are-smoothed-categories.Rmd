@@ -22,7 +22,30 @@ smoothing splines are the same thing.
 <blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><p lang="en" dir="ltr">random effects and splines are _the same_ thing. See also <a href="https://t.co/LgZTzZimH0">https://t.co/LgZTzZimH0</a></p>&mdash; DavidLawrenceMiller (@millerdl) <a href="https://twitter.com/millerdl/status/846719376338407424?ref_src=twsrc%5Etfw">March 28, 2017</a></blockquote> 
 ```
 
+The short version is that these equations are the same:
 
+
+This is from MGCV p.77 but with theta subscripts removed.
+
+$$
+\mathbf{y} = \mathbf{X\beta} + \mathbf{Zb} + \mathbf{\epsilon} \\
+\mathbf{b} \sim \textsf{N}(\mathbf{0}, \mathbf{\psi}) \\
+\mathbf{\epsilon} \sim \textsf{N}(\mathbf{0}, \mathbf{\Lambda}) \\
+\mathbf{X}: \textrm{fixed effects model matrix} \\
+\mathbf{Z}: \textrm{random effects model matrix} \\
+\mathbf{\psi}, \mathbf{\Lambda} : \textrm{error structures} \\
+$$
+
+MGCV book p.174
+
+$$
+\mathbf{y} = \mathbf{X}^*\mathbf{\beta}^* + \mathbf{Zb} + \mathbf{\epsilon} \\
+\mathbf{b} \sim \textsf{N}(\mathbf{0}, \mathbf{I}\sigma^2/\lambda) \\
+\mathbf{\epsilon} \sim \textsf{N}(\mathbf{0}, \mathbf{I}\sigma^2) \\
+\mathbf{X}: \textrm{fixed effects model matrix} \\
+\mathbf{Z}: \textrm{random effects model matrix} \\
+\mathbf{\psi}, \mathbf{\Lambda} : \textrm{error structures} \\
+$$
 
 ## Mixed model review
 
@@ -228,7 +251,7 @@ We are going to recreate this in ggplot2 for convenience.
 ggmatplot <- function(x, focal_column = NULL, n_colors = 6) {
   # reshape into a long dataframe
   ux <- unique(x)
-  
+
   if (!is.null(focal_column)) {
     focal_label <- rlang::expr_label(substitute(x[, focal_column]))
   } else {
@@ -259,7 +282,10 @@ ggmatplot <- function(x, focal_column = NULL, n_colors = 6) {
   ggplot(long_ux) + 
     # cycle the colors
     aes(x = !! rlang::sym(focal_label), y = value, color = .color_cycle) + 
-    geom_line(aes(group = .column)) + 
+    geom_line(
+    # aes(group = !! rlang::sym(focal_label)),
+      aes(group = .column)
+    ) + 
     guides(color = FALSE) +
     scale_color_manual(
       values = unname(palette.colors(n_colors, palette = "R4"))
@@ -392,6 +418,102 @@ did that number come from? What if we specified 30 knots? That's 30 predictors.
 Isn't it really easy to overfit the data with this approach? 
 
 Well, let's look at the 30-knot version.
+
+
+
+
+
+### Take a step back
+
+I have not touched this for a few months so I need to start taking some notes to refresh my memory.
+
+I decided to look at p splines because they have a nice random walk formulation in the GAMLSS book. Let me summarize that.
+
+
+
+"Random effect models deat with correlation between individual
+observations by introducing different sources of variation in the data.
+This is achieved by assumin that there are random effects variables γ
+providing an additional source of variation.... [it talks about pdfs
+and hyperparameters]" [p.322 GAMLSS book].
+
+
+
+
+3.2
+
+9.6
+
+- they say that penalty matrix tends to be product of two difference matrices
+
+```{r}
+diff(diag(10), diff = 2)
+d2 <- diff(diag(10), diff = 2)
+penalty_matrix <- t(d2) %*% d2
+ggmatplot(d2)
+ggmatplot(penalty_matrix)
+
+```
+
+- they show that lambda is a ratio of variances in a random effects smoothing model
+
+We can do this ourselves from a random effects model fitted with gam.
+
+```{r}
+# bs = "re" use a random effects basis.
+gam_re <- gam(log_radon ~ s(county, bs = "re"), data = radon, method="ML")
+gam_re
+```
+
+First we take ratio of the variances, based on the numbers from the
+variance components. We can also pull out `sp` (smoothing parameter)
+from the model. Indeed, the ratio of the variances is the same as
+smoothing parameter.
+
+```{r}
+gam.vcomp(gam_re)
+(0.7660732 ^ 2) /  (0.2939025 ^ 2)
+
+gam_re$sp
+```
+
+```{r}
+diag(10) %*% diag(10)
+```
+
+
+The random walks part from 268. The first case are random intercepts.
+
+$$
+\gamma_j \sim \mathcal{N}(0, \sigma^{2}_{b}) \\ 
+\gamma_j - \gamma_{j-1} \sim \mathcal{N}(0, \sigma^{2}_{b}) \\ 
+\gamma_j - 2\gamma_{j-1} - \gamma_{j-2} \sim \mathcal{N}(0, \sigma^{2}_{b})
+$$
+
+
+
+```{r}
+diag(8)
+diff(diag(8), diff = 1)
+diff(diag(8), diff = 2)
+
+ggmatplot(diag(gam_re$coefficients[-1]))
+```
+
+And there they are, walkin' around 0 randomly.
+
+```{r}
+diff_14 <- diff(diag(14), diff = 2)
+# ggmatplot(diff_14)
+# ggmatplot(diag(mcycle_smooth$coefficients[-1]))
+ggmatplot(diag(as.vector(diff_14 %*% mcycle_smooth$coefficients[-1])))
+```
+
+And there they are, walkin' around 0 randomly.
+
+
+### Old stuff, not sure about
+
 
 ```{r}
 mcycle_smooth60 <- gam(
@@ -541,6 +663,24 @@ b <- coef(mcycle_smooth60)
 
 ```
 
+
+
+```{r, eval = FALSE}
+library(mgcv)
+x <- runif(30)
+dat <- data.frame(x = x)
+sm <- smoothCon(s(x, bs = "ps"), dat, absorb.cons	= FALSE)[[1]]
+re <- smooth2random(sm,"",2)
+str(re)
+str(sm)
+ggmatplot(sm$X)
+matplot(re$Xf, type = "l")
+matplot(sm$S[[1]], type = "l")
+matplot(sm$D, type = "l")
+matplot(re$trans.U, type = "l")
+matplot(re$trans.D, type = "l")
+matplot(re$pen.ind, type = "l")
+```
 
 
 
@@ -1076,7 +1216,7 @@ data2 <- list(
 )
 ```
 
-```{stan}
+```
 // random walk version
 data {
   int<lower=0> N;               
