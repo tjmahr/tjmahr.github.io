@@ -81,6 +81,7 @@ posts <- list(
 drafts <- list(
   post = paths_draft_posts,
   name = basename(paths_draft_posts),
+  sym_name = rlang::syms(basename(paths_draft_posts)),
   name_md = paths_draft_posts %>%
     basename() %>%
     stringr::str_replace(".Rmd$", ".md")
@@ -108,22 +109,31 @@ targets_posts <- list(
 )
 
 targets_drafts <- list(
+  # tar_target(footer, "_R/_footer.Rmd", format = "file"),
   tar_eval(tar_target(name, post, format = "file"), drafts),
   tar_eval(
     tar_target(
       name_md,
-      knit_post(name, "_drafts", "figs/drafts", "_caches"),
+      {
+        list(footer) # name footer so that it appears in the graph
+        knit_post(sym_name, "_drafts", "figs/drafts", "_caches")
+      },
       format = "file",
       error = "continue"
     ),
     drafts
+  ),
+  targets::tar_target_raw(
+    "draft_rmds",
+    rlang::expr(c(!!! drafts$sym_name)),
+    deps = drafts$name
   )
 )
 
 
 list(
   targets_posts,
-
+  targets_drafts,
   tar_target(
     spellcheck_exceptions,
     c(
