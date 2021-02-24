@@ -351,73 +351,6 @@ An easy way to pull the wiggles is to use the model matrix.
 <!-- The bumps here are a little pointy because the *x* values of line of the match -->
 <!-- the data. -->
 
-```{r}
-annotate_grey <- function(label, x, y, size = 4, ...) {
-  annotate(
-    "label", x = x, y = y, label = label, size = size,
-    hjust = 0, vjust = 0, fill = scales::alpha("grey93", .6), 
-    label.size = 0, ...
-  )
-}
-
-m <- cbind(mcycle$times, model.matrix(mcycle_smooth))
-
-ggmatplot(model.matrix(mcycle_smooth)) +
-  annotate_grey("intercept", 5, .9, size = 5) +
-  annotate_grey("splines at x values", 60, .66, size = 5)
-
-ggmatplot(m, 1) +
-  annotate_grey("intercept", 5, .9, size = 5) +
-  annotate_grey("splines at x values", 40, .66, size = 5)
-```
-
-Now we can weight these by multiplying by the model coefficients. Here we use
-the `diag(coef())` trick to prevent the weighted predictors from being summed together.
-
-
-```{r}
-weighted_coefs <- model.matrix(mcycle_smooth) %*% diag(coef(mcycle_smooth))
-
-ggmatplot(weighted_coefs) +
-  annotate_grey("intercept", 5, -36, size = 5) +
-  annotate_grey("weighted splines at x values", 5, 26, size = 5)
-
-ggmatplot(weighted_coefs, n_colors = 1) + 
-  annotate_grey("sum", 20, -70, size = 5, color = "maroon") + 
-  annotate_grey("weighted splines", 10, 25, size = 5, ) +
-  annotate_grey("intercept", 60, -25, size = 5, )
-```
-
-If we sum the lines together, we get the regression line.
-
-```{r}
-ggmatplot(weighted_coefs, n_colors = 1) + 
-  stat_summary(
-    aes(group = 1), 
-    color = "maroon", 
-    fun = sum, 
-    geom = "line", 
-    size = 2
-  ) +
-  annotate_grey("sum", 20, -70, size = 5, color = "maroon")
-
-
-mcycle$.fitted <- fitted(mcycle_smooth)
-ggplot(mcycle) + 
-  aes(x = times, y = accel) + 
-  geom_point() +
-  geom_line(aes(y = .fitted)) 
-
-predict(mcycle_smooth)
-```
-
-What I have done so far is describe is regression with a basis function.
-Smoothing splines go one step further: They penalize wiggliness to prevent
-overfitting. The idea is as follows: We chose 15 knots for the last one. Where
-did that number come from? What if we specified 30 knots? That's 30 predictors.
-Isn't it really easy to overfit the data with this approach? 
-
-Well, let's look at the 30-knot version.
 
 
 
@@ -639,12 +572,7 @@ ggplot(mcycle) +
   geom_line(aes(y = .fitted60), color = "blue")
 ```
 
-Huh, they hardly look any different. What's going on?
 
-Penalties.
-
-
-Behind the scenes, the model is
 
 $$
 

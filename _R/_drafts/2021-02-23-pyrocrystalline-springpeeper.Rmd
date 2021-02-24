@@ -1,0 +1,149 @@
+---
+title: Notes on effective degrees of freedom (2021-02-23)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+
+
+
+The mgcv book introduce them in the linear mixed models section by
+consider the magnitude of the random effects sigma (p. 83). If the sigma
+is 0, then then there are no effective degrees of freedom. If sigma
+grows larger and larger, then the random effects will act as fixed
+effects. Thus, the EDF is the group size.
+
+Page 186 talks about how changing the size of the basis function space can influence the EDFs. The example Woods gives is that the there is a larger space of 5-EDF functions inside the 20-knot basis than the 10-knot basis.
+
+Page 211 "The penalty suppresses the model degrees of freedom"
+
+Page 211--212 works through how for smoothers with a single penalty, you can do a natural parameterization so that you get from X = QR to QU and D. The Bayesian covariance matrix of the parameters becomes the diagonal matrix (I + lamba * D)^-1 * sigma^2. You can compute a shrinkage factor for each coefficient which range from (0, 1] and sum these to also get an effective degree of freedom: EDF = tr(F) with F = (t(X)X + lambaS)^-1t(X)X 
+
+
+```{r}
+library(mgcv)
+mcycle <- MASS::mcycle
+
+m <- gam(accel ~ s(times, k = 20, bs = "ps"), data = mcycle)
+summary(m)
+```
+
+
+Now I am kind of on a mission to see how brms gets its splines...
+
+I can get the same thing as the standata. I can fit the spline in a mixed model.
+
+```{r}
+# b.original = trans.U %*% (trans.D*b.fit).
+sm_raw <- smoothCon(
+  s(times, k = 20, bs = "ps"), 
+  data = mcycle, 
+  absorb.cons = TRUE, 
+  diagonal.penalty = TRUE
+)
+sm <- sm_raw[[1]]
+re <- smooth2random(sm, "", type = 2)
+dim(re$Xf)
+dim(re$rand$Xr)
+
+str(re)
+
+re$rand
+library(tidyverse)
+
+okay <- mcycle %>% 
+  cbind(cbind(re$Xf, re$rand$Xr)) %>% 
+  as_tibble() %>% 
+  janitor::clean_names() %>% 
+  tidyr::pivot_longer(
+    cols = c(x2:x19), 
+    names_to = "re", 
+    values_to = "re_value"
+  )
+
+library(lme4)
+lmer <- lmer(accel ~ 1 + x1 + (-1 + re_value | re), data = okay)
+
+
+
+matplotl <- function(...) matplot(..., type = "l")
+matplotl(re$rand[[1]])
+matplotl(diag(re$rand[[1]]))
+matplotl(re$trans.D)
+
+matplotl(re$trans.U)
+matplotl(sm$S[[1]])
+
+# same
+matplotl(re$rand[[1]])
+matplotl(sm$X[, -19])
+
+# same
+matplotl(re$Xf)
+matplotl(sm$X[, 19])
+
+sm$D
+matplotl(sm$diagRP)
+
+
+matplotl(re$trans.U %*% re$trans.D)
+# b.original = trans.U %*% (trans.D*b.fit).
+
+lmer
+VarCorr(lmer)
+gam.vcomp(m)
+
+
+
+library(brms)
+formula <- bf(
+  accel ~ s(times, k = 20, bs = "ps"),
+  family = gaussian
+)
+make_stancode(formula, mcycle)
+sd <- make_standata(formula, mcycle)
+
+sd$Xs[, 1] == re$Xf[, 1]
+sd$Zs_1_1[, 1] == re$rand[[1]][, 1]
+
+brms:::s2rPred
+
+b <- brm(formula, mcycle)
+
+summary(b)
+summary(m)
+gam.vcomp(m)
+
+ress <- ranef(lmer)[["re"]][["re_value"]][c(11:18, 1:10)]
+
+b.fit <- c(ress, fixef(lmer)[2])
+
+fixed <- re$trans.U %*% (re$trans.D * b.fit)
+
+
+plot(mcycle$times, mcycle$accel)
+lines(mcycle$times, sm$X %*% fixed + fixef(lmer)[1])
+conditional_smooths(b)
+brms:::conditional_smooths.btl
+b$ranef
+brms:::posterior_smooths(b, 's(times,k=20,bs="ps")')
+
+```
+
+
+Consider our friend, the random intercept model.
+
+```{r}
+
+```
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, zzzchild = "_footer.Rmd"}
+```
