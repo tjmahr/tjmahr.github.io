@@ -533,9 +533,12 @@ hand, we might penalize the basis function weights so much that they
 produce a straight line, and thus, the batch of predictors effectively
 acts just like a single predictor variable would. That is, they are
 effectively estimating a curve that has just 1-degree-of-freedom's worth
-of action in it. And indeed this is how mgcv describes the smoothness of the models: It reports the *effective (or estimated) degrees of freedom* (EDFs) behind the smooth. When 
+of action in it. And indeed this is how mgcv describes the smoothness of
+the models: It reports the *effective (or estimated) degrees of freedom*
+(EDFs) behind the smooth.
 
-If we look at the model summary, we see that our 20-dimension basis smooth has an EDF of 11.78.
+If we look at the model summary, we see that our 20-dimension basis
+smooth has an EDF of 11.78.
 
 ```{r}
 summary(gam_20)
@@ -593,12 +596,160 @@ again: *σ*/*λ* = *σ*<sub>b</sub>: Model coefficients are related under a
 common distribution so that they can share information with each other.
 We can smuggle penalized smooths into the mixed effects framework.
 
+
+
+
+### Consequence 1: You can turn splines into mixed models
+
+What this means is that we can use nlme or lme4 to estimate a smooth as
+mixed effects model. mgcv provides this feature in its aptly named `smooth2random()` function.
+
+- link
+
+Here you can see the extent of the internal transformation needed to
+convert our nice wiggly cubic regression basis into a mixed effects
+framework.
+
+```{r mixed_matrix}
+# Construct a smoothing basis outside of a model
+sm_raw <- smoothCon(
+  s(times, k = 20, bs = "cr"), 
+  data = mcycle, 
+  absorb.cons = TRUE, 
+  diagonal.penalty = TRUE
+)
+
+re <- smooth2random(sm_raw[[1]], "", type = 2)
+
+# 1 fixed effect and 18 random effect columns
+mixed_matrix <- cbind(re$Xf, re$rand$Xr)
+ggmatplot(mixed_matrix)
+```
+
+Here you can see the extent of the transformation.
+
+```{r}
+ggmatplot(sm$X) +  
+ggmatplot(re$Xf) + ggmatplot(re$rand$Xr)
+```
+```{r}
+ggmatplot(sm$X) + 
+  # expand_limits(y = c(-30, 75)) + 
+  ggmatplot(re$Xf) +   
+  expand_limits(y = c(-30, 75)) + 
+  ggmatplot(re$rand$Xr)
+  expand_limits(y = c(-30, 75)) 
+```
+
+
+
+
+I don't understand it either.
+
+```{r, eval = FALSE, echo = FALSE}
+mcycle_re <- mcycle %>% 
+  select(times, accel) %>% 
+  cbind(re_matrix) %>% 
+  as_tibble() %>% 
+  janitor::clean_names() %>% 
+  tidyr::pivot_longer(
+    cols = c(x2:x19), 
+    names_to = "re", 
+    values_to = "re_value"
+  ) %>% 
+  mutate(
+    # turn x2 into x02 and so one
+    re = stringr::str_replace(re, "^x(\\d)$", "x0\\1")
+  ) %>% 
+  rename(x01 = x1)
+  
+library(lme4)
+lmer_20 <- lmer(accel ~ 1 + x01 + (0 + re_value | re), data = mcycle_re)
+
+summary(lmer_20)
+
+str(re)
+
+coef_re <- ranef(lmer_20)[["re"]][[1]]
+coef_fe <- fixef(lmer_20)
+coefs <- c(coef_re, coef_fe[2])
+
+rescaled_coefs <- re$trans.U %*% (re$trans.D * coefs)
+
+ggmatplot(sm_raw[[1]][["X"]])
+ggmatplot(sm_raw[[1]][["X"]] %*% rescaled_coefs)
+
+sm_raw[[1]][["X"]]
+sm_raw[[1]]
+mcycle$.fitted_lmer_20 <- as.vector(
+  (sm_raw[[1]][["X"]] %*% rescaled_coefs) + coef_fe[1]
+)
+
+
+ggplot(mcycle) + 
+  aes(x = times, y = accel) + 
+  geom_point() + 
+  geom_line(aes(y = .fitted_lmer_20 )) +
+  geom_line(aes(y = .fitted ))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+I probably won't be converting smoothing bases into mixed effects model
+matrices and fitting them with lme4 anytime soon, but it's useful to
+know about this fact.
+
+
+### That seems obscure, but it is what brms uses!
+
+
+
+Th
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### The convenient fiction
+
+
+
+
 ## Simple random effects are category smoothers
+
+
 
 On consequence of this relationship is that you can walk this relation
 backwards: You can fit a simple random effects using a basis matrix and
-penalty matrix. Indeed, mgcv provides an `"re"` smoother basis so we can
-estimate our mixed model from above a smooth.
+penalty matrix. Indeed, mgcv provides a random effects (`"re"`) smoother
+basis so we can estimate our mixed model from above using a smooth.
 
 ```{r}
 gam_radon <- gam(
@@ -621,134 +772,54 @@ gam_radon %>%
   theme(axis.text = element_blank())
 ```
 
-What I think is think is the coolest feature of random intercepts as smooths is that what the effective degrees of freeom tells us:
+mgcv knows about how *σ*/*λ* = *σ*<sub>b</sub> and it will provide the random effect variance estimate for us with gam.vcomp() (variance components)
 
 ```{r}
+gam.vcomp(gam_radon) %>% round(3)
+```
+
+which closely matches the estimates from the Bayesian model above
+
+```{r}
+b_radon %>% 
+  posterior_summary(pars = c("sd_county__Intercept", "sigma")) %>% 
+  round(3)
+```
+
+What I think is the coolest feature of random intercepts as
+smooths is that what the effective degrees of freedom tells us:
+
+```{r}
+nlevels(radon$county)
 summary(gam_radon)
 ```
 
+The data have 85 counties, but there is effectively 39.5 counties worth
+of parameters here. For what it's worth, we find a similar number when
+we ask brms to use its LOO method to estimate the effective number of
+parameters from its model. 
+
+```{r}
+loo(b_radon)
+```
+
+Here `p_loo` is the effective number of parameters from a leave-one-out
+cross-validation method. It's around 45. Our mgcv model has around 41.6
+parameters (39.6 from the smooth plus intercept and sigma). These two
+parameter estimating methods are unrelated as far as I know but they
+both seem to telling us something similar about how many much
+information in `county` variable we have after partially pooling down model
+parameters.
+
+
+
+
+I think this connection is incredible.
 
 
 ```{r}
-
+gam.vcomp(gam_20)
 ```
-
-
-
-
-## Consequence 1: You can turn splines into mixed models
-
-mgcv provides this feature.
-
-```{r}
-sm_raw <- smoothCon(
-  s(times, k = 20, bs = "cr"), 
-  data = mcycle
-  # don't worry about these
-  # absorb.cons = TRUE,
-  # diagonal.penalty = TRUE
-)
-sm <- sm_raw[[1]]
-
-
-re <- smooth2random(sm, "", type = 2)
-re <- smooth2random(sm, "", type = 2)
-```
-
-Here you can see the extent of the transformation.
-
-```{r}
-ggmatplot(sm$X) +  
-ggmatplot(re$Xf) + ggmatplot(re$rand$Xr)
-```
-
-You probably won't use this feature.
-
-```{r}
-sm_raw <- smoothCon(
-  s(times, k = 20, bs = "cr"), 
-  data = mcycle,
-  # don't worry about these
-  absorb.cons = TRUE,
-  diagonal.penalty = TRUE
-)
-sm <- sm_raw[[1]]
-re <- smooth2random(sm, "", type = 2)
-```
-
-Here you can see the extent of the transformation.
-
-```{r}
-ggmatplot(sm$X) + 
-  expand_limits(y = c(-30, 75)) + 
-  ggmatplot(re$Xf) +   
-  expand_limits(y = c(-30, 75)) + 
-  ggmatplot(re$rand$Xr)
-  expand_limits(y = c(-30, 75)) 
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### How many splines aim I using then?
-
-The model summary for a GAM reports the EDF for *effective degrees of
-freedom*. Both the 20- and 50-knot model have around 12--14 degrees of
-freedom. Let's consider 
-
-
-Let's talk about penalized.
-
-```{r}
-gam_20$edf
-plot(gam_50$edf)
-
-```
-
-
-
-### We can think about random effects in smoothing terms
-
-```{r}
-
-```
-
-
-### brms uses the same syntax for mixed models and smooths
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ### The Stan code behind the model
 
@@ -871,18 +942,32 @@ Recall that in my partial pooling post, I contrasted three models:
 - a no pooling model
 - a partial pooling model
 
-```{r}
 
-```
+## Okay, why are you telling me this?
+
+The purpose of this post was to demystifying the connection between
+penalized smooths and mixed effects models. Formally, it all boils down to a
+hyperparameter that penalizes model coefficients (or pools information) so that the
+model uses a smaller number of effective parameters. This connections
+enriches the connection between the two: A by-county random intercept is
+a category smoother. We can estimate a smooth by putting a prior on the
+variance of the basis function weights (provided that we incorporate the 
+penalty matrix somehow).
+
+Random effects are funny things. We are first taught them in a repeated
+measures framework as a way to fix to handle a problem in the data
+(non-independence in clustered units). But they are so much more. To use
+a Richard McElreath phrase, they provide an "adaptive regularizing
+prior": Something that constrains our estimates to reduce overfitting
+but is actively learned from the data. Hodge and Clayton (2011) outline
+this problem between repeated-measures random effects and smoothing
+random effects in their paper Random Effects Old and New, and I think
+it's worth remembering this distinction when we use the phrase "random
+effects".
 
 
 
-```{r}
-
-```
-
-
-
+**************
 
 
 [sw-slides]: https://www.maths.ed.ac.uk/~swood34/mgcv/tampere/basis-penalty.pdf "PDF of Simon Wood's slides on Basis Penalty Smoothers"
