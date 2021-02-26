@@ -126,7 +126,6 @@ model to estimate a population distribution of county estimates. These
 county-level estimates are randomly varying effects.
 
 - link book
-- link data
 
 ```{r}
 library(tidyverse)
@@ -151,20 +150,20 @@ means and estimated means are computed for use later on.
 
 ```{r county-means,  fig.height = 4, fig.width = 6, fig.asp = NULL}
 radon_aug <- radon %>%
+  # add ns and means
   group_by(county) %>% 
   mutate(
     observed_mean = mean(log_radon),
     county_n = n()
   ) %>% 
   ungroup() %>% 
+  # add fitted values
   tidybayes::add_fitted_draws(b_radon) %>% 
   mutate(
     observed_minus_model = observed_mean - .value 
   ) %>% 
-  ggdist::median_qi(
-    .value,
-    observed_minus_model
-  ) 
+  # summarize fitted values
+  ggdist::median_qi(.value, observed_minus_model) 
 
 radon_aug$type <- "mixed model estimates"
 radon$type <- "observed means"
@@ -180,6 +179,7 @@ p1 <- ggplot(radon_aug) +
   geom_point(
     aes(y = .value, color = type, shape = type)
   ) + 
+  # want to include 0 in the figure
   geom_blank(aes(y = 0)) +
   labs(
     x = "county (in decreasing order by sample size)", 
@@ -252,7 +252,7 @@ acceleration in a simulated motorcycle accident. We are going to fit a
 model, plot the smooth from it, and then we are going to work through
 what the model did.
 
-```{r smooth-demo, fig.width = 4}
+```{r smooth-demo, fig.width = 5}
 library(mgcv)
 
 mcycle <- MASS::mcycle %>% 
@@ -262,17 +262,16 @@ mcycle <- MASS::mcycle %>%
 gam_20 <- gam(
   accel ~ 1 + s(times, bs = "cr", k = 20), 
   data = mcycle, 
-  method = "ML"
+  method = "REML"
 )
 
 mcycle$.fitted <- fitted(gam_20)
+
 ggplot(mcycle) + 
   aes(x = times, y = accel) + 
-  geom_point() + 
-  geom_line(
-    aes(y = .fitted), 
-    color = "blue"
-  )
+  geom_point(alpha = .5) + 
+  geom_line(aes(y = .fitted), color = "blue") + 
+  labs(x = "time after impact [ms]", y = "acceleration [g]")
 ```
 
 So what happened here? We will cover it visually.
@@ -302,10 +301,11 @@ into a bunch of individual wiggly lines (basis functions), and these are
 weighted and summed together to approximate some nonlinear function. My
 post on [orthogonal polynomials](/polypoly-package-released/)
 illustrates the same principle but with polynomial basis functions.
-
 Richard McElreath provides [a friendly 30-minute introduction
 splines][rs-splines] in a Bayesian model in his Statistical
-Rethinking course.
+Rethinking course. One line I appreciate from his description is that
+with splines, we replace a predictor variable, like `times`, with a set
+of "synthetic" predictor variables.
 
 An easy way to pull the wiggles is to use the model matrix. 
 
@@ -318,7 +318,7 @@ To visualize the matrix, I am using a helper function from my personal R
 package for plotting matrices in ggplot2. What we see is `times` on the
 *x* axis and one line for the intercept and for each of the basis functions.
 
-```{r matplot1}
+```{r matplot1, fig.width = 6}
 # Helper function to plot the lines of a matrix
 ggmatplot <- tjmisc::ggmatplot
 
@@ -327,32 +327,32 @@ annotate_grey <- tjmisc::annotate_label_grey
 
 ggmatplot(cbind(mcycle$times, model.matrix(gam_20)), x_axis_column = 1) +
   annotate_grey("intercept", 0, 1.02, size = 5) +
-  annotate_grey("individual\nbasis\nfunctions", 0, .56, size = 5) + 
-  expand_limits(y = 1.1)  + 
-  labs(x = "`times`")
+  annotate_grey("individual\nbasis\nfunctions", 0, .16, size = 5) + 
+  expand_limits(y = 1.2)  + 
+  labs(x = "time [ms]", title = NULL)
 ```
 
 Now we can weight these by multiplying by the model coefficients. Here
 we use the `diag(coef())` trick to prevent the weighted predictors from
 being summed together.
 
-```{r matplot2}
+```{r matplot2, fig.width = 6}
 weighted_coefs <- model.matrix(gam_20) %*% diag(coef(gam_20))
 
 ggmatplot(cbind(mcycle$times, weighted_coefs), x_axis_column = 1) +
   annotate_grey("weighted intercept", 35, -40, size = 5) +
   annotate_grey("weighted basis functions", 0, 26, size = 5) +
-  labs(x =  "`times`")
+  labs(x = "time [ms]", title = NULL)
 ```
 
 We can see the two main inflections points in the dataset now. The
-functions around 20 and 30 have become very active in order to push the
+functions around 20 ms and 30 ms have become very active in order to push the
 spline away from 0 at those times.
 
 If we sum the lines together, we get the regression line (the intercept
 plus the smoothing spline).
 
-```{r matplot3}
+```{r matplot3, fig.width = 6}
 ggmatplot(
   cbind(mcycle$times, weighted_coefs), 
   x_axis_column = 1, 
@@ -366,33 +366,39 @@ ggmatplot(
     size = 1.5
   ) +
   annotate_grey("sum", 10, -70, size = 5, color = "maroon") +
-  labs(x =  "`times`")
+  labs(x = "time [ms]", title = NULL)
 ```
 
-Our plots demonstrates regression with basis functions,
-but smoothing splines go one step further: They penalize wiggliness to
-prevent overfitting. The idea is as follows: We chose 20 knots for the
-last one. Where did that number come from? What if we specified 50
-knots? That's 50 predictors. Isn't it really easy to overfit the data
-with this approach? 
+Our plots demonstrates regression with basis functions, but smoothing
+splines go one step further: They penalize wiggliness to prevent
+overfitting. The idea is as follows: For the above demonstration, we
+chose a 20-dimension spline basis (19 curves because 1 is removed for
+identifiability `r emo::ji("confused")` apparently). But where did that
+number 20 come from? Thin air. What if we specified 50 knots? That's 50
+predictors (1 intercept and 49 basis functions). Isn't it really easy to
+overfit the data with this approach?
 
-Well, let's look at a 50-knot version.
+Well, let's look at a 50-dimension version.
 
 ```{r}
 gam_50 <- gam(
   accel ~ s(times, bs = "cr", k = 50),
   data = mcycle, 
-  method = "ML"
+  method = "REML"
 )
 
 mcycle$.fitted50 <- fitted.values(gam_50)
 
 ggplot(mcycle) + 
   aes(x = times, y = accel) + 
-  geom_point() +
+  geom_point(alpha = .5) +
   geom_line(aes(y = .fitted, color = "20"), size = 1) +
   geom_line(aes(y = .fitted50, color = "50"), size = 1) + 
-  labs(color = "Dimension")
+  labs(
+    x = "time after impact [ms]", 
+    y = "acceleration [g]", 
+    color = "Dimension"
+  )
 ```
 
 Huh, they hardly look any different. There is *no* overfitting. What's
@@ -405,9 +411,9 @@ Behind the scenes, the model is trying to balance two competing goals.
 On the one hand we want to maximize the fit to the data. In linear
 regression, this goal amounts to minimizing the sum of squared errors.
 On the other hand, we want to minimize wiggliness (overfitting). In
-GAMs, this done by first describing a penalty matrix that defines
+penalized smoothing splines, this done by first describing a penalty matrix that defines
 *wiggliness* for that spline basis. These two features are pitted
-against each other in the following equation.
+against each other in the following equation. 
 
 $$
 \begin{align*}
@@ -422,48 +428,53 @@ $$
 \end{align*}
 $$
 
-And indeed, *wiggliness* is the technical term. I based the following
-equations from [Simon Wood's slides][sw-slides], which use the phrase
-"fit-wiggliness tradeoff".
+Don't worry about the exact mathematics here: Just appreciate that error
+is now paired with wiggliness, and wiggliness is controlled by a penalty
+matrix **S** and a smoothness parameter *λ*. And yes, *wiggliness* is
+the technical term. I based the following equations from [Simon Wood's
+slides][sw-slides], which use the phrase "fit-wiggliness tradeoff".
 
 For our purposes, we won't worry too much about the penalty matrix. For
 this model, wiggliness is defined by using the second derivative of the
-fitted curve. The first derivative measures the slope/steepness of the
-curve along with *x*, and the second derivatives measures how much the
-slope/steepness changes with *x*. Thus, wiggliness is the change in
+estimated spline. The first derivative measures the slope/steepness of
+the curve along with *x*, and the second derivatives measures how much
+the slope/steepness changes with *x*. Thus, wiggliness is the change in
 slope, and the penalty matrix provides penalties for each of the model
-coefficient related to this wiggliness. For instance, here the model
-puts the stiffest penalties on the fifth spline. (I think presumably
-because the dataset has a lot of datapoints in the narrow time region,
-but I am not certain.)
+coefficients related to this wiggliness. The excellent
+[gratia][gratia] will plot the penalty matrix as a heat map. *x* and
+*y* represent model coefficients (weights for the basis functions), so
+along the main diagonal we see a penalty applied to each coefficient. In
+the two off-diagonals, we see neighboring basis functions have their
+weights jointly unpenalized or penalized.   
 
-- describe penalty plot
-
-```{r}
+```{r penalty, fig.width = 7}
 gam_20 %>% 
   gratia::penalty() %>% 
   gratia::draw()
 ```
 
-- count points above zero
+The stiffest penalties are meted out out to the 5th and 6th basis
+functions, I think because these two basis functions cover the most rows
+in the dataset, but I'm not 100% confident in that explanation.
+
+
 
 To see the overfitting in action, we can disable the smoothing penalty
 in the above spline-comparison plot by used fixed (`fx = TRUE`) regression
 splines. Now the model's main goal is to minimize the error, and
-the 50-knot spline basis gives the model many degrees of freedom to work
-with.
+the 50-dimension spline basis gives the model many, many degrees of freedom.
 
 ```{r}
 gam_20_fx <- gam(
   accel ~ s(times, bs = "cr", k = 20, fx = TRUE),
   data = mcycle, 
-  method = "ML"
+  method = "REML"
 )
 
 gam_50_fx <- gam(
   accel ~ s(times, bs = "cr", k = 50, fx = TRUE),
   data = mcycle, 
-  method = "ML"
+  method = "REML"
 )
 
 mcycle$.fitted20_fx <- fitted.values(gam_20_fx)
@@ -471,44 +482,101 @@ mcycle$.fitted50_fx <- fitted.values(gam_50_fx)
 
 ggplot(mcycle) + 
   aes(x = times, y = accel) + 
-  geom_point() +
+  geom_point(alpha = .5) + 
   geom_line(aes(y = .fitted20_fx, color = "20"), size = 1) +
   geom_line(aes(y = .fitted50_fx, color = "50"), size = 1) + 
-  labs(color = "Knots")
+  labs(
+    x = "time after impact [ms]", 
+    y = "acceleration [g]", 
+    color = "Dimension"
+  )
+```
+
+Thus, when we disable the penalty, the 50-dimension splines is free to
+wiggle all over the place.
+
+
+### How much smoothing happened: Effective degrees of freedom
+
+The smoothing parameter, *λ*, is a hyperparameter. It controls the
+spline coefficients (basis function weights), and it is estimated from
+the data. We can set the *λ* manually and crank it up. In this case, the
+model tries to find the least wiggly curve that decreases modeling
+error: A straight line.
+
+```{r}
+gam_20_sp <- gam(
+  accel ~ s(times, bs = "cr", k = 20, sp = 10000000),
+  data = mcycle, 
+  method = "REML"
+)
+
+mcycle$.fitted20_sp <- fitted.values(gam_20_sp)
+
+ggplot(mcycle) + 
+  aes(x = times, y = accel) + 
+  geom_point() +
+  geom_line(aes(y = .fitted, color = "estimated"), size = 1) +
+  geom_line(aes(y = .fitted20_fx, color = "no smoothing"), size = 1) +
+  geom_line(aes(y = .fitted20_sp, color = "10,000,000"), size = 1) + 
+    labs(
+    x = "time after impact [ms]", 
+    y = "acceleration [g]", 
+    color = "Smoothing λ"
+  )
+```
+
+We need some way to talk about how much smoothing took place. On the one
+hand, we might treat each basis function as an independent predictor
+that uses up a full degree of freedom in fitting the curve. On the other
+hand, we might penalize the basis function weights so much that they
+produce a straight line, and thus, the batch of predictors effectively
+acts just like a single predictor variable would. That is, they are
+effectively estimating a curve that has just 1-degree-of-freedom's worth
+of action in it. And indeed this is how mgcv describes the smoothness of the models: It reports the *effective (or estimated) degrees of freedom* (EDFs) behind the smooth. When 
+
+If we look at the model summary, we see that our 20-dimension basis smooth has an EDF of 11.78.
+
+```{r}
+summary(gam_20)
+```
+
+Similarly, our 50-dimension basis smooth has only 12.81 effective
+degrees of freedom, but the unpenalized version uses all 49 of its basis
+function curves and uses 49 degrees of freedom.
+
+```{r}
+gam_50
+
+gam_50_fx
 ```
 
 
 ## The big trick: Turn λ into a random effect variance in a mixed model
 
-The smoothing parameter, λ, is a hyperparameter. It controls the spline
-coefficients, and it is estimated from the data. Crank up λ and the spline coefficients are smooshed into a
-single linear effect. 
+Okay, so far, here's what we have:
 
+  - A spline decomposes a predictor into a number of wiggly basis
+    functions
+  - A penalized spline adds a penalty term to the model to reduce
+    wiggleness.
+  - This penalty shrinks model coefficients so they use a smaller number
+    of degrees of freedom used by the model.
+  - The amount of smoothing is controlled by a hyperparameter *λ*.
 
-```{r}
-gam_20_fx_sp <- gam(
-  accel ~ s(times, bs = "cr", k = 20, sp = 10000000),
-  data = mcycle, 
-  method = "ML"
-)
-mcycle$.fitted20_fx_sp <- fitted.values(gam_20_fx_sp2)
-ggplot(mcycle) + 
-  aes(x = times, y = accel) + 
-  geom_point() +
-  geom_line(aes(y = .fitted20_fx, color = "estimated"), size = 1) +
-  geom_line(aes(y = .fitted20_fx_sp, color = "10,000,000"), size = 1) + 
-  labs(color = "λ")
+We saw another hyperparameter earlier on in this post its job was to
+pull individual parameter estimates closer to 0: *σ*<sub>b</sub>. Both
+of these hyperparameters are estimated from the data and perform
+shrinkage on a batch of related coefficients (random effects or basis
+function weights). 
 
-```
-
-We saw another hyperparameter in the mixed model part of this post: *&sigma;*<sub>b</sub>.
-
-Now, here's the thing. If you do a bunch of linear algebra (as in [slide 7 here][smoothness-slides]), you can express the smooth as a mixed model:
+So, here's the big thing. If you do a bunch of linear algebra (as in
+[slide 7 here][smoothness-slides]), you can express the smooth as a
+mixed model:
 
 
 $$
 \begin{align*}
-
 \mathbf{y} &= \mathbf{X}\mathbf{\beta} + \mathbf{Zb} + \mathbf{\epsilon} \\
 \mathbf{b} &\sim \textsf{Normal}(0, \sigma/\lambda) \\
 \mathbf{\epsilon} &\sim \textsf{Normal}(0,\sigma) \\
@@ -518,13 +586,54 @@ $$
 \lambda &: \textrm{smoothness parameter} \\
 \sigma &: \textrm{residual variance component} \\
 \end{align*}
-
 $$
 
 And right there, on the second line, we see the mixed effects magic
-again: *σ*/*λ*: Model coefficients are related under a common
-distribution so that they can share information with each other. 
-Penalized smooths are randomly varying effects.
+again: *σ*/*λ* = *σ*<sub>b</sub>: Model coefficients are related under a
+common distribution so that they can share information with each other.
+We can smuggle penalized smooths into the mixed effects framework.
+
+## Simple random effects are category smoothers
+
+On consequence of this relationship is that you can walk this relation
+backwards: You can fit a simple random effects using a basis matrix and
+penalty matrix. Indeed, mgcv provides an `"re"` smoother basis so we can
+estimate our mixed model from above a smooth.
+
+```{r}
+gam_radon <- gam(
+  log_radon ~ 1 + s(county, bs = "re"), 
+  data = radon,
+  method = "REML"
+)
+```
+
+In this case, the basis matrix is just a single indicator variable for
+county, and the penalty matrix is a diagonal as each county effect is
+equally penalized.
+
+```{r}
+ggmatplot(model.matrix(gam_radon)[, -1])
+
+gam_radon %>% 
+  gratia::penalty() %>% 
+  gratia::draw() + 
+  theme(axis.text = element_blank())
+```
+
+What I think is think is the coolest feature of random intercepts as smooths is that what the effective degrees of freeom tells us:
+
+```{r}
+summary(gam_radon)
+```
+
+
+
+```{r}
+
+```
+
+
 
 
 ## Consequence 1: You can turn splines into mixed models
