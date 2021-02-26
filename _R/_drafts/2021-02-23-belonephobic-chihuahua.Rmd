@@ -1,8 +1,19 @@
 ---
-title: Draft post (2021-02-23)
-excerpt: ''
-tags: ''
+title: "ssss"
+excerpt: Weighted wiggles and smoothed categories
+tags:
+  - r
+  - nonstandard evaluation
+  - dplyr
+  - babynames
+share: true
+header:
+  overlay_image: "assets/images/2021-02-spline.png"
+  image_description: "A drafting spline"
+  overlay_filter: rgba(10, 10, 10, 0.1)
+  caption: "Drawing credit: [**Pearson Scott Foresman**](https://commons.wikimedia.org/wiki/File:Spline_(PSF).png)"
 ---
+
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
