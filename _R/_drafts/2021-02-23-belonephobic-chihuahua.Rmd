@@ -599,7 +599,7 @@ We can smuggle penalized smooths into the mixed effects framework.
 
 
 
-### Consequence 1: You can turn splines into mixed models
+### So... you can turn splines into mixed models
 
 What this means is that we can use nlme or lme4 to estimate a smooth as
 mixed effects model. mgcv provides this feature in its aptly named `smooth2random()` function.
@@ -697,47 +697,89 @@ ggplot(mcycle) +
 
 
 
-
-
-
-
-
-
-
-
 I probably won't be converting smoothing bases into mixed effects model
 matrices and fitting them with lme4 anytime soon, but it's useful to
-know about this fact.
+know about this fact because of the following fact.
 
 
-### That seems obscure, but it is what brms uses!
+### This point seems obscure, but it is what brms uses!
+
+What happens when we fit a smooth in brms? We are fitting a mixed
+effects model.
+
+```{r}
+b_gam_20 <- brm(
+  accel ~ s(times, bs = "cr", k = 20),
+  data = mcycle, 
+  family = gaussian,
+  file = "b-gam-20"
+)
+summary(b_gam_20)
+```
+
+You see, `sds(times_1)`? That's the variance of smooth weights. You see
+`stimes_1`? That the single fixed effects term from above. I'm pretty sure about this because I learned `smooth2random()` from studying the brms source code.
+
+Now, if we look at the actual Stan code used to fit the model, we see a
+mixed effects model. **You can skim this. The important parts are the
+parameters and transformed parameters.**
+
+```{r}
+b_gam_20$model
+```
+
+Okay, that's a lot. But let me highlight and translate the key part of it.
+
+$$
+\begin{align*}
+  
+   \mathbf{S} &: \texttt{s_1_1} & \texttt{// actual spline coefficients}\\
+   \mathbf{\sigma} &:  \texttt{sds_1_1} & \texttt{// standard deviations of spline coefficients}\\
+   \mathbf{Z} &:  \texttt{zs_1_1} & \texttt{// standarized spline coefficients}\\
+   \mathbf{S} &= \sigma \cdot \mathbf{Z} & \texttt{s_1_1 = sds_1_1 * zs_1_1}; \\
+   \mathbf{Z} &\sim \textsf{Normal}(0, 1) & \texttt{target += std_normal_lpdf(zs_1_1);}\\
+   \mathbf{\sigma} &\sim \textsf{StudentT}(3, 0, 35.6) & \texttt{target += student_t_lpdf(sds_1_1 | 3, 0, 35.6) ...}\\
+
+\end{align*}
+$$
+
+The spline coefficients start as *z* scores, drawn from normal
+distribution with mean 0 and a standard deviation of 1. They are then
+scaled by *σ*, a scaling factor. This scaling factor acts as the
+hyperparameter that is learned from the data. This formulation of a
+mixed model is call the "non-centered parameterization". It's one of
+those topics you eventually run into [in the Stanverse][stan-ncp].
+Richard McElreath does a [friendly tour of it][rm-mmm] as a matter
+of algebra. For a deeper dive, Michael Betancourt [covers the
+topic][mb-ncp] in the context of debugging degenerate posteriors.
+
+You see completely analogous code in the Bayesian radon model above.
+I'll just show the relevant part:
+
+```{r}
+b_radon$model
+#> ...
+#> parameters {
+#>   ...
+#>   vector<lower=0>[M_1] sd_1;  // group-level standard deviations
+#>   vector[N_1] z_1[M_1];  // standardized group-level effects
+#> }
+#> transformed parameters {
+#>   vector[N_1] r_1_1;  // actual group-level effects
+#>   r_1_1 = (sd_1[1] * (z_1[1]));
+#> }
+#> model {
+#>   ...
+#>   target += student_t_lpdf(sd_1 | 3, 0, 2.5)
+#>     - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+#>   target += std_normal_lpdf(z_1[1]);
+#> }
+```
+
+It's the same code!
 
 
 
-Th
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### The convenient fiction
 
 
 
@@ -750,6 +792,8 @@ On consequence of this relationship is that you can walk this relation
 backwards: You can fit a simple random effects using a basis matrix and
 penalty matrix. Indeed, mgcv provides a random effects (`"re"`) smoother
 basis so we can estimate our mixed model from above using a smooth.
+
+- link
 
 ```{r}
 gam_radon <- gam(
@@ -772,13 +816,15 @@ gam_radon %>%
   theme(axis.text = element_blank())
 ```
 
-mgcv knows about how *σ*/*λ* = *σ*<sub>b</sub> and it will provide the random effect variance estimate for us with gam.vcomp() (variance components)
+mgcv knows about how *σ*/*λ* = *σ*<sub>b</sub> and it will provide the
+random effect variance estimate for us with gam.vcomp() (variance
+components)
 
 ```{r}
 gam.vcomp(gam_radon) %>% round(3)
 ```
 
-which closely matches the estimates from the Bayesian model above
+which closely matches the estimates from the Bayesian model above:
 
 ```{r}
 b_radon %>% 
@@ -814,133 +860,6 @@ parameters.
 
 
 
-I think this connection is incredible.
-
-
-```{r}
-gam.vcomp(gam_20)
-```
-
-### The Stan code behind the model
-
-Above I coverd
-
-
-
-## A mixed model in Stan
-
-Let's look at the Stan code used to fit the above model in Stan.
-
-```{r}
-pull_stan_code_block <- function(code, what) {
-  lines <- stringr::str_split(code, "\n")[[1]]
-  starting_line <- str_which(lines, paste0("^", what))
-  offsets <- lines[starting_line:length(lines)] %>% 
-    str_which("^\\}$")
-  lines[seq(starting_line, starting_line + offsets[1] - 1)] %>% 
-    paste0(collapse = "\n")
-}
-what <- "parameters"
-
-```
-
-
-The model uses the so-called noncentered parameterization where random effects are added to the grand mean. Richard Mcelreath does a friendly tour of it here. https://elevanth.org/blog/2017/09/07/metamorphosis-multilevel-model/
-
-For a deeper dive, Michael Betancourt covers the topic in the context of debugging degenerate posteriors. https://betanalpha.github.io/assets/case_studies/hierarchical_modeling.html#24_Normal_Hierarchical_Models
-
-
-https://mc-stan.org/docs/2_26/stan-users-guide/reparameterization-section.html#non-centered-parameterization
-
-$$
-\begin{align*}
-   
-   \text{radon}_i &\sim \mathsf{Normal}(\text{mean}_{\text{county}[i]}, \sigma)& \text{[x]} \\
-   \text{mean}_{\text{county}[i]} &= \mu + \eta_{\text{county}[i]} & \text{[counties are population mean plus offset]} \\
-   \alpha_{\text{county}[i]} &= \tau \cdot z_{\text{county}[i]}
- & \text{[offsets are z scores]} \\
-   \mu &\sim \mathsf{StudentT}(\nu=3, 0, 2.5) & \text{[population mean]} \\
-   z_{\text{county}[i]} &\sim \mathsf{Normal}(0, 1) & \text{[variability between counties]} \\
-   \tau &\sim \mathsf{StudentT}(3, 0, 2.5) & \text{[scale of z scores]} \\
-   \sigma &\sim \mathsf{StudentT}(3, 1.3, 2.5) & \text{[variability within counties]} \\
-\end{align*}
-$$
-
-These equations are 
-
-
-```{r}
-cat(stancode(b_radon))
-```
-
-
-
-
-
-
-```{r}
-
-aweights <- tibble(
-    x  = coef(gam_50_fx)[-1],
-    y  = coef(gam_50)[-1]
-  )
-  
-weights <- bind_rows(
-  tibble(b = coef(gam_50)[-1], k = seq_along(b), fx = FALSE),
-  tibble(b = coef(gam_50_fx)[-1], k = seq_along(b), fx = TRUE)
-)
-
-weights <- bind_rows(
-  tibble(b = coef(gam_20)[-1], k = seq_along(b), fx = FALSE),
-  tibble(b = coef(gam_20_fx)[-1], k = seq_along(b), fx = TRUE)
-)
-
-ggplot(aweights) + aes(x = x, y = y - x) + geom_point() 
-
-ggplot(weights) + aes(x = k, y = b, color = fx) + geom_point()
-
-coef(gam50_fx)[-1]
-
-coef(gam50)[-1]
-coef(gam50_fx)[-1]
-
-```
-
-
-
----------------
-
-```{r}
-mcycle <- MASS::mcycle
-
-b_gam_20 <- brm(
-  accel ~ s(times, bs = "cr", k = 20),
-  data = mcycle, 
-  family = gaussian,
-  file = "b-gam-20"
-)
-summary(b_gam_20)
-gam.vcomp(gam_20, rescale = FALSE)
-
-summary(gam_20)
-
-gam_20
-b_cycle_code <- make_stancode(
-  accel ~ s(times, bs = "cr", k = 20),
-  data = mcycle, 
-  family = gaussian
-)
-b_cycle_code
-```
-
-
-## Another crack at the idea
-
-Recall that in my partial pooling post, I contrasted three models:
-
-- a complete pooling model
-- a no pooling model
-- a partial pooling model
 
 
 ## Okay, why are you telling me this?
