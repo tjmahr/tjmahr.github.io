@@ -82,10 +82,11 @@ Consider the [`radon` dataset][radon] example from [Gelman and Hill
 (2007)][arm-book]. Radon measurements were taken in Minnesota
 counties. We would like to estimate the average radon measurement for
 each county. We have a repeated measures situation, and some counties
-have more observations than others. We use a mixed effects model to
-estimate a population distribution of county estimates, and the
-county-level estimates are randomly varying effects. They are drawn from
-a random distribution, the scale of which we estimate from the data.
+have more observations than others. We use a Bayesian mixed effects
+model with [brms](https://github.com/paul-buerkner/brms) to estimate a
+population distribution of county estimates, and the county-level
+estimates are randomly varying effects. They are drawn from a random
+distribution, the scale of which we estimate from the data.
 
 
 
@@ -199,13 +200,16 @@ in the plot above.
 
 
 ```r
-ggplot(radon_aug) + 
-  aes(x = county_n, y = observed_minus_model) + 
-  geom_point() +
-  labs(
-    x = "Number of observations in county",
-    y = "Observed mean - estimated mean"
-  ) 
+radon_aug %>% 
+  ungroup() %>% 
+  distinct(county, county_n, observed_minus_model) %>% 
+  ggplot() + 
+    aes(x = county_n, y = observed_minus_model) + 
+    geom_point(alpha = .5) +
+    labs(
+      x = "Number of observations in county",
+      y = "Observed mean - estimated mean"
+    ) 
 ```
 
 <img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/shrinkage-by-n-1.png" title="Plot with number of observations on the x axis and the difference between the observed and estimated means on the y axis. There is a smaller difference for counties with more data." alt="Plot with number of observations on the x axis and the difference between the observed and estimated means on the y axis. There is a smaller difference for counties with more data." width="66%" style="display: block; margin: auto;" />
@@ -221,9 +225,10 @@ smoothed fixed effects.
 
 ## But what's smoothing?
 
-Now let's walk through a generalized additive model to demonstrate a
-penalized smoothing spline. That was a mouth full, but basically
-additive models are like the smoothing expansion pack for the
+Now let's walk through a generalized additive model in
+[mgcv](https://cran.r-project.org/web/packages/mgcv/index.html) to
+demonstrate a penalized smoothing spline. That was a mouth full, but
+basically additive models are like the smoothing expansion pack for the
 standard linear model. We're still doing regression, but we have some
 new syntax and our models can do nonlinear relationships more easily
 now.
@@ -233,7 +238,7 @@ are weighted to approximate a nonlinear trend, but this is not going to
 be a full tutorial. Other people have made video introductions to
 [additive models][gs-gam] or the [mgcv package][nr-gam]. I first
 learned them from [a tutorial for linguists][ms-gam] and then from
-[the MGCV textbook][mgcv-textbook], but there are [other resources
+[the mgcv textbook][mgcv-textbook], but there are [other resources
 online][gam-resources].
 
 
@@ -291,6 +296,7 @@ smooth trend called a *spline*. The name *splines* is inspired by
 drafting splines which are flexible strips of wood that can be weighted
 and anchored in place to make a nice curve.
 
+
 To reiterate, conceptually, we are decomposing the `times` predictor
 into a bunch of individual wiggly lines (basis functions), and these are
 weighted and summed together to approximate some nonlinear function. My
@@ -302,7 +308,10 @@ Rethinking course. One line I appreciate from his description is that
 with splines, we replace a predictor variable, like `times`, with a set
 of "synthetic" predictor variables.
 
-An easy way to pull the wiggles is to use the model matrix. We have 20 columns for the intercept and 19 basis functions.
+{% include figure image_path="/assets/images/2021-02-spline.png" alt="An illustration of a drafting spline." caption="A drafting spline is a flexible strip of wood that is anchored at a few points so that one can create smooth curves. Illustration by [Pearson Scott Foresman](https://commons.wikimedia.org/wiki/File:Spline_(PSF).png#file)." %}{: style="max-width: 50%; display: block; margin: 2em auto;"}
+
+An easy way to pull the wiggles is to use the model matrix. We have 20
+columns for the intercept and 19 basis functions.
 
 
 ```r
@@ -438,9 +447,9 @@ Behind the scenes, the model is trying to balance two competing goals.
 On the one hand we want to maximize the fit to the data. In linear
 regression, this goal amounts to minimizing the sum of squared errors.
 On the other hand, we want to minimize wiggliness (overfitting). In
-penalized smoothing splines, this is done by first specifying a penalty matrix that defines
-*wiggliness* for that spline basis. These two features are pitted
-against each other in the following equation: 
+penalized smoothing splines, this is done by first specifying a penalty
+matrix that defines *wiggliness* for that spline basis. These two
+features are pitted against each other in the following equation: 
 
 $$
 \begin{align*}
@@ -521,7 +530,7 @@ ggplot(mcycle) +
   )
 ```
 
-<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/unnamed-chunk-5-1.png" title="The dataset plotted with two unpenalized smoothing splines. The 50-dimension spline is very wiggly." alt="The dataset plotted with two unpenalized smoothing splines. The 50-dimension spline is very wiggly." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/fx-plot-1.png" title="The dataset plotted with two unpenalized smoothing splines. The 50-dimension spline is very wiggly." alt="The dataset plotted with two unpenalized smoothing splines. The 50-dimension spline is very wiggly." width="80%" style="display: block; margin: auto;" />
 
 Thus, when we disable the penalty, the 50-dimension splines is free to
 wiggle all over the place.
@@ -547,7 +556,7 @@ mcycle$.fitted20_sp <- fitted.values(gam_20_sp)
 
 ggplot(mcycle) + 
   aes(x = times, y = accel) + 
-  geom_point() +
+  geom_point(alpha = .5) +
   geom_line(aes(y = .fitted, color = "estimated"), size = 1) +
   geom_line(aes(y = .fitted20_fx, color = "no smoothing"), size = 1) +
   geom_line(aes(y = .fitted20_sp, color = "10,000,000"), size = 1) + 
@@ -558,7 +567,7 @@ ggplot(mcycle) +
   )
 ```
 
-<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/unnamed-chunk-6-1.png" title="The data plotted with three smooths. One of them is a completely flat line. It has a penalty of 10000000." alt="The data plotted with three smooths. One of them is a completely flat line. It has a penalty of 10000000." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/lambda-plot-1.png" title="The data plotted with three smooths. One of them is a completely flat line. It has a penalty of 10000000." alt="The data plotted with three smooths. One of them is a completely flat line. It has a penalty of 10000000." width="80%" style="display: block; margin: auto;" />
 
 We need some way to talk about how much smoothing took place. On the one
 hand, we might treat each basis function as an independent predictor
@@ -635,6 +644,7 @@ gam_50_fx
 ```
 
 
+
 ## The big trick: Turn λ into a random effect variance in a mixed model
 
 Okay, so far, here's what we have:
@@ -654,8 +664,10 @@ shrinkage on a batch of related coefficients (random effects or basis
 function weights). 
 
 So, here's the big thing... If you do a bunch of linear algebra (as in
-[slide 7 here][smoothness-slides]), you can express the smooth as a
-mixed model:
+[slide 7 here][smoothness-slides] or the Appendix in
+[Wood, 2004][wood-2004]), you can express the smooth as a mixed
+model:
+
 
 
 $$
@@ -672,9 +684,10 @@ $$
 $$
 
 And right there, on the second line, we see the mixed effects magic
-again: *σ*/*λ* = *σ*<sub>*b*</sub>: Model coefficients are related under a
-common distribution so that they can share information with each other.
-We can smuggle penalized smooths into the mixed effects framework.
+again: *σ*/*λ* = *σ*<sub>*b*</sub>: Model coefficients are related under
+a common distribution so that they can share information with each
+other. We can smuggle penalized smooths into the mixed effects
+framework.
 
 
 
@@ -685,42 +698,120 @@ We can smuggle penalized smooths into the mixed effects framework.
 
 ### So... you can turn splines into mixed models?
 
-Yes. What this means is that we can use nlme or lme4 to estimate a smooth as
-mixed effects model. mgcv provides this feature in its aptly named
-[`smooth2random()`][smooth2random] function.
 
-Below you can see the extent of the internal transformation needed to
-convert our nice wiggly cubic regression basis into matrices for the mixed effects
-framework.
+
+Yes. What this means is that we can use nlme or
+[lme4](https://cran.r-project.org/web/packages/lme4/index.html) to
+estimate a smooth as a mixed effects model. mgcv provides this feature
+in its aptly named [`smooth2random()`][smooth2random] function.
+Let's walk through what happens to our spline basis along the way.
+
+First, let's set up our cubic regression spline basis, manually outside
+of a regression formula. 
+
+
+```r
+basis_cr <- smoothCon(
+  s(times, k = 20, bs = "cr"), 
+  data = mcycle, 
+  absorb.cons = TRUE
+)
+
+p1 <- ggmatplot(basis_cr[[1]]["X"][[1]]) + 
+  labs(title = "original spline basis") 
+
+p2 <- gratia::penalty(basis_cr[[1]]) %>%
+  gratia::draw() +
+  theme(
+    panel.background = element_blank(),
+    axis.text.x = element_text(angle = 90, vjust = .5)
+  ) + 
+  guides(fill = FALSE) +
+  labs(title = "penalty matrix")
+
+# for combining plots together
+library(patchwork)
+
+p1 + p2 
+```
+
+<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/mixed-matrix-raw-1.png" title="Left: A matrix plot with one line per column. This looks like the bases plotted above, with 1 line per column and they form a nice series of spiky lines. Right: The penalty matrix shown earlier." alt="Left: A matrix plot with one line per column. This looks like the bases plotted above, with 1 line per column and they form a nice series of spiky lines. Right: The penalty matrix shown earlier." width="100%" style="display: block; margin: auto;" />
+
+But we are going to reparameterize model so that the penalty matrix is
+just a diagonal of 1s using `diagonal.penalty = TRUE`. Now, our basis is
+no longer a row of pointy curves. 
 
 
 ```r
 # Construct a smoothing basis outside of a model
-sm_raw <- smoothCon(
+basis_cr_diag <- smoothCon(
   s(times, k = 20, bs = "cr"), 
   data = mcycle, 
   absorb.cons = TRUE, 
   diagonal.penalty = TRUE
 )
 
-re <- smooth2random(sm_raw[[1]], "", type = 2)
+p1b <- ggmatplot(basis_cr_diag[[1]]["X"][[1]]) + 
+  labs(title = "natural parameterization")
 
-# 1 fixed effect and 18 random effect columns
-mixed_matrix <- cbind(re$Xf, re$rand$Xr)
-ggmatplot(mixed_matrix) + 
-  labs(title = NULL)
+p2b <- gratia::penalty(basis_cr_diag[[1]]) %>%
+  gratia::draw() +
+  theme(
+    panel.background = element_blank(),
+    axis.text.x = element_text(angle = 90, vjust = .5)
+  ) + 
+  guides(fill = FALSE) +
+  labs(title = "penalty matrix")
+
+p1b + p2b 
 ```
 
-<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/mixed_matrix-1.png" title="A matrix plot with one line per column. Unlike the other ones, the lines here are not nice and bumpy." alt="A matrix plot with one line per column. Unlike the other ones, the lines here are not nice and bumpy." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/mixed-matrix-diag-1.png" title="Left: A matrix plot with one line per column. Unlike the other ones, the lines here are not nice and bumpy. Right: The penalty matrix. It's just a diagonal of 1s except for the last element on the diagonal." alt="Left: A matrix plot with one line per column. Unlike the other ones, the lines here are not nice and bumpy. Right: The penalty matrix. It's just a diagonal of 1s except for the last element on the diagonal." width="100%" style="display: block; margin: auto;" />
+
+If my reading of Wood's textbook is correct, this is the "natural"
+parameterization of a single-variable smoothing spline. (The source code
+for `smoothCon()` in mgcv also calls an internal function called
+`nat.param()` so I think I am the right track here.) 
+
+Take a look at F19 x F19 in the above plot. It snuck past me at first,
+but this basis function is not penalized. In a mixed effect model, an
+unpenalized parameter is a fixed effect. Thus, when `smooth2random()`
+creates a one-column fixed effects matrix and stores the remaining curves
+in a random effects matrix, we find that the unpenalized column is the
+fixed effects column.
 
 
+```r
+re <- smooth2random(basis_cr_diag[[1]], "", type = 2)
 
+# Confirm that the fixed effect column and the 
+# unpenalized column are the same
+unpenalized_column <- basis_cr_diag[[1]]["X"][[1]][, 19, drop = FALSE]
+all(unpenalized_column == re$Xf)
+#> [1] TRUE
 
+p1c <- ggmatplot(re$Xf) + 
+  labs(title = "fixed effects matrix") +
+  expand_limits(y = c(-30, 80))
 
-I don't understand it very well myself, and I probably won't be
+p2c <- ggmatplot(re$rand$Xr) + 
+  labs(title = "random effects matrix") +
+  expand_limits(y = c(-30, 80))
+
+p1c + p2c
+```
+
+<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/mixed-matrix-1.png" title="Left: A single rising curve plotted as the fixed effects matrix. Right: 18 wiggly curves from the previous figure plotted as the random effects matrix." alt="Left: A single rising curve plotted as the fixed effects matrix. Right: 18 wiggly curves from the previous figure plotted as the random effects matrix." width="100%" style="display: block; margin: auto;" />
+
+I still don't understand the transformation (that takes place from the
+original basis matrix) very well myself, and I probably won't be
 converting smoothing bases into mixed effects model matrices and fitting
-them with lme4 anytime soon, but it's useful to know about this idea
-because of the following fact.
+them with lme4 anytime soon.
+[gamm4](https://cran.r-project.org/web/packages/gamm4/index.html) fits
+its smooths with lme4, but by the looks of it, it's [not simply a
+matter of calling of `lmer()`][gamm4-code]. Still, this mixed model
+reparameterization is useful to know about because of the following
+fact.
 
 
 ### This point seems obscure, but it is what brms uses!
@@ -763,7 +854,7 @@ summary(b_gam_20)
 ```
 
 You see `sds(times_1)`? That's the variance of smooth weights. You see
-`stimes_1`? That the singe fixed effects term (`re$Xf`) in the code
+`stimes_1`? That the single fixed effects term (`re$Xf`) in the code
 above. I'm pretty sure about this because I learned `smooth2random()`
 from studying the brms source code.
 
@@ -857,9 +948,6 @@ I'll just show the relevant part:
 
 
 
-
-
-
 ```r
 b_radon$model
 #> ...
@@ -910,7 +998,7 @@ county.
 ggmatplot(model.matrix(gam_radon)[, -1])
 ```
 
-<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/unnamed-chunk-15-1.png" title="A series are 85 spikes." alt="A series are 85 spikes." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/unnamed-chunk-13-1.png" title="A series are 85 spikes." alt="A series are 85 spikes." width="80%" style="display: block; margin: auto;" />
 
 (Yikes, that one stings the eyes!)
 
@@ -925,7 +1013,7 @@ gam_radon %>%
   theme(axis.text = element_blank())
 ```
 
-<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/unnamed-chunk-16-1.png" title="A penalty matrix but only the diagonal is active." alt="A penalty matrix but only the diagonal is active." width="80%" style="display: block; margin: auto;" />
+<img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/unnamed-chunk-14-1.png" title="A penalty matrix but only the diagonal is active." alt="A penalty matrix but only the diagonal is active." width="80%" style="display: block; margin: auto;" />
 
 
 mgcv knows about how *σ*/*λ* = *σ*<sub>b</sub> and it will provide the
@@ -1020,13 +1108,16 @@ loo(b_radon)
 Here `p_loo` is the effective number of parameters from a leave-one-out
 cross-validation method. It's around 45. Our mgcv model has around 41.6
 parameters (39.6 from the smooth plus intercept and sigma). These two
-parameter estimating methods are unrelated (as far as I know), but they
-both seem to telling us something similar about how much information in
-`county` variable we have after partially pooling down the model
-parameters.
+parameter estimating methods are <strike>unrelated (as far as I
+know)</strike> related ([thanks Avi
+Vehtari!](https://twitter.com/avehtari/status/1366085190074961921?s=20)),
+and they both seem to telling us something similar about how much
+information in `county` variable we have after partially pooling down
+the model parameters.
 
-For a deeper dive on random effects, Gavin Simpson recently wrote about [how to use mgcv for random
-effects][gs-re], so I encourage readers to look at that post. 
+For a deeper dive on random effects, Gavin Simpson recently wrote about
+[how to use mgcv for random effects][gs-re], so I encourage readers
+to look at that post. 
 
 
 ## Okay, why are you telling me this?
@@ -1057,7 +1148,7 @@ distinction when we use the phrase "random effects".
 
 ***
 
-*Last knitted on 2021-02-26. [Source code on
+*Last knitted on 2021-03-01. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-random-effects-penalized-splines-same-thing.Rmd).*[^si] 
 
 [^si]: 
@@ -1074,7 +1165,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-26                  
+    #>  date     2021-03-01                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  ! package        * version    date       lib
@@ -1161,7 +1252,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
     #>    mvtnorm          1.1-1      2020-06-09 [1]
     #>    nlme           * 3.1-152    2021-02-04 [1]
     #>    nloptr           1.2.2.2    2020-07-02 [1]
-    #>    patchwork        1.1.1      2020-12-17 [1]
+    #>    patchwork      * 1.1.1      2020-12-17 [1]
     #>    pillar           1.5.0      2021-02-22 [1]
     #>    pkgbuild         1.2.0      2020-12-15 [1]
     #>    pkgconfig        2.0.3      2019-09-22 [1]
@@ -1254,7 +1345,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
     #>  CRAN (R 4.0.0)                      
     #>  CRAN (R 4.0.2)                      
     #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
+    #>  CRAN (R 4.0.3)                      
     #>  CRAN (R 4.0.3)                      
     #>  CRAN (R 4.0.3)                      
     #>  CRAN (R 4.0.2)                      
@@ -1412,3 +1503,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
 
 [loo]: https://mc-stan.org/loo/reference/loo.html "Efficient approximate leave-one-out cross-validation (LOO)"
 
+[wiki-spline]: https://commons.wikimedia.org/wiki/File:Spline_(PSF).png "File:Spline (PSF).png on Wikimedia"
+
+[wood-2004]: https://www.tandfonline.com/doi/abs/10.1198/016214504000000980 "Stable and Efficient Multiple Smoothing Parameter Estimation for Generalized Additive Models"
+
+[gamm4-code]: https://github.com/cran/gamm4/blob/8c89289807ee7092229b13d7129b3eca33101a89/R/gamm4.r "Source code from the gamm4 package"
