@@ -736,7 +736,7 @@ $$
   
    \mathbf{S} &: \texttt{s_1_1} & \texttt{// actual spline coefficients}\\
    \mathbf{\sigma} &:  \texttt{sds_1_1} & \texttt{// standard deviations of spline coefficients}\\
-   \mathbf{Z} &:  \texttt{zs_1_1} & \texttt{// standarized spline coefficients}\\
+   \mathbf{Z} &:  \texttt{zs_1_1} & \texttt{// standardized spline coefficients}\\
    \mathbf{S} &= \sigma \cdot \mathbf{Z} & \texttt{s_1_1 = sds_1_1 * zs_1_1}; \\
    \mathbf{Z} &\sim \textsf{Normal}(0, 1) & \texttt{target += std_normal_lpdf(zs_1_1);}\\
    \mathbf{\sigma} &\sim \textsf{StudentT}(3, 0, 35.6) & \texttt{target += student_t_lpdf(sds_1_1 | 3, 0, 35.6) ...}\\
@@ -857,7 +857,7 @@ cross-validation method. It's around 45. Our mgcv model has around 41.6
 parameters (39.6 from the smooth plus intercept and sigma). These two
 parameter estimating methods are <strike>unrelated (as far as I
 know)</strike> related ([thanks Avi
-Vehtari!](https://twitter.com/avehtari/status/1366085190074961921?s=20)),
+Vehtari](https://twitter.com/avehtari/status/1366085190074961921?s=20)),
 and they both seem to telling us something similar about how much
 information in `county` variable we have after partially pooling down
 the model parameters.

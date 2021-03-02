@@ -116,7 +116,7 @@ ppoints
 #>         (1L:n - a)/(n + 1 - 2 * a)
 #>     else numeric()
 #> }
-#> <bytecode: 0x0000000014c78a48>
+#> <bytecode: 0x00000000142fc050>
 #> <environment: namespace:stats>
 ```
 
@@ -511,16 +511,16 @@ admit that I copied extensively from some sources:
   - The [extensions chapters](https://ggplot2-book.org/extensions.html) in the
     ggplot2 book
 
-The code walkthrough below will make the work seem effortless, but I spent a while
-trying to figure it out!
+The code walkthrough below will make the work seem effortless, but I
+spent a while trying to figure it out!
 
-The apparent workflow is to write a user-facing "layer" function and then create
-`ggProto()` objects that do the work behind the scenes, so that's what we will
-do. 
+The apparent workflow is to write a user-facing "layer" function and
+then create `ggProto()` objects that do the work behind the scenes, so
+that's what we will do.
 
-We start with `stat_worm()`. I copied the `stat_qq()` source code and removed
-some options for supporting other distributions. I code-commented above the lines that
-are not boilerplot. 
+We start with `stat_worm()`. I copied the `stat_qq()` source code and
+removed some options for supporting other distributions. I
+code-commented above the lines that are not boilerplate. 
 
 ```r
 stat_worm <- function(
@@ -960,20 +960,22 @@ ggplot(subset(df, example == "fat tails")) +
 
 <img src="/figs/2020-08-26-quantile-quantile-plots-from-scratch/wp10-1.png" title="Two cumulative plots showing them trading places." alt="Two cumulative plots showing them trading places." width="80%" style="display: block; margin: auto;" />
 
-We can see how the lines switch places a few times. That the normal line is to
-right of the empirical line at *y* = .75 means that at that quantile, the normal
-distribution has larger values than the scaled empirical distribution. For the
-thin tailed data, the same reasoning applies but once again, it's *flipped*.
+We can see how the lines switch places a few times. That the normal line
+is to right of the empirical line at *y* = .75 means that at that
+quantile, the normal distribution has larger values than the scaled
+empirical distribution. For the thin tailed data, the same reasoning
+applies but once again, it's *flipped*.
 
-Finally, I want to advertise that Table 2 in the [worm plot paper][wp]
-summarizes these heuristics (like *U*-shaped and *S*-shaped worms) and includes
-other heuristics about the slope and intercept of the worm.
+Finally, I want to advertise that Table 2 in the [worm plot
+paper][wp] summarizes these heuristics (like *U*-shaped and
+*S*-shaped worms) and includes other heuristics about the slope and
+intercept of the worm.
 
 
 
 ***
 
-*Last knitted on 2021-02-15. [Source code on
+*Last knitted on 2021-03-02. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2020-08-26-quantile-quantile-plots-from-scratch.Rmd).*[^si] 
 
 [^si]: 
@@ -982,7 +984,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2020-08-26-qua
     sessioninfo::session_info()
     #> - Session info ---------------------------------------------------------------
     #>  setting  value                       
-    #>  version  R version 4.0.3 (2020-10-10)
+    #>  version  R version 4.0.4 (2021-02-15)
     #>  os       Windows 10 x64              
     #>  system   x86_64, mingw32             
     #>  ui       RTerm                       
@@ -990,79 +992,81 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2020-08-26-qua
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-02-15                  
+    #>  date     2021-03-02                  
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  package      * version date       lib source        
-    #>  abind          1.4-5   2016-07-21 [1] CRAN (R 4.0.0)
-    #>  assertthat     0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
-    #>  car            3.0-10  2020-09-29 [1] CRAN (R 4.0.2)
-    #>  carData        3.0-4   2020-05-22 [1] CRAN (R 4.0.0)
-    #>  cellranger     1.1.0   2016-07-27 [1] CRAN (R 4.0.2)
-    #>  cli            2.3.0   2021-01-31 [1] CRAN (R 4.0.3)
-    #>  colorspace     2.0-0   2020-11-11 [1] CRAN (R 4.0.3)
-    #>  crayon         1.4.1   2021-02-08 [1] CRAN (R 4.0.3)
-    #>  curl           4.3     2019-12-02 [1] CRAN (R 4.0.2)
-    #>  data.table     1.13.6  2020-12-30 [1] CRAN (R 4.0.3)
-    #>  DBI            1.1.1   2021-01-15 [1] CRAN (R 4.0.3)
-    #>  digest         0.6.27  2020-10-24 [1] CRAN (R 4.0.3)
-    #>  dplyr          1.0.4   2021-02-02 [1] CRAN (R 4.0.3)
-    #>  ellipsis       0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
-    #>  evaluate       0.14    2019-05-28 [1] CRAN (R 4.0.2)
-    #>  farver         2.0.3   2020-01-16 [1] CRAN (R 4.0.2)
-    #>  forcats        0.5.1   2021-01-27 [1] CRAN (R 4.0.3)
-    #>  foreign        0.8-81  2020-12-22 [1] CRAN (R 4.0.3)
-    #>  gamlss         5.2-0   2020-09-12 [1] CRAN (R 4.0.2)
-    #>  gamlss.data    5.1-4   2019-05-15 [1] CRAN (R 4.0.0)
-    #>  gamlss.dist    5.1-7   2020-07-13 [1] CRAN (R 4.0.2)
-    #>  generics       0.1.0   2020-10-31 [1] CRAN (R 4.0.3)
-    #>  ggplot2      * 3.3.3   2020-12-30 [1] CRAN (R 4.0.3)
-    #>  git2r          0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
-    #>  glue           1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
-    #>  gridGraphics   0.5-1   2020-12-13 [1] CRAN (R 4.0.3)
-    #>  gtable         0.3.0   2019-03-25 [1] CRAN (R 4.0.2)
-    #>  haven          2.3.1   2020-06-01 [1] CRAN (R 4.0.2)
-    #>  here           1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
-    #>  highr          0.8     2019-03-20 [1] CRAN (R 4.0.2)
-    #>  hms            1.0.0   2021-01-13 [1] CRAN (R 4.0.3)
-    #>  knitr        * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
-    #>  labeling       0.4.2   2020-10-20 [1] CRAN (R 4.0.2)
-    #>  lattice        0.20-41 2020-04-02 [1] CRAN (R 4.0.2)
-    #>  lifecycle      1.0.0   2021-02-15 [1] CRAN (R 4.0.3)
-    #>  magrittr       2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
-    #>  MASS           7.3-53  2020-09-09 [1] CRAN (R 4.0.3)
-    #>  Matrix         1.2-18  2019-11-27 [1] CRAN (R 4.0.3)
-    #>  munsell        0.5.0   2018-06-12 [1] CRAN (R 4.0.2)
-    #>  nlme           3.1-152 2021-02-04 [1] CRAN (R 4.0.3)
-    #>  openxlsx       4.2.3   2020-10-27 [1] CRAN (R 4.0.3)
-    #>  patchwork    * 1.1.1   2020-12-17 [1] CRAN (R 4.0.3)
-    #>  pillar         1.4.7   2020-11-20 [1] CRAN (R 4.0.3)
-    #>  pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.0.2)
-    #>  purrr          0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
-    #>  R6             2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
-    #>  ragg           0.4.1   2021-01-11 [1] CRAN (R 4.0.3)
-    #>  Rcpp           1.0.6   2021-01-15 [1] CRAN (R 4.0.3)
-    #>  readxl         1.3.1   2019-03-13 [1] CRAN (R 4.0.2)
-    #>  rio            0.5.16  2018-11-26 [1] CRAN (R 4.0.2)
-    #>  rlang          0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
-    #>  rprojroot      2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
-    #>  scales         1.1.1   2020-05-11 [1] CRAN (R 4.0.2)
-    #>  sessioninfo    1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
-    #>  stringi        1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
-    #>  stringr        1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
-    #>  survival       3.2-7   2020-09-28 [1] CRAN (R 4.0.2)
-    #>  systemfonts    1.0.0   2021-02-01 [1] CRAN (R 4.0.3)
-    #>  textshaping    0.2.1   2020-11-13 [1] CRAN (R 4.0.3)
-    #>  tibble       * 3.0.6   2021-01-29 [1] CRAN (R 4.0.3)
-    #>  tidyr          1.1.2   2020-08-27 [1] CRAN (R 4.0.2)
-    #>  tidyselect     1.1.0   2020-05-11 [1] CRAN (R 4.0.2)
-    #>  vctrs          0.3.6   2020-12-17 [1] CRAN (R 4.0.3)
-    #>  withr          2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
-    #>  xfun           0.20    2021-01-06 [1] CRAN (R 4.0.3)
-    #>  zip            2.1.1   2020-08-27 [1] CRAN (R 4.0.2)
+    #>  package      * version  date       lib source        
+    #>  abind          1.4-5    2016-07-21 [1] CRAN (R 4.0.0)
+    #>  assertthat     0.2.1    2019-03-21 [1] CRAN (R 4.0.2)
+    #>  car            3.0-10   2020-09-29 [1] CRAN (R 4.0.2)
+    #>  carData        3.0-4    2020-05-22 [1] CRAN (R 4.0.0)
+    #>  cellranger     1.1.0    2016-07-27 [1] CRAN (R 4.0.2)
+    #>  cli            2.3.1    2021-02-23 [1] CRAN (R 4.0.4)
+    #>  colorspace     2.0-0    2020-11-11 [1] CRAN (R 4.0.3)
+    #>  crayon         1.4.1    2021-02-08 [1] CRAN (R 4.0.3)
+    #>  curl           4.3      2019-12-02 [1] CRAN (R 4.0.2)
+    #>  data.table     1.13.6   2020-12-30 [1] CRAN (R 4.0.3)
+    #>  DBI            1.1.1    2021-01-15 [1] CRAN (R 4.0.3)
+    #>  digest         0.6.27   2020-10-24 [1] CRAN (R 4.0.3)
+    #>  dplyr          1.0.4    2021-02-02 [1] CRAN (R 4.0.3)
+    #>  ellipsis       0.3.1    2020-05-15 [1] CRAN (R 4.0.2)
+    #>  evaluate       0.14     2019-05-28 [1] CRAN (R 4.0.2)
+    #>  fansi          0.4.2    2021-01-15 [1] CRAN (R 4.0.3)
+    #>  farver         2.0.3    2020-01-16 [1] CRAN (R 4.0.3)
+    #>  forcats        0.5.1    2021-01-27 [1] CRAN (R 4.0.3)
+    #>  foreign        0.8-81   2020-12-22 [1] CRAN (R 4.0.3)
+    #>  gamlss         5.2-0    2020-09-12 [1] CRAN (R 4.0.2)
+    #>  gamlss.data    5.1-4    2019-05-15 [1] CRAN (R 4.0.0)
+    #>  gamlss.dist    5.1-7    2020-07-13 [1] CRAN (R 4.0.2)
+    #>  generics       0.1.0    2020-10-31 [1] CRAN (R 4.0.3)
+    #>  ggplot2      * 3.3.3    2020-12-30 [1] CRAN (R 4.0.3)
+    #>  git2r          0.28.0   2021-01-10 [1] CRAN (R 4.0.3)
+    #>  glue           1.4.2    2020-08-27 [1] CRAN (R 4.0.2)
+    #>  gridGraphics   0.5-1    2020-12-13 [1] CRAN (R 4.0.3)
+    #>  gtable         0.3.0    2019-03-25 [1] CRAN (R 4.0.2)
+    #>  haven          2.3.1    2020-06-01 [1] CRAN (R 4.0.2)
+    #>  here           1.0.1    2020-12-13 [1] CRAN (R 4.0.3)
+    #>  highr          0.8      2019-03-20 [1] CRAN (R 4.0.2)
+    #>  hms            1.0.0    2021-01-13 [1] CRAN (R 4.0.3)
+    #>  knitr        * 1.31     2021-01-27 [1] CRAN (R 4.0.3)
+    #>  labeling       0.4.2    2020-10-20 [1] CRAN (R 4.0.2)
+    #>  lattice        0.20-41  2020-04-02 [1] CRAN (R 4.0.2)
+    #>  lifecycle      1.0.0    2021-02-15 [1] CRAN (R 4.0.3)
+    #>  magrittr       2.0.1    2020-11-17 [1] CRAN (R 4.0.3)
+    #>  MASS           7.3-53.1 2021-02-12 [1] CRAN (R 4.0.4)
+    #>  Matrix         1.2-18   2019-11-27 [1] CRAN (R 4.0.3)
+    #>  munsell        0.5.0    2018-06-12 [1] CRAN (R 4.0.2)
+    #>  nlme           3.1-152  2021-02-04 [1] CRAN (R 4.0.3)
+    #>  openxlsx       4.2.3    2020-10-27 [1] CRAN (R 4.0.3)
+    #>  patchwork    * 1.1.1    2020-12-17 [1] CRAN (R 4.0.3)
+    #>  pillar         1.5.0    2021-02-22 [1] CRAN (R 4.0.4)
+    #>  pkgconfig      2.0.3    2019-09-22 [1] CRAN (R 4.0.2)
+    #>  purrr          0.3.4    2020-04-17 [1] CRAN (R 4.0.2)
+    #>  R6             2.5.0    2020-10-28 [1] CRAN (R 4.0.2)
+    #>  ragg           1.1.0    2021-02-15 [1] CRAN (R 4.0.4)
+    #>  Rcpp           1.0.6    2021-01-15 [1] CRAN (R 4.0.3)
+    #>  readxl         1.3.1    2019-03-13 [1] CRAN (R 4.0.2)
+    #>  rio            0.5.16   2018-11-26 [1] CRAN (R 4.0.2)
+    #>  rlang          0.4.10   2020-12-30 [1] CRAN (R 4.0.3)
+    #>  rprojroot      2.0.2    2020-11-15 [1] CRAN (R 4.0.3)
+    #>  scales         1.1.1    2020-05-11 [1] CRAN (R 4.0.2)
+    #>  sessioninfo    1.1.1    2018-11-05 [1] CRAN (R 4.0.2)
+    #>  stringi        1.5.3    2020-09-09 [1] CRAN (R 4.0.2)
+    #>  stringr        1.4.0    2019-02-10 [1] CRAN (R 4.0.2)
+    #>  survival       3.2-7    2020-09-28 [1] CRAN (R 4.0.2)
+    #>  systemfonts    1.0.1    2021-02-09 [1] CRAN (R 4.0.3)
+    #>  textshaping    0.3.0    2021-02-10 [1] CRAN (R 4.0.3)
+    #>  tibble       * 3.0.6    2021-01-29 [1] CRAN (R 4.0.3)
+    #>  tidyr          1.1.2    2020-08-27 [1] CRAN (R 4.0.2)
+    #>  tidyselect     1.1.0    2020-05-11 [1] CRAN (R 4.0.2)
+    #>  utf8           1.1.4    2018-05-24 [1] CRAN (R 4.0.2)
+    #>  vctrs          0.3.6    2020-12-17 [1] CRAN (R 4.0.3)
+    #>  withr          2.4.1    2021-01-26 [1] CRAN (R 4.0.3)
+    #>  xfun           0.21     2021-02-10 [1] CRAN (R 4.0.3)
+    #>  zip            2.1.1    2020-08-27 [1] CRAN (R 4.0.2)
     #> 
     #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [2] C:/Program Files/R/R-4.0.3/library
+    #> [2] C:/Program Files/R/R-4.0.4/library
     ```
 
 [^embo]: Fox uses a funny phrase in a footnote as he notes that the approach produces "cumulative proportions of 0 or 1, which would be an embarrassment [...] for distributions like the normal [...]". Definitely, not a good look.

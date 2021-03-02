@@ -471,16 +471,16 @@ admit that I copied extensively from some sources:
   - The [extensions chapters](https://ggplot2-book.org/extensions.html) in the
     ggplot2 book
 
-The code walkthrough below will make the work seem effortless, but I spent a while
-trying to figure it out!
+The code walkthrough below will make the work seem effortless, but I
+spent a while trying to figure it out!
 
-The apparent workflow is to write a user-facing "layer" function and then create
-`ggProto()` objects that do the work behind the scenes, so that's what we will
-do. 
+The apparent workflow is to write a user-facing "layer" function and
+then create `ggProto()` objects that do the work behind the scenes, so
+that's what we will do.
 
-We start with `stat_worm()`. I copied the `stat_qq()` source code and removed
-some options for supporting other distributions. I code-commented above the lines that
-are not boilerplot. 
+We start with `stat_worm()`. I copied the `stat_qq()` source code and
+removed some options for supporting other distributions. I
+code-commented above the lines that are not boilerplate. 
 ```{r}
 stat_worm <- function(
   mapping = NULL, 
@@ -880,14 +880,16 @@ ggplot(subset(df, example == "fat tails")) +
   theme(legend.position = "top", legend.justification =  "left")
 ```
 
-We can see how the lines switch places a few times. That the normal line is to
-right of the empirical line at *y* = .75 means that at that quantile, the normal
-distribution has larger values than the scaled empirical distribution. For the
-thin tailed data, the same reasoning applies but once again, it's *flipped*.
+We can see how the lines switch places a few times. That the normal line
+is to right of the empirical line at *y* = .75 means that at that
+quantile, the normal distribution has larger values than the scaled
+empirical distribution. For the thin tailed data, the same reasoning
+applies but once again, it's *flipped*.
 
-Finally, I want to advertise that Table 2 in the [worm plot paper][wp]
-summarizes these heuristics (like *U*-shaped and *S*-shaped worms) and includes
-other heuristics about the slope and intercept of the worm.
+Finally, I want to advertise that Table 2 in the [worm plot
+paper][wp] summarizes these heuristics (like *U*-shaped and
+*S*-shaped worms) and includes other heuristics about the slope and
+intercept of the worm.
 
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
