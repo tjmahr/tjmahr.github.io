@@ -14,22 +14,22 @@ scheme: "iA Light"
 author: "iA Inc. (modified by aramisgithub)"
 https://github.com/arzg/base16-ia-scheme/blob/master/ia-light.yaml
 */
-$base00: #f6f6f6;
-$base01: #dedede;
-$base02: #bde5f2;
-$base03: #898989;
-$base04: #767676;
-$base05: #181818;
-$base06: #e8e8e8;
-$base07: #f8f8f8;
-$base08: #9c5a02;
-$base09: #c43e18;
-$base0a: #c48218;
-$base0b: #38781c;
-$base0c: #2d6bb1;
-$base0d: #48bac2;
-$base0e: #a94598;
-$base0f: #8b6c37;
+$base00: #f6f6f6 !default;
+$base01: #dedede !default;
+$base02: #bde5f2 !default;
+$base03: #898989 !default;
+$base04: #767676 !default;
+$base05: #181818 !default;
+$base06: #e8e8e8 !default;
+$base07: #f8f8f8 !default;
+$base08: #9c5a02 !default;
+$base09: #c43e18 !default;
+$base0a: #c48218 !default;
+$base0b: #38781c !default;
+$base0c: #2d6bb1 !default;
+$base0d: #48bac2 !default;
+$base0e: #a94598 !default;
+$base0f: #8b6c37 !default;
 
 /* Variables */
 @import "minimal-mistakes/variables";
