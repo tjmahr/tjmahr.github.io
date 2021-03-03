@@ -35,10 +35,12 @@ highlight the connections between the two.
 
 Here are the main takeaways:
 
-  - Mixed effects models use partial pooling to strike a balance between
-    a grand mean (complete pooling) and individual means (no pooling).
-  - Smoothing splines work by penalizing model coefficients to reduce the
-    model degrees of freedom.
+  - Mixed effects models (a.k.a. hierarchical models or multilevel
+    models) use partial pooling to strike a balance between a grand
+    population mean (complete pooling) and individual group means (no
+    pooling).
+  - Smoothing splines work by penalizing model coefficients to reduce
+    the model degrees of freedom.
   - You can use the computational machinery of one framework to estimate
     the other.
 
@@ -76,7 +78,13 @@ The magic here is the *σ*<sub>*b*</sub>, as it ties all of the
 individual effects in **b** under a common distribution. If
 *σ*<sub>*b*</sub> were replaced with a fixed number like 10, then all
 of the effects in **b** would be independent and unaware of each other:
-There would be no pooling of information between the groups.
+There would be *no pooling* of information between the groups. If we
+remove it from the model---replace *σ*<sub>*b*</sub> with 0, so to
+speak---then all the group variability is ignored, and there is
+*complete pooling* of information into a single mean effect. With 
+*σ*<sub>*b*</sub> all the groups can contribute information about the 
+distribution of plausible effects, and so, there can be 
+*partial pooling* of information between groups.
 
 Consider the [`radon` dataset][radon] example from [Gelman and Hill
 (2007)][arm-book]. Radon measurements were taken in Minnesota
@@ -156,20 +164,18 @@ radon_aug$type <- "mixed model estimates"
 radon$type <- "observed means"
 
 ggplot(radon_aug) + 
-  aes(x = fct_infreq(county), y = log_radon) +
-  stat_summary(
-    aes(color = type, shape = type),
-    data = radon,
-    fun = mean,
-    geom = "point"
+  aes(
+    x = fct_rev(fct_infreq(county)), 
+    y = log_radon, 
+    color = type, 
+    shape = type
   ) +
-  geom_point(
-    aes(y = .value, color = type, shape = type)
-  ) + 
-  # want to include 0 in the figure
+  stat_summary(data = radon, fun = mean, geom = "point") +
+  geom_point(aes(y = .value)) + 
+  # Want to include y = 0 in the figure
   geom_blank(aes(y = 0)) +
   labs(
-    x = "county (in decreasing order by sample size)", 
+    x = "county (in increasing order by sample size)", 
     y = "log(radon)"
   ) +
   geom_hline(yintercept = fixef(b_radon)[1]) +
@@ -189,9 +195,12 @@ ggplot(radon_aug) +
 
 <img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/county-means-1.png" title="A plot showing log radon on the y axis and county on the x asis. There are two sets of overlapping points. There are the observed means in each country and the model estimated means. There is much less variability in the modeled means." alt="A plot showing log radon on the y axis and county on the x asis. There are two sets of overlapping points. There are the observed means in each country and the model estimated means. There is much less variability in the modeled means." width="80%" style="display: block; margin: auto;" />
 
-We see a classic example of partial pooling. For counties with many
-observations, the estimate mean is hardly adjusted. For counties with
-less data, the estimate is pulled towards the population mean
+We see a classic example of partial pooling. First note that model
+estimates (blue circles) are less variable: None go above *y* = 2 and
+only four go below *y* = 1. For counties with many observations (right
+side), the estimated mean is hardly adjusted. There is less of a visual
+gap between the observed mean and estimated mean. For counties with less
+data (left side), the estimate is pulled towards the population mean
 (`Intercept` in the summary above).
 
 The following plot shows difference between the observed means and
@@ -214,13 +223,15 @@ radon_aug %>%
 
 <img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/shrinkage-by-n-1.png" title="Plot with number of observations on the x axis and the difference between the observed and estimated means on the y axis. There is a smaller difference for counties with more data." alt="Plot with number of observations on the x axis and the difference between the observed and estimated means on the y axis. There is a smaller difference for counties with more data." width="66%" style="display: block; margin: auto;" />
 
-
-
 The contention behind the *smooths = random effects* claim is that what we
 just did is a case of *smoothing*. These random effects are, in a way, 
 smoothed fixed effects.
 
-
+> The function `random()` can be seen as a smoother for use with factors
+> in `gamlss()`. It allows the fitted values for a factor predictor to
+> be shrunk towards the overall mean [...]
+> 
+> — [GAMLSS documentation][gamlss-re] describing a random intercept as a smoother
 
 
 ## But what's smoothing?
@@ -563,8 +574,8 @@ ggplot(mcycle) +
   labs(
     x = "time after impact [ms]", 
     y = "acceleration [g]", 
-    color = "lambda"
-  )
+    color = expression(lambda)
+  ) 
 ```
 
 <img src="/figs/2021-02-26-random-effects-penalized-splines-same-thing/lambda-plot-1.png" title="The data plotted with three smooths. One of them is a completely flat line. It has a penalty of 10000000." alt="The data plotted with three smooths. One of them is a completely flat line. It has a penalty of 10000000." width="80%" style="display: block; margin: auto;" />
@@ -864,58 +875,61 @@ a mixed effects model. **I suggest you only skim this code.**
 
 ```r
 b_gam_20$model
-#> // generated with brms 2.14.4
-#> functions {
-#> }
-#> data {
-#>   int<lower=1> N;  // total number of observations
-#>   vector[N] Y;  // response variable
-#>   // data for splines
-#>   int Ks;  // number of linear effects
-#>   matrix[N, Ks] Xs;  // design matrix for the linear effects
-#>   // data for spline s(times,bs="cr",k=20)
-#>   int nb_1;  // number of bases
-#>   int knots_1[nb_1];  // number of knots
-#>   // basis function matrices
-#>   matrix[N, knots_1[1]] Zs_1_1;
-#>   int prior_only;  // should the likelihood be ignored?
-#> }
-#> transformed data {
-#> }
-#> parameters {
-#>   real Intercept;  // temporary intercept for centered predictors
-#>   vector[Ks] bs;  // spline coefficients
-#>   // parameters for spline s(times,bs="cr",k=20)
-#>   // standarized spline coefficients
-#>   vector[knots_1[1]] zs_1_1;
-#>   real<lower=0> sds_1_1;  // standard deviations of spline coefficients
-#>   real<lower=0> sigma;  // residual SD
-#> }
-#> transformed parameters {
-#>   // actual spline coefficients
-#>   vector[knots_1[1]] s_1_1;
-#>   // compute actual spline coefficients
-#>   s_1_1 = sds_1_1 * zs_1_1;
-#> }
-#> model {
-#>   // likelihood including all constants
-#>   if (!prior_only) {
-#>     // initialize linear predictor term
-#>     vector[N] mu = Intercept + rep_vector(0.0, N) + Xs * bs + Zs_1_1 * s_1_1;
-#>     target += normal_lpdf(Y | mu, sigma);
-#>   }
-#>   // priors including all constants
-#>   target += student_t_lpdf(Intercept | 3, -13.3, 35.6);
-#>   target += student_t_lpdf(sds_1_1 | 3, 0, 35.6)
-#>     - 1 * student_t_lccdf(0 | 3, 0, 35.6);
-#>   target += std_normal_lpdf(zs_1_1);
-#>   target += student_t_lpdf(sigma | 3, 0, 35.6)
-#>     - 1 * student_t_lccdf(0 | 3, 0, 35.6);
-#> }
-#> generated quantities {
-#>   // actual population-level intercept
-#>   real b_Intercept = Intercept;
-#> }
+```
+
+```
+// generated with brms 2.14.4
+functions {
+}
+data {
+  int<lower=1> N;  // total number of observations
+  vector[N] Y;  // response variable
+  // data for splines
+  int Ks;  // number of linear effects
+  matrix[N, Ks] Xs;  // design matrix for the linear effects
+  // data for spline s(times,bs="cr",k=20)
+  int nb_1;  // number of bases
+  int knots_1[nb_1];  // number of knots
+  // basis function matrices
+  matrix[N, knots_1[1]] Zs_1_1;
+  int prior_only;  // should the likelihood be ignored?
+}
+transformed data {
+}
+parameters {
+  real Intercept;  // temporary intercept for centered predictors
+  vector[Ks] bs;  // spline coefficients
+  // parameters for spline s(times,bs="cr",k=20)
+  // standarized spline coefficients
+  vector[knots_1[1]] zs_1_1;
+  real<lower=0> sds_1_1;  // standard deviations of spline coefficients
+  real<lower=0> sigma;  // residual SD
+}
+transformed parameters {
+  // actual spline coefficients
+  vector[knots_1[1]] s_1_1;
+  // compute actual spline coefficients
+  s_1_1 = sds_1_1 * zs_1_1;
+}
+model {
+  // likelihood including all constants
+  if (!prior_only) {
+    // initialize linear predictor term
+    vector[N] mu = Intercept + rep_vector(0.0, N) + Xs * bs + Zs_1_1 * s_1_1;
+    target += normal_lpdf(Y | mu, sigma);
+  }
+  // priors including all constants
+  target += student_t_lpdf(Intercept | 3, -13.3, 35.6);
+  target += student_t_lpdf(sds_1_1 | 3, 0, 35.6)
+    - 1 * student_t_lccdf(0 | 3, 0, 35.6);
+  target += std_normal_lpdf(zs_1_1);
+  target += student_t_lpdf(sigma | 3, 0, 35.6)
+    - 1 * student_t_lccdf(0 | 3, 0, 35.6);
+}
+generated quantities {
+  // actual population-level intercept
+  real b_Intercept = Intercept;
+}
 ```
 
 Okay, that's a lot. But let me highlight and translate the key part of it.
@@ -926,7 +940,7 @@ $$
    \mathbf{S} &: \texttt{s_1_1} & \texttt{// actual spline coefficients}\\
    \mathbf{\sigma} &:  \texttt{sds_1_1} & \texttt{// standard deviations of spline coefficients}\\
    \mathbf{Z} &:  \texttt{zs_1_1} & \texttt{// standardized spline coefficients}\\
-   \mathbf{S} &= \sigma \cdot \mathbf{Z} & \texttt{s_1_1 = sds_1_1 * zs_1_1}; \\
+   \mathbf{S} &= \sigma \mathbf{Z} & \texttt{s_1_1 = sds_1_1 * zs_1_1}; \\
    \mathbf{Z} &\sim \textsf{Normal}(0, 1) & \texttt{target += std_normal_lpdf(zs_1_1);}\\
    \mathbf{\sigma} &\sim \textsf{StudentT}(3, 0, 35.6) & \texttt{target += student_t_lpdf(sds_1_1 | 3, 0, 35.6) ...}\\
 
@@ -950,23 +964,27 @@ I'll just show the relevant part:
 
 ```r
 b_radon$model
-#> ...
-#> parameters {
-#>   ...
-#>   vector<lower=0>[M_1] sd_1;  // group-level standard deviations
-#>   vector[N_1] z_1[M_1];  // standardized group-level effects
-#> }
-#> transformed parameters {
-#>   vector[N_1] r_1_1;  // actual group-level effects
-#>   r_1_1 = (sd_1[1] * (z_1[1]));
-#> }
-#> model {
-#>   ...
-#>   target += student_t_lpdf(sd_1 | 3, 0, 2.5)
-#>     - 1 * student_t_lccdf(0 | 3, 0, 2.5);
-#>   target += std_normal_lpdf(z_1[1]);
-#> }
 ```
+
+```
+...
+parameters {
+  ...
+  vector<lower=0>[M_1] sd_1;  // group-level standard deviations
+  vector[N_1] z_1[M_1];  // standardized group-level effects
+}
+transformed parameters {
+  vector[N_1] r_1_1;  // actual group-level effects
+  r_1_1 = (sd_1[1] * (z_1[1]));
+}
+model {
+  ...
+  target += student_t_lpdf(sd_1 | 3, 0, 2.5)
+    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+  target += std_normal_lpdf(z_1[1]);
+}
+```
+
 
 
 
@@ -978,8 +996,8 @@ b_radon$model
 One consequence of this relationship is that you can walk this relation
 backwards: You can fit a simple random effects using a basis matrix and
 penalty matrix. Indeed, mgcv provides a [random effects (`"re"`)
-smoother](https://rdrr.io/cran/mgcv/man/random.effects.html) basis so we
-can estimate our mixed model from above using a smooth.
+smoother][mgcv-re] basis so we can estimate our mixed model from
+above using a smooth.
 
 
 ```r
@@ -1109,11 +1127,10 @@ Here `p_loo` is the effective number of parameters from a leave-one-out
 cross-validation method. It's around 45. Our mgcv model has around 41.6
 parameters (39.6 from the smooth plus intercept and sigma). These two
 parameter estimating methods are <strike>unrelated (as far as I
-know)</strike> related ([thanks Avi
-Vehtari](https://twitter.com/avehtari/status/1366085190074961921?s=20)),
-and they both seem to telling us something similar about how much
-information in `county` variable we have after partially pooling down
-the model parameters.
+know)</strike> related ([thanks Avi Vehtari][avi-tweet]), and they
+both seem to telling us something similar about how much information in
+`county` variable we have after partially pooling down the model
+parameters.
 
 For a deeper dive on random effects, Gavin Simpson recently wrote about
 [how to use mgcv for random effects][gs-re], so I encourage readers
@@ -1148,14 +1165,14 @@ distinction when we use the phrase "random effects".
 
 ***
 
-*Last knitted on 2021-03-02. [Source code on
+*Last knitted on 2021-03-03. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-random-effects-penalized-splines-same-thing.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
+    #> - Session info --------------------------------------------------------------------
     #>  setting  value                       
     #>  version  R version 4.0.4 (2021-02-15)
     #>  os       Windows 10 x64              
@@ -1165,295 +1182,152 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-03-02                  
+    #>  date     2021-03-03                  
     #> 
-    #> - Packages -------------------------------------------------------------------
-    #>  ! package        * version    date       lib
-    #>    abind            1.4-5      2016-07-21 [1]
-    #>    arrayhelpers     1.1-0      2020-02-04 [1]
-    #>    assertthat       0.2.1      2019-03-21 [1]
-    #>    backports        1.2.1      2020-12-09 [1]
-    #>    base64enc        0.1-3      2015-07-28 [1]
-    #>    bayesplot        1.8.0.9000 2021-02-01 [1]
-    #>    boot             1.3-27     2021-02-12 [1]
-    #>    bridgesampling   1.0-0      2020-02-26 [1]
-    #>    brms           * 2.14.4     2020-11-03 [1]
-    #>    Brobdingnag      1.2-6      2018-08-13 [1]
-    #>    broom            0.7.5      2021-02-19 [1]
-    #>    callr            3.5.1      2020-10-13 [1]
-    #>    cellranger       1.1.0      2016-07-27 [1]
-    #>    cli              2.3.1      2021-02-23 [1]
-    #>    coda             0.19-4     2020-09-30 [1]
-    #>    codetools        0.2-18     2020-11-04 [1]
-    #>    colorspace       2.0-0      2020-11-11 [1]
-    #>    colourpicker     1.1.0      2020-09-14 [1]
-    #>    crayon           1.4.1      2021-02-08 [1]
-    #>    crosstalk        1.1.1      2021-01-12 [1]
-    #>    curl             4.3        2019-12-02 [1]
-    #>    DBI              1.1.1      2021-01-15 [1]
-    #>    dbplyr           2.1.0      2021-02-03 [1]
-    #>    digest           0.6.27     2020-10-24 [1]
-    #>    distributional   0.2.2      2021-02-02 [1]
-    #>    dplyr          * 1.0.4      2021-02-02 [1]
-    #>    DT               0.17       2021-01-06 [1]
-    #>    dygraphs         1.1.1.6    2018-07-11 [1]
-    #>    ellipsis         0.3.1      2020-05-15 [1]
-    #>    emmeans          1.5.4      2021-02-03 [1]
-    #>    estimability     1.3        2018-02-11 [1]
-    #>    evaluate         0.14       2019-05-28 [1]
-    #>    fansi            0.4.2      2021-01-15 [1]
-    #>    farver           2.0.3      2020-01-16 [1]
-    #>    fastmap          1.1.0      2021-01-25 [1]
-    #>    forcats        * 0.5.1      2021-01-27 [1]
-    #>    fs               1.5.0      2020-07-31 [1]
-    #>    gamm4            0.2-6      2020-04-03 [1]
-    #>    generics         0.1.0      2020-10-31 [1]
-    #>    ggdist           2.4.0      2021-01-04 [1]
-    #>    ggplot2        * 3.3.3      2020-12-30 [1]
-    #>    ggridges         0.5.3      2021-01-08 [1]
-    #>    git2r            0.28.0     2021-01-10 [1]
-    #>    glue             1.4.2      2020-08-27 [1]
-    #>    gratia           0.5.1.9002 2021-02-16 [1]
-    #>    gridExtra        2.3        2017-09-09 [1]
-    #>    gtable           0.3.0      2019-03-25 [1]
-    #>    gtools           3.8.2      2020-03-31 [1]
-    #>    haven            2.3.1      2020-06-01 [1]
-    #>    here             1.0.1      2020-12-13 [1]
-    #>    highr            0.8        2019-03-20 [1]
-    #>    hms              1.0.0      2021-01-13 [1]
-    #>    htmltools        0.5.1.1    2021-01-22 [1]
-    #>    htmlwidgets      1.5.3      2020-12-10 [1]
-    #>    httpuv           1.5.5      2021-01-13 [1]
-    #>    httr             1.4.2      2020-07-20 [1]
-    #>    igraph           1.2.6      2020-10-06 [1]
-    #>    inline           0.3.17     2020-12-01 [1]
-    #>    jsonlite         1.7.2      2020-12-09 [1]
-    #>    knitr          * 1.31       2021-01-27 [1]
-    #>    labeling         0.4.2      2020-10-20 [1]
-    #>    later            1.1.0.1    2020-06-05 [1]
-    #>    lattice          0.20-41    2020-04-02 [1]
-    #>    lifecycle        1.0.0      2021-02-15 [1]
-    #>    lme4             1.1-26     2020-12-01 [1]
-    #>    loo              2.4.1      2020-12-09 [1]
-    #>    lubridate        1.7.9.2    2020-11-13 [1]
-    #>    magrittr         2.0.1      2020-11-17 [1]
-    #>    markdown         1.1        2019-08-07 [1]
-    #>    MASS             7.3-53.1   2021-02-12 [1]
-    #>    Matrix           1.2-18     2019-11-27 [1]
-    #>    matrixStats      0.58.0     2021-01-29 [1]
-    #>    mgcv           * 1.8-33     2020-08-27 [1]
-    #>    mime             0.10       2021-02-13 [1]
-    #>    miniUI           0.1.1.1    2018-05-18 [1]
-    #>    minqa            1.2.4      2014-10-09 [1]
-    #>    modelr           0.1.8      2020-05-19 [1]
-    #>    multcomp         1.4-16     2021-02-08 [1]
-    #>    munsell          0.5.0      2018-06-12 [1]
-    #>    mvnfast          0.2.5.1    2020-10-14 [1]
-    #>    mvtnorm          1.1-1      2020-06-09 [1]
-    #>    nlme           * 3.1-152    2021-02-04 [1]
-    #>    nloptr           1.2.2.2    2020-07-02 [1]
-    #>    patchwork      * 1.1.1      2020-12-17 [1]
-    #>    pillar           1.5.0      2021-02-22 [1]
-    #>    pkgbuild         1.2.0      2020-12-15 [1]
-    #>    pkgconfig        2.0.3      2019-09-22 [1]
-    #>    plyr             1.8.6      2020-03-03 [1]
-    #>    prettyunits      1.1.1      2020-01-24 [1]
-    #>    processx         3.4.5      2020-11-30 [1]
-    #>    projpred         2.0.2      2020-10-28 [1]
-    #>    promises         1.2.0.1    2021-02-11 [1]
-    #>    ps               1.5.0      2020-12-05 [1]
-    #>    purrr          * 0.3.4      2020-04-17 [1]
-    #>    R6               2.5.0      2020-10-28 [1]
-    #>    ragg             1.1.0      2021-02-15 [1]
-    #>    Rcpp           * 1.0.6      2021-01-15 [1]
-    #>  D RcppParallel     5.0.2      2020-06-24 [1]
-    #>    readr          * 1.4.0      2020-10-05 [1]
-    #>    readxl           1.3.1      2019-03-13 [1]
-    #>    reprex           1.0.0      2021-01-27 [1]
-    #>    reshape2         1.4.4      2020-04-09 [1]
-    #>    rlang            0.4.10     2020-12-30 [1]
-    #>    rprojroot        2.0.2      2020-11-15 [1]
-    #>    rsconnect        0.8.16     2019-12-13 [1]
-    #>    rstan            2.21.2     2020-07-27 [1]
-    #>    rstanarm         2.21.1     2020-07-20 [1]
-    #>    rstantools       2.1.1      2020-07-06 [1]
-    #>    rstudioapi       0.13       2020-11-12 [1]
-    #>    rvest            0.3.6      2020-07-25 [1]
-    #>    sandwich         3.0-0      2020-10-02 [1]
-    #>    scales           1.1.1      2020-05-11 [1]
-    #>    sessioninfo      1.1.1      2018-11-05 [1]
-    #>    shiny            1.6.0      2021-01-25 [1]
-    #>    shinyjs          2.0.0      2020-09-09 [1]
-    #>    shinystan        2.5.0      2018-05-01 [1]
-    #>    shinythemes      1.2.0      2021-01-25 [1]
-    #>    StanHeaders      2.21.0-7   2020-12-17 [1]
-    #>    statmod          1.4.35     2020-10-19 [1]
-    #>    stringi          1.5.3      2020-09-09 [1]
-    #>    stringr        * 1.4.0      2019-02-10 [1]
-    #>    survival         3.2-7      2020-09-28 [1]
-    #>    svUnit           1.0.3      2020-04-20 [1]
-    #>    systemfonts      1.0.1      2021-02-09 [1]
-    #>    textshaping      0.3.0      2021-02-10 [1]
-    #>    TH.data          1.0-10     2019-01-21 [1]
-    #>    threejs          0.3.3      2020-01-21 [1]
-    #>    tibble         * 3.0.6      2021-01-29 [1]
-    #>    tidybayes        2.3.1      2020-11-02 [1]
-    #>    tidyr          * 1.1.2      2020-08-27 [1]
-    #>    tidyselect       1.1.0      2020-05-11 [1]
-    #>    tidyverse      * 1.3.0      2019-11-21 [1]
-    #>    tjmisc           0.0.0.9000 2021-02-25 [1]
-    #>    utf8             1.1.4      2018-05-24 [1]
-    #>    V8               3.4.0      2020-11-04 [1]
-    #>    vctrs            0.3.6      2020-12-17 [1]
-    #>    withr            2.4.1      2021-01-26 [1]
-    #>    xfun             0.21       2021-02-10 [1]
-    #>    xml2             1.3.2      2020-04-23 [1]
-    #>    xtable           1.8-4      2019-04-21 [1]
-    #>    xts              0.12.1     2020-09-09 [1]
-    #>    zoo              1.8-8      2020-05-02 [1]
-    #>  source                              
-    #>  CRAN (R 4.0.0)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.0)                      
-    #>  local                               
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.0)                      
-    #>  CRAN (R 4.0.4)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.4)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.0)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  Github (gavinsimpson/gratia@32daf2f)
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.0)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.4)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.4)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.0)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.4)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.4)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  local                               
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.3)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
-    #>  CRAN (R 4.0.2)                      
+    #> - Packages ------------------------------------------------------------------------
+    #>  ! package        * version    date       lib source                              
+    #>    abind            1.4-5      2016-07-21 [1] CRAN (R 4.0.0)                      
+    #>    arrayhelpers     1.1-0      2020-02-04 [1] CRAN (R 4.0.2)                      
+    #>    assertthat       0.2.1      2019-03-21 [1] CRAN (R 4.0.2)                      
+    #>    backports        1.2.1      2020-12-09 [1] CRAN (R 4.0.3)                      
+    #>    base64enc        0.1-3      2015-07-28 [1] CRAN (R 4.0.0)                      
+    #>    bayesplot        1.8.0.9000 2021-02-01 [1] local                               
+    #>    boot             1.3-27     2021-02-12 [1] CRAN (R 4.0.3)                      
+    #>    bridgesampling   1.0-0      2020-02-26 [1] CRAN (R 4.0.2)                      
+    #>    brms           * 2.14.4     2020-11-03 [1] CRAN (R 4.0.2)                      
+    #>    Brobdingnag      1.2-6      2018-08-13 [1] CRAN (R 4.0.0)                      
+    #>    broom            0.7.5      2021-02-19 [1] CRAN (R 4.0.4)                      
+    #>    callr            3.5.1      2020-10-13 [1] CRAN (R 4.0.3)                      
+    #>    cellranger       1.1.0      2016-07-27 [1] CRAN (R 4.0.2)                      
+    #>    cli              2.3.1      2021-02-23 [1] CRAN (R 4.0.4)                      
+    #>    coda             0.19-4     2020-09-30 [1] CRAN (R 4.0.2)                      
+    #>    codetools        0.2-18     2020-11-04 [1] CRAN (R 4.0.2)                      
+    #>    colorspace       2.0-0      2020-11-11 [1] CRAN (R 4.0.3)                      
+    #>    colourpicker     1.1.0      2020-09-14 [1] CRAN (R 4.0.2)                      
+    #>    crayon           1.4.1      2021-02-08 [1] CRAN (R 4.0.3)                      
+    #>    crosstalk        1.1.1      2021-01-12 [1] CRAN (R 4.0.3)                      
+    #>    curl             4.3        2019-12-02 [1] CRAN (R 4.0.2)                      
+    #>    DBI              1.1.1      2021-01-15 [1] CRAN (R 4.0.3)                      
+    #>    dbplyr           2.1.0      2021-02-03 [1] CRAN (R 4.0.3)                      
+    #>    digest           0.6.27     2020-10-24 [1] CRAN (R 4.0.3)                      
+    #>    distributional   0.2.2      2021-02-02 [1] CRAN (R 4.0.3)                      
+    #>    dplyr          * 1.0.4      2021-02-02 [1] CRAN (R 4.0.3)                      
+    #>    DT               0.17       2021-01-06 [1] CRAN (R 4.0.3)                      
+    #>    dygraphs         1.1.1.6    2018-07-11 [1] CRAN (R 4.0.2)                      
+    #>    ellipsis         0.3.1      2020-05-15 [1] CRAN (R 4.0.2)                      
+    #>    emmeans          1.5.4      2021-02-03 [1] CRAN (R 4.0.3)                      
+    #>    estimability     1.3        2018-02-11 [1] CRAN (R 4.0.0)                      
+    #>    evaluate         0.14       2019-05-28 [1] CRAN (R 4.0.2)                      
+    #>    fansi            0.4.2      2021-01-15 [1] CRAN (R 4.0.3)                      
+    #>    farver           2.0.3      2020-01-16 [1] CRAN (R 4.0.3)                      
+    #>    fastmap          1.1.0      2021-01-25 [1] CRAN (R 4.0.3)                      
+    #>    forcats        * 0.5.1      2021-01-27 [1] CRAN (R 4.0.3)                      
+    #>    fs               1.5.0      2020-07-31 [1] CRAN (R 4.0.2)                      
+    #>    gamm4            0.2-6      2020-04-03 [1] CRAN (R 4.0.2)                      
+    #>    generics         0.1.0      2020-10-31 [1] CRAN (R 4.0.3)                      
+    #>    ggdist           2.4.0      2021-01-04 [1] CRAN (R 4.0.3)                      
+    #>    ggplot2        * 3.3.3      2020-12-30 [1] CRAN (R 4.0.3)                      
+    #>    ggridges         0.5.3      2021-01-08 [1] CRAN (R 4.0.3)                      
+    #>    git2r            0.28.0     2021-01-10 [1] CRAN (R 4.0.3)                      
+    #>    glue             1.4.2      2020-08-27 [1] CRAN (R 4.0.2)                      
+    #>    gratia           0.5.1.9002 2021-02-16 [1] Github (gavinsimpson/gratia@32daf2f)
+    #>    gridExtra        2.3        2017-09-09 [1] CRAN (R 4.0.2)                      
+    #>    gtable           0.3.0      2019-03-25 [1] CRAN (R 4.0.2)                      
+    #>    gtools           3.8.2      2020-03-31 [1] CRAN (R 4.0.0)                      
+    #>    haven            2.3.1      2020-06-01 [1] CRAN (R 4.0.2)                      
+    #>    here             1.0.1      2020-12-13 [1] CRAN (R 4.0.3)                      
+    #>    highr            0.8        2019-03-20 [1] CRAN (R 4.0.2)                      
+    #>    hms              1.0.0      2021-01-13 [1] CRAN (R 4.0.3)                      
+    #>    htmltools        0.5.1.1    2021-01-22 [1] CRAN (R 4.0.3)                      
+    #>    htmlwidgets      1.5.3      2020-12-10 [1] CRAN (R 4.0.3)                      
+    #>    httpuv           1.5.5      2021-01-13 [1] CRAN (R 4.0.3)                      
+    #>    httr             1.4.2      2020-07-20 [1] CRAN (R 4.0.2)                      
+    #>    igraph           1.2.6      2020-10-06 [1] CRAN (R 4.0.2)                      
+    #>    inline           0.3.17     2020-12-01 [1] CRAN (R 4.0.3)                      
+    #>    jsonlite         1.7.2      2020-12-09 [1] CRAN (R 4.0.3)                      
+    #>    knitr          * 1.31       2021-01-27 [1] CRAN (R 4.0.3)                      
+    #>    labeling         0.4.2      2020-10-20 [1] CRAN (R 4.0.2)                      
+    #>    later            1.1.0.1    2020-06-05 [1] CRAN (R 4.0.2)                      
+    #>    lattice          0.20-41    2020-04-02 [1] CRAN (R 4.0.2)                      
+    #>    lifecycle        1.0.0      2021-02-15 [1] CRAN (R 4.0.3)                      
+    #>    lme4             1.1-26     2020-12-01 [1] CRAN (R 4.0.3)                      
+    #>    loo              2.4.1      2020-12-09 [1] CRAN (R 4.0.3)                      
+    #>    lubridate        1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)                      
+    #>    magrittr         2.0.1      2020-11-17 [1] CRAN (R 4.0.3)                      
+    #>    markdown         1.1        2019-08-07 [1] CRAN (R 4.0.2)                      
+    #>    MASS             7.3-53.1   2021-02-12 [1] CRAN (R 4.0.4)                      
+    #>    Matrix           1.2-18     2019-11-27 [1] CRAN (R 4.0.3)                      
+    #>    matrixStats      0.58.0     2021-01-29 [1] CRAN (R 4.0.3)                      
+    #>    mgcv           * 1.8-33     2020-08-27 [1] CRAN (R 4.0.3)                      
+    #>    mime             0.10       2021-02-13 [1] CRAN (R 4.0.4)                      
+    #>    miniUI           0.1.1.1    2018-05-18 [1] CRAN (R 4.0.2)                      
+    #>    minqa            1.2.4      2014-10-09 [1] CRAN (R 4.0.2)                      
+    #>    modelr           0.1.8      2020-05-19 [1] CRAN (R 4.0.2)                      
+    #>    multcomp         1.4-16     2021-02-08 [1] CRAN (R 4.0.3)                      
+    #>    munsell          0.5.0      2018-06-12 [1] CRAN (R 4.0.2)                      
+    #>    mvnfast          0.2.5.1    2020-10-14 [1] CRAN (R 4.0.3)                      
+    #>    mvtnorm          1.1-1      2020-06-09 [1] CRAN (R 4.0.0)                      
+    #>    nlme           * 3.1-152    2021-02-04 [1] CRAN (R 4.0.3)                      
+    #>    nloptr           1.2.2.2    2020-07-02 [1] CRAN (R 4.0.2)                      
+    #>    patchwork      * 1.1.1      2020-12-17 [1] CRAN (R 4.0.3)                      
+    #>    pillar           1.5.0      2021-02-22 [1] CRAN (R 4.0.4)                      
+    #>    pkgbuild         1.2.0      2020-12-15 [1] CRAN (R 4.0.3)                      
+    #>    pkgconfig        2.0.3      2019-09-22 [1] CRAN (R 4.0.2)                      
+    #>    plyr             1.8.6      2020-03-03 [1] CRAN (R 4.0.2)                      
+    #>    prettyunits      1.1.1      2020-01-24 [1] CRAN (R 4.0.2)                      
+    #>    processx         3.4.5      2020-11-30 [1] CRAN (R 4.0.3)                      
+    #>    projpred         2.0.2      2020-10-28 [1] CRAN (R 4.0.3)                      
+    #>    promises         1.2.0.1    2021-02-11 [1] CRAN (R 4.0.3)                      
+    #>    ps               1.5.0      2020-12-05 [1] CRAN (R 4.0.3)                      
+    #>    purrr          * 0.3.4      2020-04-17 [1] CRAN (R 4.0.2)                      
+    #>    R6               2.5.0      2020-10-28 [1] CRAN (R 4.0.2)                      
+    #>    ragg             1.1.0      2021-02-15 [1] CRAN (R 4.0.4)                      
+    #>    Rcpp           * 1.0.6      2021-01-15 [1] CRAN (R 4.0.3)                      
+    #>  D RcppParallel     5.0.2      2020-06-24 [1] CRAN (R 4.0.3)                      
+    #>    readr          * 1.4.0      2020-10-05 [1] CRAN (R 4.0.2)                      
+    #>    readxl           1.3.1      2019-03-13 [1] CRAN (R 4.0.2)                      
+    #>    reprex           1.0.0      2021-01-27 [1] CRAN (R 4.0.3)                      
+    #>    reshape2         1.4.4      2020-04-09 [1] CRAN (R 4.0.2)                      
+    #>    rlang            0.4.10     2020-12-30 [1] CRAN (R 4.0.3)                      
+    #>    rprojroot        2.0.2      2020-11-15 [1] CRAN (R 4.0.3)                      
+    #>    rsconnect        0.8.16     2019-12-13 [1] CRAN (R 4.0.2)                      
+    #>    rstan            2.21.2     2020-07-27 [1] CRAN (R 4.0.3)                      
+    #>    rstanarm         2.21.1     2020-07-20 [1] CRAN (R 4.0.2)                      
+    #>    rstantools       2.1.1      2020-07-06 [1] CRAN (R 4.0.2)                      
+    #>    rstudioapi       0.13       2020-11-12 [1] CRAN (R 4.0.3)                      
+    #>    rvest            0.3.6      2020-07-25 [1] CRAN (R 4.0.2)                      
+    #>    sandwich         3.0-0      2020-10-02 [1] CRAN (R 4.0.2)                      
+    #>    scales           1.1.1      2020-05-11 [1] CRAN (R 4.0.2)                      
+    #>    sessioninfo      1.1.1      2018-11-05 [1] CRAN (R 4.0.2)                      
+    #>    shiny            1.6.0      2021-01-25 [1] CRAN (R 4.0.3)                      
+    #>    shinyjs          2.0.0      2020-09-09 [1] CRAN (R 4.0.2)                      
+    #>    shinystan        2.5.0      2018-05-01 [1] CRAN (R 4.0.2)                      
+    #>    shinythemes      1.2.0      2021-01-25 [1] CRAN (R 4.0.3)                      
+    #>    StanHeaders      2.21.0-7   2020-12-17 [1] CRAN (R 4.0.3)                      
+    #>    statmod          1.4.35     2020-10-19 [1] CRAN (R 4.0.3)                      
+    #>    stringi          1.5.3      2020-09-09 [1] CRAN (R 4.0.2)                      
+    #>    stringr        * 1.4.0      2019-02-10 [1] CRAN (R 4.0.2)                      
+    #>    survival         3.2-7      2020-09-28 [1] CRAN (R 4.0.2)                      
+    #>    svUnit           1.0.3      2020-04-20 [1] CRAN (R 4.0.2)                      
+    #>    systemfonts      1.0.1      2021-02-09 [1] CRAN (R 4.0.3)                      
+    #>    textshaping      0.3.0      2021-02-10 [1] CRAN (R 4.0.3)                      
+    #>    TH.data          1.0-10     2019-01-21 [1] CRAN (R 4.0.2)                      
+    #>    threejs          0.3.3      2020-01-21 [1] CRAN (R 4.0.2)                      
+    #>    tibble         * 3.0.6      2021-01-29 [1] CRAN (R 4.0.3)                      
+    #>    tidybayes        2.3.1      2020-11-02 [1] CRAN (R 4.0.2)                      
+    #>    tidyr          * 1.1.2      2020-08-27 [1] CRAN (R 4.0.2)                      
+    #>    tidyselect       1.1.0      2020-05-11 [1] CRAN (R 4.0.2)                      
+    #>    tidyverse      * 1.3.0      2019-11-21 [1] CRAN (R 4.0.2)                      
+    #>    tjmisc           0.0.0.9000 2021-02-25 [1] local                               
+    #>    utf8             1.1.4      2018-05-24 [1] CRAN (R 4.0.2)                      
+    #>    V8               3.4.0      2020-11-04 [1] CRAN (R 4.0.3)                      
+    #>    vctrs            0.3.6      2020-12-17 [1] CRAN (R 4.0.3)                      
+    #>    withr            2.4.1      2021-01-26 [1] CRAN (R 4.0.3)                      
+    #>    xfun             0.21       2021-02-10 [1] CRAN (R 4.0.3)                      
+    #>    xml2             1.3.2      2020-04-23 [1] CRAN (R 4.0.2)                      
+    #>    xtable           1.8-4      2019-04-21 [1] CRAN (R 4.0.2)                      
+    #>    xts              0.12.1     2020-09-09 [1] CRAN (R 4.0.2)                      
+    #>    zoo              1.8-8      2020-05-02 [1] CRAN (R 4.0.2)                      
     #> 
     #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
     #> [2] C:/Program Files/R/R-4.0.4/library
@@ -1508,3 +1382,9 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
 [wood-2004]: https://www.tandfonline.com/doi/abs/10.1198/016214504000000980 "Stable and Efficient Multiple Smoothing Parameter Estimation for Generalized Additive Models"
 
 [gamm4-code]: https://github.com/cran/gamm4/blob/8c89289807ee7092229b13d7129b3eca33101a89/R/gamm4.r "Source code from the gamm4 package"
+
+[gamlss-re]: https://rdrr.io/cran/gamlss/man/random.html "random: Specify a random intercept model in a GAMLSS formula"
+
+[mgcv-re]: https://rdrr.io/cran/mgcv/man/random.effects.html "random.effects: Random effects in GAMs"
+
+[avi-tweet]: https://twitter.com/avehtari/status/1366085190074961921?s=20 "@avehtari [Feb 28]: btw. the two different effective sample size estimates are related (and asymptotically equal given some conditions)"

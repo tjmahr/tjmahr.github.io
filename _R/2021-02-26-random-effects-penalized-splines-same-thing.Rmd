@@ -41,10 +41,12 @@ highlight the connections between the two.
 
 Here are the main takeaways:
 
-  - Mixed effects models use partial pooling to strike a balance between
-    a grand mean (complete pooling) and individual means (no pooling).
-  - Smoothing splines work by penalizing model coefficients to reduce the
-    model degrees of freedom.
+  - Mixed effects models (a.k.a. hierarchical models or multilevel
+    models) use partial pooling to strike a balance between a grand
+    population mean (complete pooling) and individual group means (no
+    pooling).
+  - Smoothing splines work by penalizing model coefficients to reduce
+    the model degrees of freedom.
   - You can use the computational machinery of one framework to estimate
     the other.
 
@@ -84,7 +86,13 @@ The magic here is the *σ*<sub>*b*</sub>, as it ties all of the
 individual effects in **b** under a common distribution. If
 *σ*<sub>*b*</sub> were replaced with a fixed number like 10, then all
 of the effects in **b** would be independent and unaware of each other:
-There would be no pooling of information between the groups.
+There would be *no pooling* of information between the groups. If we
+remove it from the model---replace *σ*<sub>*b*</sub> with 0, so to
+speak---then all the group variability is ignored, and there is
+*complete pooling* of information into a single mean effect. With 
+*σ*<sub>*b*</sub> all the groups can contribute information about the 
+distribution of plausible effects, and so, there can be 
+*partial pooling* of information between groups.
 
 Consider the [`radon` dataset][radon] example from [Gelman and Hill
 (2007)][arm-book]. Radon measurements were taken in Minnesota
@@ -139,20 +147,18 @@ radon_aug$type <- "mixed model estimates"
 radon$type <- "observed means"
 
 ggplot(radon_aug) + 
-  aes(x = fct_infreq(county), y = log_radon) +
-  stat_summary(
-    aes(color = type, shape = type),
-    data = radon,
-    fun = mean,
-    geom = "point"
+  aes(
+    x = fct_rev(fct_infreq(county)), 
+    y = log_radon, 
+    color = type, 
+    shape = type
   ) +
-  geom_point(
-    aes(y = .value, color = type, shape = type)
-  ) + 
-  # want to include 0 in the figure
+  stat_summary(data = radon, fun = mean, geom = "point") +
+  geom_point(aes(y = .value)) + 
+  # Want to include y = 0 in the figure
   geom_blank(aes(y = 0)) +
   labs(
-    x = "county (in decreasing order by sample size)", 
+    x = "county (in increasing order by sample size)", 
     y = "log(radon)"
   ) +
   geom_hline(yintercept = fixef(b_radon)[1]) +
@@ -170,9 +176,12 @@ ggplot(radon_aug) +
   ) 
 ```
 
-We see a classic example of partial pooling. For counties with many
-observations, the estimate mean is hardly adjusted. For counties with
-less data, the estimate is pulled towards the population mean
+We see a classic example of partial pooling. First note that model
+estimates (blue circles) are less variable: None go above *y* = 2 and
+only four go below *y* = 1. For counties with many observations (right
+side), the estimated mean is hardly adjusted. There is less of a visual
+gap between the observed mean and estimated mean. For counties with less
+data (left side), the estimate is pulled towards the population mean
 (`Intercept` in the summary above).
 
 The following plot shows difference between the observed means and
@@ -192,13 +201,15 @@ radon_aug %>%
     ) 
 ```
 
-
-
 The contention behind the *smooths = random effects* claim is that what we
 just did is a case of *smoothing*. These random effects are, in a way, 
 smoothed fixed effects.
 
-
+> The function `random()` can be seen as a smoother for use with factors
+> in `gamlss()`. It allows the fitted values for a factor predictor to
+> be shrunk towards the overall mean [...]
+> 
+> — [GAMLSS documentation][gamlss-re] describing a random intercept as a smoother
 
 
 ## But what's smoothing?
@@ -497,8 +508,8 @@ ggplot(mcycle) +
   labs(
     x = "time after impact [ms]", 
     y = "acceleration [g]", 
-    color = "lambda"
-  )
+    color = expression(lambda)
+  ) 
 ```
 
 We need some way to talk about how much smoothing took place. On the one
@@ -725,7 +736,7 @@ from studying the brms source code.
 Indeed, if we look at the actual Stan code used to fit the model, we see
 a mixed effects model. **I suggest you only skim this code.**
 
-```{r}
+```{r, comment = "", collapse = FALSE}
 b_gam_20$model
 ```
 
@@ -737,7 +748,7 @@ $$
    \mathbf{S} &: \texttt{s_1_1} & \texttt{// actual spline coefficients}\\
    \mathbf{\sigma} &:  \texttt{sds_1_1} & \texttt{// standard deviations of spline coefficients}\\
    \mathbf{Z} &:  \texttt{zs_1_1} & \texttt{// standardized spline coefficients}\\
-   \mathbf{S} &= \sigma \cdot \mathbf{Z} & \texttt{s_1_1 = sds_1_1 * zs_1_1}; \\
+   \mathbf{S} &= \sigma \mathbf{Z} & \texttt{s_1_1 = sds_1_1 * zs_1_1}; \\
    \mathbf{Z} &\sim \textsf{Normal}(0, 1) & \texttt{target += std_normal_lpdf(zs_1_1);}\\
    \mathbf{\sigma} &\sim \textsf{StudentT}(3, 0, 35.6) & \texttt{target += student_t_lpdf(sds_1_1 | 3, 0, 35.6) ...}\\
 
@@ -760,23 +771,27 @@ I'll just show the relevant part:
 
 ```{r, eval = FALSE}
 b_radon$model
-#> ...
-#> parameters {
-#>   ...
-#>   vector<lower=0>[M_1] sd_1;  // group-level standard deviations
-#>   vector[N_1] z_1[M_1];  // standardized group-level effects
-#> }
-#> transformed parameters {
-#>   vector[N_1] r_1_1;  // actual group-level effects
-#>   r_1_1 = (sd_1[1] * (z_1[1]));
-#> }
-#> model {
-#>   ...
-#>   target += student_t_lpdf(sd_1 | 3, 0, 2.5)
-#>     - 1 * student_t_lccdf(0 | 3, 0, 2.5);
-#>   target += std_normal_lpdf(z_1[1]);
-#> }
 ```
+
+```
+...
+parameters {
+  ...
+  vector<lower=0>[M_1] sd_1;  // group-level standard deviations
+  vector[N_1] z_1[M_1];  // standardized group-level effects
+}
+transformed parameters {
+  vector[N_1] r_1_1;  // actual group-level effects
+  r_1_1 = (sd_1[1] * (z_1[1]));
+}
+model {
+  ...
+  target += student_t_lpdf(sd_1 | 3, 0, 2.5)
+    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+  target += std_normal_lpdf(z_1[1]);
+}
+```
+
 
 
 
@@ -788,8 +803,8 @@ b_radon$model
 One consequence of this relationship is that you can walk this relation
 backwards: You can fit a simple random effects using a basis matrix and
 penalty matrix. Indeed, mgcv provides a [random effects (`"re"`)
-smoother](https://rdrr.io/cran/mgcv/man/random.effects.html) basis so we
-can estimate our mixed model from above using a smooth.
+smoother][mgcv-re] basis so we can estimate our mixed model from
+above using a smooth.
 
 ```{r}
 gam_radon <- gam(
@@ -856,11 +871,10 @@ Here `p_loo` is the effective number of parameters from a leave-one-out
 cross-validation method. It's around 45. Our mgcv model has around 41.6
 parameters (39.6 from the smooth plus intercept and sigma). These two
 parameter estimating methods are <strike>unrelated (as far as I
-know)</strike> related ([thanks Avi
-Vehtari](https://twitter.com/avehtari/status/1366085190074961921?s=20)),
-and they both seem to telling us something similar about how much
-information in `county` variable we have after partially pooling down
-the model parameters.
+know)</strike> related ([thanks Avi Vehtari][avi-tweet]), and they
+both seem to telling us something similar about how much information in
+`county` variable we have after partially pooling down the model
+parameters.
 
 For a deeper dive on random effects, Gavin Simpson recently wrote about
 [how to use mgcv for random effects][gs-re], so I encourage readers
@@ -894,7 +908,7 @@ distinction when we use the phrase "random effects".
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_footer.Rmd", R.options=list(width = 85)}
 ```
 
 
@@ -944,3 +958,9 @@ distinction when we use the phrase "random effects".
 [wood-2004]: https://www.tandfonline.com/doi/abs/10.1198/016214504000000980 "Stable and Efficient Multiple Smoothing Parameter Estimation for Generalized Additive Models"
 
 [gamm4-code]: https://github.com/cran/gamm4/blob/8c89289807ee7092229b13d7129b3eca33101a89/R/gamm4.r "Source code from the gamm4 package"
+
+[gamlss-re]: https://rdrr.io/cran/gamlss/man/random.html "random: Specify a random intercept model in a GAMLSS formula"
+
+[mgcv-re]: https://rdrr.io/cran/mgcv/man/random.effects.html "random.effects: Random effects in GAMs"
+
+[avi-tweet]: https://twitter.com/avehtari/status/1366085190074961921?s=20 "@avehtari [Feb 28]: btw. the two different effective sample size estimates are related (and asymptotically equal given some conditions)"
