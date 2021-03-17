@@ -22,18 +22,23 @@ permalink: /cv.html
 
 **Data scientist** - Wisconsin Intelligibility, Speech and Communication Laboratory
 
-I study how children with cerebral palsy learn to talk and communicate. The
-project has amassed nearly 15 years of longitudinal speech and language data
-from children with cerebral palsy, and I analyze the developmental trajectories
-of these children.
+I study how children with cerebral palsy learn to talk and communicate.
+The project has amassed nearly 15 years of longitudinal speech and
+language data from children with cerebral palsy, and I analyze the
+developmental trajectories of these children. We also have collected
+data on nearly 600 typically developing children, and I developed
+quantile growth curves for features of these children's speech. My work
+involves a mix of data programming, corpus phonetics, and statistical
+modeling and reporting.
 
 
 **Statistical consulting** - Freelance.
 
-I have consulted on generalized mixed-effects regression models. I fit models
-and visualize data from psychology experiments. I deliver reproducible analyses
-with tutorials/commentary on the analysis steps and code.
-([Get in touch.](mailto:tjmahrweb@gmail.com))
+I have consulted on generalized mixed-effects models and Bayesian
+regression models. I fit models and visualize data from psychology
+experiments. I deliver reproducible analyses with tutorials/commentary
+on the analysis steps and code. ([Get in
+touch.](mailto:tjmahrweb@gmail.com))
 
 
 ## <i class="fas fa-list-ul"></i> Previous positions
@@ -59,15 +64,62 @@ eyetracking and speech perception experiments from this project.
 **Languages**: Mastery of R. Regular practice writing SQL, HTML/CSS, XML, YAML,
 Stan. Some practice with Java, JavaScript and Python. Exposure to Clojure.
 
-**Computing tools and technologies**: bash/batch scripting, git and GitHub, tidy
-data and the R tidyverse, Shiny, knitr/rmarkdown, Docker, Praat, makefiles,
-regular expressions.
+**Computing tools and technologies**: bash/batch scripting, git and
+GitHub, tidy data and the R tidyverse, targets/drake workflows, Shiny,
+knitr/rmarkdown, Jekyll, Docker, Praat, makefiles, regular expressions.
 
-**Statistics**: Regression: generalized linear models, hierarchical and mixed
-effects models, generalized additive models, and Bayesian versions of these
-models. Structural equation modeling and factor analysis. Neural networks:
-practice with shallow networks, familiarity with how some deep network
-architectures work (CNNs, RBMs, RNNs, denoising autoencoders).
+**Statistics**: Regression: generalized linear models, hierarchical and
+mixed effects models, generalized additive models, and Bayesian versions
+of these models. Nonlinear regression models. Structural equation
+modeling and factor analysis. Neural networks: practice with shallow
+networks, familiarity with how some deep network architectures work
+(CNNs, RBMs, RNNs, denoising autoencoders).
+
+
+## <i class="fas fa-code"></i> Software
+
+**[bayesplot](http://mc-stan.org/bayesplot/)**. R package for visualizing 
+Bayesian models and MCMC samples. It is the plotting library for 
+the [Stan programming language](http://mc-stan.org/).
+
+**[readtextgrid](https://CRAN.R-project.org/package=readtextgrid)**. R
+package for reading in Praat textgrids.
+
+**[iccbot](https://tristan.shinyapps.io/iccbot/)**. A Shiny app for 
+computing intraclass correlation coefficients as a reliability measure.
+
+**[rprime](https://CRAN.R-project.org/package=rprime)**. R package for
+working Eprime text files.
+
+**[polypoly](https://CRAN.R-project.org/package=polypoly)**. Tools for 
+orthogonal polynomials.
+
+**[littlelisteners](/littlelisteners/)**. A general-purpose R package for
+dealing with eyetracking data.
+
+**[lookr](https://github.com/tjmahr/lookr)**. R package for dealing with
+eyetracking data for the Learning To Talk lab.
+
+**[L2TDatabase](https://github.com/LearningToTalk/L2TDatabase)**. R package for
+working with the Learning To Talk lab's MySQL database. Helper functions for
+creating, updating, backing-up MySQL tables in R.
+
+**[adventofcode17](https://github.com/tjmahr/adventofcode17)**. Completed a 
+[series of programming puzzles](http://adventofcode.com/2017) in R.
+
+Plus, countless other R packages for various projects or problems.
+
+I have also peer-reviewed software:
+
+* [charlatan](https://github.com/ropensci/onboarding/issues/94#issuecomment-283799109), 
+  a tool for generating fake data
+* [bayestestR](https://github.com/openjournals/joss-reviews/issues/1541#issuecomment-516067570), 
+  functions for describing Bayesian models and posterior distributions
+* [pypillometry](https://github.com/openjournals/joss-reviews/issues/2348), 
+  a Python package for pupillometric analyses
+* [targets and tarchetypes](https://github.com/ropensci/software-review/issues/401#issuecomment-756246001), 
+  a Make-like build pipeline package for R
+
 
 ## <i class="fas fa-paragraph"></i> Publications
 
@@ -98,46 +150,12 @@ architectures work (CNNs, RBMs, RNNs, denoising autoencoders).
 
 
 
-## <i class="fas fa-code"></i> Software
-
-**[bayesplot](http://mc-stan.org/bayesplot/)**. R package for visualizing 
-Bayesian models and MCMC samples. It is the plotting library for 
-the [Stan programming language](http://mc-stan.org/).
-
-**[rprime](http://cran.r-project.org/web/packages/rprime)**. R package for
-working Eprime text files.
-
-**[polypoly](http://cran.r-project.org/web/packages/polypoly)**. Tools for 
-orthogonal polynomials.
-
-**[littlelisteners](/littlelisteners/)**. A general-purpose R package for
-dealing with eyetracking data.
-
-**[lookr](https://github.com/tjmahr/lookr)**. R package for dealing with
-eyetracking data for the Learning To Talk lab.
-
-**[L2TDatabase](https://github.com/LearningToTalk/L2TDatabase)**. R package for
-working with the Learning To Talk lab's MySQL database. Helper functions for
-creating, updating, backing-up MySQL tables in R.
-
-**[adventofcode17](https://github.com/tjmahr/adventofcode17)**. Completed a 
-[series of programming puzzles](http://adventofcode.com/2017) in R.
-
-Plus, countless other R packages for various projects or problems.
-
-I have also peer-reviewed software:
-
-* [charlatan](https://github.com/ropensci/onboarding/issues/94#issuecomment-283799109), 
-  a tool for generating fake data
-* [bayestestR](https://github.com/openjournals/joss-reviews/issues/1541#issuecomment-516067570), 
-  functions for describing Bayesian models and posterior distributions
-
 
 
 
 ## <i class="fas fa-bullhorn"></i> Presentations
 
-### Invited talks
+### <i class="fas fa-hand-sparkles"></i> Invited talks
 
 {% assign invited_talks = site.data.bib.talks | where: "type", "invited" %}
 
@@ -168,7 +186,7 @@ I have also peer-reviewed software:
 
 
 
-### Conference talks
+### <i class="fas fa-microphone"></i> Conference talks
 
 {% assign authored_talks = site.data.bib.talks | where: "type", "authored" %}
 
@@ -196,7 +214,7 @@ I have also peer-reviewed software:
 {% endfor %}
 
 
-### Coauthored talks (i.e., I didn't talk, but probably did stats and made figures)
+### <i class="fas fa-people-carry"></i> Coauthored talks (i.e., I didn't talk, but probably did stats and made figures)
 
 {% assign coauthored_talks = site.data.bib.talks | where: "type", "coauthored" %}
 
@@ -219,7 +237,7 @@ I have also peer-reviewed software:
 
 
 
-### Posters
+### <i class="fas fa-image"></i> Posters
 
 {% for pub in site.data.bib.posters %}
 

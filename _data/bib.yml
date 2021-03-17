@@ -15,12 +15,70 @@ abbreviations:
   - &kch Hustad, K. C.
   - &as Sakash, A.
   - &pjr Rathouz, P. J.
+  - &vb Berisha, V.
+  - &kk Kawabata, K.
+  - &jl Liss, Julie
   - &where_srcld_poster >
     Poster session presented at the annual Symposium on Research in Child
     Language Disorders, Madison, WI.
 
 
 publications:
+
+  -
+    authors:
+      - *tjm
+      - *vb
+      - *kk
+      - *jl
+      - *kch
+    when:
+      year: 2021
+    title: >
+      Performance of Forced-Alignment Algorithms on Children's Speech
+    where:
+      journal: Journal of Speech, Language, and Hearing Research
+      # volume: todo - epub ahead of print
+      # pages: todo - epub ahead of print
+    doi: 10.1044/2020_JSLHR-20-00268
+    bonus:
+      type: file-alt
+      text: Preprint.
+      url: https://psyarxiv.com/97jp4/
+
+  -
+    authors:
+      - *as
+      - *tjm
+      - *kch
+    when:
+      year: 2021
+    title: >
+      Validity of Parent Ratings of Speech Intelligibility for Children with
+      Cerebral Palsy
+    where:
+      journal: Developmental Neurorehabilitation
+      volume: 24
+      pages: 98--106
+    doi: 10.1080/17518423.2020.1830447
+
+
+  -
+    authors:
+      - *tjm
+      - *pjr
+      - *kch
+    when:
+      year: 2020
+    title: >
+      Longitudinal Growth in Intelligibility of Connected Speech From 2 to
+      8 Years in Children With Cerebral Palsy: A Novel Bayesian Approach
+    where:
+      journal: Journal of Speech, Language, and Hearing Research
+      volume: 63
+      pages: 2880-2893
+    doi: 10.1044/2020_JSLHR-20-00181
+
 
   -
     authors:
@@ -34,9 +92,10 @@ publications:
       Development of Speech Intelligibility Between 30 and 47 Months in Typically Developing Children: A Cross-Sectional Study of Growth
     where:
       journal: Journal of Speech, Language, and Hearing Research
-      # volume: todo - epub ahead of print
-      # pages: todo - epub ahead of print
+      volume: 63
+      pages: 1675-1687
     doi: 10.1044/2020_JSLHR-20-00008
+
 
   -
     authors:
@@ -47,11 +106,12 @@ publications:
     when:
       year: 2020
     title: >
-      Measuring speech production development in children with cerebral palsy between 6 and 8 years of age: Relationships among measures
+      Measuring Speech Production Development in Children With Cerebral Palsy
+      Between 6 and 8 Years of Age: Relationships Among Measures
     where:
       journal: Language, Speech, and Hearing Services in Schools
-      # volume: todo - epub ahead of print
-      # pages: todo - epub ahead of print
+      volume: 51
+      pages: 882-896
     doi: 10.1044/2020_LSHSS-19-00102
 
   -
@@ -63,7 +123,9 @@ publications:
     when:
       year: 2020
     title: >
-      Longitudinal Growth in Single-Word Intelligibility Among Children With Cerebral Palsy From 24 to 96 Months of Age: Effects of Speech-Language Profile Group Membership on Outcomes
+      Longitudinal Growth in Single-Word Intelligibility Among Children With
+      Cerebral Palsy From 24 to 96 Months of Age: Effects of Speech-Language
+      Profile Group Membership on Outcomes
     where:
       journal: Journal of Speech, Language, and Hearing Research
       volume: 63
@@ -167,7 +229,23 @@ publications:
       url: https://github.com/tjmahr/2015_Coartic
 
 
+
 talks:
+
+  # ASHA 2019
+  - type: authored
+    title: >
+      Intelligibility in Connected Speech in Children with Cerebral Palsy
+    authors:
+      - *tjm
+      - *pemn
+      - *kch
+    when:
+      year: 2019
+      month: November
+    where: >
+      Technical Research Session at the Annual Conference of the
+      American Speech-Language-Hearing Association, Orlando, FL.
 
   # satRday chicago 2019
   - type: authored
@@ -234,7 +312,7 @@ talks:
       month: November
     where: >
       Technical Research Session at the Annual Conference of the
-      American Speech-Language-Hearing Association, Philadelphia, IL.
+      American Speech-Language-Hearing Association, Philadelphia, PA.
 
   # BUCLD 2016
   - type: authored
@@ -366,6 +444,77 @@ talks:
 
 posters:
 
+  # ASHA 2020
+  - authors:
+    - *as
+    - *tjm
+    - *kch
+    when:
+      year: 2020
+      month: November
+    title: >
+       Parent Estimates of Intelligibility in Cerebral Palsy: Relationship
+       with Objective Measurement within Speech Severity Groups
+    where: >
+      Proposal accepted at the Annual Convention of the American
+      Speech-Language-Hearing Association, San Diego, CA (Convention canceled).
+
+  # Motorspeech 2020
+  - authors:
+    - *tjm
+    - *kk
+    - Mathad, V. C.
+    - *vb
+    - Tang, S.
+    - Vradelis, H.
+    - *jl
+    - *kch
+    - *kch
+    when:
+      year: 2020
+      month: February
+    title: >
+       Performance of forced-alignment algorithms on children’s speech
+    where: >
+      Proposal accepted at the Conference on Motor Speech, Santa Barbara, CA.
+    bonus:
+      type: flask
+      text: Poster on Github.
+      url: https://github.com/tjmahr/Motorspeech2020
+
+  # ASHA 2019
+  - authors:
+    - *kch
+    - *tjm
+    - *pemn
+    when:
+      year: 2019
+      month: November
+    title: >
+      Speech Intelligibility Development Between 36--47 Months in Typically
+      Developing Children
+    where: >
+      Poster session presented at the Annual Conference of the American
+      Speech-Language-Hearing Association, Orlando, FL. [<i class="fas fa-award"></i> Meritorious poster award.]
+
+  # ASHA 2019
+  - authors:
+    - Vradelis, H.
+    - Tang, S.
+    - *kk
+    - *tjm
+    - *vb
+    - *jl
+    - *kch
+    when:
+      year: 2019
+      month: November
+    title: >
+       Automatic Speech Recognition: An Objective Measure of Segmental
+       Integrity in Children's Connected Speech
+    where: >
+      Poster session presented at the Annual Conference of the American
+      Speech-Language-Hearing Association, Orlando, FL.
 
   # SRCLD 2019
   - authors:
@@ -415,6 +564,23 @@ posters:
       type: flask
       text: Data, scripts, poster on Github.
       url: https://github.com/tjmahr/bucld2017b
+
+
+  # ASHA 2017
+  - authors:
+    - *mee
+    - *tjm
+    - *jre
+    when:
+      year: 2017
+      month: November
+    title: >
+      The Influence of Dialect Familiarity on Preschool Children's Spoken
+      Word Recognition
+    where: >
+      Poster session presented at the Annual Conference of the American
+      Speech-Language-Hearing Association, Los Angeles, CA.
+
 
   # SRCLD 2016
   - authors:

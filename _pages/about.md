@@ -9,8 +9,8 @@ permalink: /about.html
 ---
 
 In a phrase: Speech pathologist turned data scientist. I wrangle data, crunch
-numbers, plot pictures, and fit models to study how children with cerebral palsy
-learn to communicate.
+numbers, plot pictures, and fit models to study how children 
+learn to speak and communicate.
 
 I earned my Ph.D. in communication sciences and disorders in Madison, Wisconsin.
 On paper, I was studying speech development, word recognition and word learning
@@ -26,9 +26,9 @@ better than giving someone that moment of feeling like a wizard.
 Here are some things I might write about here:
 
 * R
+* Mixed effects models
 * Bayesian statistics
 * How to plot certain kinds of data
 * Functional programming
 * Reproducible computing
-* Neural networks
 * Whatever other little thing I have learned to do recently
