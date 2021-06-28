@@ -1,0 +1,200 @@
+---
+title: Draft post (2021-06-28)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+old_dir <- getwd()
+```
+
+
+This blog runs on Jekyll. Nowadays, we would probably use blogdown to
+create a blog using R, but blogdown didn't exist when I created it. Once
+Jekyll is up and running, my workflow for writing and publishing my blog is 
+therefore:
+
+1.  write RMarkdown `.Rmd` files in the `_R` directory.
+2.  `knit()` those RMarkdown files, storing the output in as a `.md` in
+    `_posts`.
+
+
+So we pairs of input files and output files, and then output files need 
+to be regenerated whenever the input files. This year, I started using the 
+targets package to manage this problem. Now, whenever one of my input 
+files is changed, the output is updated automatically.
+
+Here is a sketch of how this process works. First, let's create a silly site 
+in an empty directory.
+
+```{r}
+site_dir <- file.path(tempdir(), pattern = "blognarok")
+dir.create(site_dir)
+setwd(site_dir)
+```
+
+```{r}
+old_root_dir <- knitr::opts_knit$get("root.dir")
+knitr::opts_knit$set(root.dir = site_dir)
+```
+
+
+```{r}
+getwd(site_dir)
+dir.create("_R")
+dir.create("_posts")
+
+writeLines(
+  glue::glue(
+    "
+    # Hello world!
+    
+    Welcome to my site!
+    "
+  ), 
+  "_R/2021-05-11-hello.Rmd"
+)
+
+writeLines(
+  glue::glue(
+    "
+    # Best number
+    
+    My favorite number is `r rpois(1, 7)`.
+    "
+  ), 
+  "_R/2021-05-12-favorite-number.Rmd"
+)
+
+
+```
+
+
+Which leads this setup. We need to create the corresponding pieces in `_posts`.
+
+```{r}
+fs::dir_tree()
+```
+
+
+Here is how we can knit one of these posts. First, we can derive the
+path of the output from the path of the input.
+
+```{r}
+knit_post <- function(file_in) {
+  rmd_doc_to_md_post <- function(x, out_dir = "./_posts") {
+    out_file <- paste0(tools::file_path_sans_ext(basename(x)), ".md")
+        file.path(out_dir, out_file)
+  }
+  
+  knit_it <- function(file_in, file_out) {
+    library(knitr)
+    # render_markdown()
+    knit(input = file_in, output = file_out)
+    file_out
+  }
+  
+  callr::r(
+   knit_it,
+    list(file_in, rmd_doc_to_md_post(file_in))
+  )  
+}
+
+
+knit_post("./_R/2021-05-11-hello.Rmd")
+
+cat(brio::read_file("_posts/2021-05-11-hello.md"))
+```
+
+
+
+
+```{r first-network, fig.width = 5, fig.height = 3, dpi = 300, fig.asp = NA}
+
+
+targets::tar_script({
+  library(targets)
+  # library(tarchetypes)
+  
+  knit_post <- function(file_in) {
+    rmd_doc_to_md_post <- function(x, out_dir = "./_posts") {
+      out_file <- paste0(tools::file_path_sans_ext(basename(x)), ".md")
+          file.path(out_dir, out_file)
+    }
+    
+    knit_it <- function(file_in, file_out) {
+      library(knitr)
+      # render_markdown()
+      knit(input = file_in, output = file_out)
+      file_out
+    }
+    
+    callr::r(
+     knit_it,
+      list(file_in, rmd_doc_to_md_post(file_in))
+    )  
+  }
+
+  list(
+    tar_target(
+      rmd_2021_05_11,
+      "./_R/2021-05-11-hello.Rmd",
+      format = "file"
+    )
+    ,
+    tar_target(
+      md_2021_05_11,
+      knit_post(rmd_2021_05_11),
+      format = "file"
+    )
+  )
+})
+
+targets::tar_make()
+targets::tar_visnetwork()
+
+```
+
+
+
+
+
+
+I converted my blog to use the targets package to manage its build.
+
+
+
+I use Jekyll to build my site currently. blogdown didn't exist when I created this site, so this is where we are.
+
+I write my posts as .Rmd files in an `_R/` folder.
+
+```{r}
+list.files("_R/")
+```
+
+The bottom of every post includes a footer which a link to the Github
+source for a post and the session information in footnote.
+
+```{r}
+# readLines("./_R/_footer.Rmd")
+```
+
+So every post depends on two
+
+```{r}
+
+```
+
+
+
+
+```{r, include = FALSE}
+setwd(old_dir)
+knitr::opts_knit$set(root.dir = old_root_dir)
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```
