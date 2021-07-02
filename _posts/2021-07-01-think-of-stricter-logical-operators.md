@@ -177,7 +177,7 @@ Javascript with the ["nullish coalescing operator"
 
 Why do I mention this programming idiom from Javascript? Because setting
 a default for missing values is pretty useful, and this syntax is pretty
-nice. The tidyverse provides [a nullish coalescing
+nice. The tidyverse provides [a null coalescing
 operator](https://rlang.r-lib.org/reference/op-null-default.html),
 inspired by Ruby's `||` operator.
 
@@ -188,6 +188,7 @@ library(purrr)
 #> [1] 1
 NULL %||% 2
 #> [1] 2
+
 # Not exactly or-like. It just cares about NULL-ness.
 FALSE %||% 2
 #> [1] FALSE
@@ -200,7 +201,7 @@ FALSE %||% 2
 #>         y
 #>     else x
 #> }
-#> <bytecode: 0x000000001f08c228>
+#> <bytecode: 0x000000001f07d660>
 #> <environment: namespace:rlang>
 ```
 
@@ -444,7 +445,7 @@ they are stricter.
 
 ***
 
-*Last knitted on 2021-07-01. [Source code on
+*Last knitted on 2021-07-02. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-think-of-stricter-logical-operators.Rmd).*[^si] 
 
 [^si]: 
@@ -461,11 +462,11 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-thi
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-07-01                  
+    #>  date     2021-07-02                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package     * version date       lib source        
-    #>  cli           2.5.0   2021-04-26 [1] CRAN (R 4.1.0)
+    #>  cli           3.0.0   2021-06-30 [1] CRAN (R 4.1.0)
     #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.1.0)
     #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.0)
     #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
@@ -483,7 +484,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-thi
     #>  rlang         0.4.11  2021-04-30 [1] CRAN (R 4.1.0)
     #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
     #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.1.0)
-    #>  stringi       1.6.1   2021-05-10 [1] CRAN (R 4.1.0)
+    #>  stringi       1.6.2   2021-05-17 [1] CRAN (R 4.1.0)
     #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
     #>  systemfonts   1.0.2   2021-05-11 [1] CRAN (R 4.1.0)
     #>  textshaping   0.3.5   2021-06-09 [1] CRAN (R 4.1.0)

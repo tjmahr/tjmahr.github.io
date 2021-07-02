@@ -50,7 +50,7 @@ footer|stem|cfa1cdde31c4cd05|5eebd231dabb7081|ef46db3751d8e999|1740462663|_R/_fo
 2017-08-15-set-na-where-nonstandard-evaluation-use-case.Rmd|stem|ccaafe7a4e688457|f54d9984243cc8ac|ef46db3751d8e999|801736617|./_R/2017-08-15-set-na-where-nonstandard-evaluation-use-case.Rmd|t18661.6467436798s|805994b681531a6c|9788|file|vector|||0||
 2019-11-25-another-mixed-effects-model-visualization.Rmd|stem|0440157b115903bd|c3787509a00278b5|ef46db3751d8e999|409671092|./_R/2019-11-25-another-mixed-effects-model-visualization.Rmd|t18661.667676721s|91eb28d0a8dba9b2|16905|file|vector|||0||
 2015-05-03-sem-paths-with-diagrammer.Rmd|stem|1c367dd785c8b17a|5894b70643477767|ef46db3751d8e999|542970276|./_R/_drafts/2015-05-03-sem-paths-with-diagrammer.Rmd|t17821.7750791787s|655903f9b31c339f|135|file|vector|||0||
-2021-07-01-think-of-stricter-logical-operators.Rmd|stem|24783edf9b332920|8488e8da7ec24daa|ef46db3751d8e999|-1392303034|./_R/2021-07-01-think-of-stricter-logical-operators.Rmd|t18809.7960550213s|f4258dd715e99a6d|11962|file|vector|||0||
+2021-07-01-think-of-stricter-logical-operators.Rmd|stem|9477b375580a19a2|8488e8da7ec24daa|ef46db3751d8e999|-1392303034|./_R/2021-07-01-think-of-stricter-logical-operators.Rmd|t18810.5837026762s|f989f161fe9995e6|11961|file|vector|||0||
 2016-12-07-fold-reduce-tutorial.Rmd|stem|26a5c428f3e00ed4|7faba50c6890fc8c|ef46db3751d8e999|846407014|./_R/_drafts/2016-12-07-fold-reduce-tutorial.Rmd|t17821.7750791787s|dcf7bb637e51fc33|5023|file|vector|||0||
 2018-10-18-invasive-zebu.Rmd|stem|c3043a08ac841ba8|4ae1789dd9097c3d|ef46db3751d8e999|420103549|./_R/_drafts/2018-10-18-invasive-zebu.Rmd|t17938.8252168045s|56b0c719b5c70c6e|4544|file|vector|||0||
 2021-03-03-embattled-yellowhammer.Rmd|stem|ae593e9665e7b83b|1339f6cf57b2d5ce|ef46db3751d8e999|-2144939490|./_R/_drafts/2021-03-03-embattled-yellowhammer.Rmd|t18696.7851577451s|0ae8d1eb7164fbd2|1848|file|vector|||0||
@@ -85,7 +85,7 @@ spellcheck_exceptions|stem|03774045d3d7fb57|5f24d7b8d52cae7e|a3dad144c40657ed|12
 2017-08-15-set-na-where-nonstandard-evaluation-use-case.md|stem|705a5c2439ec9462|0651637639092435|1b8f82cc8d565326|1797954606|_posts/2017-08-15-set-na-where-nonstandard-evaluation-use-case.md|t18673.7841847317s|25978c10a1f02ce0|17772|file|vector|||3.72||
 2019-11-25-another-mixed-effects-model-visualization.md|stem|1f7bb6ca1b8c968e|b1b8f85cb630a6ca|e5d881bd6195b94c|264776004|_posts/2019-11-25-another-mixed-effects-model-visualization.md|t18673.8215707898s|3d531f3aa7feb7dd|33235|file|vector|||11.82||
 2015-05-03-sem-paths-with-diagrammer.md|stem|1c367dd785c8b17a|72679f3cb9a9b351|4849e7b85ab682af|-956190778|_drafts/2015-05-03-sem-paths-with-diagrammer.md|t18674.808754613s|655903f9b31c339f|135|file|vector|||0.38||
-2021-07-01-think-of-stricter-logical-operators.md|stem|ad2703cabf03cd86|d423648185d53e66|ba94f2efcfe34bf2|-1869039857|_posts/2021-07-01-think-of-stricter-logical-operators.md|t18809.7961916717s|a332a00e765839b2|16061|file|vector|||4.24||
+2021-07-01-think-of-stricter-logical-operators.md|stem|bf676df67fe48119|d423648185d53e66|06dfdb60a680ff64|-1869039857|_posts/2021-07-01-think-of-stricter-logical-operators.md|t18810.5840011358s|fd87de3c903ea4d1|16060|file|vector|||7.61||
 2016-12-07-fold-reduce-tutorial.md|stem|ba76e8746aeea4c6|79e0031e056e284e|2833e5032a60630d|1221535565|_drafts/2016-12-07-fold-reduce-tutorial.md|t18674.8087721222s|8f0209122018528d|7088|file|vector|||1.52||
 2018-10-18-invasive-zebu.md|stem|b7021a7d9423049c|a46c0ff55919cb06|d7e6926d348f3cd8|-1439591128|_drafts/2018-10-18-invasive-zebu.md|t18674.8087494291s|a49c1c1387af3240|5572|file|vector|||1.8||
 2021-03-03-embattled-yellowhammer.md|stem|66e0a73429b0e84e|ab9ad0dd75822b95|d3068febf7531850|-1543611654|_drafts/2021-03-03-embattled-yellowhammer.md|t18696.7851925825s|01bb11c0ef78a13b|1691|file|vector|||0.67||
@@ -116,8 +116,8 @@ draft_rmds|stem|b890c97baa613460|a4536028d6e1e410|88bc8bbd24011a75|-1196489879||
 2016-08-15-recent-adventures-with-lazyeval.md|stem|84fc5c5cd1bc4d5e|3f99dc27a5fb1558|e10f409231c17a50|1601453639|_posts/2016-08-15-recent-adventures-with-lazyeval.md|t18673.7817983479s|860c6dde2c45d862|19873|file|vector|||18.43||
 2018-04-03-ridgelines-in-bayesplot-1-5-0-release.md|stem|4bad2f3a4c4a6b8d|020c5566e3bc4b31|c961bb456128df09|1410565225|_posts/2018-04-03-ridgelines-in-bayesplot-1-5-0-release.md|t18673.8117612301s|eef3dbe7e5999159|27316|file|vector|||80.77||
 2016-03-23-setnames-dots.md|stem|e5c96238fd016741|f51eb250de400fda|9136ed52ea8b7c30|28501784|_posts/2016-03-23-setnames-dots.md|t18673.781863591s|aeb5e30c86ca557c|9728|file|vector|||1.61||
-post_rmds|stem|6f1d082a9a637740|78ecfd15bb6041d8|4154bd884030f061|752582536||t18809.7961935512s|ab6517b03d4779f4|785|rds|vector|||0.02||
+post_rmds|stem|6f1d082a9a637740|78ecfd15bb6041d8|28217f8500a3ce17|752582536||t18810.5840048896s|ab6517b03d4779f4|785|rds|vector|||0||
 2017-05-30-polypoly-package-released.md|stem|269a484447c0c7d4|e11587537a0945df|93c76f80f5f7de03|-2042094545|_posts/2017-05-30-polypoly-package-released.md|t18673.7995275774s|c6c4c661947d3da0|21437|file|vector|||11.38||
 spellcheck_current|stem|a244ba4e2b47aeb7|0027400a91e7ad81|b5a43f4cf74caaa7|-574490618||t18809.766570371s|4328cc0b979f6ab6|1112|rds|vector|||1.55||
-spellcheck_current_results_change|stem|4b8e75790bb46890|6c36a24e5e54667c|a80cea37ba8111fb|-1201225623||t18809.796193759s|b75a24994a596ec9|65|rds|vector|||0||
-spellcheck_current_results|stem|a244ba4e2b47aeb7|803bddce9e6e9822|267cdb99a86fd0c7|-515747826||t18809.7961939667s|4328cc0b979f6ab6|1112|rds|vector|||0.02||
+spellcheck_current_results_change|stem|b491a83634f2f036|6c36a24e5e54667c|a80cea37ba8111fb|-1201225623||t18810.5840052784s|6a7d693e2118d888|64|rds|vector|||0.01||
+spellcheck_current_results|stem|a244ba4e2b47aeb7|803bddce9e6e9822|2d6958658fab986f|-515747826||t18810.5840054516s|4328cc0b979f6ab6|1112|rds|vector|||0.02||

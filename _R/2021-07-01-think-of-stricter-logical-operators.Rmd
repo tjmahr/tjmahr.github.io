@@ -154,7 +154,7 @@ Javascript with the ["nullish coalescing operator"
 
 Why do I mention this programming idiom from Javascript? Because setting
 a default for missing values is pretty useful, and this syntax is pretty
-nice. The tidyverse provides [a nullish coalescing
+nice. The tidyverse provides [a null coalescing
 operator](https://rlang.r-lib.org/reference/op-null-default.html),
 inspired by Ruby's `||` operator.
 
@@ -162,6 +162,7 @@ inspired by Ruby's `||` operator.
 library(purrr)
 1 %||% 2
 NULL %||% 2
+
 # Not exactly or-like. It just cares about NULL-ness.
 FALSE %||% 2
 
