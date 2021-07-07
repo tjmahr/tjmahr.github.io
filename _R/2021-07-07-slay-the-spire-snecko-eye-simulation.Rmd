@@ -1,0 +1,495 @@
+---
+title: Snecko eye lets you play more cards
+excerpt: A simulation study of the mighty *Slay the Spire* relic
+tags:
+  - r
+  - simulations
+header:
+  overlay_image: "assets/images/2021-07-ss-bg.jpg"
+  image_description: "Title screen of Slay the Spire"
+  overlay_filter: rgba(10, 10, 10, 0.5)
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+library(dplyr)
+```
+
+In [a previous post](/pokemon-go-unown-simulation), I used simulations
+to estimate how long it would take to collect the unique Unowns in
+*Pokemon Go!* The message of the post was that we can use simulations
+to solve problems when the analytic solution is not clear or obvious.
+The current post is an another example of using simulations to
+understand a weird counting/probability problem.
+
+***
+
+Over the past strange year, I sunk a lot of time into [*Slay the
+Spire*][mega-crit], a [rogue-like] deck-building game. You have to
+escape from a 50-floor spire, fighting monsters by playing cards. The
+cards let you attack, defend, apply buffs and debuffs, draw cards, etc.
+You start each turn with a given amount of energy, the cards cost energy
+(with the more impactful effects costing more energy), so you need to
+plan out how to play your turns in order to defeat the monsters. You
+receive more cards from winning battles and can receive special relics
+that will make you stronger or change how your deck plays.
+
+That's the basic gist of the game. The sublime part comes when the
+cards and relics start synergistically empowering each other and
+comboing off each other. You might get the curse [Pain] which drains you of 1
+health every time you play a card. (This is bad.) But
+then you find a [Rupture] which increases your strength every time you
+take damage from a card. Then you get [Runic Cube] which draws you a
+card every time you take damage. Finally, you find [Reaper] which
+converts damage into health. So you now have this card-drawing,
+strength-building, self-sustaining engine that makes you unstoppable.
+(This [particular scenario](https://youtu.be/OySMKDSWsTE) unfolded in a
+recent game by the streamer Jorbs.)
+
+{% include figure image_path="/assets/images/2021-07-ss.jpg" alt="A screenshot of Slay The Spire gameplay." caption="Screenshot of *Slay the Spire* gameplay. We see a hand of 5 cards at the bottom with 1/3 energy available on the left." %}{: style="max-width: 80%; display: block; margin: 2em auto;"}
+
+The exercise today: **simulate the maximum number of cards we can
+play per turn** under normal circumstances and when a game-warping relic
+(Snecko Eye) is active.
+
+## A baseline deck
+
+Let's consider a baseline setup for comparison. 
+
+  - We have 3 energy to play cards per turn.
+  - We draw 5 cards per turn.
+  - Our deck has 16 cards: 1 card costs 0 energy, 12 cost 1 energy, 3
+    cost 2 energy, and 1 costs 3 energy.
+
+(I made up this deck for this example.) 
+
+If we build our deck, we can find the average cost of our cards and
+simulate some draws by sampling without replacement.
+
+```{r}
+library(magrittr)
+set.seed(20210707)
+
+costs <- c(0, rep(1, 12), rep(2, 3), 3)
+costs
+
+mean(costs)
+
+# Simulate 3 hands
+sample(costs, size = 5)
+sample(costs, size = 5)
+sample(costs, size = 5)
+```
+
+Suppose that we don't really care about what the cards do. We want to
+maximize the number of cards that we can play per turn. We just want to
+know: **How many cards per turn can I expect to play on average?** 
+
+Let's write a function that counts the number of playable cards in a
+hand given a certain energy cost. The basic logic is that we sort the
+costs, compute the cumulative sum (cumulative energy spent on each card),
+and count how many sums are less than or equal to the energy limit. 
+
+```{r}
+# A worked example
+energy <- 3
+hand <- sample(costs, size = 5)
+hand
+sort(hand)
+cumsum(sort(hand))
+cumsum(sort(hand)) <= energy 
+sum(cumsum(sort(hand)) <= energy)
+
+count_max_playable <- function(hand, energy) {
+  sum(cumsum(sort(hand)) <= energy)
+}
+
+count_max_playable(hand, energy)
+```
+
+Now, we can do this procedure on several thousand hands and run summary
+statistics on those hands. 
+
+```{r}
+simulated_cards_played <- replicate(
+  10000,
+  sample(costs, size = 5) %>% 
+    count_max_playable(energy = 3)
+)
+
+summary(simulated_cards_played)
+
+table(simulated_cards_played)
+
+proportions(table(simulated_cards_played))
+```
+
+
+```{r, echo = FALSE}
+f_mean <- scales::label_number(0.1)
+f_prop <- scales::label_percent(0.1)
+m <- mean(simulated_cards_played) %>% f_mean()
+
+p2 <- mean(simulated_cards_played == 2) %>% f_prop()
+p4 <- mean(simulated_cards_played == 4) %>% f_prop()
+```
+
+The expected number of playable cards per hand is `r m`. The dreaded
+(1, 2, 2, 2, 3) hand appears about `r p2` of the time, but the 0 card
+lets us play a fourth card about `r p4` of the time. 
+
+
+## Enter the Snecko
+
+{% include figure image_path="/assets/images/2021-07-snecko.png" alt="A screenshot of Snecko Eye" caption="Snecko Eye is probably the best relic in the game." %}{: style="max-width: 80%; display: block; margin: 2em auto;"}
+
+
+Now, let's suppose we obtain the mighty [Snecko Eye] relic. It says
+"Draw 2 additional cards each turn. Start each combat Confused."
+Confused is a debuff that randomizes the costs of cards when we draw
+them. So now our setup is the following:
+
+  - We have 3 energy to play cards per turn.
+  - We draw 7 cards per turn.
+  - Our deck has 16 cards: the costs are random integers between 0 and 3
+    energy.
+
+The average energy cost of any given card in our deck is now
+`mean(0:3)` = 1.5. In the baseline example, the average energy cost
+was 1.24. (One obvious strategy with Snecko Eye is to maximize the costs of
+new cards---that is, try to get as many as 2s and 3s as possible because
+the new expected cost is less than the original cost. But let's ignore that 
+dimension of gameplay for now.)
+
+So here's the puzzle, **how many cards per turn can I play with Snecko
+Eye?** We can run the same simulations as above.
+
+
+```{r}
+snecko_costs <- 0:3 
+simulated_snecko_cards_played <- replicate(
+  10000,
+  sample(snecko_costs, size = 7, replace = TRUE) %>% 
+    count_max_playable(energy = 3)
+)
+
+summary(simulated_snecko_cards_played)
+
+table(simulated_snecko_cards_played)
+
+proportions(table(simulated_snecko_cards_played))
+```
+
+```{r, echo = FALSE}
+f_mean <- scales::label_number(0.1)
+f_prop <- scales::label_percent(0.1)
+ms <- mean(simulated_snecko_cards_played) %>% f_mean()
+
+ps1 <- mean(simulated_snecko_cards_played == 1) %>% f_prop()
+ps7 <- mean(simulated_snecko_cards_played == 7) %>% f_prop()
+ps4plus <- mean(simulated_snecko_cards_played >= 4) %>% f_prop()
+```
+
+Let us note that the dream---playing 7 cards in one turn---happened
+about `r ps7` of the time and the nightmare---drawing only 2-cost
+and 3-cost cards---happened `r ps1` of the time. Recall that in the
+baseline setup, we got to play 4 cards `r p4` of the time. With Snecko
+Eye, we can play 4 or more cards per turn `r ps4plus` of the time.
+Snecko Eye simply lets us play more cards on average.
+
+
+### Where does this power come from?
+
+Is the magic of Snecko Eye the card draw or the cost randomization?
+Well, let's suppose that we are just confused and we draw only 5 cards
+(as in the baseline example.)
+
+```{r}
+simulated_confused_cards_played <- replicate(
+  10000,
+  sample(snecko_costs, size = 5, replace = TRUE) %>% 
+    count_max_playable(energy = 3)
+)
+
+summary(simulated_confused_cards_played)
+
+table(simulated_confused_cards_played)
+
+proportions(table(simulated_confused_cards_played))
+```
+
+```{r, echo = FALSE}
+mc <- mean(simulated_confused_cards_played) %>% f_mean()
+
+pc1 <- mean(simulated_confused_cards_played == 1) %>% f_prop()
+pc4plus <- mean(simulated_confused_cards_played >= 4) %>% f_prop()
+```
+
+Here the average number of cards played is `r mc` and we play 4--5 cards
+per turn `r pc4plus` of the time. This percentage is greater than the
+baseline case (`r p4`), but the nightmare case is worse (1 card),
+occuring `r pc1` of the time.
+
+
+We can plot the three simulations side by side and observe the
+distributions. First, we package them together into a single dataframe
+suitable for plotting and plot a bar chart.
+
+```{r bar-by-three, fig.width = 6, fig.height = 3, dpi = 300, out.width = "100%", fig.cap = "A one by three plot showing a histogram of playable cards for each simulation set. It's title says 'Confusion increases variance. Card draw increases mean.'"}
+library(ggplot2)
+
+sim1 <- data.frame(
+  set = "Baseline",
+  energy = 3,
+  cards = simulated_cards_played
+)
+
+sim2 <- data.frame(
+  set = "Snecko Eye",
+  energy = 3,
+  cards = simulated_snecko_cards_played
+)
+
+sim3 <- data.frame(
+  set = "Confused",
+  energy = 3,
+  cards = simulated_confused_cards_played
+)
+
+sims <- rbind(sim1, sim2, sim3)
+
+ggplot(sims) + 
+  aes(x = cards) + 
+  geom_bar(aes(y = stat(prop))) + 
+  facet_wrap("set") + 
+  scale_x_continuous(breaks = 1:7, minor_breaks = NULL) +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(
+    title = "Confusion increases variance. Card draw increases mean.",
+    x = "Number of playable of cards in hand", 
+    y = "Percentage of hands",
+    caption = "N = 10,000 simulations per panel"
+  ) +
+  theme_grey(base_size = 12)
+```
+
+Both the confused and the Snecko Eye panels have increased variance. The
+bars are shorter and more spread out, compared to the Baseline panel.
+The peak (the mode) shifts from 3 to 4 cards from the Confused and Snecko
+Eye panels.
+
+A more statistically niche technique would be plotting the [empirical
+cumulative distribution function][ecdf]. Imagine taking the bars from
+the previous plot and summing them along the *x* axis so that they are
+cumulative percentages. These percentages would tell you about the
+percentage of cases less than or equal to that given value. In the plot
+below, I do that procedure on reversed *x* axis, so we can look at what
+proportion of simulations had at least 4 cards played. (I chose the
+reversed *x* axis to visually convey the advantage of Snecko Eye.)
+
+```{r ecdf, dpi = 300, fig.width = 6, fig.height = 4.5, fig.asp = NA, out.width = "80%", fig.cap = "A plot of the ECDF for the proportion of hands with at least x playable cards. Snecko dominates the other lines in the plot because we can play more cards per turn with it. There is a caption at the center of the plot that says 'Snecko can play 4 or more\ncards in 60% of hands'."}
+library(dplyr)
+
+props <- sims %>% 
+  count(set, cards) %>% 
+  # Fill in rows that would be n = 0
+  tidyr::complete(set, cards = 1:7, fill = list(n = 0)) %>% 
+  # Compute ECDF in reverse order (dtarting at 7 cards)
+  arrange(set, desc(cards)) %>% 
+  group_by(set) %>% 
+  mutate(
+    proportion = n / sum(n),
+    ecdf = cumsum(proportion)
+  ) %>% 
+  ungroup() 
+
+ggplot(props) + 
+  aes(x = cards) +
+  geom_step(
+    aes(y = ecdf , color = set, linetype = set), 
+    direction = "mid"
+  ) +
+  geom_label(
+    aes(color = set, y = ecdf),
+    label = "Snecko can play 4 or more\ncards in 60% of hands",
+    data = . %>% filter(set == "Snecko Eye", cards == 4), 
+    y = .65,
+    nudge_x = -.25,
+    hjust = 1.0,
+    vjust = 0, 
+    fill = scales::alpha("grey93", .6),
+    label.size = 0, 
+    show.legend = FALSE,
+    size = 4.5,
+  ) +
+  scale_x_reverse(breaks = 7:0, minor_breaks = NULL) +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(
+    x = "At least X playable cards in hand",
+    y = "Percentage of hands",
+    caption = "N = 10,000 simulations per line",
+    color = NULL,
+    linetype = NULL
+  ) + 
+  theme_grey(base_size = 12) + 
+  theme(
+    legend.position = "top", 
+    legend.justification = "left"
+  )
+
+```
+
+
+
+### The advantage at higher energy
+
+During a run through the game, we can obtain up to two relics (along
+with Snecko Eye) that increase our energy per turn by 1 unit. Let's see
+how these new energy budgets affect the simulations.
+
+First, we run the simulations. We put the main code into functions so that 
+we can build the dataframes more easily.
+
+```{r}
+simulate_decko <- function(n, energy, costs, size = 5) {
+  replicate(
+    n,
+    sample(costs, size = size) %>% 
+      count_max_playable(energy = energy)
+  )
+}
+
+simulate_snecko <- function(n, energy, size = 7) {
+  snecko_costs <- 0:3
+  replicate(
+    n,
+    sample(snecko_costs, size = size, replace = TRUE) %>% 
+      count_max_playable(energy = energy)
+  )
+}
+
+additional_sims <- rbind(
+  # include old results
+  sims,
+  data.frame(
+    set = "Baseline",
+    energy = 4,
+    cards = simulate_decko(10000, 4, costs)
+  ),
+  data.frame(
+    set = "Baseline",
+    energy = 5,
+    cards = simulate_decko(10000, 5, costs)
+  ),
+  data.frame(
+    set = "Snecko Eye",
+    energy = 4,
+    cards = simulate_snecko(10000, 4)
+  ),
+  data.frame(
+    set = "Snecko Eye",
+    energy = 5,
+    cards = simulate_snecko(10000, 5)
+  ),
+  data.frame(
+    set = "Confused",
+    energy = 4,
+    cards = simulate_snecko(10000, 4, size = 5)
+  ),
+  data.frame(
+    set = "Confused",
+    energy = 5,
+    cards = simulate_snecko(10000, 5, size = 5)
+  )
+)
+```
+
+We can make the same kind of plot as before. We see that the
+distribution with the highest mode (the peak that lands on the highest
+number of cards) in each row is Snecko Eye.
+
+```{r 3-by-3, fig.width = 7, fig.height = 7, out.width = "100%", fig.caption = "A three by three plot of simulation set by energy cost."}
+ggplot(additional_sims %>% mutate(energy = paste0(energy, " energy"))) + 
+  aes(x = cards) + 
+  geom_bar(aes(y = stat(prop))) + 
+  facet_grid(energy ~ set) + 
+  scale_x_continuous(breaks = 1:7, minor_breaks = NULL) +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(
+    x = "Number of playable of cards in hand", 
+    y = "Percentage of hands",
+    caption = "N = 10,000 simulations per panel"
+  ) +
+  theme_grey(base_size = 12)
+```
+
+One limitation of the other two non-Snecko sets becomes more obvious in
+the 5-energy row: They can never play 6 or 7 cards in a turn. They don't
+draw that many cards. Their distributions are cut off at 5 cards.
+
+If we look at numerical summaries, we get some sense that the benefit of
+Snecko diminishes as energy increases but we won't explore this trend in
+any detail.
+
+```{r}
+additional_sims %>% 
+  group_by(set, energy) %>% 
+  summarise(
+    mean = mean(cards),
+    sd = sd(cards),
+    median = median(cards),
+    .groups = "drop"
+  ) %>% 
+  tidyr::pivot_longer(cols = c(mean, sd, median)) %>% 
+  tidyr::pivot_wider(
+    names_from = energy, 
+    values_from = value, 
+    names_prefix = "Energy "
+  ) %>% 
+  rename(Set = set, Statistic = name) %>% 
+  arrange(Statistic, Set) %>% 
+  knitr::kable(digits = 2)
+```
+
+
+
+### You should probably play Snecko
+
+We could go on and on with the simulations. Suppose you are dying and
+you are desperate need of the [Apparition] on the top of your deck.
+How many cards can you play after you are forced to play that card? Or
+suppose that you are, rightly, playing on Ascension 20 and one of the
+cards is an unplayable curse. Does that change anything? 
+
+The point here is that we used simulations to visualize how
+randomization increased the variance of playable cards but the extra
+cards shifted the mode of the distribution upwards. You can play more
+cards with Snecko Eye because you simply have more cards you can play
+per turn. 
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```
+
+[rogue-like]: https://en.wikipedia.org/wiki/Roguelike "Roguelike on Wikipedia"
+
+[mega-crit]: https://www.megacrit.com/ "Slay the Spire website"
+
+[rupture]: https://slay-the-spire.fandom.com/wiki/Rupture "Rupture on the Slay the Spire Fandom wiki"
+
+[pain]: https://slay-the-spire.fandom.com/wiki/Pain "Pain on the Slay the Spire Fandom wiki"
+
+[reaper]: https://slay-the-spire.fandom.com/wiki/Reaper "Reaper on the Slay the Spire Fandom wiki"
+
+[runic cube]: https://slay-the-spire.fandom.com/wiki/Runic_Cube "Runic Cube on the Slay the Spire Fandom wiki"
+
+[snecko eye]: https://slay-the-spire.fandom.com/wiki/Snecko_Eye "Snecko Eye on the Slay the Spire Fandom wiki"
+
+[apparition]: https://slay-the-spire.fandom.com/wiki/Apparition "Apparition on the Slay the Spire Fandom wiki"
+
+[ecdf]: https://en.wikipedia.org/wiki/Empirical_distribution_function "Empirical distribution function on Wikipedia"
+
