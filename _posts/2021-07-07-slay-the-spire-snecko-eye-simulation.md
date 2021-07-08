@@ -17,7 +17,7 @@ to estimate how long it would take to collect the unique Unowns in
 *Pokemon Go!* The message of the post was that we can use simulations
 to solve problems when the analytic solution is not clear or obvious.
 The current post is an another example of using simulations to
-understand a weird counting/probability problem.
+understand a weird counting/probability problem. 
 
 ***
 
@@ -26,7 +26,7 @@ Spire*][mega-crit], a [rogue-like] deck-building game. You have to
 escape from a 50-floor spire, fighting monsters by playing cards. The
 cards let you attack, defend, apply buffs and debuffs, draw cards, etc.
 You start each turn with a given amount of energy, the cards cost energy
-(with the more impactful effects costing more energy), so you need to
+(with more powerful effects costing more energy), so you need to
 plan out how to play your turns in order to defeat the monsters. You
 receive more cards from winning battles and can receive special relics
 that will make you stronger or change how your deck plays.
@@ -36,7 +36,7 @@ cards and relics start synergistically empowering each other and
 comboing off each other. You might get the curse [Pain] which drains you of 1
 health every time you play a card. (This is bad.) But
 then you find a [Rupture] which increases your strength every time you
-take damage from a card. Then you get [Runic Cube] which draws you a
+take damage from a card. Then you get [Runic Cube] which draws you an extra
 card every time you take damage. Finally, you find [Reaper] which
 converts damage into health. So you now have this card-drawing,
 strength-building, self-sustaining engine that makes you unstoppable.
@@ -45,13 +45,14 @@ recent game by the streamer Jorbs.)
 
 {% include figure image_path="/assets/images/2021-07-ss.jpg" alt="A screenshot of Slay The Spire gameplay." caption="Screenshot of *Slay the Spire* gameplay. We see a hand of 5 cards at the bottom with 1/3 energy available on the left." %}{: style="max-width: 80%; display: block; margin: 2em auto;"}
 
-The exercise today: **simulate the maximum number of cards we can
-play per turn** under normal circumstances and when a game-warping relic
-(Snecko Eye) is active.
+The exercise today: **simulate the maximum number of cards we can play
+per turn** for 3 energy under normal circumstances and when a
+game-warping relic (Snecko Eye) is active.
+
 
 ## A baseline deck
 
-Let's consider a baseline setup for comparison. 
+Let's consider a setup as a baseline for comparison. 
 
   - We have 3 energy to play cards per turn.
   - We draw 5 cards per turn.
@@ -61,7 +62,9 @@ Let's consider a baseline setup for comparison.
 (I made up this deck for this example.) 
 
 If we build our deck, we can find the average cost of our cards and
-simulate some draws by sampling without replacement.
+simulate some draws by [`sample()`][sample]-ing without replacement.
+
+[sample]: https://rdrr.io/r/base/sample.html "Documentation for sample()"
 
 
 ```r
@@ -85,13 +88,14 @@ sample(costs, size = 5)
 ```
 
 Suppose that we don't really care about what the cards do. We want to
-maximize the number of cards that we can play per turn. We just want to
+maximize the number of cards that we play per turn. We just want to
 know: **How many cards per turn can I expect to play on average?** 
 
 Let's write a function that counts the number of playable cards in a
-hand given a certain energy cost. The basic logic is that we sort the
-costs, compute the cumulative sum (cumulative energy spent on each card),
-and count how many sums are less than or equal to the energy limit. 
+hand given a certain energy budget. The basic logic is that we sort the
+card costs, compute the cumulative sum (cumulative energy spent on each
+card), and count how many sums (played cards) are less than or equal to
+the energy limit.
 
 
 ```r
@@ -118,13 +122,14 @@ count_max_playable(hand, energy)
 ```
 
 Now, we can do this procedure on several thousand hands and run summary
-statistics on those hands. 
+statistics on the number of playable cards in each hand. 
 
 
 ```r
 simulated_cards_played <- replicate(
   10000,
-  sample(costs, size = 5) %>% 
+  costs %>% 
+    sample(size = 5) %>% 
     count_max_playable(energy = 3)
 )
 
@@ -145,18 +150,17 @@ proportions(table(simulated_cards_played))
 
 
 
-
 The expected number of playable cards per hand is 3.2. The dreaded
-(1, 2, 2, 2, 3) hand appears about 4.5% of the time, but the 0 card
-lets us play a fourth card about 21.8% of the time. 
+(1, 2, 2, 2, 3) hand appears about 4.5% of the time, but the
+one 0-cost card in our deck lets us play a fourth card about 21.8% of
+the time. 
 
 
 ## Enter the Snecko
 
 {% include figure image_path="/assets/images/2021-07-snecko.png" alt="A screenshot of Snecko Eye" caption="Snecko Eye is probably the best relic in the game." %}{: style="max-width: 80%; display: block; margin: 2em auto;"}
 
-
-Now, let's suppose we obtain the mighty [Snecko Eye] relic. It says
+Let's suppose we obtain the mighty [Snecko Eye] relic. It says
 "Draw 2 additional cards each turn. Start each combat Confused."
 Confused is a debuff that randomizes the costs of cards when we draw
 them. So now our setup is the following:
@@ -182,7 +186,8 @@ Eye?** We can run the same simulations as above.
 snecko_costs <- 0:3 
 simulated_snecko_cards_played <- replicate(
   10000,
-  sample(snecko_costs, size = 7, replace = TRUE) %>% 
+  snecko_costs %>% 
+    sample(size = 7, replace = TRUE) %>% 
     count_max_playable(energy = 3)
 )
 
@@ -210,18 +215,44 @@ baseline setup, we got to play 4 cards 21.8% of the time. With Snecko
 Eye, we can play 4 or more cards per turn 60.3% of the time.
 Snecko Eye simply lets us play more cards on average.
 
+{::options parse_block_html="true" /}
+
+<div class = "notice--info">
+**Yes, we could skip the random sampling.** For this problem where there
+are 4^7 = 16384 combinations, a brute-force enumeration is possible. The
+proportions from the counting from the full set are within .005 (half a
+percentage point) of the proportions from simulating 10,000 hands.
+
+<pre>
+# Generate all combinations
+expand.grid(rep(list(0:3), 7)) %>% 
+  # Count playables in each row
+  apply(MARGIN = 1, count_max_playable, energy = 3) %>% 
+  table() %>% 
+  proportions() %>% 
+  round(3)
+#> .
+#>     1     2     3     4     5     6     7 
+#> 0.008 0.098 0.287 0.341 0.200 0.059 0.007
+</pre>
+
+</div>
+
+{::options parse_block_html="false" /}
+
 
 ### Where does this power come from?
 
 Is the magic of Snecko Eye the card draw or the cost randomization?
 Well, let's suppose that we are just confused and we draw only 5 cards
-(as in the baseline example.)
+(as in the baseline example).
 
 
 ```r
 simulated_confused_cards_played <- replicate(
   10000,
-  sample(snecko_costs, size = 5, replace = TRUE) %>% 
+  snecko_costs %>% 
+    sample(size = 5, replace = TRUE) %>% 
     count_max_playable(energy = 3)
 )
 
@@ -246,7 +277,6 @@ Here the average number of cards played is 3.0 and we play 4--5 cards
 per turn 29.8% of the time. This percentage is greater than the
 baseline case (21.8%), but the nightmare case is worse (1 card),
 occuring 3.6% of the time.
-
 
 We can plot the three simulations side by side and observe the
 distributions. First, we package them together into a single dataframe
@@ -498,6 +528,8 @@ additional_sims %>%
 
 ### You should probably play Snecko
 
+{% include figure image_path="/assets/images/2021-07-no-steppo.jpg" alt="Don't tread on me flag with the Snecko Eye flag." caption="Pwease no steppo. Posted by  [u/usernameequalspants](https://www.reddit.com/r/slaythespire/comments/l0qm6z/no_step_on_snecko/?ref=share&ref_source=link)." %}{: .align-right}
+
 We could go on and on with the simulations. Suppose you are dying and
 you are desperate need of the [Apparition] on the top of your deck.
 How many cards can you play after you are forced to play that card? Or
@@ -512,6 +544,78 @@ per turn.
 
 
 
+
+
+***
+
+*Last knitted on 2021-07-08. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-07-slay-the-spire-snecko-eye-simulation.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    sessioninfo::session_info()
+    #> - Session info ---------------------------------------------------------------
+    #>  setting  value                       
+    #>  version  R version 4.1.0 (2021-05-18)
+    #>  os       Windows 10 x64              
+    #>  system   x86_64, mingw32             
+    #>  ui       RTerm                       
+    #>  language (EN)                        
+    #>  collate  English_United States.1252  
+    #>  ctype    English_United States.1252  
+    #>  tz       America/Chicago             
+    #>  date     2021-07-08                  
+    #> 
+    #> - Packages -------------------------------------------------------------------
+    #>  package     * version date       lib source        
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
+    #>  cli           3.0.0   2021-06-30 [1] CRAN (R 4.1.0)
+    #>  colorspace    2.0-2   2021-06-24 [1] CRAN (R 4.1.0)
+    #>  crayon        1.4.1   2021-02-08 [1] CRAN (R 4.1.0)
+    #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
+    #>  digest        0.6.27  2020-10-24 [1] CRAN (R 4.1.0)
+    #>  dplyr       * 1.0.7   2021-06-18 [1] CRAN (R 4.1.0)
+    #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.1.0)
+    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.1.0)
+    #>  fansi         0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
+    #>  farver        2.1.0   2021-02-28 [1] CRAN (R 4.1.0)
+    #>  generics      0.1.0   2020-10-31 [1] CRAN (R 4.1.0)
+    #>  ggplot2     * 3.3.5   2021-06-25 [1] CRAN (R 4.1.0)
+    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.0)
+    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.1.0)
+    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.1.0)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
+    #>  highr         0.9     2021-04-16 [1] CRAN (R 4.1.0)
+    #>  knitr       * 1.33    2021-04-24 [1] CRAN (R 4.1.0)
+    #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.1.0)
+    #>  lifecycle     1.0.0   2021-02-15 [1] CRAN (R 4.1.0)
+    #>  magrittr    * 2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
+    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.1.0)
+    #>  pillar        1.6.1   2021-05-16 [1] CRAN (R 4.1.0)
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
+    #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
+    #>  R6            2.5.0   2020-10-28 [1] CRAN (R 4.1.0)
+    #>  ragg          1.1.3   2021-06-09 [1] CRAN (R 4.1.0)
+    #>  rlang         0.4.11  2021-04-30 [1] CRAN (R 4.1.0)
+    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
+    #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.1.0)
+    #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.1.0)
+    #>  stringi       1.6.2   2021-05-17 [1] CRAN (R 4.1.0)
+    #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
+    #>  systemfonts   1.0.2   2021-05-11 [1] CRAN (R 4.1.0)
+    #>  textshaping   0.3.5   2021-06-09 [1] CRAN (R 4.1.0)
+    #>  tibble        3.1.2   2021-05-16 [1] CRAN (R 4.1.0)
+    #>  tidyr         1.1.3   2021-03-03 [1] CRAN (R 4.1.0)
+    #>  tidyselect    1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
+    #>  utf8          1.2.1   2021-03-12 [1] CRAN (R 4.1.0)
+    #>  vctrs         0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
+    #>  withr         2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
+    #>  xfun          0.24    2021-06-15 [1] CRAN (R 4.1.0)
+    #> 
+    #> [1] C:/Users/Tristan/Documents/R/win-library/4.1
+    #> [2] C:/Program Files/R/R-4.1.0/library
+    ```
 
 [rogue-like]: https://en.wikipedia.org/wiki/Roguelike "Roguelike on Wikipedia"
 

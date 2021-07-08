@@ -22,7 +22,7 @@ to estimate how long it would take to collect the unique Unowns in
 *Pokemon Go!* The message of the post was that we can use simulations
 to solve problems when the analytic solution is not clear or obvious.
 The current post is an another example of using simulations to
-understand a weird counting/probability problem.
+understand a weird counting/probability problem. 
 
 ***
 
@@ -31,7 +31,7 @@ Spire*][mega-crit], a [rogue-like] deck-building game. You have to
 escape from a 50-floor spire, fighting monsters by playing cards. The
 cards let you attack, defend, apply buffs and debuffs, draw cards, etc.
 You start each turn with a given amount of energy, the cards cost energy
-(with the more impactful effects costing more energy), so you need to
+(with more powerful effects costing more energy), so you need to
 plan out how to play your turns in order to defeat the monsters. You
 receive more cards from winning battles and can receive special relics
 that will make you stronger or change how your deck plays.
@@ -41,7 +41,7 @@ cards and relics start synergistically empowering each other and
 comboing off each other. You might get the curse [Pain] which drains you of 1
 health every time you play a card. (This is bad.) But
 then you find a [Rupture] which increases your strength every time you
-take damage from a card. Then you get [Runic Cube] which draws you a
+take damage from a card. Then you get [Runic Cube] which draws you an extra
 card every time you take damage. Finally, you find [Reaper] which
 converts damage into health. So you now have this card-drawing,
 strength-building, self-sustaining engine that makes you unstoppable.
@@ -50,13 +50,14 @@ recent game by the streamer Jorbs.)
 
 {% include figure image_path="/assets/images/2021-07-ss.jpg" alt="A screenshot of Slay The Spire gameplay." caption="Screenshot of *Slay the Spire* gameplay. We see a hand of 5 cards at the bottom with 1/3 energy available on the left." %}{: style="max-width: 80%; display: block; margin: 2em auto;"}
 
-The exercise today: **simulate the maximum number of cards we can
-play per turn** under normal circumstances and when a game-warping relic
-(Snecko Eye) is active.
+The exercise today: **simulate the maximum number of cards we can play
+per turn** for 3 energy under normal circumstances and when a
+game-warping relic (Snecko Eye) is active.
+
 
 ## A baseline deck
 
-Let's consider a baseline setup for comparison. 
+Let's consider a setup as a baseline for comparison. 
 
   - We have 3 energy to play cards per turn.
   - We draw 5 cards per turn.
@@ -66,7 +67,9 @@ Let's consider a baseline setup for comparison.
 (I made up this deck for this example.) 
 
 If we build our deck, we can find the average cost of our cards and
-simulate some draws by sampling without replacement.
+simulate some draws by [`sample()`][sample]-ing without replacement.
+
+[sample]: https://rdrr.io/r/base/sample.html "Documentation for sample()"
 
 ```{r}
 library(magrittr)
@@ -84,13 +87,14 @@ sample(costs, size = 5)
 ```
 
 Suppose that we don't really care about what the cards do. We want to
-maximize the number of cards that we can play per turn. We just want to
+maximize the number of cards that we play per turn. We just want to
 know: **How many cards per turn can I expect to play on average?** 
 
 Let's write a function that counts the number of playable cards in a
-hand given a certain energy cost. The basic logic is that we sort the
-costs, compute the cumulative sum (cumulative energy spent on each card),
-and count how many sums are less than or equal to the energy limit. 
+hand given a certain energy budget. The basic logic is that we sort the
+card costs, compute the cumulative sum (cumulative energy spent on each
+card), and count how many sums (played cards) are less than or equal to
+the energy limit.
 
 ```{r}
 # A worked example
@@ -110,12 +114,13 @@ count_max_playable(hand, energy)
 ```
 
 Now, we can do this procedure on several thousand hands and run summary
-statistics on those hands. 
+statistics on the number of playable cards in each hand. 
 
 ```{r}
 simulated_cards_played <- replicate(
   10000,
-  sample(costs, size = 5) %>% 
+  costs %>% 
+    sample(size = 5) %>% 
     count_max_playable(energy = 3)
 )
 
@@ -125,7 +130,6 @@ table(simulated_cards_played)
 
 proportions(table(simulated_cards_played))
 ```
-
 
 ```{r, echo = FALSE}
 f_mean <- scales::label_number(0.1)
@@ -137,16 +141,16 @@ p4 <- mean(simulated_cards_played == 4) %>% f_prop()
 ```
 
 The expected number of playable cards per hand is `r m`. The dreaded
-(1, 2, 2, 2, 3) hand appears about `r p2` of the time, but the 0 card
-lets us play a fourth card about `r p4` of the time. 
+(1, 2, 2, 2, 3) hand appears about `r p2` of the time, but the
+one 0-cost card in our deck lets us play a fourth card about `r p4` of
+the time. 
 
 
 ## Enter the Snecko
 
 {% include figure image_path="/assets/images/2021-07-snecko.png" alt="A screenshot of Snecko Eye" caption="Snecko Eye is probably the best relic in the game." %}{: style="max-width: 80%; display: block; margin: 2em auto;"}
 
-
-Now, let's suppose we obtain the mighty [Snecko Eye] relic. It says
+Let's suppose we obtain the mighty [Snecko Eye] relic. It says
 "Draw 2 additional cards each turn. Start each combat Confused."
 Confused is a debuff that randomizes the costs of cards when we draw
 them. So now our setup is the following:
@@ -171,7 +175,8 @@ Eye?** We can run the same simulations as above.
 snecko_costs <- 0:3 
 simulated_snecko_cards_played <- replicate(
   10000,
-  sample(snecko_costs, size = 7, replace = TRUE) %>% 
+  snecko_costs %>% 
+    sample(size = 7, replace = TRUE) %>% 
     count_max_playable(energy = 3)
 )
 
@@ -183,8 +188,7 @@ proportions(table(simulated_snecko_cards_played))
 ```
 
 ```{r, echo = FALSE}
-f_mean <- scales::label_number(0.1)
-f_prop <- scales::label_percent(0.1)
+
 ms <- mean(simulated_snecko_cards_played) %>% f_mean()
 
 ps1 <- mean(simulated_snecko_cards_played == 1) %>% f_prop()
@@ -199,17 +203,43 @@ baseline setup, we got to play 4 cards `r p4` of the time. With Snecko
 Eye, we can play 4 or more cards per turn `r ps4plus` of the time.
 Snecko Eye simply lets us play more cards on average.
 
+{::options parse_block_html="true" /}
+
+<div class = "notice--info">
+**Yes, we could skip the random sampling.** For this problem where there
+are 4^7 = 16384 combinations, a brute-force enumeration is possible. The
+proportions from the counting from the full set are within .005 (half a
+percentage point) of the proportions from simulating 10,000 hands.
+
+<pre>
+# Generate all combinations
+expand.grid(rep(list(0:3), 7)) %>% 
+  # Count playables in each row
+  apply(MARGIN = 1, count_max_playable, energy = 3) %>% 
+  table() %>% 
+  proportions() %>% 
+  round(3)
+#> .
+#>     1     2     3     4     5     6     7 
+#> 0.008 0.098 0.287 0.341 0.200 0.059 0.007
+</pre>
+
+</div>
+
+{::options parse_block_html="false" /}
+
 
 ### Where does this power come from?
 
 Is the magic of Snecko Eye the card draw or the cost randomization?
 Well, let's suppose that we are just confused and we draw only 5 cards
-(as in the baseline example.)
+(as in the baseline example).
 
 ```{r}
 simulated_confused_cards_played <- replicate(
   10000,
-  sample(snecko_costs, size = 5, replace = TRUE) %>% 
+  snecko_costs %>% 
+    sample(size = 5, replace = TRUE) %>% 
     count_max_playable(energy = 3)
 )
 
@@ -231,7 +261,6 @@ Here the average number of cards played is `r mc` and we play 4--5 cards
 per turn `r pc4plus` of the time. This percentage is greater than the
 baseline case (`r p4`), but the nightmare case is worse (1 card),
 occuring `r pc1` of the time.
-
 
 We can plot the three simulations side by side and observe the
 distributions. First, we package them together into a single dataframe
@@ -338,7 +367,6 @@ ggplot(props) +
     legend.position = "top", 
     legend.justification = "left"
   )
-
 ```
 
 
@@ -457,6 +485,8 @@ additional_sims %>%
 
 ### You should probably play Snecko
 
+{% include figure image_path="/assets/images/2021-07-no-steppo.jpg" alt="Don't tread on me flag with the Snecko Eye flag." caption="Pwease no steppo. Posted by  [u/usernameequalspants](https://www.reddit.com/r/slaythespire/comments/l0qm6z/no_step_on_snecko/?ref=share&ref_source=link)." %}{: .align-right}
+
 We could go on and on with the simulations. Suppose you are dying and
 you are desperate need of the [Apparition] on the top of your deck.
 How many cards can you play after you are forced to play that card? Or
@@ -469,10 +499,12 @@ cards shifted the mode of the distribution upwards. You can play more
 cards with Snecko Eye because you simply have more cards you can play
 per turn. 
 
+
+
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, change_to_child_when_done = "_footer.Rmd"}
+```{r, child = "_footer.Rmd"}
 ```
 
 [rogue-like]: https://en.wikipedia.org/wiki/Roguelike "Roguelike on Wikipedia"
