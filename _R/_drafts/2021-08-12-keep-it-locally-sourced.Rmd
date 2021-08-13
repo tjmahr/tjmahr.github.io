@@ -1,0 +1,300 @@
+---
+title: Keep your R scripts locally sourced (2021-08-12)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+```
+
+A few weeks ago, I had a bad debugging session. The code was just not
+doing what I expected, and I went down a lot of deadends trying to fix
+or simplify things. Even the most minimal example completely broke my
+mental model for how the code should work. 
+
+Here was the problem: My attempts to use `select()` in a `source()`-ed
+file kept reverting to `MASS::select()` instead of `dplyr::select()`. A
+tweet from the session shows the minimal example. I'll what's going on
+in the example below.
+
+```{asis}
+<blockquote class="twitter-tweet" data-conversation="none" data-lang="en" data-dnt="true" data-theme="light">
+<p lang="en" dir="ltr">i&#39;m dry heaving here wtf is going <a href="https://t.co/KIeRJT6kwY">pic.twitter.com/KIeRJT6kwY</a></p>
+
+  <img src="/assets/images/2021-08-wtf-debugging.jpg" alt="Code/output where I map `select` to `dplyr::select`, create a file with one function that prints the environment of `select`, print `select` (namespace:dplyr), call the function (namespace:MASS), and print `select` (namespace:dplyr)" />
+  <br/>
+  &mdash; tj mahr 🍍🍕 (@tjmahr) <a href="https://twitter.com/tjmahr/status/1417894498080800769?ref_src=twsrc%5Etfw">July 21, 2021</a>
+</blockquote> 
+```
+
+Here's what happened:
+
+1.  I explicit assign `select` to `dplyr::select()`.
+2.  I make a function that prints the environment of `select`, store the
+    function in a `.R` text file and `source()` in the text file.
+3.  I print the value of `select` and see that it is indeed from the
+    dplyr environment.
+4.  I call my function and it says that select is actually in the MASS
+    package.
+5.  I check the value of `select` and it reports the dplyr environment once
+    again.
+    
+    
+## A similar problem using functions
+
+This problem only happened while knitting my analysis notebook, and that
+fact should give readers of Advanced R a clue about what might be
+happening. It's proving difficult for me to write examples of this
+problem for this blogpost because I'm trying to knit an example of
+problem that only occurs during and ay ay the room is spinning. So I'm
+going to show the source---ha--of the problem using functions.
+
+First, let's set up things so that `select` belongs to the MASS package.
+
+```{r}
+library(MASS)
+environment(select)
+```
+
+Now, we are going to make a function that does what my original code example tried to do:
+
+* set `select` to dplyr explicitly
+* `source()` in a file that gives the environment of `select`
+
+```{r}
+source_in_my_code <- function(...) {
+  # set dplyr select
+  select <- dplyr::select
+  
+  # write a script to temporary file
+  temp_script <- tempfile(fileext = ".R")
+  my_code <- "
+    f <- function() environment(select)
+  "
+  writeLines(my_code, temp_script)
+  
+  # run the script
+  source(temp_script, ...)
+  
+  list(
+    source_select_environment = f(),
+    function_select_environment = environment(select)
+  )
+}
+
+
+default_results <- source_in_my_code()
+```
+
+What do you think the select environments should be? dplyr, because
+that's what it is everywhere else inside of the function? That's what I thought.
+
+```{r}
+default_results
+```
+
+No, it's the MASS environment. `r emo::ji("confused")`
+
+## Locally sourced R scripts
+
+Reading the documentation to `source()`, we find the solution:
+
+> **Arguments**
+>
+> **`local`** \
+> `TRUE`, `FALSE` or an environment, determining where the parsed
+> expressions are evaluated. `FALSE` (the default) corresponds to the
+> user's workspace (the global environment) and `TRUE` to the
+> environment from which `source` is called.
+
+By default, the code evaluated by `source()` runs in the global
+environment--that is, "outside" of the body of the function. The code
+breaks out of the function environment and runs at the higher
+environment.
+
+The calling environment is the body of the
+function definition, and the global environment is the "area" outside of
+the function. 
+```{r}
+
+```
+
+
+```{r}
+# ?source
+```
+
+
+
+
+
+
+
+
+
+We are going to get 
+
+```{r}
+
+```
+
+
+```{r}
+library(MASS)
+
+c <- reprex::reprex(
+  message("hello")
+)
+
+c
+```
+
+
+### First, let's make a helper function
+
+Here's the idea. I have some functions stored in an R script, and I use
+`source()` to load in those functions. In this post, I'm going to
+demonstrate a few different scripts, so first to set the table, I'm
+going to make a helper function that takes user code and writes it
+to a temporary file and gives that filepath back to the user.
+
+```{r}
+# Put a block of code in a temporary file
+create_temp_script <- function(code) {
+  # capture the code and convert to text
+  code <- substitute(code)
+  script_lines <- deparse(code)
+  # make a temporary file and write the text there
+  script_path <- tempfile(fileext = ".R")
+  writeLines(script_lines, script_path)
+  normalizePath(script_path, winslash = "/")
+}
+```
+
+Now, for example, I can make a one-off script that says `hello!` and
+`source()` it in.
+
+```{r}
+s1 <- create_temp_script(message("hello!"))
+source(s1)
+```
+
+Or I can make a script to load in a function that I can use later on.
+
+```{r}
+s2 <- create_temp_script({
+  print_hi <- function() {
+    "hi"
+  }
+})
+source(s2)
+print_hi()
+```
+
+
+```{r}
+# select <- dplyr::select
+# s3 <- create_temp_script({
+#   library(MASS)
+#   f <- function() environment(select)
+# })
+# source(s3)
+# f()
+```
+
+```{r}
+
+library(MASS)
+as_r_codeblock <- function(x) {
+  paste0("```{r}", x, "```", collapse = "\n")
+}
+
+miniscript <- '
+select <- dplyr::select
+select
+
+temp_script <- tempfile(fileext = ".R")
+my_code <- "
+f <- function() environment(select)
+script_parents <- names(rlang::env_parents())
+"
+writeLines(my_code, temp_script)
+source(temp_script)
+script_parents
+f()
+
+names(rlang::env_parents())
+
+
+select
+'
+
+cat(knitr::knit(text = as_r_codeblock(miniscript), quiet = TRUE))
+
+
+```
+
+
+, but for now note that the output for `enviroment(select)` is `<environment: namespace:MASS>` out
+```{r}
+
+callr::r(
+  function() {
+    create_temp_script <- function(code) {
+      code <- substitute(code)
+      script_lines <- deparse(code)
+      script_path <- tempfile(fileext = ".R")
+      writeLines(script_lines, script_path)
+      normalizePath(script_path, winslash = "/")
+    }
+    
+    library(MASS)
+    x <- create_temp_script({
+      here <- names(rlang::env_parents())
+      list <- ls()
+      my_frame <- sys.frame()
+      wherewasi <- function() force(here)
+      what_do_i_see <- function() force(list)
+      what_is_my_frame <- function() force(sys.frame())
+      f <- function() environment(select)
+      state <- list(
+        where = environment(select),
+        here = names(rlang::env_parents()),
+        list = ls(),
+        my_frame = sys.frame()
+      )
+    })
+    
+    select <- dplyr::select
+    select
+    results <- list()
+    source(x, local = FALSE)
+    results$a <- f()
+    results$a_env <- wherewasi()
+    results$a_ls <- what_do_i_see()
+    results$a_f <- what_is_my_frame()
+    results$s1 <- state
+    
+    source(x, local = TRUE)
+    results$b <- f()
+    results$b_env <- wherewasi()
+    results$b_ls <- what_do_i_see()
+    results$b_f <- what_is_my_frame()
+    results$parent_2 <- parent.frame(2)
+    results$s2 <- state
+    results
+  }
+)
+```
+
+
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```
