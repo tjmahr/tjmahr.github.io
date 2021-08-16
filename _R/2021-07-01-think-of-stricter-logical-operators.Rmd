@@ -8,7 +8,7 @@ header:
   overlay_image: "assets/images/2021-07-beach-1920.jpg"
   image_description: "A beach with curlicue tracks that look like ampersands"
   overlay_filter: rgba(10, 10, 10, 0.5)
-  caption: "Photo credit: [**Theodora  Lee*](https://unsplash.com/photos/Wxzl17FhBJ0)"
+  caption: "Photo credit: [**Theodora  Lee**](https://unsplash.com/photos/Wxzl17FhBJ0)"
 ---
 
 In programming languages, we find logical operators for *and*
