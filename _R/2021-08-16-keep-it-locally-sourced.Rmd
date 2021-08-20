@@ -1,6 +1,6 @@
 ---
 title: Keep your R scripts locally sourced
-excerpt: A lesson from debugging
+excerpt: A lesson from debugging `source()`
 tags:
   - r
   - knitr

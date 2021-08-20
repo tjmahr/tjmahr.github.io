@@ -111,10 +111,7 @@ draft_rmds|stem|b890c97baa613460|a4536028d6e1e410|88bc8bbd24011a75|-1196489879||
 2021-08-12-keep-it-locally-sourced.Rmd|stem|eea2dd278da3b3d9|23c112f3b8b937ee|ef46db3751d8e999|1200504292|./_R/2021-08-12-keep-it-locally-sourced.Rmd|t18855.7026125287s|e7d66f3ac0f7d7bc|9434|file|vector|||0||
 2021-08-12-keep-it-locally-sourced.md|stem|7aaa1d383d7a7073|56600a41c2b95a5a|ca4b75a8ba38484a|1727150837|_posts/2021-08-12-keep-it-locally-sourced.md|t18855.7026675286s|002d5485316c0b24|13902|file|vector|||2.09||
 spellcheck_current|stem|7b7d1d0c34c96622|0027400a91e7ad81|7e9b503445fa6888|-574490618||t18855.7042244992s|975d579125265b9a|1396|rds|vector|||1.43||
-2021-08-16-keep-it-locally-sourced.Rmd|stem|39c21c1787d2fe8b|ca913c2e56d3e11f|ef46db3751d8e999|-905726429|./_R/2021-08-16-keep-it-locally-sourced.Rmd|t18855.7141310713s|2b053ab4254f8e17|9629|file|vector|||0||
 2021-07-01-think-of-stricter-logical-operators.Rmd|stem|404d790aa12f832f|8488e8da7ec24daa|ef46db3751d8e999|-1392303034|./_R/2021-07-01-think-of-stricter-logical-operators.Rmd|t18855.7151187713s|f4258dd715e99a6d|11962|file|vector|||0||
-2021-08-16-keep-it-locally-sourced.md|stem|f79383a7afe0e6b3|0ffcbb9c7b7cb87a|c3ff30f7c7513ac6|-1029906767|_posts/2021-08-16-keep-it-locally-sourced.md|t18855.7151903509s|68516c1513ee53b9|14097|file|vector|||1.97||
-post_rmds|stem|eaffc9718f5867d8|7fc0d0e1247f10bd|1132e7a2fe90b033|752582536||t18855.7151916286s|a1fbb58473050697|825|rds|vector|||0||
 2021-07-01-think-of-stricter-logical-operators.md|stem|af83224e4d91b0f0|d423648185d53e66|ab396d8bf1453225|-1869039857|_posts/2021-07-01-think-of-stricter-logical-operators.md|t18855.7152792573s|648935130dbfb665|16122|file|vector|||7.61||
 list_rmds|function|93bdfd47338f0dfa||||||||||||||
 knit_post|function|bb1562dc2bf220be||||||||||||||
@@ -123,7 +120,10 @@ drafts|object|1564e2bed1743aff||||||||||||||
 list_images|function|78573949a68868b3||||||||||||||
 posts|object|c38ce503c8df8016||||||||||||||
 paths_draft_posts|object|2d6e3d02e5752785||||||||||||||
-targets_drafts|object|895f67d8423d90be||||||||||||||
-targets_posts|object|a11588cf85d3d991||||||||||||||
-spellcheck_current_results_change|stem|1ab9cfa172701fa5|6c36a24e5e54667c|a019afbeaa586021|-1201225623||t18855.7163841201s|6a7d693e2118d888|64|rds|vector|||0||
-spellcheck_current_results|stem|7b7d1d0c34c96622|803bddce9e6e9822|847a86a46f058bcc|-515747826||t18855.7163842932s|975d579125265b9a|1396|rds|vector|||0||
+targets_drafts|object|610befdfc79aa241||||||||||||||
+targets_posts|object|328ae2b2cd3f6c5b||||||||||||||
+2021-08-16-keep-it-locally-sourced.Rmd|stem|198ff965c3fb2b19|ca913c2e56d3e11f|ef46db3751d8e999|-905726429|./_R/2021-08-16-keep-it-locally-sourced.Rmd|t18859.6095609325s|c9059421c588c4af|9640|file|vector|||0||
+2021-08-16-keep-it-locally-sourced.md|stem|9a5a6b612b1beb69|0ffcbb9c7b7cb87a|6bbd50ca59bb417a|-1029906767|_posts/2021-08-16-keep-it-locally-sourced.md|t18859.6096597264s|1c09168cb16ea031|14108|file|vector|||2.21||
+post_rmds|stem|eaffc9718f5867d8|7fc0d0e1247f10bd|33861cdbdf3a1ef1|752582536||t18859.6096611584s|a1fbb58473050697|825|rds|vector|||0||
+spellcheck_current_results_change|stem|83c6ca1d18a77b10|6c36a24e5e54667c|a019afbeaa586021|-1201225623||t18859.6096616415s|b75a24994a596ec9|65|rds|vector|||0||
+spellcheck_current_results|stem|7b7d1d0c34c96622|803bddce9e6e9822|958a9ae704f880ec|-515747826||t18859.6096618087s|975d579125265b9a|1396|rds|vector|||0||

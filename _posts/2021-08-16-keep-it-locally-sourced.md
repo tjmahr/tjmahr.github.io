@@ -1,6 +1,6 @@
 ---
 title: Keep your R scripts locally sourced
-excerpt: A lesson from debugging
+excerpt: A lesson from debugging `source()`
 tags:
   - r
   - knitr
@@ -261,7 +261,7 @@ did not do all of the exercises:
 
 ***
 
-*Last knitted on 2021-08-16. [Source code on
+*Last knitted on 2021-08-20. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-08-16-keep-it-locally-sourced.Rmd).*[^si] 
 
 [^si]: 
@@ -278,7 +278,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-08-16-kee
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-08-16                  
+    #>  date     2021-08-20                  
     #> 
     #> - Packages -------------------------------------------------------------------
     #>  package     * version    date       lib source                     
@@ -306,7 +306,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-08-16-kee
     #>  pillar        1.6.2      2021-07-29 [1] CRAN (R 4.1.0)             
     #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.1.0)             
     #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.1.0)             
-    #>  R6            2.5.0      2020-10-28 [1] CRAN (R 4.1.0)             
+    #>  R6            2.5.1      2021-08-19 [1] CRAN (R 4.1.0)             
     #>  ragg          1.1.3      2021-06-09 [1] CRAN (R 4.1.0)             
     #>  Rcpp          1.0.7      2021-07-07 [1] CRAN (R 4.1.0)             
     #>  rlang         0.4.11     2021-04-30 [1] CRAN (R 4.1.0)             
@@ -322,7 +322,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-08-16-kee
     #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.1.0)             
     #>  vctrs         0.3.8      2021-04-29 [1] CRAN (R 4.1.0)             
     #>  withr         2.4.2      2021-04-18 [1] CRAN (R 4.1.0)             
-    #>  xfun          0.24       2021-06-15 [1] CRAN (R 4.1.0)             
+    #>  xfun          0.25       2021-08-06 [1] CRAN (R 4.1.0)             
     #> 
     #> [1] C:/Users/Tristan/Documents/R/win-library/4.1
     #> [2] C:/Program Files/R/R-4.1.0/library
