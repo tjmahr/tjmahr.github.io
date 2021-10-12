@@ -1,0 +1,209 @@
+---
+title: A one-liner for generating random participant IDs
+excerpt: Find a `match()` your base R library
+tags:
+  - r
+share: true
+header:
+  overlay_image: "assets/images/2021-10-matches.jpg"
+  image_description: "A set of matchsticks on fire all in a row"
+  overlay_filter: rgba(10, 10, 10, 0.5)
+  caption: "Photo credit: [**Jamie Street**](https://unsplash.com/photos/6zXwP5xpbPE)"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+library(tidyverse)
+set.seed(20211012)
+```
+
+On one of the Slacks I browse, someone asked how to de-identify a
+column of participant IDs. The original dataset was a wait list, so
+the ordering of IDs itself was a sensitive feature of the data and we
+need to scramble the order of IDs produced.
+
+For example, suppose we have the following *repeated measures* dataset.
+
+```{r}
+library(tidyverse)
+data <- tibble::tribble(
+  ~ participant, ~ timepoint, ~ score,
+           "DB",           1,       7,
+           "DB",           2,       8,
+           "DB",           3,       8,
+           "TW",           1,      NA,
+           "TW",           2,       9,
+           "CF",           1,       9,
+           "CF",           2,       8,
+           "JH",           1,      10,
+           "JH",           2,      10,
+           "JH",           3,      10
+)
+```
+
+We want to map the `participant` identifiers onto some sort of
+shuffled-up random IDs. Suggestions included hashing the IDs with
+[digest](https://rdrr.io/pkg/digest/man/sha1.html):
+
+```{r}
+# This approach cryptographically compresses the input into a short
+# "digest". (It is not a random ID.)
+data %>% 
+  mutate(
+    participant = Vectorize(digest::sha1)(participant)
+  )
+```
+
+But this approach seems like overkill, and hashing just transforms these
+IDs. We want to be rid of them completely.
+
+The [uuid](https://rdrr.io/pkg/uuid/man/UUIDgenerate.html) package provides [another approach](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)):
+
+```{r}
+data %>% 
+  group_by(participant) %>% 
+  mutate(
+    id = uuid::UUIDgenerate(use.time = FALSE)
+  ) %>% 
+  ungroup() %>% 
+  select(-participant, participant = id) %>% 
+  relocate(participant)
+```
+
+Again, these IDs seem excessive: Imagine plotting data with one participant 
+per facet.
+
+When I create blogposts for this site, I use a function to create a new
+.Rmd file with the date and a [random adjective-animal
+phrase](https://rdrr.io/pkg/ids/man/adjective_animal.html) for a
+placeholder (e.g., `2021-06-28-mild-capybara.md`). We could try that for
+fun:
+
+```{r}
+data %>% 
+  group_by(participant) %>% 
+  mutate(
+    id = ids::adjective_animal()
+  ) %>% 
+  ungroup() %>% 
+  select(-participant, participant = id) %>% 
+  relocate(participant)
+```
+
+But that's too whimsical (and something like `hideous-cheetah` seems
+disrespectful for human subjects).
+
+One user suggested [`forcats::fct_anon()`](https://forcats.tidyverse.org/reference/fct_anon.html):
+
+```{r}
+data %>% 
+  mutate(
+    participant = participant %>% 
+      as.factor() %>% 
+      forcats::fct_anon(prefix = "p0")
+    )
+```
+
+This approach works wonderfully. The only wrinkle is that it requires
+converting our IDs to a factor in order to work.
+
+## Call me the `match()`-maker
+
+```{r, echo = FALSE}
+# burn up a bad random shuffle
+shuffle <- sample(data$participant)
+```
+
+My approach is a nice combination of base R functions:
+
+```{r}
+data %>% 
+  mutate(
+    participant = match(participant, sample(unique(participant)))
+  )
+```
+
+[`match(x, table)`](https://rdrr.io/r/base/match.html) returns the first
+positions of the `x` elements in some vector `table`. What is the
+position in the alphabet of the letters L and Q and L again?
+
+```{r}
+match(c("L", "Q", "L"), LETTERS)
+```
+
+[`sample()`](https://rdrr.io/r/base/sample.html) shuffles the values in
+the `table` so the order of elements is lost. The `unique()` is
+optional. We could just `sample(data$participant)`. Then the first
+position of one of the IDs might be a number larger than 4:
+
+```{r}
+shuffle <- sample(data$participant)
+shuffle
+
+match(data$participant, shuffle)
+```
+
+For more aesthetically pleasing names, and for names that will sort
+correctly, we can zero-pad the results with
+[`sprintf()`](https://rdrr.io/r/base/sprintf.html). I am mostly
+including this step so that I have it written down somewhere for my own
+reference.
+
+```{r}
+zero_pad <- function(xs, prefix = "", width = 0) {
+  # use widest element if bigger than `width`
+  width <- max(c(nchar(xs), width))
+  sprintf(paste0(prefix, "%0", width, "d"), xs)    
+}
+
+data %>% 
+  mutate(
+    participant = match(participant, sample(unique(participant))),
+    participant = zero_pad(participant, "p", 3)
+  )
+```
+
+
+### Bonus: `match()` `%in%` disguise 
+
+What happens when `match()` fails to find an `x` in the table? By
+default, we get `NA`. But we can customize the results with the
+`nomatch` argument.
+
+```{r}
+match(c("7", "A", "L"), LETTERS)
+match(c("7", "A", "L"), LETTERS, nomatch = -99)
+match(c("7", "A", "L"), LETTERS, nomatch = 0)
+```
+
+If we do something like this last example, then we can check whether an
+element in `x` has a match by checking for numbers greater than 0.
+
+```{r}
+match(c("7", "A", "L"), LETTERS, nomatch = 0) > 0
+```
+
+And that is how the functions [`%in%`](https://rdrr.io/r/base/match.html) and [`is.element()`](https://rdrr.io/r/base/sets.html) are implemented
+behind the scenes:
+
+```{r}
+c("7", "A", "L") %in% LETTERS
+
+# The 0L means it's an integer number instead of floating point number
+`%in%`
+
+is.element(c("7", "A", "L"), LETTERS)
+
+is.element
+```
+
+
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
