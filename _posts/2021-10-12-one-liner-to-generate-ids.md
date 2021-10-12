@@ -83,16 +83,16 @@ data %>%
 #> # A tibble: 10 x 3
 #>    participant                          timepoint score
 #>    <chr>                                    <dbl> <dbl>
-#>  1 cef721b3-5d98-4a79-a519-d850678d0144         1     7
-#>  2 cef721b3-5d98-4a79-a519-d850678d0144         2     8
-#>  3 cef721b3-5d98-4a79-a519-d850678d0144         3     8
-#>  4 b206c22d-2e7d-4825-a3b7-29eb1d57d4a0         1    NA
-#>  5 b206c22d-2e7d-4825-a3b7-29eb1d57d4a0         2     9
-#>  6 4e023d40-d8ec-4316-b37f-6f4898b31fd7         1     9
-#>  7 4e023d40-d8ec-4316-b37f-6f4898b31fd7         2     8
-#>  8 3896d4ee-237c-4020-b54f-99e6450f3eeb         1    10
-#>  9 3896d4ee-237c-4020-b54f-99e6450f3eeb         2    10
-#> 10 3896d4ee-237c-4020-b54f-99e6450f3eeb         3    10
+#>  1 384eabc6-01ef-4ffb-8e87-bc4c460532c7         1     7
+#>  2 384eabc6-01ef-4ffb-8e87-bc4c460532c7         2     8
+#>  3 384eabc6-01ef-4ffb-8e87-bc4c460532c7         3     8
+#>  4 3f601a14-2c39-48ee-9536-0d5396be2839         1    NA
+#>  5 3f601a14-2c39-48ee-9536-0d5396be2839         2     9
+#>  6 02f888f9-eb05-40d9-a425-89d51a24cb81         1     9
+#>  7 02f888f9-eb05-40d9-a425-89d51a24cb81         2     8
+#>  8 c007112b-ecd2-4c3b-b186-0fc53504dd38         1    10
+#>  9 c007112b-ecd2-4c3b-b186-0fc53504dd38         2    10
+#> 10 c007112b-ecd2-4c3b-b186-0fc53504dd38         3    10
 ```
 
 Again, these IDs seem excessive: Imagine plotting data with one participant 
@@ -101,7 +101,7 @@ per facet.
 When I create blogposts for this site, I use a function to create a new
 .Rmd file with the date and a [random adjective-animal
 phrase](https://rdrr.io/pkg/ids/man/adjective_animal.html) for a
-placeholder (e.g., `2021-06-28-mild-capybara.md`). We could try that for
+placeholder (e.g., `2021-06-28-mild-capybara.Rmd`). We could try that for
 fun:
 
 
@@ -293,7 +293,7 @@ is.element(c("7", "A", "L"), LETTERS)
 is.element
 #> function (el, set) 
 #> match(el, set, 0L) > 0L
-#> <bytecode: 0x000000001714ecd8>
+#> <bytecode: 0x000000001714f110>
 #> <environment: namespace:base>
 ```
 

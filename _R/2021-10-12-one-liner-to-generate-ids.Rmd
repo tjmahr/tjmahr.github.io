@@ -78,7 +78,7 @@ per facet.
 When I create blogposts for this site, I use a function to create a new
 .Rmd file with the date and a [random adjective-animal
 phrase](https://rdrr.io/pkg/ids/man/adjective_animal.html) for a
-placeholder (e.g., `2021-06-28-mild-capybara.md`). We could try that for
+placeholder (e.g., `2021-06-28-mild-capybara.Rmd`). We could try that for
 fun:
 
 ```{r}
