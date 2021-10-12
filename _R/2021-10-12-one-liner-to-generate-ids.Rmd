@@ -1,6 +1,6 @@
 ---
 title: A one-liner for generating random participant IDs
-excerpt: Find a `match()` your base R library
+excerpt: Find a `match()` in your base R library
 tags:
   - r
 share: true

@@ -1,6 +1,6 @@
 ---
 title: A one-liner for generating random participant IDs
-excerpt: Find a `match()` your base R library
+excerpt: Find a `match()` in your base R library
 tags:
   - r
 share: true
@@ -83,16 +83,16 @@ data %>%
 #> # A tibble: 10 x 3
 #>    participant                          timepoint score
 #>    <chr>                                    <dbl> <dbl>
-#>  1 a0868a4c-b9b2-440c-a78c-6af5a059d85f         1     7
-#>  2 a0868a4c-b9b2-440c-a78c-6af5a059d85f         2     8
-#>  3 a0868a4c-b9b2-440c-a78c-6af5a059d85f         3     8
-#>  4 31ebce19-f02c-497a-b701-3186c9d37680         1    NA
-#>  5 31ebce19-f02c-497a-b701-3186c9d37680         2     9
-#>  6 f0f42f7a-3387-48dd-8d86-911ccd6e60b3         1     9
-#>  7 f0f42f7a-3387-48dd-8d86-911ccd6e60b3         2     8
-#>  8 0ad0c011-71e2-4a7e-aee4-b86e030822ca         1    10
-#>  9 0ad0c011-71e2-4a7e-aee4-b86e030822ca         2    10
-#> 10 0ad0c011-71e2-4a7e-aee4-b86e030822ca         3    10
+#>  1 cef721b3-5d98-4a79-a519-d850678d0144         1     7
+#>  2 cef721b3-5d98-4a79-a519-d850678d0144         2     8
+#>  3 cef721b3-5d98-4a79-a519-d850678d0144         3     8
+#>  4 b206c22d-2e7d-4825-a3b7-29eb1d57d4a0         1    NA
+#>  5 b206c22d-2e7d-4825-a3b7-29eb1d57d4a0         2     9
+#>  6 4e023d40-d8ec-4316-b37f-6f4898b31fd7         1     9
+#>  7 4e023d40-d8ec-4316-b37f-6f4898b31fd7         2     8
+#>  8 3896d4ee-237c-4020-b54f-99e6450f3eeb         1    10
+#>  9 3896d4ee-237c-4020-b54f-99e6450f3eeb         2    10
+#> 10 3896d4ee-237c-4020-b54f-99e6450f3eeb         3    10
 ```
 
 Again, these IDs seem excessive: Imagine plotting data with one participant 
@@ -284,7 +284,7 @@ c("7", "A", "L") %in% LETTERS
 `%in%`
 #> function (x, table) 
 #> match(x, table, nomatch = 0L) > 0L
-#> <bytecode: 0x00000000146eef80>
+#> <bytecode: 0x00000000146eef20>
 #> <environment: namespace:base>
 
 is.element(c("7", "A", "L"), LETTERS)
@@ -293,7 +293,7 @@ is.element(c("7", "A", "L"), LETTERS)
 is.element
 #> function (el, set) 
 #> match(el, set, 0L) > 0L
-#> <bytecode: 0x000000001715e4b8>
+#> <bytecode: 0x000000001714ecd8>
 #> <environment: namespace:base>
 ```
 
