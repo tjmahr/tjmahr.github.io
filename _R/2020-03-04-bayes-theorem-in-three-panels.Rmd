@@ -154,14 +154,14 @@ language](https://speakerdeck.com/rmcelreath/bayesian-inference-is-just-counting
 of running a model *forwards* to generate new observations using parameters and
 running it *backwards* to infer the data-generating parameters from the data. 
 
-If we don't have any data in hand, then running the model forwards to simulate
-data will using only the prior. I am not going as far as simulating actual
-observations; rather I will sample regression lines from the prior. These
-samples represent growth trajectories that are plausible before seeing any data.
+If we don't have any data in hand, then running the model forwards will
+simulate data using only the prior. I am not going as far as simulating
+actual observations; rather I will sample regression lines from the
+prior. These samples represent growth trajectories that are plausible
+before seeing any data.
 
-
-We can use `sample_prior = "only"` to have brms ignore the data and sample from
-the prior distribution.
+We can use `sample_prior = "only"` to have brms ignore the data and
+sample from the prior distribution.
 
 ```{r, results = "hide"}
 fit_prior <- brm(
@@ -172,20 +172,23 @@ fit_prior <- brm(
   chains = 4,
   sample_prior = "only", 
   cores = 1,
-  control = list(adapt_delta = 0.9, max_treedepth = 15)
+  control = list(adapt_delta = 0.9, max_treedepth = 15),
+  seed = 20211014
 )
 ```
 
 We can randomly draw some lines from the prior distribution by using
-`add_fitted_draws()` from the tidybayes package.
+[`add_epred_draws()`](http://mjskay.github.io/tidybayes/reference/add_predicted_draws.html)
+from the tidybayes package. An "epred" is a *predicted expectation* (a
+model-drawn average on the same scale as the data).
 
 ```{r prior-draws, fig.width = 3.5, fig.height = 3.5, fig.asp = 1, out.width="50%", fig.cap = "The first panel of the visualization showing growth trajectories sampled from the prior distribution."}
 draws_prior <- data %>%
   tidyr::expand(age = 0:100) %>%
-  tidybayes::add_fitted_draws(fit_prior, n = 100)
+  tidybayes::add_epred_draws(fit_prior, ndraws = 100)
 
 p1 <- ggplot(draws_prior) +
-  aes(x = age, y = .value) +
+  aes(x = age, y = .epred) +
   geom_line(aes(group = .draw), alpha = .2) +
   theme(
     axis.ticks = element_blank(), 
@@ -258,19 +261,20 @@ fit <- brm(
   iter = 2000,
   chains = 4,
   cores = 1,
-  control = list(adapt_delta = 0.9, max_treedepth = 15)
+  control = list(adapt_delta = 0.9, max_treedepth = 15), 
+  seed = 20211014
 )
 
 draws_posterior <- data %>%
   tidyr::expand(age = 0:100) %>%
-  tidybayes::add_fitted_draws(fit, n = 100) 
+  tidybayes::add_epred_draws(fit, ndraws = 100) 
 ```
 
 And now let's plot the curves with the data, as we have data in hand now.
 
 ```{r posterior-draws, fig.width = 3.5, fig.height = 3.5, fig.asp = 1, out.width="50%", fig.cap = "The last panel of the visualization showing growth trajectories sampled from the posterior distribution."}
 p3 <- ggplot(draws_posterior) +
-  aes(x = age, y = .value) +
+  aes(x = age, y = .epred) +
   geom_line(aes(group = .draw), alpha = .2) +
   geom_point(
     aes(y = prop), 

@@ -72,7 +72,6 @@ footer|stem|cfa1cdde31c4cd05|5eebd231dabb7081|ef46db3751d8e999|1740462663|_R/_fo
 2018-04-03-ridgelines-in-bayesplot-1-5-0-release.Rmd|stem|ab39fb3a59ad99fc|ff7c90ece9356634|ef46db3751d8e999|424632271|./_R/2018-04-03-ridgelines-in-bayesplot-1-5-0-release.Rmd|t18898.6148029024s|78f39f56869c836f|15531|file|vector|||0||
 2019-02-15-anatomy-of-a-logistic-growth-curve.Rmd|stem|07316785ed4ffd16|5acbb41661f4080e|ef46db3751d8e999|1380144942|./_R/2019-02-15-anatomy-of-a-logistic-growth-curve.Rmd|t18898.614802914s|74310cbee73f8696|16298|file|vector|||0||
 2019-11-25-another-mixed-effects-model-visualization.Rmd|stem|0440157b115903bd|c3787509a00278b5|ef46db3751d8e999|409671092|./_R/2019-11-25-another-mixed-effects-model-visualization.Rmd|t18898.6148029255s|91eb28d0a8dba9b2|16905|file|vector|||0||
-2020-03-04-bayes-theorem-in-three-panels.Rmd|stem|c711849d8a9b0ea7|80586dbe1f4075ac|ef46db3751d8e999|1223037953|./_R/2020-03-04-bayes-theorem-in-three-panels.Rmd|t18898.6148029255s|0e1758bc9e68d88d|12478|file|vector|||0||
 2021-02-05-lists-knitr-secret-weapon.Rmd|stem|4b0f54ffb0a91211|1f3ac4b5ecb6262b|ef46db3751d8e999|-1435025366|./_R/2021-02-05-lists-knitr-secret-weapon.Rmd|t18898.614802937s|c7c3dfc991939ab1|14948|file|vector|||0||
 2021-02-26-random-effects-penalized-splines-same-thing.Rmd|stem|6ef8db215c6a0134|d99a277e2926498f|ef46db3751d8e999|-1245812674|./_R/2021-02-26-random-effects-penalized-splines-same-thing.Rmd|t18898.614802937s|754c35c8215b91ab|38068|file|vector|||0||
 2021-07-01-think-of-stricter-logical-operators.Rmd|stem|404d790aa12f832f|8488e8da7ec24daa|ef46db3751d8e999|-1392303034|./_R/2021-07-01-think-of-stricter-logical-operators.Rmd|t18898.6148029486s|f4258dd715e99a6d|11962|file|vector|||0||
@@ -107,7 +106,6 @@ footer|stem|cfa1cdde31c4cd05|5eebd231dabb7081|ef46db3751d8e999|1740462663|_R/_fo
 2018-04-03-ridgelines-in-bayesplot-1-5-0-release.md|stem|4bad2f3a4c4a6b8d|020c5566e3bc4b31|c961bb456128df09|1410565225|_posts/2018-04-03-ridgelines-in-bayesplot-1-5-0-release.md|t18898.614803318s|eef3dbe7e5999159|27316|file|vector|||80.77||
 2019-02-15-anatomy-of-a-logistic-growth-curve.md|stem|5e56ccea3d9157c2|ea7cae8c53d54eb2|dce93b88d1dd2b63|-135374226|_posts/2019-02-15-anatomy-of-a-logistic-growth-curve.md|t18898.6148033295s|fd6dc8f0f68b8ede|23173|file|vector|||4.86||
 2019-11-25-another-mixed-effects-model-visualization.md|stem|1f7bb6ca1b8c968e|b1b8f85cb630a6ca|e5d881bd6195b94c|264776004|_posts/2019-11-25-another-mixed-effects-model-visualization.md|t18898.614803341s|3d531f3aa7feb7dd|33235|file|vector|||11.82||
-2020-03-04-bayes-theorem-in-three-panels.md|stem|5a9be5b290b1edae|e54fafc0cdad36bf|406f6e73a24f9e21|-78354309|_posts/2020-03-04-bayes-theorem-in-three-panels.md|t18898.6148033526s|03c04b8984c12f39|24164|file|vector|||60.77||
 2021-02-05-lists-knitr-secret-weapon.md|stem|35f9f0ff45775437|214dc5e3c82f02e8|3236372a02cb7d5f|-1590594960|_posts/2021-02-05-lists-knitr-secret-weapon.md|t18898.6148033641s|e43175efc29f4928|24899|file|vector|||9.62||
 2021-02-26-random-effects-penalized-splines-same-thing.md|stem|1156e955602fe12f|a8fdcf272990781c|fc0d0c0509fa5a2c|765735270|_posts/2021-02-26-random-effects-penalized-splines-same-thing.md|t18898.6148033641s|81565885eaefdf2b|63467|file|vector|||20.97||
 2021-07-01-think-of-stricter-logical-operators.md|stem|af83224e4d91b0f0|d423648185d53e66|ab396d8bf1453225|-1869039857|_posts/2021-07-01-think-of-stricter-logical-operators.md|t18898.6148033757s|648935130dbfb665|16122|file|vector|||7.61||
@@ -120,7 +118,7 @@ spellcheck_current|stem|1a33898cc75b0074|0027400a91e7ad81|2392af31c0a0e869|-5744
 2021-10-12-one-liner-to-generate-ids.Rmd|stem|f62ccb652b157d54|73f912a9f53f5381|ef46db3751d8e999|-1686325098|./_R/2021-10-12-one-liner-to-generate-ids.Rmd|t18912.760599427s|a17165a2f48e66b9|5862|file|vector|||0||
 2021-10-12-one-liner-to-generate-ids.md|stem|284db7b5a4372ac9|1dff84e5a904f172|a2247596fcac93eb|-2007791735|_posts/2021-10-12-one-liner-to-generate-ids.md|t18912.7606860474s|772b4a1b55e4498c|14415|file|vector|||3.98||
 2020-08-26-quantile-quantile-plots-from-scratch.Rmd|stem|e92ac70fbd053b17|2f8cad3add6d3cf9|ef46db3751d8e999|-642977628|./_R/2020-08-26-quantile-quantile-plots-from-scratch.Rmd|t18914.5989950759s|588aa3ba24a52220|32247|file|vector|||0||
-post_rmds|stem|d36be44fd354e2a9|4eb9e7673767b478|1e70f2e82a5007b5|752582536||t18914.5991280874s|c38f32f9c12f9f11|848|rds|vector|||0||
+2020-08-26-quantile-quantile-plots-from-scratch.md|stem|7006b9f910a97556|823f0a0a0d203f91|304505cba9ab7c62|1490584755|_posts/2020-08-26-quantile-quantile-plots-from-scratch.md|t18914.6017503244s|87fa7d3aba98e6ad|41280|file|vector|||7.82||
 list_rmds|function|93bdfd47338f0dfa||||||||||||||
 knit_post|function|bb1562dc2bf220be||||||||||||||
 paths_current_posts|object|b974c28046ad5bee||||||||||||||
@@ -130,6 +128,8 @@ posts|object|89d427fb6f2903ec||||||||||||||
 paths_draft_posts|object|efa028f97fdf9726||||||||||||||
 targets_drafts|object|1ed751ea1bbf2d0b||||||||||||||
 targets_posts|object|1a02f578ae222f8f||||||||||||||
-2020-08-26-quantile-quantile-plots-from-scratch.md|stem|7006b9f910a97556|823f0a0a0d203f91|304505cba9ab7c62|1490584755|_posts/2020-08-26-quantile-quantile-plots-from-scratch.md|t18914.6017503244s|87fa7d3aba98e6ad|41280|file|vector|||7.82||
-spellcheck_current_results_change|stem|2ae209b26c1b5fbd|6c36a24e5e54667c|3df8b2851fbac5e4|-1201225623||t18914.6017515018s|9e0babf6e6ead64d|66|rds|vector|||0||
-spellcheck_current_results|stem|1a33898cc75b0074|803bddce9e6e9822|c6739fd143631628|-515747826||t18914.6017516288s|bf4df9ad60b346de|1199|rds|vector|||0||
+2020-03-04-bayes-theorem-in-three-panels.Rmd|stem|5baa7b855f8df2c1|80586dbe1f4075ac|ef46db3751d8e999|1223037953|./_R/2020-03-04-bayes-theorem-in-three-panels.Rmd|t18914.6230418444s|7f1f520c3e90650b|12691|file|vector|||0||
+2020-03-04-bayes-theorem-in-three-panels.md|stem|00fa735397bd37be|e54fafc0cdad36bf|3553f6d3d8c57ceb|-78354309|_posts/2020-03-04-bayes-theorem-in-three-panels.md|t18914.6238203097s|ab01f2cf11b5a9ca|24172|file|vector|||49.47||
+post_rmds|stem|d36be44fd354e2a9|4eb9e7673767b478|744ce25802edc030|752582536||t18914.6238207714s|c38f32f9c12f9f11|848|rds|vector|||0||
+spellcheck_current_results_change|stem|8a21ea40719f4281|6c36a24e5e54667c|3df8b2851fbac5e4|-1201225623||t18914.6238209446s|9e0babf6e6ead64d|66|rds|vector|||0||
+spellcheck_current_results|stem|1a33898cc75b0074|803bddce9e6e9822|c73bcdad73226044|-515747826||t18914.6238210715s|bf4df9ad60b346de|1199|rds|vector|||0||
