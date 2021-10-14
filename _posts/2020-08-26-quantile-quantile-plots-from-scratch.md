@@ -46,15 +46,20 @@ plot][wp]. During this process I discovered that I misunderstood what is
 shown on the conventional Q-Q plot, and I feel like I need to document what
 these plots are really showing.
 
-
 **Update: Q-Q plots avant la lettre.** Originally, this post in its header image
 attributed the first Q-Q plots to [Hazen
 (1914)](https://watershed.ucdavis.edu/shed/lund/Classes/Hazen1914.pdf), but a
 reader sent [a French Wikipedia
 article](https://fr.wikipedia.org/wiki/Droite_de_Henry) that attributes Q-Q
-plots to P. J. P. Henri in the 1880s. [*Sept. 4, 2020*]
+plots to P. J. P. Henri in the 1880s. [*Sept. 4, 2020*] \\
+ \\
+[Michael Friendly](https://www.datavis.ca/), a historian of statistical
+visualization, also emailed to report that he and a colleague traced Q-Q
+plots back to P. J. P. Henri. He also notes that he first popularized
+the idea of worm plots (discussed below) in [his 1991
+book](https://www.datavis.ca/books/sssg/). He called them "detrended Q-Q
+plots" and implemented them in the NQPLOT macro. [*Oct. 14, 2020*]
 {: .notice--info}
-
 
 ## The Q-Q points are easy to calculate
 
@@ -116,7 +121,7 @@ ppoints
 #>         (1L:n - a)/(n + 1 - 2 * a)
 #>     else numeric()
 #> }
-#> <bytecode: 0x00000000142fc050>
+#> <bytecode: 0x0000000017d08c38>
 #> <environment: namespace:stats>
 ```
 
@@ -975,8 +980,8 @@ intercept of the worm.
 
 ***
 
-*Last knitted on 2021-03-02. [Source code on
-GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2020-08-26-quantile-quantile-plots-from-scratch.Rmd).*[^si] 
+*Last knitted on 2021-10-14. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io.git/blob/master/_R/2020-08-26-quantile-quantile-plots-from-scratch.Rmd).*[^si] 
 
 [^si]: 
     
@@ -984,7 +989,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2020-08-26-qua
     sessioninfo::session_info()
     #> - Session info ---------------------------------------------------------------
     #>  setting  value                       
-    #>  version  R version 4.0.4 (2021-02-15)
+    #>  version  R version 4.1.1 (2021-08-10)
     #>  os       Windows 10 x64              
     #>  system   x86_64, mingw32             
     #>  ui       RTerm                       
@@ -992,81 +997,82 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2020-08-26-qua
     #>  collate  English_United States.1252  
     #>  ctype    English_United States.1252  
     #>  tz       America/Chicago             
-    #>  date     2021-03-02                  
+    #>  date     2021-10-14                  
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  package      * version  date       lib source        
-    #>  abind          1.4-5    2016-07-21 [1] CRAN (R 4.0.0)
-    #>  assertthat     0.2.1    2019-03-21 [1] CRAN (R 4.0.2)
-    #>  car            3.0-10   2020-09-29 [1] CRAN (R 4.0.2)
-    #>  carData        3.0-4    2020-05-22 [1] CRAN (R 4.0.0)
-    #>  cellranger     1.1.0    2016-07-27 [1] CRAN (R 4.0.2)
-    #>  cli            2.3.1    2021-02-23 [1] CRAN (R 4.0.4)
-    #>  colorspace     2.0-0    2020-11-11 [1] CRAN (R 4.0.3)
-    #>  crayon         1.4.1    2021-02-08 [1] CRAN (R 4.0.3)
-    #>  curl           4.3      2019-12-02 [1] CRAN (R 4.0.2)
-    #>  data.table     1.13.6   2020-12-30 [1] CRAN (R 4.0.3)
-    #>  DBI            1.1.1    2021-01-15 [1] CRAN (R 4.0.3)
-    #>  digest         0.6.27   2020-10-24 [1] CRAN (R 4.0.3)
-    #>  dplyr          1.0.4    2021-02-02 [1] CRAN (R 4.0.3)
-    #>  ellipsis       0.3.1    2020-05-15 [1] CRAN (R 4.0.2)
-    #>  evaluate       0.14     2019-05-28 [1] CRAN (R 4.0.2)
-    #>  fansi          0.4.2    2021-01-15 [1] CRAN (R 4.0.3)
-    #>  farver         2.0.3    2020-01-16 [1] CRAN (R 4.0.3)
-    #>  forcats        0.5.1    2021-01-27 [1] CRAN (R 4.0.3)
-    #>  foreign        0.8-81   2020-12-22 [1] CRAN (R 4.0.3)
-    #>  gamlss         5.2-0    2020-09-12 [1] CRAN (R 4.0.2)
-    #>  gamlss.data    5.1-4    2019-05-15 [1] CRAN (R 4.0.0)
-    #>  gamlss.dist    5.1-7    2020-07-13 [1] CRAN (R 4.0.2)
-    #>  generics       0.1.0    2020-10-31 [1] CRAN (R 4.0.3)
-    #>  ggplot2      * 3.3.3    2020-12-30 [1] CRAN (R 4.0.3)
-    #>  git2r          0.28.0   2021-01-10 [1] CRAN (R 4.0.3)
-    #>  glue           1.4.2    2020-08-27 [1] CRAN (R 4.0.2)
-    #>  gridGraphics   0.5-1    2020-12-13 [1] CRAN (R 4.0.3)
-    #>  gtable         0.3.0    2019-03-25 [1] CRAN (R 4.0.2)
-    #>  haven          2.3.1    2020-06-01 [1] CRAN (R 4.0.2)
-    #>  here           1.0.1    2020-12-13 [1] CRAN (R 4.0.3)
-    #>  highr          0.8      2019-03-20 [1] CRAN (R 4.0.2)
-    #>  hms            1.0.0    2021-01-13 [1] CRAN (R 4.0.3)
-    #>  knitr        * 1.31     2021-01-27 [1] CRAN (R 4.0.3)
-    #>  labeling       0.4.2    2020-10-20 [1] CRAN (R 4.0.2)
-    #>  lattice        0.20-41  2020-04-02 [1] CRAN (R 4.0.2)
-    #>  lifecycle      1.0.0    2021-02-15 [1] CRAN (R 4.0.3)
-    #>  magrittr       2.0.1    2020-11-17 [1] CRAN (R 4.0.3)
-    #>  MASS           7.3-53.1 2021-02-12 [1] CRAN (R 4.0.4)
-    #>  Matrix         1.2-18   2019-11-27 [1] CRAN (R 4.0.3)
-    #>  munsell        0.5.0    2018-06-12 [1] CRAN (R 4.0.2)
-    #>  nlme           3.1-152  2021-02-04 [1] CRAN (R 4.0.3)
-    #>  openxlsx       4.2.3    2020-10-27 [1] CRAN (R 4.0.3)
-    #>  patchwork    * 1.1.1    2020-12-17 [1] CRAN (R 4.0.3)
-    #>  pillar         1.5.0    2021-02-22 [1] CRAN (R 4.0.4)
-    #>  pkgconfig      2.0.3    2019-09-22 [1] CRAN (R 4.0.2)
-    #>  purrr          0.3.4    2020-04-17 [1] CRAN (R 4.0.2)
-    #>  R6             2.5.0    2020-10-28 [1] CRAN (R 4.0.2)
-    #>  ragg           1.1.0    2021-02-15 [1] CRAN (R 4.0.4)
-    #>  Rcpp           1.0.6    2021-01-15 [1] CRAN (R 4.0.3)
-    #>  readxl         1.3.1    2019-03-13 [1] CRAN (R 4.0.2)
-    #>  rio            0.5.16   2018-11-26 [1] CRAN (R 4.0.2)
-    #>  rlang          0.4.10   2020-12-30 [1] CRAN (R 4.0.3)
-    #>  rprojroot      2.0.2    2020-11-15 [1] CRAN (R 4.0.3)
-    #>  scales         1.1.1    2020-05-11 [1] CRAN (R 4.0.2)
-    #>  sessioninfo    1.1.1    2018-11-05 [1] CRAN (R 4.0.2)
-    #>  stringi        1.5.3    2020-09-09 [1] CRAN (R 4.0.2)
-    #>  stringr        1.4.0    2019-02-10 [1] CRAN (R 4.0.2)
-    #>  survival       3.2-7    2020-09-28 [1] CRAN (R 4.0.2)
-    #>  systemfonts    1.0.1    2021-02-09 [1] CRAN (R 4.0.3)
-    #>  textshaping    0.3.0    2021-02-10 [1] CRAN (R 4.0.3)
-    #>  tibble       * 3.0.6    2021-01-29 [1] CRAN (R 4.0.3)
-    #>  tidyr          1.1.2    2020-08-27 [1] CRAN (R 4.0.2)
-    #>  tidyselect     1.1.0    2020-05-11 [1] CRAN (R 4.0.2)
-    #>  utf8           1.1.4    2018-05-24 [1] CRAN (R 4.0.2)
-    #>  vctrs          0.3.6    2020-12-17 [1] CRAN (R 4.0.3)
-    #>  withr          2.4.1    2021-01-26 [1] CRAN (R 4.0.3)
-    #>  xfun           0.21     2021-02-10 [1] CRAN (R 4.0.3)
-    #>  zip            2.1.1    2020-08-27 [1] CRAN (R 4.0.2)
+    #>  package      * version date       lib source        
+    #>  abind          1.4-5   2016-07-21 [1] CRAN (R 4.1.0)
+    #>  assertthat     0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
+    #>  car            3.0-11  2021-06-27 [1] CRAN (R 4.1.0)
+    #>  carData        3.0-4   2020-05-22 [1] CRAN (R 4.1.0)
+    #>  cellranger     1.1.0   2016-07-27 [1] CRAN (R 4.1.0)
+    #>  cli            3.0.1   2021-07-17 [1] CRAN (R 4.1.0)
+    #>  colorspace     2.0-2   2021-06-24 [1] CRAN (R 4.1.0)
+    #>  crayon         1.4.1   2021-02-08 [1] CRAN (R 4.1.0)
+    #>  curl           4.3.2   2021-06-23 [1] CRAN (R 4.1.0)
+    #>  data.table     1.14.2  2021-09-27 [1] CRAN (R 4.1.1)
+    #>  DBI            1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
+    #>  digest         0.6.28  2021-09-23 [1] CRAN (R 4.1.1)
+    #>  dplyr          1.0.7   2021-06-18 [1] CRAN (R 4.1.0)
+    #>  ellipsis       0.3.2   2021-04-29 [1] CRAN (R 4.1.0)
+    #>  evaluate       0.14    2019-05-28 [1] CRAN (R 4.1.0)
+    #>  fansi          0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
+    #>  farver         2.1.0   2021-02-28 [1] CRAN (R 4.1.0)
+    #>  forcats        0.5.1   2021-01-27 [1] CRAN (R 4.1.0)
+    #>  foreign        0.8-81  2020-12-22 [2] CRAN (R 4.1.1)
+    #>  gamlss         5.3-4   2021-03-31 [1] CRAN (R 4.1.0)
+    #>  gamlss.data    6.0-1   2021-03-18 [1] CRAN (R 4.1.0)
+    #>  gamlss.dist    5.3-2   2021-03-09 [1] CRAN (R 4.1.0)
+    #>  generics       0.1.0   2020-10-31 [1] CRAN (R 4.1.0)
+    #>  ggplot2      * 3.3.5   2021-06-25 [1] CRAN (R 4.1.0)
+    #>  git2r          0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
+    #>  glue           1.4.2   2020-08-27 [1] CRAN (R 4.1.0)
+    #>  gridGraphics   0.5-1   2020-12-13 [1] CRAN (R 4.1.1)
+    #>  gtable         0.3.0   2019-03-25 [1] CRAN (R 4.1.0)
+    #>  haven          2.4.3   2021-08-04 [1] CRAN (R 4.1.0)
+    #>  here           1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
+    #>  highr          0.9     2021-04-16 [1] CRAN (R 4.1.0)
+    #>  hms            1.1.1   2021-09-26 [1] CRAN (R 4.1.1)
+    #>  knitr        * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
+    #>  labeling       0.4.2   2020-10-20 [1] CRAN (R 4.1.0)
+    #>  lattice        0.20-44 2021-05-02 [2] CRAN (R 4.1.1)
+    #>  lifecycle      1.0.1   2021-09-24 [1] CRAN (R 4.1.1)
+    #>  magrittr       2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
+    #>  MASS           7.3-54  2021-05-03 [2] CRAN (R 4.1.1)
+    #>  Matrix         1.3-4   2021-06-01 [2] CRAN (R 4.1.1)
+    #>  munsell        0.5.0   2018-06-12 [1] CRAN (R 4.1.0)
+    #>  nlme           3.1-152 2021-02-04 [2] CRAN (R 4.1.1)
+    #>  openxlsx       4.2.4   2021-06-16 [1] CRAN (R 4.1.0)
+    #>  patchwork    * 1.1.1   2020-12-17 [1] CRAN (R 4.1.0)
+    #>  pillar         1.6.3   2021-09-26 [1] CRAN (R 4.1.1)
+    #>  pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
+    #>  purrr          0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
+    #>  R6             2.5.1   2021-08-19 [1] CRAN (R 4.1.1)
+    #>  ragg           1.1.3   2021-06-09 [1] CRAN (R 4.1.0)
+    #>  Rcpp           1.0.7   2021-07-07 [1] CRAN (R 4.1.0)
+    #>  readxl         1.3.1   2019-03-13 [1] CRAN (R 4.1.0)
+    #>  rio            0.5.27  2021-06-21 [1] CRAN (R 4.1.0)
+    #>  rlang          0.4.11  2021-04-30 [1] CRAN (R 4.1.0)
+    #>  rprojroot      2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
+    #>  rstudioapi     0.13    2020-11-12 [1] CRAN (R 4.1.0)
+    #>  scales         1.1.1   2020-05-11 [1] CRAN (R 4.1.0)
+    #>  sessioninfo    1.1.1   2018-11-05 [1] CRAN (R 4.1.0)
+    #>  stringi        1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
+    #>  stringr        1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
+    #>  survival       3.2-11  2021-04-26 [2] CRAN (R 4.1.1)
+    #>  systemfonts    1.0.2   2021-05-11 [1] CRAN (R 4.1.0)
+    #>  textshaping    0.3.5   2021-06-09 [1] CRAN (R 4.1.0)
+    #>  tibble       * 3.1.5   2021-09-30 [1] CRAN (R 4.1.1)
+    #>  tidyr          1.1.4   2021-09-27 [1] CRAN (R 4.1.1)
+    #>  tidyselect     1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
+    #>  utf8           1.2.2   2021-07-24 [1] CRAN (R 4.1.0)
+    #>  vctrs          0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
+    #>  withr          2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
+    #>  xfun           0.26    2021-09-14 [1] CRAN (R 4.1.1)
+    #>  zip            2.2.0   2021-05-31 [1] CRAN (R 4.1.0)
     #> 
-    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [2] C:/Program Files/R/R-4.0.4/library
+    #> [1] C:/Users/trist/Documents/R/win-library/4.1
+    #> [2] C:/Program Files/R/R-4.1.1/library
     ```
 
 [^embo]: Fox uses a funny phrase in a footnote as he notes that the approach produces "cumulative proportions of 0 or 1, which would be an embarrassment [...] for distributions like the normal [...]". Definitely, not a good look.
