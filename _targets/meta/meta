@@ -119,6 +119,9 @@ spellcheck_current|stem|1a33898cc75b0074|0027400a91e7ad81|2392af31c0a0e869|-5744
 2021-10-12-one-liner-to-generate-ids.md|stem|284db7b5a4372ac9|1dff84e5a904f172|a2247596fcac93eb|-2007791735|_posts/2021-10-12-one-liner-to-generate-ids.md|t18912.7606860474s|772b4a1b55e4498c|14415|file|vector|||3.98||
 2020-08-26-quantile-quantile-plots-from-scratch.Rmd|stem|e92ac70fbd053b17|2f8cad3add6d3cf9|ef46db3751d8e999|-642977628|./_R/2020-08-26-quantile-quantile-plots-from-scratch.Rmd|t18914.5989950759s|588aa3ba24a52220|32247|file|vector|||0||
 2020-08-26-quantile-quantile-plots-from-scratch.md|stem|7006b9f910a97556|823f0a0a0d203f91|304505cba9ab7c62|1490584755|_posts/2020-08-26-quantile-quantile-plots-from-scratch.md|t18914.6017503244s|87fa7d3aba98e6ad|41280|file|vector|||7.82||
+2020-03-04-bayes-theorem-in-three-panels.Rmd|stem|5baa7b855f8df2c1|80586dbe1f4075ac|ef46db3751d8e999|1223037953|./_R/2020-03-04-bayes-theorem-in-three-panels.Rmd|t18914.6230418444s|7f1f520c3e90650b|12691|file|vector|||0||
+2020-03-04-bayes-theorem-in-three-panels.md|stem|00fa735397bd37be|e54fafc0cdad36bf|3553f6d3d8c57ceb|-78354309|_posts/2020-03-04-bayes-theorem-in-three-panels.md|t18914.6238203097s|ab01f2cf11b5a9ca|24172|file|vector|||49.47||
+post_rmds|stem|d36be44fd354e2a9|4eb9e7673767b478|744ce25802edc030|752582536||t18914.6238207714s|c38f32f9c12f9f11|848|rds|vector|||0||
 list_rmds|function|93bdfd47338f0dfa||||||||||||||
 knit_post|function|bb1562dc2bf220be||||||||||||||
 paths_current_posts|object|b974c28046ad5bee||||||||||||||
@@ -128,8 +131,5 @@ posts|object|89d427fb6f2903ec||||||||||||||
 paths_draft_posts|object|efa028f97fdf9726||||||||||||||
 targets_drafts|object|1ed751ea1bbf2d0b||||||||||||||
 targets_posts|object|1a02f578ae222f8f||||||||||||||
-2020-03-04-bayes-theorem-in-three-panels.Rmd|stem|5baa7b855f8df2c1|80586dbe1f4075ac|ef46db3751d8e999|1223037953|./_R/2020-03-04-bayes-theorem-in-three-panels.Rmd|t18914.6230418444s|7f1f520c3e90650b|12691|file|vector|||0||
-2020-03-04-bayes-theorem-in-three-panels.md|stem|00fa735397bd37be|e54fafc0cdad36bf|3553f6d3d8c57ceb|-78354309|_posts/2020-03-04-bayes-theorem-in-three-panels.md|t18914.6238203097s|ab01f2cf11b5a9ca|24172|file|vector|||49.47||
-post_rmds|stem|d36be44fd354e2a9|4eb9e7673767b478|744ce25802edc030|752582536||t18914.6238207714s|c38f32f9c12f9f11|848|rds|vector|||0||
-spellcheck_current_results_change|stem|8a21ea40719f4281|6c36a24e5e54667c|3df8b2851fbac5e4|-1201225623||t18914.6238209446s|9e0babf6e6ead64d|66|rds|vector|||0||
-spellcheck_current_results|stem|1a33898cc75b0074|803bddce9e6e9822|c73bcdad73226044|-515747826||t18914.6238210715s|bf4df9ad60b346de|1199|rds|vector|||0||
+spellcheck_current_results_change|stem|395be0db399f9c99|6c36a24e5e54667c|3df8b2851fbac5e4|-1201225623||t18914.6297132593s|9e0babf6e6ead64d|66|rds|vector|||0||
+spellcheck_current_results|stem|1a33898cc75b0074|803bddce9e6e9822|b17129348c5d0232|-515747826||t18914.6297134093s|bf4df9ad60b346de|1199|rds|vector|||0.02||
