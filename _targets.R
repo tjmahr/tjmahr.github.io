@@ -3,6 +3,17 @@ library(tarchetypes)
 library(stringr)
 library(knitr)
 
+
+# dont_forget_these_packages <- c(
+#   "ggmcmc", "ellipse", "ggrepel", "pryr", "lobstr", "conflicted",
+#   "reticulate", "cowplot", "gamair"
+# )
+#
+# missing <- setdiff(dont_forget_these_packages, installed.packages()[, 1])
+# if (length(missing)) {
+#   install.packages(missing)
+# }
+
 list_rmds <- function(dir) {
   list.files(dir, full.names = TRUE, pattern = ".Rmd$")
 }
@@ -69,22 +80,40 @@ paths_draft_posts <- list_rmds("./_R/_drafts")
 # Set target-specific options such as packages.
 tar_option_set(packages = "knitr")
 
-posts <- list(
+make_post_name <- function(xs, prefix = "post") {
+  candidates <- xs %>%
+    basename() %>%
+    tools::file_path_sans_ext() %>%
+    paste0(prefix, "_", .) %>%
+    stringr::str_replace_all("\\W", "_") %>%
+    tolower()
+  stopifnot(unique(candidates) == candidates)
+  candidates
+}
+
+list2 <- tibble::lst
+
+posts <- list2(
   post = paths_current_posts,
-  name = basename(paths_current_posts),
-  sym_name = rlang::syms(basename(paths_current_posts)),
+  name = make_post_name(post, "rmd"),
+  sym_name = rlang::syms(name),
+  # path_md = paths_current_posts %>%
+  #   basename() %>%
+  #   stringr::str_replace(".Rmd$", ".md"),
   name_md = paths_current_posts %>%
     basename() %>%
-    stringr::str_replace(".Rmd$", ".md")
+    stringr::str_replace(".Rmd$", ".md") %>%
+    make_post_name("md")
 )
 
-drafts <- list(
+drafts <- list2(
   post = paths_draft_posts,
-  name = basename(paths_draft_posts),
-  sym_name = rlang::syms(basename(paths_draft_posts)),
-  name_md = paths_draft_posts %>%
+  name = make_post_name(post, "draft_rmd"),
+  sym_name = rlang::syms(basename(name)),
+  name_md = post %>%
     basename() %>%
-    stringr::str_replace(".Rmd$", ".md")
+    stringr::str_replace(".Rmd$", ".md") %>%
+    make_post_name("draft_md")
 )
 
 targets_posts <- list(
