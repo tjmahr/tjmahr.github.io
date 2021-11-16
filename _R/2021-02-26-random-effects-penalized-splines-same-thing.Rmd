@@ -136,12 +136,12 @@ radon_aug <- radon %>%
   ) %>% 
   ungroup() %>% 
   # add fitted values
-  tidybayes::add_fitted_draws(b_radon) %>% 
+  tidybayes::add_epred_draws(b_radon) %>% 
   mutate(
-    observed_minus_model = observed_mean - .value 
+    observed_minus_model = observed_mean - .epred 
   ) %>% 
   # summarize fitted values
-  ggdist::median_qi(.value, observed_minus_model) 
+  ggdist::median_qi(.epred, observed_minus_model) 
 
 radon_aug$type <- "mixed model estimates"
 radon$type <- "observed means"
@@ -154,7 +154,7 @@ ggplot(radon_aug) +
     shape = type
   ) +
   stat_summary(data = radon, fun = mean, geom = "point") +
-  geom_point(aes(y = .value)) + 
+  geom_point(aes(y = .epred)) + 
   # Want to include y = 0 in the figure
   geom_blank(aes(y = 0)) +
   labs(
@@ -299,7 +299,8 @@ columns for the intercept and 19 basis functions.
 
 ```{r}
 model.matrix(gam_20) %>% 
-  tibble::trunc_mat(width = 72)
+  as_tibble() %>% 
+  print(width = 72)
 ```
 
 To visualize the matrix, I am using a helper function from my personal R
@@ -634,7 +635,7 @@ p2 <- gratia::penalty(basis_cr[[1]]) %>%
     panel.background = element_blank(),
     axis.text.x = element_text(angle = 90, vjust = .5)
   ) + 
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   labs(title = "penalty matrix")
 
 # for combining plots together
@@ -665,7 +666,7 @@ p2b <- gratia::penalty(basis_cr_diag[[1]]) %>%
     panel.background = element_blank(),
     axis.text.x = element_text(angle = 90, vjust = .5)
   ) + 
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   labs(title = "penalty matrix")
 
 p1b + p2b 

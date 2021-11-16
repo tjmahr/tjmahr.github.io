@@ -284,28 +284,40 @@ df_gravity
 df_pulled <- bind_rows(df_no_pooling, df_partial_pooling)
 
 ggplot(df_pulled) + 
-  aes(x = Intercept, y = Slope_Days, color = Model) + 
+  aes(x = Intercept, y = Slope_Days, color = Model, shape = Model) + 
   geom_point(size = 2) + 
-  geom_point(data = df_gravity, size = 5) + 
+  geom_point(
+    data = df_gravity, 
+    size = 5,
+    # Prevent size-5 point from showing in legend keys
+    show.legend = FALSE
+  ) + 
   # Draw an arrow connecting the observations between models
   geom_path(
     aes(group = Subject, color = NULL), 
-    arrow = arrow(length = unit(.02, "npc"))
+    arrow = arrow(length = unit(.02, "npc")),
+    show.legend = FALSE
   ) + 
   # Use ggrepel to jitter the labels away from the points
   ggrepel::geom_text_repel(
     aes(label = Subject, color = NULL), 
-    data = df_no_pooling
+    data = df_no_pooling,
+    show.legend = FALSE
   ) + 
   # Don't forget 373
   ggrepel::geom_text_repel(
     aes(label = Subject, color = NULL), 
-    data = filter(df_partial_pooling, Subject == "373")
+    data = filter(df_partial_pooling, Subject == "373"),
+    show.legend = FALSE
   ) + 
-  theme(legend.position = "bottom", legend.justification = "left") + 
+  theme(
+    legend.position = "bottom", 
+    legend.justification = "right"
+  ) + 
   ggtitle("Pooling of regression parameters") + 
   xlab("Intercept estimate") + 
   ylab("Slope estimate") + 
+  scale_shape_manual(values = c(15:18)) +
   scale_color_brewer(palette = "Dark2") 
 ```
 
@@ -414,25 +426,35 @@ Then we add them onto our previous plot.
 
 ```{r topgraphic-map-1, fig.asp = .8, fig.cap = "The scatterplot of shrinkage of regression parameters updated with contour lines to show different confidence regions."}
 ggplot(df_pulled) + 
-  aes(x = Intercept, y = Slope_Days, color = Model) + 
+  aes(x = Intercept, y = Slope_Days, color = Model, shape = Model) + 
   # Draw contour lines from the distribution of effects
   geom_path(
-    aes(group = level, color = NULL), 
+    aes(group = level, color = NULL, shape = NULL), 
     data = df_ellipse, 
     linetype = "dashed", 
     color = "grey40"
   ) + 
-  geom_point(data = df_gravity, size = 5) + 
+  geom_point(
+    aes(shape = Model),
+    data = df_gravity, 
+    size = 5,
+    show.legend = FALSE
+  ) + 
   geom_point(size = 2) + 
   geom_path(
     aes(group = Subject, color = NULL), 
-    arrow = arrow(length = unit(.02, "npc"))
+    arrow = arrow(length = unit(.02, "npc")),
+    show.legend = FALSE
   ) + 
-  theme(legend.position = "bottom", legend.justification = "left") + 
+  theme(
+    legend.position = "bottom", 
+    legend.justification = "right"
+  ) + 
   ggtitle("Topographic map of regression parameters") + 
   xlab("Intercept estimate") + 
   ylab("Slope estimate") + 
-  scale_color_brewer(palette = "Dark2") 
+  scale_color_brewer(palette = "Dark2") +
+  scale_shape_manual(values = c(15:18))
 ```
 
 The ellipses provide a little more information about where the estimates are 
@@ -489,7 +511,7 @@ df_label_locations <- df_ellipse %>%
 # Tweak the last plot one more time!
 last_plot() +
   geom_text(
-    aes(label = level, color = NULL), 
+    aes(label = level, color = NULL, shape = NULL), 
     data = df_label_locations, 
     nudge_x = .5, 
     nudge_y = .8, 
@@ -531,7 +553,9 @@ b <- stan_glmer(
   prior = normal(0, 2, autoscale = TRUE),
   prior_intercept = normal(0, 5, autoscale = TRUE),
   prior_covariance = decov(regularization = 2),
-  prior_aux = cauchy(0, 1, autoscale = TRUE)
+  prior_aux = cauchy(0, 1, autoscale = TRUE), 
+  # reproducible blogging
+  seed = 20211116
 )
 ```
 

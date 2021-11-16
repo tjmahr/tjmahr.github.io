@@ -221,6 +221,18 @@ work later on.
 
 ```r
 library(rstan)
+#> Loading required package: StanHeaders
+#> rstan (Version 2.21.2, GitRev: 2e1f913d3ca3)
+#> For execution on a local, multicore CPU with excess RAM we recommend calling
+#> options(mc.cores = parallel::detectCores()).
+#> To avoid recompilation of unchanged Stan programs, we recommend calling
+#> rstan_options(auto_write = TRUE)
+#> Do not specify '-march=native' in 'LOCAL_CPPFLAGS' or a Makevars file
+#> 
+#> Attaching package: 'rstan'
+#> The following object is masked from 'package:tidyr':
+#> 
+#>     extract
 ```
 
 I begin by compiling the model. This step will create an executable 
@@ -280,12 +292,12 @@ m_informative_pd
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.22  3258    1
-#> theta_2   0.11    0.00 0.05   0.04   0.08   0.10   0.14   0.23  2805    1
-#> diff      0.00    0.00 0.07  -0.13  -0.04   0.00   0.04   0.13  3383    1
-#> lp__    -32.44    0.02 1.02 -35.12 -32.83 -32.13 -31.71 -31.42  1726    1
+#> theta_1   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.22  3130    1
+#> theta_2   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.22  3235    1
+#> diff      0.00    0.00 0.07  -0.13  -0.04   0.00   0.04   0.13  3035    1
+#> lp__    -32.44    0.03 1.07 -35.42 -32.84 -32.11 -31.69 -31.42  1731    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Mon Feb 15 12:47:54 2021.
+#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 11:08:33 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -297,12 +309,12 @@ m_flat_pd
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>          mean se_mean   sd  2.5%   25%   50%   75% 97.5% n_eff Rhat
-#> theta_1  0.50    0.00 0.29  0.02  0.25  0.50  0.75  0.97  3351    1
-#> theta_2  0.50    0.00 0.29  0.03  0.24  0.49  0.75  0.97  3578    1
-#> diff     0.00    0.01 0.41 -0.76 -0.29  0.00  0.30  0.78  3404    1
-#> lp__    -3.99    0.03 1.18 -7.18 -4.46 -3.65 -3.14 -2.81  1647    1
+#> theta_1  0.50    0.01 0.29  0.02  0.24  0.50  0.76  0.98  3018    1
+#> theta_2  0.50    0.01 0.29  0.02  0.25  0.49  0.75  0.97  2796    1
+#> diff     0.00    0.01 0.40 -0.77 -0.28  0.00  0.28  0.78  2841    1
+#> lp__    -4.06    0.04 1.23 -7.28 -4.55 -3.69 -3.16 -2.81  1139    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Mon Feb 15 12:47:54 2021.
+#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 11:08:33 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -336,12 +348,12 @@ m_informative
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.14    0.00 0.04   0.08   0.12   0.14   0.17   0.22  3649    1
-#> theta_2   0.10    0.00 0.03   0.05   0.07   0.09   0.12   0.16  3922    1
-#> diff      0.05    0.00 0.05  -0.04   0.02   0.05   0.08   0.14  3700    1
-#> lp__    -70.61    0.02 0.99 -73.27 -71.03 -70.32 -69.89 -69.63  1756    1
+#> theta_1   0.14    0.00 0.03   0.08   0.12   0.14   0.17   0.22  3364    1
+#> theta_2   0.10    0.00 0.03   0.05   0.07   0.09   0.12   0.17  3203    1
+#> diff      0.05    0.00 0.05  -0.04   0.02   0.05   0.08   0.14  3455    1
+#> lp__    -70.62    0.03 1.05 -73.46 -71.00 -70.29 -69.88 -69.64  1684    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Mon Feb 15 12:47:54 2021.
+#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 11:08:33 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -353,12 +365,12 @@ m_flat
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.19    0.00 0.05   0.09   0.15   0.18   0.22   0.30  2926    1
-#> theta_2   0.10    0.00 0.04   0.03   0.07   0.09   0.13   0.20  2849    1
-#> diff      0.08    0.00 0.07  -0.05   0.04   0.08   0.13   0.22  2971    1
-#> lp__    -43.18    0.03 1.05 -46.02 -43.56 -42.86 -42.44 -42.16  1516    1
+#> theta_1   0.19    0.00 0.05   0.10   0.15   0.18   0.22   0.30  2826    1
+#> theta_2   0.10    0.00 0.04   0.03   0.07   0.09   0.13   0.19  3024    1
+#> diff      0.09    0.00 0.07  -0.05   0.04   0.09   0.13   0.22  2998    1
+#> lp__    -43.15    0.02 1.03 -45.88 -43.52 -42.84 -42.42 -42.16  1822    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Mon Feb 15 12:47:55 2021.
+#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 11:08:34 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -366,8 +378,8 @@ m_flat
 
 
 
-The flat model puts the difference at 0.08 and 90% of the plausible
-values fall in the interval [-0.03, 0.2]. The informative
+The flat model puts the difference at 0.09 and 90% of the plausible
+values fall in the interval [-0.02, 0.2]. The informative
 model is more skeptical of higher left-handedness rates, so it puts the
 difference at 0.05 with 90% of the values between [-0.03,
 0.12]. Both of these intervals contain 0 and negative values
@@ -384,11 +396,11 @@ negative, then we assign a 10% probability to a negative group difference.
 ```r
 df_flat <- as.data.frame(m_flat)
 mean(df_flat$diff <= 0)
-#> [1] 0.10675
+#> [1] 0.09625
 
 df_informative <- as.data.frame(m_informative)
 mean(df_informative$diff <= 0)
-#> [1] 0.143
+#> [1] 0.139
 ```
 
 It's also worth comparing the two models. I've recently become a fan of the
@@ -504,99 +516,109 @@ It's fun to think about.)
 
 
 
+
+
 ***
 
-*Last knitted on 2021-02-15. [Source code on
+*Last knitted on 2021-11-16. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-16-bayesian-fisher-exact-test.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.0.3 (2020-10-10)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-02-15                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: person golfing: medium-light skin tone, left arrow, backhand index pointing left: medium-light skin tone
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  ! package      * version    date       lib source                     
-    #>    assertthat     0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
-    #>    callr          3.5.1      2020-10-13 [1] CRAN (R 4.0.3)             
-    #>    cli            2.3.0      2021-01-31 [1] CRAN (R 4.0.3)             
-    #>    codetools      0.2-18     2020-11-04 [1] CRAN (R 4.0.2)             
-    #>    colorspace     2.0-0      2020-11-11 [1] CRAN (R 4.0.3)             
-    #>    crayon         1.4.1      2021-02-08 [1] CRAN (R 4.0.3)             
-    #>    curl           4.3        2019-12-02 [1] CRAN (R 4.0.2)             
-    #>    DBI            1.1.1      2021-01-15 [1] CRAN (R 4.0.3)             
-    #>    digest         0.6.27     2020-10-24 [1] CRAN (R 4.0.3)             
-    #>    dplyr        * 1.0.4      2021-02-02 [1] CRAN (R 4.0.3)             
-    #>    ellipsis       0.3.1      2020-05-15 [1] CRAN (R 4.0.2)             
-    #>    emo            0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)
-    #>    evaluate       0.14       2019-05-28 [1] CRAN (R 4.0.2)             
-    #>    farver         2.0.3      2020-01-16 [1] CRAN (R 4.0.2)             
-    #>    generics       0.1.0      2020-10-31 [1] CRAN (R 4.0.3)             
-    #>    GGally         2.1.0      2021-01-06 [1] CRAN (R 4.0.3)             
-    #>    ggmcmc       * 1.5.1.1    2021-02-10 [1] CRAN (R 4.0.3)             
-    #>    ggplot2      * 3.3.3      2020-12-30 [1] CRAN (R 4.0.3)             
-    #>    git2r          0.28.0     2021-01-10 [1] CRAN (R 4.0.3)             
-    #>    glue           1.4.2      2020-08-27 [1] CRAN (R 4.0.2)             
-    #>    gridExtra      2.3        2017-09-09 [1] CRAN (R 4.0.2)             
-    #>    gtable         0.3.0      2019-03-25 [1] CRAN (R 4.0.2)             
-    #>    here           1.0.1      2020-12-13 [1] CRAN (R 4.0.3)             
-    #>    highr          0.8        2019-03-20 [1] CRAN (R 4.0.2)             
-    #>    inline         0.3.17     2020-12-01 [1] CRAN (R 4.0.3)             
-    #>    jsonlite       1.7.2      2020-12-09 [1] CRAN (R 4.0.3)             
-    #>    knitr        * 1.31       2021-01-27 [1] CRAN (R 4.0.3)             
-    #>    labeling       0.4.2      2020-10-20 [1] CRAN (R 4.0.2)             
-    #>    lifecycle      1.0.0      2021-02-15 [1] CRAN (R 4.0.3)             
-    #>    loo            2.4.1      2020-12-09 [1] CRAN (R 4.0.3)             
-    #>    lubridate      1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
-    #>    magrittr       2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
-    #>    matrixStats    0.58.0     2021-01-29 [1] CRAN (R 4.0.3)             
-    #>    munsell        0.5.0      2018-06-12 [1] CRAN (R 4.0.2)             
-    #>    pillar         1.4.7      2020-11-20 [1] CRAN (R 4.0.3)             
-    #>    pkgbuild       1.2.0      2020-12-15 [1] CRAN (R 4.0.3)             
-    #>    pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.0.2)             
-    #>    plyr           1.8.6      2020-03-03 [1] CRAN (R 4.0.2)             
-    #>    prettyunits    1.1.1      2020-01-24 [1] CRAN (R 4.0.2)             
-    #>    processx       3.4.5      2020-11-30 [1] CRAN (R 4.0.3)             
-    #>    ps             1.5.0      2020-12-05 [1] CRAN (R 4.0.3)             
-    #>    purrr          0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
-    #>    R6             2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
-    #>    ragg           0.4.1      2021-01-11 [1] CRAN (R 4.0.3)             
-    #>    RColorBrewer   1.1-2      2014-12-07 [1] CRAN (R 4.0.0)             
-    #>    Rcpp           1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
-    #>  D RcppParallel   5.0.2      2020-06-24 [1] CRAN (R 4.0.2)             
-    #>    reshape        0.8.8      2018-10-23 [1] CRAN (R 4.0.2)             
-    #>    rlang          0.4.10     2020-12-30 [1] CRAN (R 4.0.3)             
-    #>    rprojroot      2.0.2      2020-11-15 [1] CRAN (R 4.0.3)             
-    #>    rstan        * 2.21.2     2020-07-27 [1] CRAN (R 4.0.3)             
-    #>    scales         1.1.1      2020-05-11 [1] CRAN (R 4.0.2)             
-    #>    sessioninfo    1.1.1      2018-11-05 [1] CRAN (R 4.0.2)             
-    #>    StanHeaders  * 2.21.0-7   2020-12-17 [1] CRAN (R 4.0.3)             
-    #>    stringi        1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
-    #>    stringr        1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
-    #>    systemfonts    1.0.0      2021-02-01 [1] CRAN (R 4.0.3)             
-    #>    textshaping    0.2.1      2020-11-13 [1] CRAN (R 4.0.3)             
-    #>    tibble       * 3.0.6      2021-01-29 [1] CRAN (R 4.0.3)             
-    #>    tidyr        * 1.1.2      2020-08-27 [1] CRAN (R 4.0.2)             
-    #>    tidyselect     1.1.0      2020-05-11 [1] CRAN (R 4.0.2)             
-    #>    V8             3.4.0      2020-11-04 [1] CRAN (R 4.0.3)             
-    #>    vctrs          0.3.6      2020-12-17 [1] CRAN (R 4.0.3)             
-    #>    withr          2.4.1      2021-01-26 [1] CRAN (R 4.0.3)             
-    #>    xfun           0.20       2021-01-06 [1] CRAN (R 4.0.3)             
+    #>  ! package      * version    date (UTC) lib source
+    #>    assertthat     0.2.1      2019-03-21 [1] CRAN (R 4.1.0)
+    #>    callr          3.7.0      2021-04-20 [1] CRAN (R 4.1.0)
+    #>    cli            3.1.0      2021-10-27 [1] CRAN (R 4.1.1)
+    #>    codetools      0.2-18     2020-11-04 [2] CRAN (R 4.1.2)
+    #>    colorspace     2.0-2      2021-06-24 [1] CRAN (R 4.1.0)
+    #>    crayon         1.4.2      2021-10-29 [1] CRAN (R 4.1.1)
+    #>    curl           4.3.2      2021-06-23 [1] CRAN (R 4.1.0)
+    #>    DBI            1.1.1      2021-01-15 [1] CRAN (R 4.1.0)
+    #>    digest         0.6.28     2021-09-23 [1] CRAN (R 4.1.1)
+    #>    dplyr        * 1.0.7      2021-06-18 [1] CRAN (R 4.1.0)
+    #>    ellipsis       0.3.2      2021-04-29 [1] CRAN (R 4.1.0)
+    #>    emo            0.0.0.9000 2021-10-14 [1] Github (hadley/emo@3f03b11)
+    #>    evaluate       0.14       2019-05-28 [1] CRAN (R 4.1.0)
+    #>    fansi          0.5.0      2021-05-25 [1] CRAN (R 4.1.0)
+    #>    farver         2.1.0      2021-02-28 [1] CRAN (R 4.1.0)
+    #>    generics       0.1.1      2021-10-25 [1] CRAN (R 4.1.1)
+    #>    GGally         2.1.2      2021-06-21 [1] CRAN (R 4.1.1)
+    #>    ggmcmc       * 1.5.1.1    2021-02-10 [1] CRAN (R 4.1.1)
+    #>    ggplot2      * 3.3.5      2021-06-25 [1] CRAN (R 4.1.0)
+    #>    git2r          0.28.0     2021-01-10 [1] CRAN (R 4.1.1)
+    #>    glue           1.4.2      2020-08-27 [1] CRAN (R 4.1.1)
+    #>    gridExtra      2.3        2017-09-09 [1] CRAN (R 4.1.0)
+    #>    gtable         0.3.0      2019-03-25 [1] CRAN (R 4.1.0)
+    #>    here           1.0.1      2020-12-13 [1] CRAN (R 4.1.0)
+    #>    highr          0.9        2021-04-16 [1] CRAN (R 4.1.0)
+    #>    inline         0.3.19     2021-05-31 [1] CRAN (R 4.1.0)
+    #>    jsonlite       1.7.2      2020-12-09 [1] CRAN (R 4.1.0)
+    #>    knitr        * 1.36       2021-09-29 [1] CRAN (R 4.1.1)
+    #>    labeling       0.4.2      2020-10-20 [1] CRAN (R 4.1.0)
+    #>    lifecycle      1.0.1      2021-09-24 [1] CRAN (R 4.1.1)
+    #>    loo            2.4.1      2020-12-09 [1] CRAN (R 4.1.0)
+    #>    lubridate      1.8.0      2021-10-07 [1] CRAN (R 4.1.1)
+    #>    magrittr       2.0.1      2020-11-17 [1] CRAN (R 4.1.0)
+    #>    matrixStats    0.61.0     2021-09-17 [1] CRAN (R 4.1.1)
+    #>    munsell        0.5.0      2018-06-12 [1] CRAN (R 4.1.0)
+    #>    pillar         1.6.4      2021-10-18 [1] CRAN (R 4.1.1)
+    #>    pkgbuild       1.2.0      2020-12-15 [1] CRAN (R 4.1.0)
+    #>    pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.1.0)
+    #>    plyr           1.8.6      2020-03-03 [1] CRAN (R 4.1.0)
+    #>    prettyunits    1.1.1      2020-01-24 [1] CRAN (R 4.1.0)
+    #>    processx       3.5.2      2021-04-30 [1] CRAN (R 4.1.0)
+    #>    ps             1.6.0      2021-02-28 [1] CRAN (R 4.1.0)
+    #>    purrr          0.3.4      2020-04-17 [1] CRAN (R 4.1.0)
+    #>    R6             2.5.1      2021-08-19 [1] CRAN (R 4.1.1)
+    #>    ragg           1.2.0      2021-10-30 [1] CRAN (R 4.1.1)
+    #>    RColorBrewer   1.1-2      2014-12-07 [1] CRAN (R 4.1.0)
+    #>    Rcpp           1.0.7      2021-07-07 [1] CRAN (R 4.1.0)
+    #>  D RcppParallel   5.1.4      2021-05-04 [1] CRAN (R 4.1.0)
+    #>    reshape        0.8.8      2018-10-23 [1] CRAN (R 4.1.1)
+    #>    rlang          0.4.12     2021-10-18 [1] CRAN (R 4.1.1)
+    #>    rprojroot      2.0.2      2020-11-15 [1] CRAN (R 4.1.0)
+    #>    rstan        * 2.21.2     2020-07-27 [1] CRAN (R 4.1.0)
+    #>    rstudioapi     0.13       2020-11-12 [1] CRAN (R 4.1.0)
+    #>    scales         1.1.1      2020-05-11 [1] CRAN (R 4.1.0)
+    #>    sessioninfo    1.2.1      2021-11-02 [1] CRAN (R 4.1.2)
+    #>    StanHeaders  * 2.21.0-7   2020-12-17 [1] CRAN (R 4.1.0)
+    #>    stringi        1.7.5      2021-10-04 [1] CRAN (R 4.1.1)
+    #>    stringr        1.4.0      2019-02-10 [1] CRAN (R 4.1.0)
+    #>    systemfonts    1.0.3      2021-10-13 [1] CRAN (R 4.1.1)
+    #>    textshaping    0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
+    #>    tibble       * 3.1.5      2021-09-30 [1] CRAN (R 4.1.1)
+    #>    tidyr        * 1.1.4      2021-09-27 [1] CRAN (R 4.1.1)
+    #>    tidyselect     1.1.1      2021-04-30 [1] CRAN (R 4.1.0)
+    #>    utf8           1.2.2      2021-07-24 [1] CRAN (R 4.1.0)
+    #>    V8             3.4.2      2021-05-01 [1] CRAN (R 4.1.1)
+    #>    vctrs          0.3.8      2021-04-29 [1] CRAN (R 4.1.0)
+    #>    withr          2.4.2      2021-04-18 [1] CRAN (R 4.1.0)
+    #>    xfun           0.27       2021-10-18 [1] CRAN (R 4.1.1)
     #> 
-    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [2] C:/Program Files/R/R-4.0.3/library
+    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [2] C:/Program Files/R/R-4.1.2/library
     #> 
     #>  D -- DLL MD5 mismatch, broken installation.
+    #> 
+    #> ------------------------------------------------------------------------------
     ```
 
 [bc-youtube]: https://www.youtube.com/watch?v=qQFF4tPgeWI

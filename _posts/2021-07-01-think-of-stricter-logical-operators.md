@@ -201,7 +201,7 @@ FALSE %||% 2
 #>         y
 #>     else x
 #> }
-#> <bytecode: 0x000000001f095780>
+#> <bytecode: 0x00000000216f2f70>
 #> <environment: namespace:rlang>
 ```
 
@@ -443,55 +443,70 @@ they are stricter.
 
 
 
+
+
 ***
 
-*Last knitted on 2021-08-16. [Source code on
+*Last knitted on 2021-11-16. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-think-of-stricter-logical-operators.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.1.0 (2021-05-18)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-08-16                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: wind chime, sheaf of rice, person gesturing NO: medium skin tone
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  package     * version date       lib source        
-    #>  cli           3.0.1   2021-07-17 [1] CRAN (R 4.1.0)
+    #>  package     * version date (UTC) lib source
+    #>  cli           3.1.0   2021-10-27 [1] CRAN (R 4.1.1)
     #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.1.0)
-    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.0)
+    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
     #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
     #>  jsonlite      1.7.2   2020-12-09 [1] CRAN (R 4.1.0)
-    #>  knitr       * 1.33    2021-04-24 [1] CRAN (R 4.1.0)
-    #>  lattice       0.20-44 2021-05-02 [1] CRAN (R 4.1.0)
+    #>  knitr       * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
+    #>  lattice       0.20-45 2021-09-22 [2] CRAN (R 4.1.2)
     #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
-    #>  Matrix        1.3-4   2021-06-01 [1] CRAN (R 4.1.0)
+    #>  Matrix        1.3-4   2021-06-01 [2] CRAN (R 4.1.2)
     #>  png           0.1-7   2013-12-03 [1] CRAN (R 4.1.0)
     #>  purrr       * 0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
-    #>  ragg          1.1.3   2021-06-09 [1] CRAN (R 4.1.0)
-    #>  rappdirs      0.3.3   2021-01-31 [1] CRAN (R 4.1.0)
+    #>  ragg          1.2.0   2021-10-30 [1] CRAN (R 4.1.1)
     #>  Rcpp          1.0.7   2021-07-07 [1] CRAN (R 4.1.0)
-    #>  reticulate    1.20    2021-05-03 [1] CRAN (R 4.1.0)
-    #>  rlang         0.4.11  2021-04-30 [1] CRAN (R 4.1.0)
+    #>  reticulate    1.22    2021-09-17 [1] CRAN (R 4.1.1)
+    #>  rlang         0.4.12  2021-10-18 [1] CRAN (R 4.1.1)
     #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
     #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.1.0)
-    #>  stringi       1.7.3   2021-07-16 [1] CRAN (R 4.1.0)
+    #>  sessioninfo   1.2.1   2021-11-02 [1] CRAN (R 4.1.2)
+    #>  stringi       1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
     #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.2   2021-05-11 [1] CRAN (R 4.1.0)
-    #>  textshaping   0.3.5   2021-06-09 [1] CRAN (R 4.1.0)
-    #>  withr         2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
-    #>  xfun          0.24    2021-06-15 [1] CRAN (R 4.1.0)
+    #>  systemfonts   1.0.3   2021-10-13 [1] CRAN (R 4.1.1)
+    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.1.1)
+    #>  xfun          0.27    2021-10-18 [1] CRAN (R 4.1.1)
     #> 
-    #> [1] C:/Users/Tristan/Documents/R/win-library/4.1
-    #> [2] C:/Program Files/R/R-4.1.0/library
+    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #> 
+    #> - Python configuration -------------------------------------------------------
+    #>  python:         C:/Python310/python.exe
+    #>  libpython:      C:/Python310/python310.dll
+    #>  pythonhome:     C:/Python310
+    #>  version:        3.10.0 (tags/v3.10.0:b494f59, Oct  4 2021, 19:00:18) [MSC v.1929 64 bit (AMD64)]
+    #>  Architecture:   64bit
+    #>  numpy:           [NOT FOUND]
+    #>  
+    #>  NOTE: Python version was forced by RETICULATE_PYTHON
+    #> 
+    #> ------------------------------------------------------------------------------
     ```

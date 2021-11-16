@@ -67,7 +67,7 @@ following plan.
     paths (`old_lib_paths` in the code below). 
 
 [libpaths]: https://rdrr.io/r/base/libPaths.html "Documentation of .libPaths()"
-[callr]: https://rdrr.io/pkg/callr/man/r.html "Documentation of callr:r()"
+[callr]: https://callr.r-lib.org/reference/r.html "Documentation of callr:r()"
 [withr-temp-libpaths]: https://withr.r-lib.org/reference/with_temp_libpaths.html "Documentation of withr::with_temp_libpaths()"
 
 
@@ -223,7 +223,7 @@ p_base <- ggplot(d) +
   ) + 
   ggridges::geom_density_ridges(stat = "identity") + 
   scale_fill_brewer(type = "seq") + 
-  guides(fill = FALSE)
+  guides(fill = "none")
 
 p_base + 
   facet_wrap("interval")
@@ -421,139 +421,148 @@ angles.
 
 
 
+
+
 ***
 
-*Last knitted on 2021-02-15. [Source code on
+*Last knitted on 2021-11-16. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-ridgelines-in-bayesplot-1-5-0-release.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.0.3 (2020-10-10)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-02-15                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: selfie: medium-dark skin tone, circus tent, man teacher: medium-light skin tone
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  ! package      * version  date       lib source                             
-    #>    assertthat     0.2.1    2019-03-21 [2] CRAN (R 4.0.2)                     
-    #>    base64enc      0.1-3    2015-07-28 [2] CRAN (R 4.0.0)                     
-    #>    bayesplot    * 1.5.0    2021-02-15 [1] Github (stan-dev/bayesplot@e7b1934)
-    #>    boot           1.3-27   2021-02-12 [2] CRAN (R 4.0.3)                     
-    #>    callr          3.5.1    2020-10-13 [2] CRAN (R 4.0.3)                     
-    #>    cli            2.3.0    2021-01-31 [2] CRAN (R 4.0.3)                     
-    #>    codetools      0.2-18   2020-11-04 [2] CRAN (R 4.0.2)                     
-    #>    colorspace     2.0-0    2020-11-11 [2] CRAN (R 4.0.3)                     
-    #>    colourpicker   1.1.0    2020-09-14 [2] CRAN (R 4.0.2)                     
-    #>    cowplot        1.1.1    2020-12-30 [2] CRAN (R 4.0.3)                     
-    #>    crayon         1.4.1    2021-02-08 [2] CRAN (R 4.0.3)                     
-    #>    crosstalk      1.1.1    2021-01-12 [2] CRAN (R 4.0.3)                     
-    #>    curl           4.3      2019-12-02 [2] CRAN (R 4.0.2)                     
-    #>    DBI            1.1.1    2021-01-15 [2] CRAN (R 4.0.3)                     
-    #>    digest         0.6.27   2020-10-24 [2] CRAN (R 4.0.3)                     
-    #>  R downlit        0.2.1    <NA>       [2] <NA>                               
-    #>    dplyr        * 1.0.4    2021-02-02 [2] CRAN (R 4.0.3)                     
-    #>    DT             0.17     2021-01-06 [2] CRAN (R 4.0.3)                     
-    #>    dygraphs       1.1.1.6  2018-07-11 [2] CRAN (R 4.0.2)                     
-    #>    ellipsis       0.3.1    2020-05-15 [2] CRAN (R 4.0.2)                     
-    #>    evaluate       0.14     2019-05-28 [2] CRAN (R 4.0.2)                     
-    #>    fansi          0.4.2    2021-01-15 [2] CRAN (R 4.0.3)                     
-    #>    farver         2.0.3    2020-01-16 [2] CRAN (R 4.0.2)                     
-    #>    fastmap        1.1.0    2021-01-25 [2] CRAN (R 4.0.3)                     
-    #>    generics       0.1.0    2020-10-31 [2] CRAN (R 4.0.3)                     
-    #>    ggplot2      * 3.3.3    2020-12-30 [2] CRAN (R 4.0.3)                     
-    #>    ggridges       0.5.3    2021-01-08 [2] CRAN (R 4.0.3)                     
-    #>    git2r          0.28.0   2021-01-10 [2] CRAN (R 4.0.3)                     
-    #>    glue           1.4.2    2020-08-27 [2] CRAN (R 4.0.2)                     
-    #>    gridExtra      2.3      2017-09-09 [2] CRAN (R 4.0.2)                     
-    #>    gtable         0.3.0    2019-03-25 [2] CRAN (R 4.0.2)                     
-    #>    gtools         3.8.2    2020-03-31 [2] CRAN (R 4.0.0)                     
-    #>    here           1.0.1    2020-12-13 [2] CRAN (R 4.0.3)                     
-    #>    highr          0.8      2019-03-20 [2] CRAN (R 4.0.2)                     
-    #>    htmltools      0.5.1.1  2021-01-22 [2] CRAN (R 4.0.3)                     
-    #>    htmlwidgets    1.5.3    2020-12-10 [2] CRAN (R 4.0.3)                     
-    #>    httpuv         1.5.5    2021-01-13 [2] CRAN (R 4.0.3)                     
-    #>    igraph         1.2.6    2020-10-06 [2] CRAN (R 4.0.2)                     
-    #>    inline         0.3.17   2020-12-01 [2] CRAN (R 4.0.3)                     
-    #>    jsonlite       1.7.2    2020-12-09 [2] CRAN (R 4.0.3)                     
-    #>    knitr        * 1.31     2021-01-27 [2] CRAN (R 4.0.3)                     
-    #>    labeling       0.4.2    2020-10-20 [2] CRAN (R 4.0.2)                     
-    #>    later          1.1.0.1  2020-06-05 [2] CRAN (R 4.0.2)                     
-    #>    lattice        0.20-41  2020-04-02 [2] CRAN (R 4.0.2)                     
-    #>    lifecycle      1.0.0    2021-02-15 [2] CRAN (R 4.0.3)                     
-    #>    lme4           1.1-26   2020-12-01 [2] CRAN (R 4.0.3)                     
-    #>    loo            2.4.1    2020-12-09 [2] CRAN (R 4.0.3)                     
-    #>    magrittr       2.0.1    2020-11-17 [2] CRAN (R 4.0.3)                     
-    #>    markdown       1.1      2019-08-07 [2] CRAN (R 4.0.2)                     
-    #>    MASS           7.3-53   2020-09-09 [2] CRAN (R 4.0.3)                     
-    #>    Matrix         1.2-18   2019-11-27 [2] CRAN (R 4.0.3)                     
-    #>    matrixStats    0.58.0   2021-01-29 [2] CRAN (R 4.0.3)                     
-    #>    mime           0.9      2020-02-04 [2] CRAN (R 4.0.3)                     
-    #>    miniUI         0.1.1.1  2018-05-18 [2] CRAN (R 4.0.2)                     
-    #>    minqa          1.2.4    2014-10-09 [2] CRAN (R 4.0.2)                     
-    #>    munsell        0.5.0    2018-06-12 [2] CRAN (R 4.0.2)                     
-    #>    nlme           3.1-152  2021-02-04 [2] CRAN (R 4.0.3)                     
-    #>    nloptr         1.2.2.2  2020-07-02 [2] CRAN (R 4.0.2)                     
-    #>    pillar         1.4.7    2020-11-20 [2] CRAN (R 4.0.3)                     
-    #>    pkgbuild       1.2.0    2020-12-15 [2] CRAN (R 4.0.3)                     
-    #>    pkgconfig      2.0.3    2019-09-22 [2] CRAN (R 4.0.2)                     
-    #>    plyr           1.8.6    2020-03-03 [2] CRAN (R 4.0.2)                     
-    #>    prettyunits    1.1.1    2020-01-24 [2] CRAN (R 4.0.2)                     
-    #>    processx       3.4.5    2020-11-30 [2] CRAN (R 4.0.3)                     
-    #>    promises       1.1.1    2020-06-09 [2] CRAN (R 4.0.3)                     
-    #>    ps             1.5.0    2020-12-05 [2] CRAN (R 4.0.3)                     
-    #>    purrr          0.3.4    2020-04-17 [2] CRAN (R 4.0.2)                     
-    #>    R6             2.5.0    2020-10-28 [2] CRAN (R 4.0.2)                     
-    #>    ragg           0.4.1    2021-01-11 [2] CRAN (R 4.0.3)                     
-    #>    RColorBrewer   1.1-2    2014-12-07 [2] CRAN (R 4.0.0)                     
-    #>    Rcpp           1.0.6    2021-01-15 [2] CRAN (R 4.0.3)                     
-    #>  D RcppParallel   5.0.2    2020-06-24 [2] CRAN (R 4.0.2)                     
-    #>    remotes        2.2.0    2020-07-21 [2] CRAN (R 4.0.3)                     
-    #>    reshape2       1.4.4    2020-04-09 [2] CRAN (R 4.0.2)                     
-    #>    rlang          0.4.10   2020-12-30 [2] CRAN (R 4.0.3)                     
-    #>    rprojroot      2.0.2    2020-11-15 [2] CRAN (R 4.0.3)                     
-    #>    rsconnect      0.8.16   2019-12-13 [2] CRAN (R 4.0.2)                     
-    #>    rstan          2.21.2   2020-07-27 [2] CRAN (R 4.0.3)                     
-    #>    scales         1.1.1    2020-05-11 [2] CRAN (R 4.0.2)                     
-    #>    sessioninfo    1.1.1    2018-11-05 [2] CRAN (R 4.0.2)                     
-    #>    shiny          1.6.0    2021-01-25 [2] CRAN (R 4.0.3)                     
-    #>    shinyjs        2.0.0    2020-09-09 [2] CRAN (R 4.0.2)                     
-    #>    shinystan      2.5.0    2018-05-01 [2] CRAN (R 4.0.2)                     
-    #>    shinythemes    1.2.0    2021-01-25 [2] CRAN (R 4.0.3)                     
-    #>    StanHeaders    2.21.0-7 2020-12-17 [2] CRAN (R 4.0.3)                     
-    #>    statmod        1.4.35   2020-10-19 [2] CRAN (R 4.0.3)                     
-    #>    stringi        1.5.3    2020-09-09 [2] CRAN (R 4.0.2)                     
-    #>    stringr        1.4.0    2019-02-10 [2] CRAN (R 4.0.2)                     
-    #>    systemfonts    1.0.0    2021-02-01 [2] CRAN (R 4.0.3)                     
-    #>    textshaping    0.2.1    2020-11-13 [2] CRAN (R 4.0.3)                     
-    #>    threejs        0.3.3    2020-01-21 [2] CRAN (R 4.0.2)                     
-    #>    tibble         3.0.6    2021-01-29 [2] CRAN (R 4.0.3)                     
-    #>    tidyr          1.1.2    2020-08-27 [2] CRAN (R 4.0.2)                     
-    #>    tidyselect     1.1.0    2020-05-11 [2] CRAN (R 4.0.2)                     
-    #>    utf8           1.1.4    2018-05-24 [2] CRAN (R 4.0.2)                     
-    #>    V8             3.4.0    2020-11-04 [2] CRAN (R 4.0.3)                     
-    #>    vctrs          0.3.6    2020-12-17 [2] CRAN (R 4.0.3)                     
-    #>    withr          2.4.1    2021-01-26 [2] CRAN (R 4.0.3)                     
-    #>    xfun           0.20     2021-01-06 [2] CRAN (R 4.0.3)                     
-    #>    xtable         1.8-4    2019-04-21 [2] CRAN (R 4.0.2)                     
-    #>    xts            0.12.1   2020-09-09 [2] CRAN (R 4.0.2)                     
-    #>    yaml           2.2.1    2020-02-01 [2] CRAN (R 4.0.0)                     
-    #>    zoo            1.8-8    2020-05-02 [2] CRAN (R 4.0.2)                     
+    #>  ! package      * version  date (UTC) lib source
+    #>    assertthat     0.2.1    2019-03-21 [2] CRAN (R 4.1.0)
+    #>    base64enc      0.1-3    2015-07-28 [2] CRAN (R 4.1.0)
+    #>    bayesplot    * 1.5.0    2021-11-16 [1] Github (stan-dev/bayesplot@e7b1934)
+    #>    boot           1.3-28   2021-05-03 [3] CRAN (R 4.1.2)
+    #>    cachem         1.0.6    2021-08-19 [2] CRAN (R 4.1.1)
+    #>    callr          3.7.0    2021-04-20 [2] CRAN (R 4.1.0)
+    #>    cli            3.1.0    2021-10-27 [2] CRAN (R 4.1.1)
+    #>    codetools      0.2-18   2020-11-04 [3] CRAN (R 4.1.2)
+    #>    colorspace     2.0-2    2021-06-24 [2] CRAN (R 4.1.0)
+    #>    colourpicker   1.1.1    2021-10-04 [2] CRAN (R 4.1.1)
+    #>    cowplot        1.1.1    2020-12-30 [2] CRAN (R 4.1.1)
+    #>    crayon         1.4.2    2021-10-29 [2] CRAN (R 4.1.1)
+    #>    crosstalk      1.2.0    2021-11-04 [2] CRAN (R 4.1.2)
+    #>    curl           4.3.2    2021-06-23 [2] CRAN (R 4.1.0)
+    #>    DBI            1.1.1    2021-01-15 [2] CRAN (R 4.1.0)
+    #>    digest         0.6.28   2021-09-23 [2] CRAN (R 4.1.1)
+    #>  R downlit        0.4.0    <NA>       [2] <NA>
+    #>    dplyr        * 1.0.7    2021-06-18 [2] CRAN (R 4.1.0)
+    #>    DT             0.20     2021-11-15 [2] CRAN (R 4.1.2)
+    #>    dygraphs       1.1.1.6  2018-07-11 [2] CRAN (R 4.1.0)
+    #>    ellipsis       0.3.2    2021-04-29 [2] CRAN (R 4.1.0)
+    #>    evaluate       0.14     2019-05-28 [2] CRAN (R 4.1.0)
+    #>    fansi          0.5.0    2021-05-25 [2] CRAN (R 4.1.0)
+    #>    farver         2.1.0    2021-02-28 [2] CRAN (R 4.1.0)
+    #>    fastmap        1.1.0    2021-01-25 [2] CRAN (R 4.1.0)
+    #>    generics       0.1.1    2021-10-25 [2] CRAN (R 4.1.1)
+    #>    ggplot2      * 3.3.5    2021-06-25 [2] CRAN (R 4.1.0)
+    #>    ggridges       0.5.3    2021-01-08 [2] CRAN (R 4.1.0)
+    #>    git2r          0.28.0   2021-01-10 [2] CRAN (R 4.1.1)
+    #>    glue           1.4.2    2020-08-27 [2] CRAN (R 4.1.1)
+    #>    gridExtra      2.3      2017-09-09 [2] CRAN (R 4.1.0)
+    #>    gtable         0.3.0    2019-03-25 [2] CRAN (R 4.1.0)
+    #>    gtools         3.9.2    2021-06-06 [2] CRAN (R 4.1.0)
+    #>    here           1.0.1    2020-12-13 [2] CRAN (R 4.1.0)
+    #>    highr          0.9      2021-04-16 [2] CRAN (R 4.1.0)
+    #>    htmltools      0.5.2    2021-08-25 [2] CRAN (R 4.1.1)
+    #>    htmlwidgets    1.5.4    2021-09-08 [2] CRAN (R 4.1.1)
+    #>    httpuv         1.6.3    2021-09-09 [2] CRAN (R 4.1.1)
+    #>    igraph         1.2.7    2021-10-15 [2] CRAN (R 4.1.1)
+    #>    inline         0.3.19   2021-05-31 [2] CRAN (R 4.1.0)
+    #>    jsonlite       1.7.2    2020-12-09 [2] CRAN (R 4.1.0)
+    #>    knitr        * 1.36     2021-09-29 [2] CRAN (R 4.1.1)
+    #>    labeling       0.4.2    2020-10-20 [2] CRAN (R 4.1.0)
+    #>    later          1.3.0    2021-08-18 [2] CRAN (R 4.1.1)
+    #>    lattice        0.20-45  2021-09-22 [3] CRAN (R 4.1.2)
+    #>    lifecycle      1.0.1    2021-09-24 [2] CRAN (R 4.1.1)
+    #>    lme4           1.1-27.1 2021-06-22 [2] CRAN (R 4.1.0)
+    #>    loo            2.4.1    2020-12-09 [2] CRAN (R 4.1.0)
+    #>    magrittr       2.0.1    2020-11-17 [2] CRAN (R 4.1.0)
+    #>    markdown       1.1      2019-08-07 [2] CRAN (R 4.1.0)
+    #>    MASS           7.3-54   2021-05-03 [3] CRAN (R 4.1.2)
+    #>    Matrix         1.3-4    2021-06-01 [3] CRAN (R 4.1.2)
+    #>    matrixStats    0.61.0   2021-09-17 [2] CRAN (R 4.1.1)
+    #>    memoise        2.0.0    2021-01-26 [2] CRAN (R 4.1.0)
+    #>    mime           0.12     2021-09-28 [2] CRAN (R 4.1.1)
+    #>    miniUI         0.1.1.1  2018-05-18 [2] CRAN (R 4.1.0)
+    #>    minqa          1.2.4    2014-10-09 [2] CRAN (R 4.1.0)
+    #>    munsell        0.5.0    2018-06-12 [2] CRAN (R 4.1.0)
+    #>    nlme           3.1-153  2021-09-07 [3] CRAN (R 4.1.2)
+    #>    nloptr         1.2.2.2  2020-07-02 [2] CRAN (R 4.1.1)
+    #>    pillar         1.6.4    2021-10-18 [2] CRAN (R 4.1.1)
+    #>    pkgbuild       1.2.0    2020-12-15 [2] CRAN (R 4.1.0)
+    #>    pkgconfig      2.0.3    2019-09-22 [2] CRAN (R 4.1.0)
+    #>    plyr           1.8.6    2020-03-03 [2] CRAN (R 4.1.0)
+    #>    prettyunits    1.1.1    2020-01-24 [2] CRAN (R 4.1.0)
+    #>    processx       3.5.2    2021-04-30 [2] CRAN (R 4.1.0)
+    #>    promises       1.2.0.1  2021-02-11 [2] CRAN (R 4.1.0)
+    #>    ps             1.6.0    2021-02-28 [2] CRAN (R 4.1.0)
+    #>    purrr          0.3.4    2020-04-17 [2] CRAN (R 4.1.0)
+    #>    R6             2.5.1    2021-08-19 [2] CRAN (R 4.1.1)
+    #>    ragg           1.2.0    2021-10-30 [2] CRAN (R 4.1.1)
+    #>    RColorBrewer   1.1-2    2014-12-07 [2] CRAN (R 4.1.0)
+    #>    Rcpp           1.0.7    2021-07-07 [2] CRAN (R 4.1.0)
+    #>  D RcppParallel   5.1.4    2021-05-04 [2] CRAN (R 4.1.0)
+    #>    remotes        2.4.1    2021-09-29 [2] CRAN (R 4.1.1)
+    #>    reshape2       1.4.4    2020-04-09 [2] CRAN (R 4.1.0)
+    #>    rlang          0.4.12   2021-10-18 [2] CRAN (R 4.1.1)
+    #>    rprojroot      2.0.2    2020-11-15 [2] CRAN (R 4.1.0)
+    #>    rsconnect      0.8.24   2021-08-05 [2] CRAN (R 4.1.0)
+    #>    rstan          2.21.2   2020-07-27 [2] CRAN (R 4.1.0)
+    #>    rstudioapi     0.13     2020-11-12 [2] CRAN (R 4.1.0)
+    #>    scales         1.1.1    2020-05-11 [2] CRAN (R 4.1.0)
+    #>    sessioninfo    1.2.1    2021-11-02 [2] CRAN (R 4.1.2)
+    #>    shiny          1.7.1    2021-10-02 [2] CRAN (R 4.1.1)
+    #>    shinyjs        2.0.0    2020-09-09 [2] CRAN (R 4.1.0)
+    #>    shinystan      2.5.0    2018-05-01 [2] CRAN (R 4.1.1)
+    #>    shinythemes    1.2.0    2021-01-25 [2] CRAN (R 4.1.0)
+    #>    StanHeaders    2.21.0-7 2020-12-17 [2] CRAN (R 4.1.0)
+    #>    stringi        1.7.5    2021-10-04 [2] CRAN (R 4.1.1)
+    #>    stringr        1.4.0    2019-02-10 [2] CRAN (R 4.1.0)
+    #>    systemfonts    1.0.3    2021-10-13 [2] CRAN (R 4.1.1)
+    #>    textshaping    0.3.6    2021-10-13 [2] CRAN (R 4.1.1)
+    #>    threejs        0.3.3    2020-01-21 [2] CRAN (R 4.1.0)
+    #>    tibble         3.1.5    2021-09-30 [2] CRAN (R 4.1.1)
+    #>    tidyr          1.1.4    2021-09-27 [2] CRAN (R 4.1.1)
+    #>    tidyselect     1.1.1    2021-04-30 [2] CRAN (R 4.1.0)
+    #>    utf8           1.2.2    2021-07-24 [2] CRAN (R 4.1.0)
+    #>    V8             3.4.2    2021-05-01 [2] CRAN (R 4.1.1)
+    #>    vctrs          0.3.8    2021-04-29 [2] CRAN (R 4.1.0)
+    #>    withr          2.4.2    2021-04-18 [2] CRAN (R 4.1.0)
+    #>    xfun           0.27     2021-10-18 [2] CRAN (R 4.1.1)
+    #>    xtable         1.8-4    2019-04-21 [2] CRAN (R 4.1.0)
+    #>    xts            0.12.1   2020-09-09 [2] CRAN (R 4.1.0)
+    #>    yaml           2.2.1    2020-02-01 [2] CRAN (R 4.1.0)
+    #>    zoo            1.8-9    2021-03-09 [2] CRAN (R 4.1.0)
     #> 
-    #> [1] C:/Users/Tristan/AppData/Local/Temp/RtmpU19Snj
-    #> [2] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [3] C:/Program Files/R/R-4.0.3/library
+    #>  [1] C:/Users/trist/AppData/Local/Temp/RtmpMltEJk
+    #>  [2] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [3] C:/Program Files/R/R-4.1.2/library
     #> 
     #>  D -- DLL MD5 mismatch, broken installation.
     #>  R -- Package was removed from disk.
+    #> 
+    #> ------------------------------------------------------------------------------
     ```
 
 [bayesplot]: http://mc-stan.org/bayesplot/index.html

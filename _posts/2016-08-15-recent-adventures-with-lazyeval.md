@@ -207,6 +207,12 @@ Here's a model about [some famous flowers](https://en.wikipedia.org/wiki/Iris_fl
 
 ```r
 library(rstanarm)
+#> Loading required package: Rcpp
+#> This is rstanarm version 2.21.1
+#> - See https://mc-stan.org/rstanarm/articles/priors for changes to default priors!
+#> - Default priors may change, so it's safest to specify priors, even if equivalent to the defaults.
+#> - For execution on a local, multicore CPU with excess RAM we recommend calling
+#>   options(mc.cores = parallel::detectCores())
 
 model <- stan_glm(
   Petal.Width ~ Petal.Length * Species,
@@ -247,11 +253,11 @@ summary(model)
 #> 
 #> Estimates:
 #>                                  mean   sd   10%   50%   90%
-#> (Intercept)                     0.0    0.2 -0.2   0.0   0.3 
+#> (Intercept)                     0.0    0.2 -0.3   0.0   0.3 
 #> Petal.Length                    0.2    0.1  0.0   0.2   0.3 
 #> Speciesversicolor              -0.1    0.3 -0.5  -0.1   0.3 
-#> Speciesvirginica                1.1    0.3  0.7   1.1   1.4 
-#> Petal.Length:Speciesversicolor  0.2    0.1  0.0   0.2   0.3 
+#> Speciesvirginica                1.1    0.3  0.6   1.1   1.5 
+#> Petal.Length:Speciesversicolor  0.2    0.1  0.0   0.2   0.4 
 #> Petal.Length:Speciesvirginica   0.0    0.1 -0.2   0.0   0.2 
 #> sigma                           0.2    0.0  0.2   0.2   0.2 
 #> 
@@ -263,15 +269,15 @@ summary(model)
 #> 
 #> MCMC diagnostics
 #>                                mcse Rhat n_eff
-#> (Intercept)                    0.0  1.0   989 
-#> Petal.Length                   0.0  1.0   990 
-#> Speciesversicolor              0.0  1.0  1270 
-#> Speciesvirginica               0.0  1.0  1364 
-#> Petal.Length:Speciesversicolor 0.0  1.0   947 
-#> Petal.Length:Speciesvirginica  0.0  1.0   944 
-#> sigma                          0.0  1.0  2271 
-#> mean_PPD                       0.0  1.0  3563 
-#> log-posterior                  0.0  1.0  1507 
+#> (Intercept)                    0.0  1.0   965 
+#> Petal.Length                   0.0  1.0   973 
+#> Speciesversicolor              0.0  1.0   934 
+#> Speciesvirginica               0.0  1.0  1503 
+#> Petal.Length:Speciesversicolor 0.0  1.0   837 
+#> Petal.Length:Speciesvirginica  0.0  1.0   991 
+#> sigma                          0.0  1.0  2422 
+#> mean_PPD                       0.0  1.0  3156 
+#> log-posterior                  0.1  1.0  1457 
 #> 
 #> For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
 ```
@@ -296,7 +302,7 @@ posterior_proportion_ <- function(model, inequality) {
 }
 
 posterior_proportion_(model, ~ 0 < Petal.Length)
-#> [1] 0.896
+#> [1] 0.8795
 ```
 
 **But all those tildes**... The final underscore in `posterior_proportion_()`
@@ -314,7 +320,7 @@ posterior_proportion <- function(model, expr) {
 }
 
 posterior_proportion(model, 0 < Petal.Length)
-#> [1] 0.896
+#> [1] 0.8795
 ```
 
 Here's another question: What proportion of the posterior of the `Petal.Length` 
@@ -332,7 +338,7 @@ posterior_proportion(model, 0 < Petal.Length + `Petal.Length:Speciesversicolor`)
 #> [1] 1
 
 posterior_proportion(model, 0 < Petal.Length + `Petal.Length:Speciesvirginica`)
-#> [1] 1
+#> [1] 0.99975
 ```
 
 (The backticks around `Petal.Length:Speciesversicolor` here prevent the `:`
@@ -340,130 +346,137 @@ symbol from being evaluated as an operator.)
 
 ***
 
-*Last knitted on 2021-02-15. [Source code on
-GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-08-15-recent-adventures-with-lazyeval.Rmd).*[^si] 
+*Last knitted on 2021-11-16. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io.git/blob/master/_R/2016-08-15-recent-adventures-with-lazyeval.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.0.3 (2020-10-10)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-02-15                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: Japanese “discount” button, flag: Moldova, microphone
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  ! package      * version    date       lib source        
-    #>    assertthat     0.2.1      2019-03-21 [1] CRAN (R 4.0.2)
-    #>    base64enc      0.1-3      2015-07-28 [1] CRAN (R 4.0.0)
-    #>    bayesplot      1.8.0.9000 2021-02-01 [1] local         
-    #>    boot           1.3-27     2021-02-12 [1] CRAN (R 4.0.3)
-    #>    callr          3.5.1      2020-10-13 [1] CRAN (R 4.0.3)
-    #>    cli            2.3.0      2021-01-31 [1] CRAN (R 4.0.3)
-    #>    codetools      0.2-18     2020-11-04 [1] CRAN (R 4.0.2)
-    #>    colorspace     2.0-0      2020-11-11 [1] CRAN (R 4.0.3)
-    #>    colourpicker   1.1.0      2020-09-14 [1] CRAN (R 4.0.2)
-    #>    crayon         1.4.1      2021-02-08 [1] CRAN (R 4.0.3)
-    #>    crosstalk      1.1.1      2021-01-12 [1] CRAN (R 4.0.3)
-    #>    curl           4.3        2019-12-02 [1] CRAN (R 4.0.2)
-    #>    DBI            1.1.1      2021-01-15 [1] CRAN (R 4.0.3)
-    #>    digest         0.6.27     2020-10-24 [1] CRAN (R 4.0.3)
-    #>    dplyr        * 1.0.4      2021-02-02 [1] CRAN (R 4.0.3)
-    #>    DT             0.17       2021-01-06 [1] CRAN (R 4.0.3)
-    #>    dygraphs       1.1.1.6    2018-07-11 [1] CRAN (R 4.0.2)
-    #>    ellipsis       0.3.1      2020-05-15 [1] CRAN (R 4.0.2)
-    #>    evaluate       0.14       2019-05-28 [1] CRAN (R 4.0.2)
-    #>    farver         2.0.3      2020-01-16 [1] CRAN (R 4.0.2)
-    #>    fastmap        1.1.0      2021-01-25 [1] CRAN (R 4.0.3)
-    #>    generics       0.1.0      2020-10-31 [1] CRAN (R 4.0.3)
-    #>    ggplot2      * 3.3.3      2020-12-30 [1] CRAN (R 4.0.3)
-    #>    ggridges       0.5.3      2021-01-08 [1] CRAN (R 4.0.3)
-    #>    git2r          0.28.0     2021-01-10 [1] CRAN (R 4.0.3)
-    #>    glue           1.4.2      2020-08-27 [1] CRAN (R 4.0.2)
-    #>    gridExtra      2.3        2017-09-09 [1] CRAN (R 4.0.2)
-    #>    gtable         0.3.0      2019-03-25 [1] CRAN (R 4.0.2)
-    #>    gtools         3.8.2      2020-03-31 [1] CRAN (R 4.0.0)
-    #>    here           1.0.1      2020-12-13 [1] CRAN (R 4.0.3)
-    #>    highr          0.8        2019-03-20 [1] CRAN (R 4.0.2)
-    #>    htmltools      0.5.1.1    2021-01-22 [1] CRAN (R 4.0.3)
-    #>    htmlwidgets    1.5.3      2020-12-10 [1] CRAN (R 4.0.3)
-    #>    httpuv         1.5.5      2021-01-13 [1] CRAN (R 4.0.3)
-    #>    igraph         1.2.6      2020-10-06 [1] CRAN (R 4.0.2)
-    #>    inline         0.3.17     2020-12-01 [1] CRAN (R 4.0.3)
-    #>    jsonlite       1.7.2      2020-12-09 [1] CRAN (R 4.0.3)
-    #>    knitr        * 1.31       2021-01-27 [1] CRAN (R 4.0.3)
-    #>    labeling       0.4.2      2020-10-20 [1] CRAN (R 4.0.2)
-    #>    later          1.1.0.1    2020-06-05 [1] CRAN (R 4.0.2)
-    #>    lattice        0.20-41    2020-04-02 [1] CRAN (R 4.0.2)
-    #>    lazyeval     * 0.2.2      2019-03-15 [1] CRAN (R 4.0.2)
-    #>    lifecycle      1.0.0      2021-02-15 [1] CRAN (R 4.0.3)
-    #>    lme4           1.1-26     2020-12-01 [1] CRAN (R 4.0.3)
-    #>    loo            2.4.1      2020-12-09 [1] CRAN (R 4.0.3)
-    #>    magrittr       2.0.1      2020-11-17 [1] CRAN (R 4.0.3)
-    #>    markdown       1.1        2019-08-07 [1] CRAN (R 4.0.2)
-    #>    MASS           7.3-53     2020-09-09 [1] CRAN (R 4.0.3)
-    #>    Matrix         1.2-18     2019-11-27 [1] CRAN (R 4.0.3)
-    #>    matrixStats    0.58.0     2021-01-29 [1] CRAN (R 4.0.3)
-    #>    mgcv           1.8-33     2020-08-27 [1] CRAN (R 4.0.2)
-    #>    mime           0.9        2020-02-04 [1] CRAN (R 4.0.3)
-    #>    miniUI         0.1.1.1    2018-05-18 [1] CRAN (R 4.0.2)
-    #>    minqa          1.2.4      2014-10-09 [1] CRAN (R 4.0.2)
-    #>    munsell        0.5.0      2018-06-12 [1] CRAN (R 4.0.2)
-    #>    nlme           3.1-152    2021-02-04 [1] CRAN (R 4.0.3)
-    #>    nloptr         1.2.2.2    2020-07-02 [1] CRAN (R 4.0.2)
-    #>    pillar         1.4.7      2020-11-20 [1] CRAN (R 4.0.3)
-    #>    pkgbuild       1.2.0      2020-12-15 [1] CRAN (R 4.0.3)
-    #>    pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.0.2)
-    #>    plyr           1.8.6      2020-03-03 [1] CRAN (R 4.0.2)
-    #>    prettyunits    1.1.1      2020-01-24 [1] CRAN (R 4.0.2)
-    #>    processx       3.4.5      2020-11-30 [1] CRAN (R 4.0.3)
-    #>    promises       1.1.1      2020-06-09 [1] CRAN (R 4.0.3)
-    #>    ps             1.5.0      2020-12-05 [1] CRAN (R 4.0.3)
-    #>    purrr          0.3.4      2020-04-17 [1] CRAN (R 4.0.2)
-    #>    R6             2.5.0      2020-10-28 [1] CRAN (R 4.0.2)
-    #>    ragg           0.4.1      2021-01-11 [1] CRAN (R 4.0.3)
-    #>    Rcpp         * 1.0.6      2021-01-15 [1] CRAN (R 4.0.3)
-    #>  D RcppParallel   5.0.2      2020-06-24 [1] CRAN (R 4.0.2)
-    #>    reshape2       1.4.4      2020-04-09 [1] CRAN (R 4.0.2)
-    #>    rlang          0.4.10     2020-12-30 [1] CRAN (R 4.0.3)
-    #>    rprojroot      2.0.2      2020-11-15 [1] CRAN (R 4.0.3)
-    #>    rsconnect      0.8.16     2019-12-13 [1] CRAN (R 4.0.2)
-    #>    rstan          2.21.2     2020-07-27 [1] CRAN (R 4.0.3)
-    #>    rstanarm     * 2.21.1     2020-07-20 [1] CRAN (R 4.0.2)
-    #>    rstantools     2.1.1      2020-07-06 [1] CRAN (R 4.0.2)
-    #>    scales         1.1.1      2020-05-11 [1] CRAN (R 4.0.2)
-    #>    sessioninfo    1.1.1      2018-11-05 [1] CRAN (R 4.0.2)
-    #>    shiny          1.6.0      2021-01-25 [1] CRAN (R 4.0.3)
-    #>    shinyjs        2.0.0      2020-09-09 [1] CRAN (R 4.0.2)
-    #>    shinystan      2.5.0      2018-05-01 [1] CRAN (R 4.0.2)
-    #>    shinythemes    1.2.0      2021-01-25 [1] CRAN (R 4.0.3)
-    #>    StanHeaders    2.21.0-7   2020-12-17 [1] CRAN (R 4.0.3)
-    #>    statmod        1.4.35     2020-10-19 [1] CRAN (R 4.0.3)
-    #>    stringi        1.5.3      2020-09-09 [1] CRAN (R 4.0.2)
-    #>    stringr        1.4.0      2019-02-10 [1] CRAN (R 4.0.2)
-    #>    survival       3.2-7      2020-09-28 [1] CRAN (R 4.0.2)
-    #>    systemfonts    1.0.0      2021-02-01 [1] CRAN (R 4.0.3)
-    #>    textshaping    0.2.1      2020-11-13 [1] CRAN (R 4.0.3)
-    #>    threejs        0.3.3      2020-01-21 [1] CRAN (R 4.0.2)
-    #>    tibble         3.0.6      2021-01-29 [1] CRAN (R 4.0.3)
-    #>    tidyselect     1.1.0      2020-05-11 [1] CRAN (R 4.0.2)
-    #>    V8             3.4.0      2020-11-04 [1] CRAN (R 4.0.3)
-    #>    vctrs          0.3.6      2020-12-17 [1] CRAN (R 4.0.3)
-    #>    withr          2.4.1      2021-01-26 [1] CRAN (R 4.0.3)
-    #>    xfun           0.20       2021-01-06 [1] CRAN (R 4.0.3)
-    #>    xtable         1.8-4      2019-04-21 [1] CRAN (R 4.0.2)
-    #>    xts            0.12.1     2020-09-09 [1] CRAN (R 4.0.2)
-    #>    zoo            1.8-8      2020-05-02 [1] CRAN (R 4.0.2)
+    #>  ! package      * version  date (UTC) lib source
+    #>    assertthat     0.2.1    2019-03-21 [1] CRAN (R 4.1.0)
+    #>    base64enc      0.1-3    2015-07-28 [1] CRAN (R 4.1.0)
+    #>    bayesplot      1.8.1    2021-06-14 [1] CRAN (R 4.1.0)
+    #>    boot           1.3-28   2021-05-03 [2] CRAN (R 4.1.2)
+    #>    callr          3.7.0    2021-04-20 [1] CRAN (R 4.1.0)
+    #>    cli            3.1.0    2021-10-27 [1] CRAN (R 4.1.1)
+    #>    codetools      0.2-18   2020-11-04 [2] CRAN (R 4.1.2)
+    #>    colorspace     2.0-2    2021-06-24 [1] CRAN (R 4.1.0)
+    #>    colourpicker   1.1.1    2021-10-04 [1] CRAN (R 4.1.1)
+    #>    crayon         1.4.2    2021-10-29 [1] CRAN (R 4.1.1)
+    #>    crosstalk      1.2.0    2021-11-04 [1] CRAN (R 4.1.2)
+    #>    curl           4.3.2    2021-06-23 [1] CRAN (R 4.1.0)
+    #>    DBI            1.1.1    2021-01-15 [1] CRAN (R 4.1.0)
+    #>    digest         0.6.28   2021-09-23 [1] CRAN (R 4.1.1)
+    #>    dplyr        * 1.0.7    2021-06-18 [1] CRAN (R 4.1.0)
+    #>    DT             0.20     2021-11-15 [1] CRAN (R 4.1.2)
+    #>    dygraphs       1.1.1.6  2018-07-11 [1] CRAN (R 4.1.0)
+    #>    ellipsis       0.3.2    2021-04-29 [1] CRAN (R 4.1.0)
+    #>    evaluate       0.14     2019-05-28 [1] CRAN (R 4.1.0)
+    #>    fansi          0.5.0    2021-05-25 [1] CRAN (R 4.1.0)
+    #>    farver         2.1.0    2021-02-28 [1] CRAN (R 4.1.0)
+    #>    fastmap        1.1.0    2021-01-25 [1] CRAN (R 4.1.0)
+    #>    generics       0.1.1    2021-10-25 [1] CRAN (R 4.1.1)
+    #>    ggplot2      * 3.3.5    2021-06-25 [1] CRAN (R 4.1.0)
+    #>    ggridges       0.5.3    2021-01-08 [1] CRAN (R 4.1.0)
+    #>    git2r          0.28.0   2021-01-10 [1] CRAN (R 4.1.1)
+    #>    glue           1.4.2    2020-08-27 [1] CRAN (R 4.1.1)
+    #>    gridExtra      2.3      2017-09-09 [1] CRAN (R 4.1.0)
+    #>    gtable         0.3.0    2019-03-25 [1] CRAN (R 4.1.0)
+    #>    gtools         3.9.2    2021-06-06 [1] CRAN (R 4.1.0)
+    #>    here           1.0.1    2020-12-13 [1] CRAN (R 4.1.0)
+    #>    highr          0.9      2021-04-16 [1] CRAN (R 4.1.0)
+    #>    htmltools      0.5.2    2021-08-25 [1] CRAN (R 4.1.1)
+    #>    htmlwidgets    1.5.4    2021-09-08 [1] CRAN (R 4.1.1)
+    #>    httpuv         1.6.3    2021-09-09 [1] CRAN (R 4.1.1)
+    #>    igraph         1.2.7    2021-10-15 [1] CRAN (R 4.1.1)
+    #>    inline         0.3.19   2021-05-31 [1] CRAN (R 4.1.0)
+    #>    jsonlite       1.7.2    2020-12-09 [1] CRAN (R 4.1.0)
+    #>    knitr        * 1.36     2021-09-29 [1] CRAN (R 4.1.1)
+    #>    labeling       0.4.2    2020-10-20 [1] CRAN (R 4.1.0)
+    #>    later          1.3.0    2021-08-18 [1] CRAN (R 4.1.1)
+    #>    lattice        0.20-45  2021-09-22 [2] CRAN (R 4.1.2)
+    #>    lazyeval     * 0.2.2    2019-03-15 [1] CRAN (R 4.1.0)
+    #>    lifecycle      1.0.1    2021-09-24 [1] CRAN (R 4.1.1)
+    #>    lme4           1.1-27.1 2021-06-22 [1] CRAN (R 4.1.0)
+    #>    loo            2.4.1    2020-12-09 [1] CRAN (R 4.1.0)
+    #>    magrittr       2.0.1    2020-11-17 [1] CRAN (R 4.1.0)
+    #>    markdown       1.1      2019-08-07 [1] CRAN (R 4.1.0)
+    #>    MASS           7.3-54   2021-05-03 [2] CRAN (R 4.1.2)
+    #>    Matrix         1.3-4    2021-06-01 [2] CRAN (R 4.1.2)
+    #>    matrixStats    0.61.0   2021-09-17 [1] CRAN (R 4.1.1)
+    #>    mgcv           1.8-38   2021-10-06 [2] CRAN (R 4.1.2)
+    #>    mime           0.12     2021-09-28 [1] CRAN (R 4.1.1)
+    #>    miniUI         0.1.1.1  2018-05-18 [1] CRAN (R 4.1.0)
+    #>    minqa          1.2.4    2014-10-09 [1] CRAN (R 4.1.0)
+    #>    munsell        0.5.0    2018-06-12 [1] CRAN (R 4.1.0)
+    #>    nlme           3.1-153  2021-09-07 [2] CRAN (R 4.1.2)
+    #>    nloptr         1.2.2.2  2020-07-02 [1] CRAN (R 4.1.1)
+    #>    pillar         1.6.4    2021-10-18 [1] CRAN (R 4.1.1)
+    #>    pkgbuild       1.2.0    2020-12-15 [1] CRAN (R 4.1.0)
+    #>    pkgconfig      2.0.3    2019-09-22 [1] CRAN (R 4.1.0)
+    #>    plyr           1.8.6    2020-03-03 [1] CRAN (R 4.1.0)
+    #>    prettyunits    1.1.1    2020-01-24 [1] CRAN (R 4.1.0)
+    #>    processx       3.5.2    2021-04-30 [1] CRAN (R 4.1.0)
+    #>    promises       1.2.0.1  2021-02-11 [1] CRAN (R 4.1.0)
+    #>    ps             1.6.0    2021-02-28 [1] CRAN (R 4.1.0)
+    #>    purrr          0.3.4    2020-04-17 [1] CRAN (R 4.1.0)
+    #>    R6             2.5.1    2021-08-19 [1] CRAN (R 4.1.1)
+    #>    ragg           1.2.0    2021-10-30 [1] CRAN (R 4.1.1)
+    #>    Rcpp           1.0.7    2021-07-07 [1] CRAN (R 4.1.0)
+    #>  D RcppParallel   5.1.4    2021-05-04 [1] CRAN (R 4.1.0)
+    #>    reshape2       1.4.4    2020-04-09 [1] CRAN (R 4.1.0)
+    #>    rlang          0.4.12   2021-10-18 [1] CRAN (R 4.1.1)
+    #>    rprojroot      2.0.2    2020-11-15 [1] CRAN (R 4.1.0)
+    #>    rsconnect      0.8.24   2021-08-05 [1] CRAN (R 4.1.0)
+    #>    rstan          2.21.2   2020-07-27 [1] CRAN (R 4.1.0)
+    #>    rstanarm       2.21.1   2020-07-20 [1] CRAN (R 4.1.1)
+    #>    rstantools     2.1.1    2020-07-06 [1] CRAN (R 4.1.0)
+    #>    rstudioapi     0.13     2020-11-12 [1] CRAN (R 4.1.0)
+    #>    scales         1.1.1    2020-05-11 [1] CRAN (R 4.1.0)
+    #>    sessioninfo    1.2.1    2021-11-02 [1] CRAN (R 4.1.2)
+    #>    shiny          1.7.1    2021-10-02 [1] CRAN (R 4.1.1)
+    #>    shinyjs        2.0.0    2020-09-09 [1] CRAN (R 4.1.0)
+    #>    shinystan      2.5.0    2018-05-01 [1] CRAN (R 4.1.1)
+    #>    shinythemes    1.2.0    2021-01-25 [1] CRAN (R 4.1.0)
+    #>    StanHeaders    2.21.0-7 2020-12-17 [1] CRAN (R 4.1.0)
+    #>    stringi        1.7.5    2021-10-04 [1] CRAN (R 4.1.1)
+    #>    stringr        1.4.0    2019-02-10 [1] CRAN (R 4.1.0)
+    #>    survival       3.2-13   2021-08-24 [2] CRAN (R 4.1.2)
+    #>    systemfonts    1.0.3    2021-10-13 [1] CRAN (R 4.1.1)
+    #>    textshaping    0.3.6    2021-10-13 [1] CRAN (R 4.1.1)
+    #>    threejs        0.3.3    2020-01-21 [1] CRAN (R 4.1.0)
+    #>    tibble         3.1.5    2021-09-30 [1] CRAN (R 4.1.1)
+    #>    tidyselect     1.1.1    2021-04-30 [1] CRAN (R 4.1.0)
+    #>    utf8           1.2.2    2021-07-24 [1] CRAN (R 4.1.0)
+    #>    V8             3.4.2    2021-05-01 [1] CRAN (R 4.1.1)
+    #>    vctrs          0.3.8    2021-04-29 [1] CRAN (R 4.1.0)
+    #>    withr          2.4.2    2021-04-18 [1] CRAN (R 4.1.0)
+    #>    xfun           0.27     2021-10-18 [1] CRAN (R 4.1.1)
+    #>    xtable         1.8-4    2019-04-21 [1] CRAN (R 4.1.0)
+    #>    xts            0.12.1   2020-09-09 [1] CRAN (R 4.1.0)
+    #>    zoo            1.8-9    2021-03-09 [1] CRAN (R 4.1.0)
     #> 
-    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [2] C:/Program Files/R/R-4.0.3/library
+    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [2] C:/Program Files/R/R-4.1.2/library
     #> 
     #>  D -- DLL MD5 mismatch, broken installation.
+    #> 
+    #> ------------------------------------------------------------------------------
     ```

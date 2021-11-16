@@ -3,15 +3,18 @@ library(tarchetypes)
 library(stringr)
 library(knitr)
 
-
 # dont_forget_these_packages <- c(
 #   "ggmcmc", "ellipse", "ggrepel", "pryr", "lobstr", "conflicted",
-#   "reticulate", "cowplot", "gamair"
+#   "reticulate", "cowplot", "gamair", "microbenchmark", "polypoly",
+#   "irr", "psych", "DiagrammeR", "babynames", "DiagrammeRsvg",
+#   "uuid", "gratia", "lazyeval"
 # )
 #
 # missing <- setdiff(dont_forget_these_packages, installed.packages()[, 1])
 # if (length(missing)) {
 #   install.packages(missing)
+#   remotes::install_github("tjmahr/iccbot")
+#   remotes::install_github("tjmahr/fillgaze")
 # }
 
 list_rmds <- function(dir) {

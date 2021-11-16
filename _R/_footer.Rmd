@@ -1,7 +1,15 @@
+```{r, include = FALSE}
+.url_gh <- function(x) {
+  url_git <- git2r::remote_url(remote = "origin")
+  url_web <- gsub(".git$", replacement = "", x = url_git)
+  file.path(url_web, "blob/master/_R", x)
+}
+```
+
 ***
 
 *Last knitted on `r format(Sys.Date())`. [Source code on
-GitHub](`r file.path(git2r::remote_url(remote = "origin"), "blob/master/_R", .parent_doc)`).*[^si] 
+GitHub](`r .url_gh(.parent_doc)`).*[^si] 
 
 [^si]: 
     ```{r, results = "markup"}

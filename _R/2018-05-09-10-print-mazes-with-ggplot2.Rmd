@@ -132,7 +132,7 @@ ggplot(grid) +
     color = runif(400)
   ) +
   geom_segment(size = 1) + 
-  guides(color = FALSE)
+  guides(color = "none")
 ```
 
 Finally, we need to flip slashes at random. A segment becomes flipped if

@@ -209,9 +209,9 @@ microbenchmark::microbenchmark(
   times = 1000
 )
 #> Unit: microseconds
-#>        expr     min       lq     mean    median        uq      max neval cld
-#>  with_while 898.801  920.601 1015.137  930.9505  973.9515 4749.301  1000  a 
-#>  with_recur 999.901 1034.501 1179.412 1065.7515 1146.0505 6221.801  1000   b
+#>        expr   min      lq      mean  median      uq    max neval
+#>  with_while 853.3  900.50  942.2609  909.70  919.75 7322.3  1000
+#>  with_recur 950.7 1003.65 1096.2024 1017.35 1048.85 5155.6  1000
 ```
 
 But I don't usually worry about performance unless I can notice the computation
@@ -223,7 +223,7 @@ recursion when I crank up the number of repetitions:
 
 ```r
 repeated(1:20, 1000, shuffle)
-#>  [1]  7  6  9  4 13  3 10 17  1 15 16  2 11  5 18 19 14 20 12  8
+#>  [1] 13  2 11 15  1  6 18 16  7  3  4 10 14 12  8  5  9 17 20 19
 rrrepeated(1:20, 1000, shuffle)
 #> Error: evaluation nested too deeply: infinite recursion / options(expressions=)?
 ```
@@ -249,60 +249,56 @@ here](https://tailrecursion.com/wondr/posts/tail-recursion-in-r.html). [_Oct.
 
 
 
+
+
 ***
 
-*Last knitted on 2021-02-15. [Source code on
+*Last knitted on 2021-11-16. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-repeatedly-calling-a-function.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.0.3 (2020-10-10)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-02-15                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: musical notes, heart exclamation, shaved ice
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  package        * version date       lib source        
-    #>  assertthat       0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
-    #>  cli              2.3.0   2021-01-31 [1] CRAN (R 4.0.3)
-    #>  codetools        0.2-18  2020-11-04 [1] CRAN (R 4.0.2)
-    #>  evaluate         0.14    2019-05-28 [1] CRAN (R 4.0.2)
-    #>  git2r            0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
-    #>  glue             1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
-    #>  here             1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
-    #>  knitr          * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
-    #>  lattice          0.20-41 2020-04-02 [1] CRAN (R 4.0.2)
-    #>  magrittr         2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
-    #>  MASS             7.3-53  2020-09-09 [1] CRAN (R 4.0.3)
-    #>  Matrix           1.2-18  2019-11-27 [1] CRAN (R 4.0.3)
-    #>  microbenchmark   1.4-7   2019-09-24 [1] CRAN (R 4.0.3)
-    #>  multcomp         1.4-16  2021-02-08 [1] CRAN (R 4.0.3)
-    #>  mvtnorm          1.1-1   2020-06-09 [1] CRAN (R 4.0.0)
-    #>  purrr          * 0.3.4   2020-04-17 [1] CRAN (R 4.0.2)
-    #>  ragg             0.4.1   2021-01-11 [1] CRAN (R 4.0.3)
-    #>  rlang            0.4.10  2020-12-30 [1] CRAN (R 4.0.3)
-    #>  rprojroot        2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
-    #>  sandwich         3.0-0   2020-10-02 [1] CRAN (R 4.0.2)
-    #>  sessioninfo      1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
-    #>  stringi          1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
-    #>  stringr          1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
-    #>  survival         3.2-7   2020-09-28 [1] CRAN (R 4.0.2)
-    #>  systemfonts      1.0.0   2021-02-01 [1] CRAN (R 4.0.3)
-    #>  textshaping      0.2.1   2020-11-13 [1] CRAN (R 4.0.3)
-    #>  TH.data          1.0-10  2019-01-21 [1] CRAN (R 4.0.2)
-    #>  withr            2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
-    #>  xfun             0.20    2021-01-06 [1] CRAN (R 4.0.3)
-    #>  zoo              1.8-8   2020-05-02 [1] CRAN (R 4.0.2)
+    #>  package        * version date (UTC) lib source
+    #>  assertthat       0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
+    #>  cli              3.1.0   2021-10-27 [1] CRAN (R 4.1.1)
+    #>  evaluate         0.14    2019-05-28 [1] CRAN (R 4.1.0)
+    #>  git2r            0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
+    #>  here             1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
+    #>  knitr          * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
+    #>  magrittr         2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
+    #>  microbenchmark   1.4.8   2021-10-31 [1] CRAN (R 4.1.1)
+    #>  purrr          * 0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
+    #>  ragg             1.2.0   2021-10-30 [1] CRAN (R 4.1.1)
+    #>  rlang            0.4.12  2021-10-18 [1] CRAN (R 4.1.1)
+    #>  rprojroot        2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
+    #>  rstudioapi       0.13    2020-11-12 [1] CRAN (R 4.1.0)
+    #>  sessioninfo      1.2.1   2021-11-02 [1] CRAN (R 4.1.2)
+    #>  stringi          1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
+    #>  stringr          1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
+    #>  systemfonts      1.0.3   2021-10-13 [1] CRAN (R 4.1.1)
+    #>  textshaping      0.3.6   2021-10-13 [1] CRAN (R 4.1.1)
+    #>  xfun             0.27    2021-10-18 [1] CRAN (R 4.1.1)
     #> 
-    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [2] C:/Program Files/R/R-4.0.3/library
+    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #> 
+    #> ------------------------------------------------------------------------------
     ```

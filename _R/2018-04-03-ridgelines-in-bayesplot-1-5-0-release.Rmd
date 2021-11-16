@@ -202,7 +202,7 @@ p_base <- ggplot(d) +
   ) + 
   ggridges::geom_density_ridges(stat = "identity") + 
   scale_fill_brewer(type = "seq") + 
-  guides(fill = FALSE)
+  guides(fill = "none")
 
 p_base + 
   facet_wrap("interval")

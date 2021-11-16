@@ -31,3 +31,8 @@ _site
 .Rproj.user
 README.html
 _caches
+_drafts/
+figs/drafts/
+
+radon.rds
+b-gam-20.rds

@@ -158,49 +158,54 @@ that issue in practice though.
 
 
 
+
+
 ***
 
-*Last knitted on 2021-02-15. [Source code on
+*Last knitted on 2021-11-16. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-08-04-fixing-apa-citations-from-pandoc.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.0.3 (2020-10-10)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-02-15                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: man health worker: medium-light skin tone, custard, ping pong
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  package     * version date       lib source        
-    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
-    #>  cli           2.3.0   2021-01-31 [1] CRAN (R 4.0.3)
-    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.2)
-    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.0.3)
-    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
-    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.0.3)
-    #>  knitr       * 1.31    2021-01-27 [1] CRAN (R 4.0.3)
-    #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.3)
-    #>  ragg          0.4.1   2021-01-11 [1] CRAN (R 4.0.3)
-    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.3)
-    #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
-    #>  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
-    #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
-    #>  systemfonts   1.0.0   2021-02-01 [1] CRAN (R 4.0.3)
-    #>  textshaping   0.2.1   2020-11-13 [1] CRAN (R 4.0.3)
-    #>  withr         2.4.1   2021-01-26 [1] CRAN (R 4.0.3)
-    #>  xfun          0.20    2021-01-06 [1] CRAN (R 4.0.3)
+    #>  package     * version date (UTC) lib source
+    #>  cli           3.1.0   2021-10-27 [1] CRAN (R 4.1.1)
+    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.1.0)
+    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
+    #>  knitr       * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
+    #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
+    #>  ragg          1.2.0   2021-10-30 [1] CRAN (R 4.1.1)
+    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
+    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.1.0)
+    #>  sessioninfo   1.2.1   2021-11-02 [1] CRAN (R 4.1.2)
+    #>  stringi       1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
+    #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
+    #>  systemfonts   1.0.3   2021-10-13 [1] CRAN (R 4.1.1)
+    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.1.1)
+    #>  xfun          0.27    2021-10-18 [1] CRAN (R 4.1.1)
     #> 
-    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [2] C:/Program Files/R/R-4.0.3/library
+    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #> 
+    #> ------------------------------------------------------------------------------
     ```
 
 [pandoc-home]: http://pandoc.org/ "pandoc: a universal document converter"

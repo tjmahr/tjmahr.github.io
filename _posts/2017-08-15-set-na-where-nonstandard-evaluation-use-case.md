@@ -58,11 +58,11 @@ df
 #>  1   0       1  1176   643      0.659      0.589      0.566      0.602
 #>  2   3.5     1 -1920 -1080     -1         -1         -1         -1    
 #>  3  20.2     1 -1920 -1080     -1         -1         -1         -1    
-#>  4  36.8     1  1184   648      0.664      0.593      0.570      0.606
+#>  4  36.8     1  1184   648      0.664      0.593      0.57       0.606
 #>  5  40       1  1225   617      0.685      0.564      0.591      0.579
 #>  6  56.7     1 -1920 -1080     -1         -1         -1         -1    
 #>  7  73.4     1  1188   641      0.665      0.587      0.572      0.6  
-#>  8  76.6     1  1204   621      0.674      0.568      0.580      0.582
+#>  8  76.6     1  1204   621      0.674      0.568      0.58       0.582
 #>  9  93.3     1 -1920 -1080     -1         -1         -1         -1    
 #> 10 110.      1  1189   665      0.666      0.609      0.572      0.622
 #> # ... with 14,813 more rows
@@ -220,12 +220,12 @@ spells
 #> $GazeX
 #> <quosure>
 #> expr: ^GazeX < -500 | 2200 < GazeX
-#> env:  0000000016955328
+#> env:  00000000176F4928
 #> 
 #> $GazeY
 #> <quosure>
 #> expr: ^GazeY < -200 | 1200 < GazeY
-#> env:  0000000016955328
+#> env:  00000000176F4928
 ```
 
 I call these results `spells` because it just contains the expressions stored as
@@ -239,7 +239,7 @@ names(spells)
 spells[[1]]
 #> <quosure>
 #> expr: ^GazeX < -500 | 2200 < GazeX
-#> env:  0000000016955328
+#> env:  00000000176F4928
 ```
 
 ### Casting spells
@@ -304,11 +304,11 @@ results
 #>  1   0       1  1176   643      0.659      0.589      0.566      0.602
 #>  2   3.5     1    NA    NA     -1         -1         -1         -1    
 #>  3  20.2     1    NA    NA     -1         -1         -1         -1    
-#>  4  36.8     1  1184   648      0.664      0.593      0.570      0.606
+#>  4  36.8     1  1184   648      0.664      0.593      0.57       0.606
 #>  5  40       1  1225   617      0.685      0.564      0.591      0.579
 #>  6  56.7     1    NA    NA     -1         -1         -1         -1    
 #>  7  73.4     1  1188   641      0.665      0.587      0.572      0.6  
-#>  8  76.6     1  1204   621      0.674      0.568      0.580      0.582
+#>  8  76.6     1  1204   621      0.674      0.568      0.58       0.582
 #>  9  93.3     1    NA    NA     -1         -1         -1         -1    
 #> 10 110.      1  1189   665      0.666      0.609      0.572      0.622
 #> # ... with 14,813 more rows
@@ -395,79 +395,91 @@ iterate over possible rules. Works like magic, indeed.
 
 
 
+
+
 ***
 
-*Last knitted on 2021-02-15. [Source code on
+*Last knitted on 2021-11-16. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-08-15-set-na-where-nonstandard-evaluation-use-case.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.0.3 (2020-10-10)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-02-15                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: carrot, flag: Niue, person in bed: medium-light skin tone
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  package     * version    date       lib source                     
-    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
-    #>  cli           2.3.0      2021-01-31 [1] CRAN (R 4.0.3)             
-    #>  colorspace    2.0-0      2020-11-11 [1] CRAN (R 4.0.3)             
-    #>  crayon        1.4.1      2021-02-08 [1] CRAN (R 4.0.3)             
-    #>  DBI           1.1.1      2021-01-15 [1] CRAN (R 4.0.3)             
-    #>  digest        0.6.27     2020-10-24 [1] CRAN (R 4.0.3)             
-    #>  dplyr       * 1.0.4      2021-02-02 [1] CRAN (R 4.0.3)             
-    #>  ellipsis      0.3.1      2020-05-15 [1] CRAN (R 4.0.2)             
-    #>  emo           0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)
-    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.0.2)             
-    #>  fansi         0.4.2      2021-01-15 [1] CRAN (R 4.0.3)             
-    #>  farver        2.0.3      2020-01-16 [1] CRAN (R 4.0.2)             
-    #>  generics      0.1.0      2020-10-31 [1] CRAN (R 4.0.3)             
-    #>  ggplot2     * 3.3.3      2020-12-30 [1] CRAN (R 4.0.3)             
-    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.0.3)             
-    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.0.2)             
-    #>  gtable        0.3.0      2019-03-25 [1] CRAN (R 4.0.2)             
-    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.0.3)             
-    #>  highr         0.8        2019-03-20 [1] CRAN (R 4.0.2)             
-    #>  hms           1.0.0      2021-01-13 [1] CRAN (R 4.0.3)             
-    #>  knitr       * 1.31       2021-01-27 [1] CRAN (R 4.0.3)             
-    #>  labeling      0.4.2      2020-10-20 [1] CRAN (R 4.0.2)             
-    #>  lifecycle     1.0.0      2021-02-15 [1] CRAN (R 4.0.3)             
-    #>  lubridate     1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
-    #>  magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
-    #>  munsell       0.5.0      2018-06-12 [1] CRAN (R 4.0.2)             
-    #>  pillar        1.4.7      2020-11-20 [1] CRAN (R 4.0.3)             
-    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.0.2)             
-    #>  ps            1.5.0      2020-12-05 [1] CRAN (R 4.0.3)             
-    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
-    #>  R6            2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
-    #>  ragg          0.4.1      2021-01-11 [1] CRAN (R 4.0.3)             
-    #>  Rcpp          1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
-    #>  readr         1.4.0      2020-10-05 [1] CRAN (R 4.0.2)             
-    #>  rlang       * 0.4.10     2020-12-30 [1] CRAN (R 4.0.3)             
-    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.0.3)             
-    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.0.3)             
-    #>  scales        1.1.1      2020-05-11 [1] CRAN (R 4.0.2)             
-    #>  sessioninfo   1.1.1      2018-11-05 [1] CRAN (R 4.0.2)             
-    #>  stringi       1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
-    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
-    #>  systemfonts   1.0.0      2021-02-01 [1] CRAN (R 4.0.3)             
-    #>  textshaping   0.2.1      2020-11-13 [1] CRAN (R 4.0.3)             
-    #>  tibble        3.0.6      2021-01-29 [1] CRAN (R 4.0.3)             
-    #>  tidyselect    1.1.0      2020-05-11 [1] CRAN (R 4.0.2)             
-    #>  utf8          1.1.4      2018-05-24 [1] CRAN (R 4.0.2)             
-    #>  vctrs         0.3.6      2020-12-17 [1] CRAN (R 4.0.3)             
-    #>  withr         2.4.1      2021-01-26 [1] CRAN (R 4.0.3)             
-    #>  xfun          0.20       2021-01-06 [1] CRAN (R 4.0.3)             
+    #>  ! package     * version    date (UTC) lib source
+    #>  D archive       1.1.2      2021-10-25 [1] CRAN (R 4.1.1)
+    #>    assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.1.0)
+    #>    bit           4.0.4      2020-08-04 [1] CRAN (R 4.1.0)
+    #>    bit64         4.0.5      2020-08-30 [1] CRAN (R 4.1.0)
+    #>    cli           3.1.0      2021-10-27 [1] CRAN (R 4.1.1)
+    #>    colorspace    2.0-2      2021-06-24 [1] CRAN (R 4.1.0)
+    #>    crayon        1.4.2      2021-10-29 [1] CRAN (R 4.1.1)
+    #>    DBI           1.1.1      2021-01-15 [1] CRAN (R 4.1.0)
+    #>    digest        0.6.28     2021-09-23 [1] CRAN (R 4.1.1)
+    #>    dplyr       * 1.0.7      2021-06-18 [1] CRAN (R 4.1.0)
+    #>    ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.1.0)
+    #>    emo           0.0.0.9000 2021-10-14 [1] Github (hadley/emo@3f03b11)
+    #>    evaluate      0.14       2019-05-28 [1] CRAN (R 4.1.0)
+    #>    fansi         0.5.0      2021-05-25 [1] CRAN (R 4.1.0)
+    #>    farver        2.1.0      2021-02-28 [1] CRAN (R 4.1.0)
+    #>    generics      0.1.1      2021-10-25 [1] CRAN (R 4.1.1)
+    #>    ggplot2     * 3.3.5      2021-06-25 [1] CRAN (R 4.1.0)
+    #>    git2r         0.28.0     2021-01-10 [1] CRAN (R 4.1.1)
+    #>    glue          1.4.2      2020-08-27 [1] CRAN (R 4.1.1)
+    #>    gtable        0.3.0      2019-03-25 [1] CRAN (R 4.1.0)
+    #>    here          1.0.1      2020-12-13 [1] CRAN (R 4.1.0)
+    #>    highr         0.9        2021-04-16 [1] CRAN (R 4.1.0)
+    #>    hms           1.1.1      2021-09-26 [1] CRAN (R 4.1.1)
+    #>    knitr       * 1.36       2021-09-29 [1] CRAN (R 4.1.1)
+    #>    labeling      0.4.2      2020-10-20 [1] CRAN (R 4.1.0)
+    #>    lifecycle     1.0.1      2021-09-24 [1] CRAN (R 4.1.1)
+    #>    lubridate     1.8.0      2021-10-07 [1] CRAN (R 4.1.1)
+    #>    magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.1.0)
+    #>    munsell       0.5.0      2018-06-12 [1] CRAN (R 4.1.0)
+    #>    pillar        1.6.4      2021-10-18 [1] CRAN (R 4.1.1)
+    #>    pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.1.0)
+    #>    purrr         0.3.4      2020-04-17 [1] CRAN (R 4.1.0)
+    #>    R6            2.5.1      2021-08-19 [1] CRAN (R 4.1.1)
+    #>    ragg          1.2.0      2021-10-30 [1] CRAN (R 4.1.1)
+    #>    readr         2.0.2      2021-09-27 [1] CRAN (R 4.1.1)
+    #>    rlang       * 0.4.12     2021-10-18 [1] CRAN (R 4.1.1)
+    #>    rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.1.0)
+    #>    rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.1.0)
+    #>    scales        1.1.1      2020-05-11 [1] CRAN (R 4.1.0)
+    #>    sessioninfo   1.2.1      2021-11-02 [1] CRAN (R 4.1.2)
+    #>    stringi       1.7.5      2021-10-04 [1] CRAN (R 4.1.1)
+    #>    stringr       1.4.0      2019-02-10 [1] CRAN (R 4.1.0)
+    #>    systemfonts   1.0.3      2021-10-13 [1] CRAN (R 4.1.1)
+    #>    textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
+    #>    tibble        3.1.5      2021-09-30 [1] CRAN (R 4.1.1)
+    #>    tidyselect    1.1.1      2021-04-30 [1] CRAN (R 4.1.0)
+    #>    tzdb          0.2.0      2021-10-27 [1] CRAN (R 4.1.1)
+    #>    utf8          1.2.2      2021-07-24 [1] CRAN (R 4.1.0)
+    #>    vctrs         0.3.8      2021-04-29 [1] CRAN (R 4.1.0)
+    #>    vroom         1.5.5      2021-09-14 [1] CRAN (R 4.1.1)
+    #>    withr         2.4.2      2021-04-18 [1] CRAN (R 4.1.0)
+    #>    xfun          0.27       2021-10-18 [1] CRAN (R 4.1.1)
     #> 
-    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [2] C:/Program Files/R/R-4.0.3/library
+    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #> 
+    #>  D -- DLL MD5 mismatch, broken installation.
+    #> 
+    #> ------------------------------------------------------------------------------
     ```

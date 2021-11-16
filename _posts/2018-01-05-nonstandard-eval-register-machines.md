@@ -369,9 +369,6 @@ extract the symbol directly using the code's [abstract syntax tree (AST)][ast].
 
 ```r
 pryr::call_tree(r_code)
-#> Registered S3 method overwritten by 'pryr':
-#>   method      from
-#>   print.bytes Rcpp
 #> \- ()
 #>   \- `if
 #>   \- ()
@@ -874,69 +871,83 @@ puzzle that are helpful in other contexts:
 
 
 
+
+
 ***
 
-*Last knitted on 2021-02-15. [Source code on
+*Last knitted on 2021-11-16. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-05-nonstandard-eval-register-machines.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.0.3 (2020-10-10)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-02-15                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: necktie, brown square, flag: Guinea-Bissau
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  package     * version    date       lib source                     
-    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.0.2)             
-    #>  cli           2.3.0      2021-01-31 [1] CRAN (R 4.0.3)             
-    #>  codetools     0.2-18     2020-11-04 [1] CRAN (R 4.0.2)             
-    #>  crayon        1.4.1      2021-02-08 [1] CRAN (R 4.0.3)             
-    #>  curl          4.3        2019-12-02 [1] CRAN (R 4.0.2)             
-    #>  ellipsis      0.3.1      2020-05-15 [1] CRAN (R 4.0.2)             
-    #>  emo           0.0.0.9000 2020-07-06 [1] Github (hadley/emo@3f03b11)
-    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.0.2)             
-    #>  generics      0.1.0      2020-10-31 [1] CRAN (R 4.0.3)             
-    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.0.3)             
-    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.0.2)             
-    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.0.3)             
-    #>  hms           1.0.0      2021-01-13 [1] CRAN (R 4.0.3)             
-    #>  knitr       * 1.31       2021-01-27 [1] CRAN (R 4.0.3)             
-    #>  lifecycle     1.0.0      2021-02-15 [1] CRAN (R 4.0.3)             
-    #>  lobstr        1.1.1      2019-07-02 [1] CRAN (R 4.0.2)             
-    #>  lubridate     1.7.9.2    2020-11-13 [1] CRAN (R 4.0.3)             
-    #>  magrittr    * 2.0.1      2020-11-17 [1] CRAN (R 4.0.3)             
-    #>  pillar        1.4.7      2020-11-20 [1] CRAN (R 4.0.3)             
-    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.0.2)             
-    #>  pryr          0.1.4      2018-02-18 [1] CRAN (R 4.0.3)             
-    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.0.2)             
-    #>  R6            2.5.0      2020-10-28 [1] CRAN (R 4.0.2)             
-    #>  ragg          0.4.1      2021-01-11 [1] CRAN (R 4.0.3)             
-    #>  Rcpp          1.0.6      2021-01-15 [1] CRAN (R 4.0.3)             
-    #>  readr         1.4.0      2020-10-05 [1] CRAN (R 4.0.2)             
-    #>  rlang         0.4.10     2020-12-30 [1] CRAN (R 4.0.3)             
-    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.0.3)             
-    #>  sessioninfo   1.1.1      2018-11-05 [1] CRAN (R 4.0.2)             
-    #>  stringi       1.5.3      2020-09-09 [1] CRAN (R 4.0.2)             
-    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.0.2)             
-    #>  systemfonts   1.0.0      2021-02-01 [1] CRAN (R 4.0.3)             
-    #>  textshaping   0.2.1      2020-11-13 [1] CRAN (R 4.0.3)             
-    #>  tibble        3.0.6      2021-01-29 [1] CRAN (R 4.0.3)             
-    #>  vctrs         0.3.6      2020-12-17 [1] CRAN (R 4.0.3)             
-    #>  withr         2.4.1      2021-01-26 [1] CRAN (R 4.0.3)             
-    #>  xfun          0.20       2021-01-06 [1] CRAN (R 4.0.3)             
+    #>  package     * version    date (UTC) lib source
+    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.1.0)
+    #>  bit           4.0.4      2020-08-04 [1] CRAN (R 4.1.0)
+    #>  bit64         4.0.5      2020-08-30 [1] CRAN (R 4.1.0)
+    #>  cli           3.1.0      2021-10-27 [1] CRAN (R 4.1.1)
+    #>  codetools     0.2-18     2020-11-04 [2] CRAN (R 4.1.2)
+    #>  crayon        1.4.2      2021-10-29 [1] CRAN (R 4.1.1)
+    #>  curl          4.3.2      2021-06-23 [1] CRAN (R 4.1.0)
+    #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.1.0)
+    #>  emo           0.0.0.9000 2021-10-14 [1] Github (hadley/emo@3f03b11)
+    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.1.0)
+    #>  fansi         0.5.0      2021-05-25 [1] CRAN (R 4.1.0)
+    #>  generics      0.1.1      2021-10-25 [1] CRAN (R 4.1.1)
+    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.1.1)
+    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.1.1)
+    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.1.0)
+    #>  hms           1.1.1      2021-09-26 [1] CRAN (R 4.1.1)
+    #>  knitr       * 1.36       2021-09-29 [1] CRAN (R 4.1.1)
+    #>  lifecycle     1.0.1      2021-09-24 [1] CRAN (R 4.1.1)
+    #>  lobstr        1.1.1      2019-07-02 [1] CRAN (R 4.1.1)
+    #>  lubridate     1.8.0      2021-10-07 [1] CRAN (R 4.1.1)
+    #>  magrittr    * 2.0.1      2020-11-17 [1] CRAN (R 4.1.0)
+    #>  pillar        1.6.4      2021-10-18 [1] CRAN (R 4.1.1)
+    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.1.0)
+    #>  pryr          0.1.5      2021-07-26 [1] CRAN (R 4.1.1)
+    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.1.0)
+    #>  R6            2.5.1      2021-08-19 [1] CRAN (R 4.1.1)
+    #>  ragg          1.2.0      2021-10-30 [1] CRAN (R 4.1.1)
+    #>  Rcpp          1.0.7      2021-07-07 [1] CRAN (R 4.1.0)
+    #>  readr         2.0.2      2021-09-27 [1] CRAN (R 4.1.1)
+    #>  rlang         0.4.12     2021-10-18 [1] CRAN (R 4.1.1)
+    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.1.0)
+    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.1.0)
+    #>  sessioninfo   1.2.1      2021-11-02 [1] CRAN (R 4.1.2)
+    #>  stringi       1.7.5      2021-10-04 [1] CRAN (R 4.1.1)
+    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.1.0)
+    #>  systemfonts   1.0.3      2021-10-13 [1] CRAN (R 4.1.1)
+    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
+    #>  tibble        3.1.5      2021-09-30 [1] CRAN (R 4.1.1)
+    #>  tidyselect    1.1.1      2021-04-30 [1] CRAN (R 4.1.0)
+    #>  tzdb          0.2.0      2021-10-27 [1] CRAN (R 4.1.1)
+    #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.1.0)
+    #>  vctrs         0.3.8      2021-04-29 [1] CRAN (R 4.1.0)
+    #>  vroom         1.5.5      2021-09-14 [1] CRAN (R 4.1.1)
+    #>  xfun          0.27       2021-10-18 [1] CRAN (R 4.1.1)
     #> 
-    #> [1] C:/Users/Tristan/Documents/R/win-library/4.0
-    #> [2] C:/Program Files/R/R-4.0.3/library
+    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #> 
+    #> ------------------------------------------------------------------------------
     ```
 
 

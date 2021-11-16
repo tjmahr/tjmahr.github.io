@@ -83,16 +83,16 @@ data %>%
 #> # A tibble: 10 x 3
 #>    participant                          timepoint score
 #>    <chr>                                    <dbl> <dbl>
-#>  1 384eabc6-01ef-4ffb-8e87-bc4c460532c7         1     7
-#>  2 384eabc6-01ef-4ffb-8e87-bc4c460532c7         2     8
-#>  3 384eabc6-01ef-4ffb-8e87-bc4c460532c7         3     8
-#>  4 3f601a14-2c39-48ee-9536-0d5396be2839         1    NA
-#>  5 3f601a14-2c39-48ee-9536-0d5396be2839         2     9
-#>  6 02f888f9-eb05-40d9-a425-89d51a24cb81         1     9
-#>  7 02f888f9-eb05-40d9-a425-89d51a24cb81         2     8
-#>  8 c007112b-ecd2-4c3b-b186-0fc53504dd38         1    10
-#>  9 c007112b-ecd2-4c3b-b186-0fc53504dd38         2    10
-#> 10 c007112b-ecd2-4c3b-b186-0fc53504dd38         3    10
+#>  1 95151787-3dfa-4c33-9715-f828e3b12d57         1     7
+#>  2 95151787-3dfa-4c33-9715-f828e3b12d57         2     8
+#>  3 95151787-3dfa-4c33-9715-f828e3b12d57         3     8
+#>  4 678f41c5-1d15-409a-8984-8e09d0f56d45         1    NA
+#>  5 678f41c5-1d15-409a-8984-8e09d0f56d45         2     9
+#>  6 cfaa699b-bce4-40c3-a841-3cf2eb6df5d7         1     9
+#>  7 cfaa699b-bce4-40c3-a841-3cf2eb6df5d7         2     8
+#>  8 505ecd47-611a-4e49-8642-af1645be5c60         1    10
+#>  9 505ecd47-611a-4e49-8642-af1645be5c60         2    10
+#> 10 505ecd47-611a-4e49-8642-af1645be5c60         3    10
 ```
 
 Again, these IDs seem excessive: Imagine plotting data with one participant 
@@ -284,7 +284,7 @@ c("7", "A", "L") %in% LETTERS
 `%in%`
 #> function (x, table) 
 #> match(x, table, nomatch = 0L) > 0L
-#> <bytecode: 0x00000000146eef20>
+#> <bytecode: 0x000000001477ef18>
 #> <environment: namespace:base>
 
 is.element(c("7", "A", "L"), LETTERS)
@@ -293,7 +293,7 @@ is.element(c("7", "A", "L"), LETTERS)
 is.element
 #> function (el, set) 
 #> match(el, set, 0L) > 0L
-#> <bytecode: 0x000000001714f110>
+#> <bytecode: 0x00000000171e28d8>
 #> <environment: namespace:base>
 ```
 
@@ -302,36 +302,41 @@ is.element
 
 
 
+
+
 ***
 
-*Last knitted on 2021-10-12. [Source code on
-GitHub](https://github.com/tjmahr/tjmahr.github.io.git/blob/master/_R/2021-10-12-one-liner-to-generate-ids.Rmd).*[^si] 
+*Last knitted on 2021-11-16. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-10-12-one-liner-to-generate-ids.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info ---------------------------------------------------------------
-    #>  setting  value                       
-    #>  version  R version 4.1.1 (2021-08-10)
-    #>  os       Windows 10 x64              
-    #>  system   x86_64, mingw32             
-    #>  ui       RTerm                       
-    #>  language (EN)                        
-    #>  collate  English_United States.1252  
-    #>  ctype    English_United States.1252  
-    #>  tz       America/Chicago             
-    #>  date     2021-10-12                  
+    #> - Session info  --------------------------------------------------------------
+    #>  hash: club suit, carousel horse, barber pole
+    #> 
+    #>  setting  value
+    #>  version  R version 4.1.2 (2021-11-01)
+    #>  os       Windows 10 x64 (build 22000)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.1252
+    #>  ctype    English_United States.1252
+    #>  tz       America/Chicago
+    #>  date     2021-11-16
+    #>  pandoc   NA
     #> 
     #> - Packages -------------------------------------------------------------------
-    #>  package     * version date       lib source        
+    #>  package     * version date (UTC) lib source
     #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
-    #>  backports     1.2.1   2020-12-09 [1] CRAN (R 4.1.0)
-    #>  broom         0.7.9   2021-07-27 [1] CRAN (R 4.1.0)
+    #>  backports     1.3.0   2021-10-27 [1] CRAN (R 4.1.1)
+    #>  broom         0.7.10  2021-10-31 [1] CRAN (R 4.1.1)
     #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.1.0)
-    #>  cli           3.0.1   2021-07-17 [1] CRAN (R 4.1.0)
+    #>  cli           3.1.0   2021-10-27 [1] CRAN (R 4.1.1)
     #>  colorspace    2.0-2   2021-06-24 [1] CRAN (R 4.1.0)
-    #>  crayon        1.4.1   2021-02-08 [1] CRAN (R 4.1.0)
+    #>  crayon        1.4.2   2021-10-29 [1] CRAN (R 4.1.1)
     #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
     #>  dbplyr        2.1.1   2021-04-06 [1] CRAN (R 4.1.0)
     #>  digest        0.6.28  2021-09-23 [1] CRAN (R 4.1.1)
@@ -341,10 +346,10 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io.git/blob/master/_R/2021-10-12
     #>  fansi         0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
     #>  forcats     * 0.5.1   2021-01-27 [1] CRAN (R 4.1.0)
     #>  fs            1.5.0   2020-07-31 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.0   2020-10-31 [1] CRAN (R 4.1.0)
+    #>  generics      0.1.1   2021-10-25 [1] CRAN (R 4.1.1)
     #>  ggplot2     * 3.3.5   2021-06-25 [1] CRAN (R 4.1.0)
     #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.1.0)
+    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.1.1)
     #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.1.0)
     #>  haven         2.4.3   2021-08-04 [1] CRAN (R 4.1.0)
     #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
@@ -354,41 +359,43 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io.git/blob/master/_R/2021-10-12
     #>  jsonlite      1.7.2   2020-12-09 [1] CRAN (R 4.1.0)
     #>  knitr       * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
     #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.1.1)
-    #>  lubridate     1.7.10  2021-02-26 [1] CRAN (R 4.1.0)
+    #>  lubridate     1.8.0   2021-10-07 [1] CRAN (R 4.1.1)
     #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
     #>  modelr        0.1.8   2020-05-19 [1] CRAN (R 4.1.0)
     #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.1.0)
-    #>  pillar        1.6.3   2021-09-26 [1] CRAN (R 4.1.1)
+    #>  pillar        1.6.4   2021-10-18 [1] CRAN (R 4.1.1)
     #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
     #>  purrr       * 0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
     #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.1.1)
-    #>  ragg          1.1.3   2021-06-09 [1] CRAN (R 4.1.0)
+    #>  ragg          1.2.0   2021-10-30 [1] CRAN (R 4.1.1)
     #>  Rcpp          1.0.7   2021-07-07 [1] CRAN (R 4.1.0)
     #>  readr       * 2.0.2   2021-09-27 [1] CRAN (R 4.1.1)
     #>  readxl        1.3.1   2019-03-13 [1] CRAN (R 4.1.0)
     #>  reprex        2.0.1   2021-08-05 [1] CRAN (R 4.1.0)
-    #>  rlang         0.4.11  2021-04-30 [1] CRAN (R 4.1.0)
+    #>  rlang         0.4.12  2021-10-18 [1] CRAN (R 4.1.1)
     #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
     #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.1.0)
-    #>  rvest         1.0.1   2021-07-26 [1] CRAN (R 4.1.0)
+    #>  rvest         1.0.2   2021-10-16 [1] CRAN (R 4.1.1)
     #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.1.0)
+    #>  sessioninfo   1.2.1   2021-11-02 [1] CRAN (R 4.1.2)
     #>  stringi       1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
     #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.2   2021-05-11 [1] CRAN (R 4.1.0)
-    #>  textshaping   0.3.5   2021-06-09 [1] CRAN (R 4.1.0)
+    #>  systemfonts   1.0.3   2021-10-13 [1] CRAN (R 4.1.1)
+    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.1.1)
     #>  tibble      * 3.1.5   2021-09-30 [1] CRAN (R 4.1.1)
     #>  tidyr       * 1.1.4   2021-09-27 [1] CRAN (R 4.1.1)
     #>  tidyselect    1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
     #>  tidyverse   * 1.3.1   2021-04-15 [1] CRAN (R 4.1.0)
-    #>  tzdb          0.1.2   2021-07-20 [1] CRAN (R 4.1.0)
+    #>  tzdb          0.2.0   2021-10-27 [1] CRAN (R 4.1.1)
     #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.1.0)
-    #>  uuid          0.1-4   2020-02-26 [1] CRAN (R 4.1.0)
+    #>  uuid          1.0-2   2021-10-27 [1] CRAN (R 4.1.1)
     #>  vctrs         0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
     #>  withr         2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
-    #>  xfun          0.26    2021-09-14 [1] CRAN (R 4.1.1)
+    #>  xfun          0.27    2021-10-18 [1] CRAN (R 4.1.1)
     #>  xml2          1.3.2   2020-04-23 [1] CRAN (R 4.1.0)
     #> 
-    #> [1] C:/Users/trist/Documents/R/win-library/4.1
-    #> [2] C:/Program Files/R/R-4.1.1/library
+    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
+    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #> 
+    #> ------------------------------------------------------------------------------
     ```
