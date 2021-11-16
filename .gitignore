@@ -31,7 +31,7 @@ _site
 .Rproj.user
 README.html
 _caches
-_drafts/
+./_drafts/
 figs/drafts/
 
 radon.rds
