@@ -220,12 +220,12 @@ spells
 #> $GazeX
 #> <quosure>
 #> expr: ^GazeX < -500 | 2200 < GazeX
-#> env:  00000000176F4928
+#> env:  0000000017704B48
 #> 
 #> $GazeY
 #> <quosure>
 #> expr: ^GazeY < -200 | 1200 < GazeY
-#> env:  00000000176F4928
+#> env:  0000000017704B48
 ```
 
 I call these results `spells` because it just contains the expressions stored as
@@ -239,7 +239,7 @@ names(spells)
 spells[[1]]
 #> <quosure>
 #> expr: ^GazeX < -500 | 2200 < GazeX
-#> env:  00000000176F4928
+#> env:  0000000017704B48
 ```
 
 ### Casting spells

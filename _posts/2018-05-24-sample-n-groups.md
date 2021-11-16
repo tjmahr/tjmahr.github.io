@@ -403,7 +403,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-24-sam
     ```r
     sessioninfo::session_info()
     #> - Session info  --------------------------------------------------------------
-    #>  hash: person getting massage: medium-dark skin tone, flag: Haiti, T-Rex
+    #>  hash: man mechanic: medium-dark skin tone, input numbers, old man
     #> 
     #>  setting  value
     #>  version  R version 4.1.2 (2021-11-01)
@@ -459,7 +459,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-24-sam
     #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
     #>  tibble        3.1.5      2021-09-30 [1] CRAN (R 4.1.1)
     #>  tidyselect    1.1.1      2021-04-30 [1] CRAN (R 4.1.0)
-    #>  tjmisc        0.0.0.9000 2021-07-29 [1] Github (tjmahr/tjmisc@feb4fe3)
+    #>  tjmisc        0.0.0.9000 2021-11-16 [1] Github (tjmahr/tjmisc@6724405)
     #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.1.0)
     #>  vctrs         0.3.8      2021-04-29 [1] CRAN (R 4.1.0)
     #>  withr         2.4.2      2021-04-18 [1] CRAN (R 4.1.0)

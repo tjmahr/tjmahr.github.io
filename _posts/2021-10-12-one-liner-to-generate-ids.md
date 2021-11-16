@@ -83,16 +83,16 @@ data %>%
 #> # A tibble: 10 x 3
 #>    participant                          timepoint score
 #>    <chr>                                    <dbl> <dbl>
-#>  1 95151787-3dfa-4c33-9715-f828e3b12d57         1     7
-#>  2 95151787-3dfa-4c33-9715-f828e3b12d57         2     8
-#>  3 95151787-3dfa-4c33-9715-f828e3b12d57         3     8
-#>  4 678f41c5-1d15-409a-8984-8e09d0f56d45         1    NA
-#>  5 678f41c5-1d15-409a-8984-8e09d0f56d45         2     9
-#>  6 cfaa699b-bce4-40c3-a841-3cf2eb6df5d7         1     9
-#>  7 cfaa699b-bce4-40c3-a841-3cf2eb6df5d7         2     8
-#>  8 505ecd47-611a-4e49-8642-af1645be5c60         1    10
-#>  9 505ecd47-611a-4e49-8642-af1645be5c60         2    10
-#> 10 505ecd47-611a-4e49-8642-af1645be5c60         3    10
+#>  1 4c75d14f-09a4-4fd5-991d-4f566c792a85         1     7
+#>  2 4c75d14f-09a4-4fd5-991d-4f566c792a85         2     8
+#>  3 4c75d14f-09a4-4fd5-991d-4f566c792a85         3     8
+#>  4 ffbefa32-0edf-43cf-af7d-54ff88d98256         1    NA
+#>  5 ffbefa32-0edf-43cf-af7d-54ff88d98256         2     9
+#>  6 fd261621-9314-4520-a63c-2ea0e2f88722         1     9
+#>  7 fd261621-9314-4520-a63c-2ea0e2f88722         2     8
+#>  8 eb02f9a7-51a8-45ce-9ace-2c4567e25dc2         1    10
+#>  9 eb02f9a7-51a8-45ce-9ace-2c4567e25dc2         2    10
+#> 10 eb02f9a7-51a8-45ce-9ace-2c4567e25dc2         3    10
 ```
 
 Again, these IDs seem excessive: Imagine plotting data with one participant 
@@ -284,7 +284,7 @@ c("7", "A", "L") %in% LETTERS
 `%in%`
 #> function (x, table) 
 #> match(x, table, nomatch = 0L) > 0L
-#> <bytecode: 0x000000001477ef18>
+#> <bytecode: 0x000000001477ef78>
 #> <environment: namespace:base>
 
 is.element(c("7", "A", "L"), LETTERS)
@@ -293,7 +293,7 @@ is.element(c("7", "A", "L"), LETTERS)
 is.element
 #> function (el, set) 
 #> match(el, set, 0L) > 0L
-#> <bytecode: 0x00000000171e28d8>
+#> <bytecode: 0x00000000171f30a0>
 #> <environment: namespace:base>
 ```
 

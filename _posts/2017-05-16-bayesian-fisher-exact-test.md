@@ -292,12 +292,12 @@ m_informative_pd
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.22  3130    1
-#> theta_2   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.22  3235    1
-#> diff      0.00    0.00 0.07  -0.13  -0.04   0.00   0.04   0.13  3035    1
-#> lp__    -32.44    0.03 1.07 -35.42 -32.84 -32.11 -31.69 -31.42  1731    1
+#> theta_1   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.22  3184    1
+#> theta_2   0.11    0.00 0.05   0.04   0.08   0.11   0.14   0.22  2857    1
+#> diff      0.00    0.00 0.07  -0.13  -0.04   0.00   0.04   0.13  3146    1
+#> lp__    -32.41    0.02 1.00 -35.20 -32.79 -32.11 -31.70 -31.42  1639    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 11:08:33 2021.
+#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 12:35:39 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -308,13 +308,13 @@ m_flat_pd
 #> 4 chains, each with iter=2000; warmup=1000; thin=1; 
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
-#>          mean se_mean   sd  2.5%   25%   50%   75% 97.5% n_eff Rhat
-#> theta_1  0.50    0.01 0.29  0.02  0.24  0.50  0.76  0.98  3018    1
-#> theta_2  0.50    0.01 0.29  0.02  0.25  0.49  0.75  0.97  2796    1
-#> diff     0.00    0.01 0.40 -0.77 -0.28  0.00  0.28  0.78  2841    1
-#> lp__    -4.06    0.04 1.23 -7.28 -4.55 -3.69 -3.16 -2.81  1139    1
+#>         mean se_mean   sd  2.5%   25%   50%   75% 97.5% n_eff Rhat
+#> theta_1  0.5    0.00 0.29  0.03  0.24  0.50  0.75  0.98  3718    1
+#> theta_2  0.5    0.00 0.29  0.03  0.26  0.50  0.75  0.98  3636    1
+#> diff     0.0    0.01 0.41 -0.78 -0.30 -0.01  0.30  0.77  3883    1
+#> lp__    -4.0    0.03 1.20 -7.11 -4.50 -3.64 -3.13 -2.80  1289    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 11:08:33 2021.
+#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 12:35:39 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -348,12 +348,12 @@ m_informative
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.14    0.00 0.03   0.08   0.12   0.14   0.17   0.22  3364    1
-#> theta_2   0.10    0.00 0.03   0.05   0.07   0.09   0.12   0.17  3203    1
-#> diff      0.05    0.00 0.05  -0.04   0.02   0.05   0.08   0.14  3455    1
-#> lp__    -70.62    0.03 1.05 -73.46 -71.00 -70.29 -69.88 -69.64  1684    1
+#> theta_1   0.14    0.00 0.04   0.08   0.12   0.14   0.17   0.22  3193    1
+#> theta_2   0.10    0.00 0.03   0.04   0.08   0.09   0.12   0.16  2738    1
+#> diff      0.05    0.00 0.05  -0.04   0.02   0.05   0.08   0.14  3108    1
+#> lp__    -70.63    0.02 1.04 -73.50 -71.02 -70.33 -69.89 -69.63  1853    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 11:08:33 2021.
+#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 12:35:40 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -365,12 +365,12 @@ m_flat
 #> post-warmup draws per chain=1000, total post-warmup draws=4000.
 #> 
 #>           mean se_mean   sd   2.5%    25%    50%    75%  97.5% n_eff Rhat
-#> theta_1   0.19    0.00 0.05   0.10   0.15   0.18   0.22   0.30  2826    1
-#> theta_2   0.10    0.00 0.04   0.03   0.07   0.09   0.13   0.19  3024    1
-#> diff      0.09    0.00 0.07  -0.05   0.04   0.09   0.13   0.22  2998    1
-#> lp__    -43.15    0.02 1.03 -45.88 -43.52 -42.84 -42.42 -42.16  1822    1
+#> theta_1   0.18    0.00 0.05   0.09   0.15   0.18   0.22   0.30  3470    1
+#> theta_2   0.10    0.00 0.04   0.04   0.07   0.10   0.13   0.19  3165    1
+#> diff      0.08    0.00 0.07  -0.04   0.04   0.08   0.13   0.22  3389    1
+#> lp__    -43.14    0.03 1.04 -45.95 -43.51 -42.81 -42.41 -42.16  1463    1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 11:08:34 2021.
+#> Samples were drawn using NUTS(diag_e) at Tue Nov 16 12:35:40 2021.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -378,7 +378,7 @@ m_flat
 
 
 
-The flat model puts the difference at 0.09 and 90% of the plausible
+The flat model puts the difference at 0.08 and 90% of the plausible
 values fall in the interval [-0.02, 0.2]. The informative
 model is more skeptical of higher left-handedness rates, so it puts the
 difference at 0.05 with 90% of the values between [-0.03,
@@ -396,11 +396,11 @@ negative, then we assign a 10% probability to a negative group difference.
 ```r
 df_flat <- as.data.frame(m_flat)
 mean(df_flat$diff <= 0)
-#> [1] 0.09625
+#> [1] 0.1015
 
 df_informative <- as.data.frame(m_informative)
 mean(df_informative$diff <= 0)
-#> [1] 0.139
+#> [1] 0.149
 ```
 
 It's also worth comparing the two models. I've recently become a fan of the

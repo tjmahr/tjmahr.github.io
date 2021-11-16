@@ -209,9 +209,9 @@ microbenchmark::microbenchmark(
   times = 1000
 )
 #> Unit: microseconds
-#>        expr   min      lq      mean  median      uq    max neval
-#>  with_while 853.3  900.50  942.2609  909.70  919.75 7322.3  1000
-#>  with_recur 950.7 1003.65 1096.2024 1017.35 1048.85 5155.6  1000
+#>        expr   min     lq      mean  median     uq    max neval
+#>  with_while 866.3  905.9  971.3574  917.75  934.6 4756.4  1000
+#>  with_recur 957.3 1006.6 1077.2931 1024.85 1050.0 7629.7  1000
 ```
 
 But I don't usually worry about performance unless I can notice the computation
@@ -223,7 +223,7 @@ recursion when I crank up the number of repetitions:
 
 ```r
 repeated(1:20, 1000, shuffle)
-#>  [1] 13  2 11 15  1  6 18 16  7  3  4 10 14 12  8  5  9 17 20 19
+#>  [1] 16  7  6  2  4  1  9 10  5 20 19 15 14 18  3 11 17 12 13  8
 rrrepeated(1:20, 1000, shuffle)
 #> Error: evaluation nested too deeply: infinite recursion / options(expressions=)?
 ```

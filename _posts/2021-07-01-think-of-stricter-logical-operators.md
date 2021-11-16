@@ -201,7 +201,7 @@ FALSE %||% 2
 #>         y
 #>     else x
 #> }
-#> <bytecode: 0x00000000216f2f70>
+#> <bytecode: 0x00000000216f9fb0>
 #> <environment: namespace:rlang>
 ```
 

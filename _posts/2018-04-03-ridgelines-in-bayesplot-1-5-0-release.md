@@ -433,7 +433,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-rid
     ```r
     sessioninfo::session_info()
     #> - Session info  --------------------------------------------------------------
-    #>  hash: selfie: medium-dark skin tone, circus tent, man teacher: medium-light skin tone
+    #>  hash: person frowning: dark skin tone, woman farmer: dark skin tone, blowfish
     #> 
     #>  setting  value
     #>  version  R version 4.1.2 (2021-11-01)
@@ -555,7 +555,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-04-03-rid
     #>    yaml           2.2.1    2020-02-01 [2] CRAN (R 4.1.0)
     #>    zoo            1.8-9    2021-03-09 [2] CRAN (R 4.1.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/Temp/RtmpMltEJk
+    #>  [1] C:/Users/trist/AppData/Local/Temp/RtmpsHphxI
     #>  [2] C:/Users/trist/Documents/R/win-library/4.1
     #>  [3] C:/Program Files/R/R-4.1.2/library
     #> 

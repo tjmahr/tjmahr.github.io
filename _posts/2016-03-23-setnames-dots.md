@@ -135,12 +135,12 @@ quosures
 #> $zMPG
 #> <quosure>
 #> expr: ^z_round(mpg)
-#> env:  00000000176E5248
+#> env:  00000000176F5248
 #> 
 #> $zHP
 #> <quosure>
 #> expr: ^z_round(hp)
-#> env:  00000000176E5248
+#> env:  00000000176F5248
 
 mtcars %>% 
   mutate(!!! quosures) %>% 

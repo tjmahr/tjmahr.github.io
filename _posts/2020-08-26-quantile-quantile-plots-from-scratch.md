@@ -121,7 +121,7 @@ ppoints
 #>         (1L:n - a)/(n + 1 - 2 * a)
 #>     else numeric()
 #> }
-#> <bytecode: 0x0000000017dc2e08>
+#> <bytecode: 0x0000000017dc3a18>
 #> <environment: namespace:stats>
 ```
 
