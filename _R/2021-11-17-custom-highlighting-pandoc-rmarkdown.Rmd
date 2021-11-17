@@ -1,0 +1,441 @@
+---
+title: "Custom syntax highlighting themes in RMarkdown (and pandoc)"
+excerpt: "Now you can have Fairy Floss in quarterly-report.docx"
+tags:
+  - r
+  - knitr
+  - pandoc
+  - syntax highlighting
+  - rmarkdown
+  - solarizeddocx
+share: true
+header:
+  overlay_image: "assets/images/2021-11-knitting.jpg"
+  image_description: "White and gold wool being knitted together"
+  overlay_filter: rgba(10, 10, 10, 0.5)
+  caption: "Photo credit: [**A R**](https://unsplash.com/photos/Ia6-rGHhspo)"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+a_word_document <- downlit::autolink_url("rmarkdown::word_document")
+a_html_document <- downlit::autolink_url("rmarkdown::html_document")
+a_html_document_base <- downlit::autolink_url("rmarkdown::html_document_base")
+a_pdf_document <- downlit::autolink_url("rmarkdown::pdf_document")
+a_knit <- downlit::autolink_url("knitr::knit")
+a_knit_child <- downlit::autolink_url("knitr::knit_child")
+a_pandoc_convert <- downlit::autolink_url("rmarkdown::pandoc_convert")
+a_webshot <- downlit::autolink_url("webshot::webshot")
+a_lst <- downlit::autolink_url("tibble::lst")
+```
+
+I recently developed and released an R package called
+[solarizeddocx][sd]. It provides `solarizeddocx::document()`, an
+[RMarkdown](https://rmarkdown.rstudio.com/) output format for
+[solarized]-highlighted Microsoft Word documents . The image below
+shows a comparison of the solarizeddocx and the default docx format:
+
+
+{% include figure image_path="/assets/images/2021-11-solarized.png" alt="Side-by-side comparison of solarizeddocx::document() and rmarkdown::word_document()" caption = "Side-by-side comparison of `solarizeddocx::document()` and [`rmarkdown::word_document()`](`r a_word_document`)." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
+
+The package provides a demo document which is essentially a vignette
+where I describe all the customizations used by the package and put the
+syntax highlighting to the test. The demo can be rendered and viewed
+with:
+
+```{r install, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("tjmahr/solarizeddocx")
+solarizeddocx::demo_document()
+```
+
+The format can used in RMarkdown document via YAML metadata.
+
+```
+output: 
+  solarizeddocx::document: default
+```
+
+Or explicitly with rmarkdown:
+
+```{r, eval = FALSE}
+rmarkdown::render(
+  "README.Rmd", 
+  output_format = solarizeddocx::document()
+)
+```
+
+solarizeddocx also exports its document assets so that they can be used
+in other output formats, and it exports theme-building tools to create new
+[pandoc] syntax highlighting themes. I am most proud of these
+features, so I will demonstrate each of these in turn and create a brand
+new syntax highlighting theme in this post.
+
+[sd]: https://github.com/tjmahr/solarizeddocx "GitHub page for solarizeddocx"
+
+[solarized]: https://github.com/altercation/solarized "GitHub page for solarized"
+
+[pandoc]: https://pandoc.org/MANUAL.html "Pandoc User's Guide"
+
+
+## knitr: .Rmd to .md conversion
+
+To give a simplified description, RMarkdown works by knitting the code
+in an RMarkdown (.Rmd) file with [knitr] to obtain a markdown (.md) file and then post-processing
+this knitr output with other tools. In particular, it uses pandoc which
+converts between all kinds of document formats. For this demonstration,
+we will do the knitting and pandoc steps separately without relying on
+RMarkdown. That said, the options we pass to pandoc can usually be
+used in RMarkdown (as we demonstrate at the very end of this post).
+
+Our input file is a small .Rmd file. It's very basic, meant to
+illustrate some function calls, strings, numbers, code comments and
+output.
+
+[knitr]: https://yihui.org/knitr/ "knitr homepage"
+
+```{r, comment = "", echo = FALSE}
+writeLines(readLines(solarizeddocx::file_code_block()))
+```
+
+We [`knit()`](`r a_knit`) the document to run the code and store results
+in a markdown file. (Actually, we use [`knit_child()`](`r a_knit_child`)
+because I was getting some weird using-`knit()`-inside-of-`knit()`
+issues when rendering this post. But in general, we would `knit()`.)
+
+```{r, results = 'hide'}
+md_file <- tempfile(fileext = ".md")
+knit_func <- if(interactive()) knitr::knit else knitr::knit_child
+knit_func(
+  solarizeddocx::file_code_block(), 
+  output = md_file,
+  quiet = TRUE
+)
+```
+
+This is the content of the file.
+
+```{r, comment = "", echo = FALSE}
+writeLines(readLines(md_file))
+```
+
+## pandoc: .md to *everything* conversion
+
+Everything we do with syntax highlighting occurs at this point when we have an .md file. For this demo, we will use
+pandoc to convert this .md file to an HTML document.
+
+To make life easier, let's set up a workflow for quickly converting a
+.md file to an HTML document and taking a screenshot of the document.
+`run_pandoc()` is a wrapper over
+[`rmarkdown::pandoc_convert()`](`r a_pandoc_convert`) but hard-codes
+some output options and lets us more easily forward `options` to pandoc
+using `...`.s `page_thumbnail()` is a wrapper over
+[`webshot::webshot()`](`r a_webshot`) with some predefined output
+options. `pd_style()` and `pd_syntax()` are helpers we will use later
+for setting pandoc options.
+
+```{r}
+run_pandoc <- function(input, ...) {
+  output <- tempfile(fileext = ".html")
+  rmarkdown::pandoc_convert(
+    input, 
+    to = "html5", 
+    output = output,
+    options = c(
+      "--standalone", 
+      ...
+    )
+  )
+  output
+}
+
+page_thumbnail <- function(url, file, ...) {
+  webshot::webshot(
+    url = url,  
+    file = file,
+    vwidth = 500, 
+    vheight = 350,
+    zoom = 2
+  )
+}
+
+pd_style <- function(x) c("--highlight-style", x)
+pd_syntax <- function(x) c("--syntax-definition", x)
+```
+
+These tools let us preview the default syntax highlighting in pandoc:
+
+```{r shot1, fig.cap = "Screenshot of html file created by pandoc"}
+results <- run_pandoc(md_file, pd_style("tango"))
+page_thumbnail(results, "shot1.png")
+```
+
+## Setting pandoc options
+
+Here is the pandoc HTML output but this time using my solarized (light)
+highlighting style:
+
+```{r shot2, fig.cap = "Screenshot of html file created by pandoc. It now has solarized colors."}
+theme_sl <- solarizeddocx::file_solarized_light_theme()
+results <- run_pandoc(md_file, pd_style(theme_sl))
+page_thumbnail(results, "shot2.png")
+```
+
+By convention, we see two kinds of comment lines: actual code comments
+(`#`) and R output (`#>`). The `#>` comments helpful because I can copy
+a whole code block (output included) and run it in R without that output
+being interpreted as code. But **these comments represent two different
+kinds of information**, and I'd like them to be styled differently. The
+`#` code comments can stay unintrusive (light italic type), but the `#>`
+out comments should be legible (darker roman type).
+
+To treat these two type of comments differently, I modified the [R syntax definition][syntax] used by pandoc to
+recognize `#` and `#>` as different entities. We can pass that syntax
+definition to pandoc:
+
+[syntax]: https://github.com/KDE/syntax-highlighting/blob/master/data/syntax/r.xml "GitHub page for the r.xml syntax definition"
+
+```{r shot3, fig.cap = "Screenshot of html file created by pandoc. It now has solarized colors and differently styled #> comments."}
+syntax_sl <- solarizeddocx::file_syntax_definition()
+results <- run_pandoc(
+  md_file, 
+  pd_style(theme_sl), 
+  pd_syntax(syntax_sl)
+)
+page_thumbnail(results, "shot3.png")
+```
+
+## Creating a theme from scratch
+
+Maybe you're thinking, *that's cool... if you like solarized. What about
+something fun like Fairy Floss?* Okay, fine, let's make [Fairy
+Floss](https://github.com/sailorhg/fairyfloss)... right now... in this
+blog post.
+
+First, let's store the Fairy Floss colors in a handy list:
+
+```{r}
+ff_colors <- list(
+  gold = "#e6c000",
+  yellow = "#ffea00",
+  dark_purple = "#5a5475",
+  white = "#f8f8f2",
+  pink = "#ffb8d1",
+  salmon = "#ff857f",
+  purple = "#c5a3ff",
+  teal = "#c2ffdf"
+)
+```
+
+If we use the correct command, pandoc will provide us with a syntax
+highlighting theme as a JSON file. `copy_base_pandoc_theme()` will call
+this command for us. We can read that file into R and see that it is a list
+of global style options followed by a list of individual style
+definitions.
+
+```{r}
+temptheme <- tempfile(fileext = ".theme") 
+solarizeddocx::copy_base_pandoc_theme(temptheme)
+
+data_theme <- jsonlite::read_json(temptheme)
+str(data_theme, max.level = 2)
+```
+
+Each of those individual style definitions is a list of color options
+and font style options:
+
+```{r}
+str(data_theme$`text-styles`$Comment)
+```
+
+solarizeddocx provides a helper function `set_theme_text_style()` for
+setting individual style options. Let's set up Fairy Floss's global and
+comment styles. We use the fake name `"global"` to access the global
+style options, and we use style definition names like `"Comment"` to access
+those specifically. 
+
+```{r}
+library(magrittr)
+ff_theme <- data_theme %>% 
+  solarizeddocx::set_theme_text_style(
+    "global", 
+    background = ff_colors$dark_purple,
+    text = ff_colors$white
+  ) %>% 
+  solarizeddocx::set_theme_text_style(
+    "Comment",
+    text = ff_colors$gold
+  ) %>% 
+  solarizeddocx::set_theme_text_style(
+    "String",
+    text = ff_colors$yellow 
+  )
+```
+
+Let's preview our partial theme:
+
+```{r shot4, fig.cap = "Screenshot of html file created by pandoc. It has a purple background, white text, gold comments and yellow strings, but it still looks bad because not all of the colors are done."}
+solarizeddocx::write_pandoc_theme(ff_theme, temptheme)
+results <- run_pandoc(
+  md_file, 
+  pd_style(temptheme), 
+  pd_syntax(syntax_sl)
+)
+page_thumbnail(results, "shot4.png")
+```
+
+This is a good start, but when I first ported the solarized theme, I had
+to use 20 calls to `set_theme_text_style()`. That's a lot. Plus, **themes
+are data**. Can't we just describe what needs to change in a list? Yes.
+For this post, I made `solarizeddocx::patch_theme_text_style()` where we
+describe the changes to make as a list of patches.
+
+Let's write our list of patches to make to the base theme. Because some
+style definitions are identical, we will use tibble's lazy list
+[`tibble::lst()`](`r a_lst`)to reuse patches along the way. For this application of the palette, I consulted the [Fairy Floss .tmTheme file][fftm] and the [rsthemes implementation][ffrs] of Fairy Floss.
+
+[fftm]: http://tmtheme-editor.herokuapp.com/#!/editor/url/https://raw.githubusercontent.com/sailorhg/fairyfloss/gh-pages/fairyfloss.tmTheme "Fairy Floss Theme in online editor"
+
+[ffrs]: https://github.com/gadenbuie/rsthemes/blob/main/inst/templates/fairyfloss.scss#L31-L42 "GitHub source for  rsthemes/inst/templates/fairyfloss.scss"
+
+```{r}
+patches <- tibble::lst(
+  global = list(
+    text = ff_colors$white,
+    background = ff_colors$dark_purple
+  ),
+  # # comments
+  Comment = list(text = ff_colors$gold, italic = TRUE, bold = FALSE),
+  # ## comments
+  Documentation = Comment,
+  # #> comments
+  Information = list(text = ff_colors$gold, italic = FALSE, bold = TRUE),
+  Keyword = list(text = ff_colors$pink),
+  ControlFlow = list(text = ff_colors$pink, bold = FALSE),
+  Operator = list(text = ff_colors$pink),
+  Function = list(text = ff_colors$teal),
+  Attribute = list(text = ff_colors$white),
+  Variable = list(text = ff_colors$white),
+  # this should be code outside of a code block
+  VerbatimString = list(
+    text = ff_colors$white, 
+    background = ff_colors$dark_purple
+  ),
+  Other = Variable,
+  Constant = list(text = ff_colors$purple),
+  Error = list(text = ff_colors$salmon),
+  Alert = Error,
+  Warning = Error,
+  Float = list(text = ff_colors$purple),
+  DecVal = Float,
+  BaseN = Float,
+  SpecialChar = list(text = ff_colors$white),
+  String = list(text = ff_colors$yellow),
+  Char = String,
+  SpecialString = String
+)
+```
+
+{::options parse_block_html="true" /}
+<div class = "notice--info">
+**Save yourself from guessing and checking.** These style definition
+names are documented on [this
+page](https://docs.kde.org/stable5/en/kate/katepart/highlight.html#kate-highlight-default-styles).
+I wish I had found this page before starting to port the solarized
+theme. My initial approach was to use the style inspector in Microsoft
+Word and look at the style names applied to pieces of code. The downside
+of that approach is that in order to figure out what a `SpecialChar`
+was, I had to write a `SpecialChar`. (Escape sequences inside of strings
+like `"hello\nthere"` are `SpecialChars` in the R syntax definition used
+by pandoc.)
+</div>
+{::options parse_block_html="false" /}
+
+
+Now we apply our patches to the theme:
+
+```{r shot5, fig.cap = "Screenshot of html file created by pandoc. It now has Fairy Floss colors."}
+ff_theme <- solarizeddocx::patch_theme_text_style(
+  data_theme,
+  patches
+)
+
+solarizeddocx::write_pandoc_theme(ff_theme, temptheme)
+results <- run_pandoc(
+  md_file, 
+  pd_style(temptheme), 
+  pd_syntax(syntax_sl)
+)
+page_thumbnail(results, "shot5.png")
+```
+
+Wonderful!
+
+## Sneaking these features into RMarkdown
+
+So far, we have set these options by directly calling pandoc with the style
+and syntax options. We can use these options in RMarkdown *some of the time*.
+For example, here we try to send the Fairy Floss theme into an 
+[`html_document()`](`r a_html_document`) and fail.
+
+```{r shot6, fig.cap = "Screenshot of html file created by RMarkdown. It has the default colors."}
+out <- rmarkdown::render(
+  md_file, 
+  output_format = rmarkdown::html_document(
+    pandoc_args = c(pd_style(temptheme), pd_syntax(syntax_sl))
+  ),
+  quiet = TRUE
+)
+page_thumbnail(out, "shot6.png")
+```
+
+RMarkdown assembles and performs a giant pandoc command. The problem, as
+far as I can tell, is that this command includes our
+`pd_style(temptheme)` which sets the option for
+`--highlight-style`---but later on it also includes `--no-highlight`
+which blocks our style. Bummer.
+
+If we use the simpler [`html_document_base()`](`r a_html_document_base`)
+format, however, we can see Fairy Floss output.
+
+```{r shot7, fig.cap = "Screenshot of html file created by RMarkdown. It has the Fairy Floss colors."}
+out <- rmarkdown::render(
+  md_file, 
+  output_format = rmarkdown::html_document_base(
+    pandoc_args = c(pd_style(temptheme), pd_syntax(syntax_sl))
+  ),
+  quiet = TRUE
+)
+page_thumbnail(out, "shot7.png")
+```
+
+The options also work for the [`pdf_document()`](`r a_pdf_document`) format.
+
+```{r shot8, fig.cap = "Screenshot of a cropped pdf file created by RMarkdown. It has the Fairy Floss colors."}
+out <- rmarkdown::render(
+  md_file, 
+  output_format = rmarkdown::pdf_document(
+    pandoc_args = c(pd_style(temptheme), pd_syntax(syntax_sl))
+  ), 
+  quiet = TRUE
+)
+
+# Convert to png and crop most of the empty page
+png <- pdftools::pdf_convert(out, dpi = 144)
+magick::image_read(png) %>% 
+  magick::image_crop(magick::geometry_area(1050, 400, 100, 100))
+```
+
+The options also work with [`word_document()`](`r a_word_document`). In fact, that's how 
+`solarizeddocx::document()` works.
+
+
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_footer.Rmd"}
+```
