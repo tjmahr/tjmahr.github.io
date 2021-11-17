@@ -7,7 +7,7 @@ library(knitr)
 #   "ggmcmc", "ellipse", "ggrepel", "pryr", "lobstr", "conflicted",
 #   "reticulate", "cowplot", "gamair", "microbenchmark", "polypoly",
 #   "irr", "psych", "DiagrammeR", "babynames", "DiagrammeRsvg",
-#   "uuid", "gratia", "lazyeval"
+#   "uuid", "gratia", "lazyeval", "cowplot"
 # )
 #
 # missing <- setdiff(dont_forget_these_packages, installed.packages()[, 1])
@@ -15,6 +15,7 @@ library(knitr)
 #   install.packages(missing)
 #   remotes::install_github("tjmahr/iccbot")
 #   remotes::install_github("tjmahr/fillgaze")
+#   remotes::install_github("tjmahr/solarizeddocx")
 # }
 
 list_rmds <- function(dir) {
