@@ -512,10 +512,7 @@ out <- rmarkdown::render(
 
 # Convert to png and crop most of the empty page
 png <- pdftools::pdf_convert(out, dpi = 144)
-#> Converting page 1 to file265c61d22b0e_1.png... done!
-# magick::image_read(png) %>% 
-#   magick::image_crop(magick::geometry_area(1050, 400, 100, 100)) %>% 
-#   magick::image_write(png)
+#> Converting page 1 to file4ba02753dc0_1.png... done!
 magick::image_read(png) %>% 
   magick::image_crop(magick::geometry_area(1050, 400, 100, 100))
 ```
