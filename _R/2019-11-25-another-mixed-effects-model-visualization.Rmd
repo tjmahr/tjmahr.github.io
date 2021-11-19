@@ -19,44 +19,47 @@ knitr::opts_chunk$set(
 
 
 Last week, I presented an analysis on the longitudinal development of
-intelligibility in children with cerebral palsy---that is, how well do strangers
-understand these children's speech from 2 to 8 years old. My analysis used a 
-Bayesian nonlinear mixed effects beta regression model. If some [models are livestock and some are
-pets](https://twitter.com/hadleywickham/status/742353541793120259?s=20), this
-model is my dearest pet. I first started developing it a year ago, and it took
-weeks of learning and problem-solving to get the first version working
-correctly. I was excited to present results from it.
+intelligibility in children with cerebral palsy---that is, how well do
+strangers understand these children's speech from 2 to 8 years old. My
+analysis used a Bayesian nonlinear mixed effects beta regression model.
+If some [models are livestock and some are
+pets](https://twitter.com/hadleywickham/status/742353541793120259?s=20),
+this model is my dearest pet. I first started developing it a year ago,
+and it took weeks of learning and problem-solving to get the first
+version working correctly. I was excited to present results from it.
 
-But here's the thing. I couldn't just formally describe my model. Not for this
-audience. My talk was at the annual conference of the American
+But here's the thing. I couldn't just formally describe my model. Not
+for this audience. My talk was at the annual conference of the American
 Speech-Language-Hearing Association: The main professional gathering for
-speech-language pathologists, audiologists, and researchers in communication
-sciences and disorders. The audience here is rightly more concerned with
-clinical or research matters than the nuts and bolts of my model.
+speech-language pathologists, audiologists, and researchers in
+communication sciences and disorders. The audience here is rightly more
+concerned with clinical or research matters than the nuts and bolts of
+my model.
 
-Still, I wanted to convey the main ideas behind the model without dumbing things
-down. I got to work making lots of educational diagrams. Among them was the
-annotated logistic curve from 
-[my earlier post](/anatomy-of-a-logistic-growth-curve/) and the following
-figure, used to illustrate information borrowing (or partial pooling) in mixed
+Still, I wanted to convey the main ideas behind the model without
+dumbing things down. I got to work making lots of educational diagrams.
+Among them was the annotated logistic curve from [my earlier
+post](/anatomy-of-a-logistic-growth-curve/) and the following figure,
+used to illustrate information borrowing (or partial pooling) in mixed
 effects models:
 
 {% include figure image_path="/assets/images/2019-11-mixed-model-diagram.png" alt="Diagram showing four panels of observed data in the top row, a set of predictions for a new set of data in the middle row, and the four panels from the first row updated to included fitted estimates." caption="Diagram I used to illustrate how mixed effects models work." %}
 
-I am pleased with this figure. Originally, I tried to convey the idea as an
-interactive process: Individual-level data feed into the population model and
-those feed back into the individual estimates. I had only two sets of plots with
-labeled paths running back and forth between them; it wasn't pretty. The final
-plot's "feed-forward" approach simplified things a great deal. My only concern,
-in hindsight, is that I should have oriented things to run left-to-right instead
-of top-to-bottom so I could have filled a 16:9 widescreen slide better. (But
-this vertical version probably looks great on your phone or tablet right now, so
+I am pleased with this figure. Originally, I tried to convey the idea as
+an interactive process: Individual-level data feed into the population
+model and those feed back into the individual estimates. I had only two
+sets of plots with labeled paths running back and forth between them; it
+wasn't pretty. The final plot's "feed-forward" approach simplified
+things a great deal. My only concern, in hindsight, is that I should
+have oriented things to run left-to-right instead of top-to-bottom so I
+could have filled a 16:9 widescreen slide better. (But this vertical
+version probably looks great on your phone or tablet right now, so
 whatever!)
 
-In this post, I walk through how to produce a plot like this one from scratch. I
-can't share the original model or the clinical data here, so I will use the
-`sleepstudy` data from lme4, as in 
-[my partial pooling tutorial](/plotting-partial-pooling-in-mixed-effects-models/).
+In this post, I walk through how to produce a plot like this one from
+scratch. I can't share the original model or the clinical data here, so
+I will use the `sleepstudy` data from lme4, as in [my partial pooling
+tutorial](/plotting-partial-pooling-in-mixed-effects-models/).
 
 
 ```{r, include = FALSE}
@@ -122,9 +125,10 @@ b
 
 ## Top row: connect the dots
 
-Let's create the top row. The core of the plot is straightforward: We draw
-lines, draw points, facet by `Subject`, and set a reasonable *y*-axis range for
-the plot (controlling the coordinates via `coord_cartesian()`).
+Let's create the top row. The core of the plot is straightforward: We
+draw lines, draw points, facet by `Subject`, and set a reasonable
+*y*-axis range for the plot (controlling the coordinates via
+`coord_cartesian()`).
 
 ```{r top-row-take-1, fig.height = 2, fig.width = 6, out.width = "66%", fig.cap = "First pass at the model. It shows points connected by lines split over four panels."}
 col_data <- "#2F2E33"
@@ -141,13 +145,14 @@ p_first_pass <- ggplot(df_demo) +
 p_first_pass
 ```
 
-First, let's make one somewhat obscure tweak. Currently, the left edge of the
-title is aligned with the plotting panel---that is, the window with the grey
-background where the data are drawn. But in our final ensemble, we are going to
-have three plots and the left edge of the panel will not be in the same
-location across all three plots. We want our titles to be aligned with each
-other from plot to plot, so we tell ggplot2 to position the plot title using the
-left edge of the `"plot"`, as opposed to the `"panel"`.
+First, let's make one somewhat obscure tweak. Currently, the left edge
+of the title is aligned with the plotting panel---that is, the window
+with the grey background where the data are drawn. But in our final
+ensemble, we are going to have three plots and the left edge of the
+panel will not be in the same location across all three plots. We want
+our titles to be aligned with each other from plot to plot, so we tell
+ggplot2 to position the plot title using the left edge of the `"plot"`,
+as opposed to the `"panel"`.
 
 ```{r top-row-take-1-tweak, fig.height = 2, fig.width = 6, out.width = "66%", fig.cap = "The previous plot with its title moved to be aligned with the left edge of the image."}
 p_first_pass_tweak <- p_first_pass + 
@@ -155,15 +160,11 @@ p_first_pass_tweak <- p_first_pass +
 p_first_pass_tweak
 ```
 
-`r emo::ji("warning")` Note that the `plot.title.position` `theme()` option is
-only available in the development version of ggplot2 as of
-November 2019.
-{: .notice--warning}
-
-For the diagram, we have to remove the facet labels ("strips"),
-axis titles, axis text, and axis ticks (those little lines that stick out of the
-plot). We also should clean up the gridlines for the *x* axis. The *x* unit is
-whole number `Days`, so putting a line ("break") at 2.5 days is not meaningful.
+For the diagram, we have to remove the facet labels ("strips"), axis
+titles, axis text, and axis ticks (those little lines that stick out of
+the plot). We also should clean up the gridlines for the *x* axis. The
+*x* unit is whole number `Days`, so putting a line ("break") at 2.5 days
+is not meaningful.
 
 ```{r top-row-take-2, fig.height = 2, fig.width = 6, out.width = "66%", fig.cap = "The previous plot update to have all axis text and ticks removed and have the gridlines on the panel set to even numbers."}
 p_second_pass <- p_first_pass_tweak + 
@@ -182,18 +183,19 @@ p_second_pass <- p_first_pass_tweak +
 p_second_pass
 ```
 
-Finally, let's add the "(others)" label. Here, I use the `tag` label
-as a sneaky way to add an annotation. Normally, tags are meant to label
+Finally, let's add the "(others)" label. Here, I use the `tag` label as
+a sneaky way to add an annotation. Normally, tags are meant to label
 individual plots in an ensemble display of multiple plots:
 
 ```{r tag-demo, fig.height = 2, fig.width = 3, out.width = "33%", fig.cap = "A diagram showing the placement a plot's title and tag. The tag is in the upper left corner of the plot."}
-ggplot() + labs(title = "A tagged plot", tag = "A. ")
+ggplot() + 
+  labs(title = "A tagged plot", tag = "A. ")
 ```
 
-But we will use that feature to place some text to the right side of the plot.
-Sometimes, there's a correct way and there's the way that gives you the image
-you can paste into your slides, and this tag trick is one of two such shortcuts
-I used in my diagram.
+But we will use that feature to place some text to the right side of the
+plot. Sometimes, there's a correct way and there's the way that gives
+you the image you can paste into your slides, and this tag trick is one
+of two such shortcuts I used in my diagram.
 
 ```{r top-row, fig.height = 2, fig.width = 6, out.width = "66%",  fig.cap = "The current plot updated to have text '(others)' added to the right of the plot to indicate the more panels exist but are omitted."}
 tag_others <- "   (others)   "
@@ -206,9 +208,10 @@ p_second_pass +
   )
 ```
 
-I have discovered that incrementally and didactically building up my plots over
-multiple code chunks creates a hassle for Future Me when copypasting plotting
-code, so the final, complete code is provided below.
+I have discovered that incrementally and didactically building up my
+plots over multiple code chunks creates a hassle for Future Me when
+copypasting plotting code, so the final, complete code is provided
+below.
 
 ```{r, fig.height = 2, fig.width = 6, out.width = "66%"}
 col_data <- "#2F2E33"
@@ -238,43 +241,44 @@ p_top <- ggplot(df_demo) +
 
 ## Bottom row: Beams of light
 
-Let's skip to the bottom row because it uses the same coordinates, points and
-theming as the top row. The plot visualizes the posterior fits (the estimated
-mean) as a median and 95% interval.
-[tidybayes](https://github.com/mjskay/tidybayes) makes the process 
-straightforward with `add_fitted_draws()` to add model fits onto a dataframe and with
-`stat_lineribbon()` to plot a line and ribbon summary of a posterior
-distribution.
+Let's skip to the bottom row because it uses the same coordinates,
+points and theming as the top row. The plot visualizes the posterior
+expectations (predicted means) as a median and 95% interval.
+[tidybayes](https://github.com/mjskay/tidybayes) makes the process
+straightforward with `add_epred_draws()` to add model fits onto a
+dataframe and with `stat_lineribbon()` to plot a line and ribbon summary
+of a posterior distribution. Here *epred* stands for \*e\*xpectations of
+posterior \*pred\*ictions, so predicted means on the outcome scale.
 
 ```{r}
 df_demo_fitted <- df_demo %>%
-  # Create a dataframe with all possible combination of Subject and Days
+  # Create a dataframe with all possible combos of Subject and Days
   tidyr::expand(
     Subject,
     Days = seq(min(Days), max(Days), by = 1)
   ) %>%
   # Get the posterior predictions
-  add_fitted_draws(model = b)
+  add_epred_draws(object = b)
 ```
 
-Now we have 4,000 posterior samples for the fitted `Reaction` for each
-`Subject` for each day.
+Now we have 4,000 posterior samples for the fitted `Reaction` (`.epred`)
+for each `Subject` for each day.
 
 ```{r}
 df_demo_fitted
 ```
 
-Given these posterior fits, we call `stat_lineribbon()` to get the median
-and 95% intervals. The plotting code is otherwise the same as the last one,
-except for a different title and two lines that set the fill color and hide the
-fill legend.
+Given these posterior fits, we call `stat_lineribbon()` to get the
+median and 95% intervals. The plotting code is otherwise the same as the
+last one, except for a different title and two lines that set the fill
+color and hide the fill legend.
 
 ```{r bottom-row, fig.height = 2, fig.width = 6, out.width = "66%", fig.cap = "A plot with a showing the points from the earlier plot but showing the posterior median and 95% interval band."}
 col_data <- "#2F2E33"
 tag_others <- "   (others)   "
 
 p_bottom <- ggplot(df_demo_fitted) +
-  aes(x = Days, y = .value) +
+  aes(x = Days, y = .epred) +
   # .width is the interval width
   stat_lineribbon(alpha = .4, .width = .95) +
   geom_point(
@@ -287,7 +291,7 @@ p_bottom <- ggplot(df_demo_fitted) +
   # Use the viridis scale on the ribbon fill
   scale_color_viridis_d(aesthetics = "fill") +
   # No legend
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   scale_x_continuous(breaks = seq(0, 9, by = 2)) +
   coord_cartesian(ylim = c(200, 500)) +
   ggtitle(
@@ -313,27 +317,28 @@ p_bottom
 
 ## Middle row: Piles of ribbons
 
-For the center population plot, we are going to use posterior predicted means
-for a new (as yet unobserved) participant. This type of prediction incorporates
-the uncertainty for the population average (i.e., the fixed effects) and the
-population variation (i.e., the random effects).
+For the center population plot, we are going to use posterior predicted
+means for a new (as yet unobserved) participant. This type of prediction
+incorporates the uncertainty for the population average (i.e., the fixed
+effects) and the population variation (i.e., the random effects).
 
-We do this by defining a new participant and obtaining their posterior fitted
-values. I like to use `"fake"` as the ID for the hypothetical participant.
+We do this by defining a new participant and obtaining their posterior
+fitted values. I like to use `"fake"` as the ID for the hypothetical
+participant.
 
 ```{r}
 df_population <- df_sleep %>%
   distinct(Days) %>%
   mutate(Subject = "fake") %>%
-  add_fitted_draws(b, allow_new_levels = TRUE)
+  add_epred_draws(b, allow_new_levels = TRUE)
 ```
 
-Next, it's just a matter of using `stat_lineribbon()` again with many, many
-`.width` values to recreate that center visualization.
+Next, it's just a matter of using `stat_lineribbon()` again with many,
+many `.width` values to recreate that center visualization.
 
 ```{r middle-attempt-1, fig.height = 4, fig.width = 5, out.width = "66%",  fig.cap = "A plot showing several differently colored probability bands to indicate which means are most probable in the population. The population median is marked with a distracting black line."}
 ggplot(df_population) +
-  aes(x = Days, y = .value) +
+  aes(x = Days, y = .epred) +
   stat_lineribbon(
     .width = c(.1, .25, .5, .6, .7, .8, .9, .95)
   ) +
@@ -345,18 +350,17 @@ ggplot(df_population) +
   coord_cartesian(ylim = c(200, 500)) +
   scale_y_continuous("Reaction Time") +
   scale_color_viridis_d(aesthetics = "fill") +
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   ggtitle("Model estimates the population of participants") +
   theme_grey(base_size = 14) +
   theme(plot.title.position = "plot")
 ```
 
+Actually, not quite. That median line ruins everything. It needs to go.
 
-Actually, not quite. That median line ruins everything. It needs to go. 
-
-I'm too lazy to figure out how to get `stat_lineribbon()` to draw just the
-ribbons. Instead, note that colors in ggplot2 can be 8-digit
-hex codes, where the last two digits set the transparency for the color.
+I'm too lazy to figure out how to get `stat_lineribbon()` to draw just
+the ribbons. Instead, note that colors in ggplot2 can be 8-digit hex
+codes, where the last two digits set the transparency for the color.
 
 ```{r hex-8-demo, fig.height = 2, fig.width = 4, out.width = "50%",  fig.cap = "A diagram showing vertical lines that become increasingly transparent."}
 ggplot() + 
@@ -370,13 +374,13 @@ ggplot() +
   theme(panel.grid = element_blank())
 ```
 
-This is the other shortcut I used in this diagram: I tell `stat_lineribbon()` to use
-a color with `00` for the final 2 digits, so that it draws the median as a
-completely transparent line.
+This is the other shortcut I used in this diagram: I tell
+`stat_lineribbon()` to use a color with `00` for the final 2 digits, so
+that it draws the median as a completely transparent line.
 
 ```{r better-middle, fig.height = 4, fig.width = 5, out.width = "66%",  fig.cap = "The previous population plot but with the black line at the population median removed."}
 p_population <- ggplot(df_population) +
-  aes(x = Days, y = .value) +
+  aes(x = Days, y = .epred) +
   stat_lineribbon(
     # new part
     color = "#11111100",
@@ -390,7 +394,7 @@ p_population <- ggplot(df_population) +
   coord_cartesian(ylim = c(200, 500)) +
   scale_y_continuous("Reaction Time") +
   scale_color_viridis_d(aesthetics = "fill") +
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   ggtitle("Model estimates the population of participants") +
   theme_grey(base_size = 14) +
   theme(plot.title.position = "plot")
@@ -399,12 +403,12 @@ p_population
 
 ## Mooooooo: cowplot time
 
-Finally, we use `plot_grid()` from cowplot[^cow] to put things together.
-First, I don't want the middle population plot to be as wide as the top and
-bottom rows, so I first create a `plot_grid()` containing the center plot and an
-empty `NULL` spacer to its right. (I recommend [this
-vignette](https://wilkelab.org/cowplot/articles/plot_grid.html) for learning how
-to use `plot_grid()`.)
+Finally, we use `plot_grid()` from cowplot[^cow] to put things
+together. First, I don't want the middle population plot to be as wide
+as the top and bottom rows, so I first create a `plot_grid()` containing
+the center plot and an empty `NULL` spacer to its right. (I recommend
+[this vignette](https://wilkelab.org/cowplot/articles/plot_grid.html)
+for learning how to use `plot_grid()`.)
 
 ```{r}
 p_middle <- plot_grid(
@@ -427,9 +431,10 @@ plot_grid(
 )
 ```
 
-That's it! It's amazing how much work tidybayes and cowplot save us in making
-these plots. In fact, without being aware of them or their capabilities, I might
-have been discouraged from even trying to create this diagram.
+That's it! It's amazing how much work tidybayes and cowplot save us in
+making these plots. In fact, without being aware of them or their
+capabilities, I might have been discouraged from even trying to create
+this diagram.
 
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
