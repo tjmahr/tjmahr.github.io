@@ -245,7 +245,7 @@ ggplot(draws_norm) +
     # color = "white"
   ) +
   stat_function(fun = pnorm, color = "darkgreen", size = 1) +
-  geom_text(
+  geom_label(
     data = data.frame(n = 100),
     x = .25, y = .70, 
     label = "pnorm()", 
@@ -253,16 +253,20 @@ ggplot(draws_norm) +
     color = "darkgreen",
     family = "consolas", 
     fontface = "bold",
-    size = 5
+    size = 5,
+    fill = scales::alpha("white", .65), 
+    label.size = 0
   ) +
-  geom_text(
+  geom_label(
     data = data.frame(n = 100),
     x = .75, 
     y = .60, 
     label = "cumulative\nsum of bin\nprobabilities", 
     hjust = 0, 
     size = 4.5, 
-    vjust = 1
+    vjust = 1,
+    fill = scales::alpha("white", .65), 
+    label.size = 0
   ) +
   stat_bin(
     aes(y = stat(cumsum(ncount / sum(ncount)))),
@@ -316,19 +320,22 @@ ggplot(draws_norm) +
     aes(y = stat(density)),
     data = . %>% head(100) %>% mutate(n = 100),
     binwidth = .5,
-    color = "darkorange"
+    # color = "darkorange"
   ) +
   stat_bin(
     aes(y = stat(density)),
     data = . %>% mutate(n = 1000),
     binwidth = .2,
-    color = "orange",
+    color = "purple",
     geom = "line"
   ) +
-
   facet_wrap("n") +
-  ggtitle("scale: bin densities")
+  current_theme + 
+  labs(y = "bin densities") 
 ```
+
+### d: probability density function
+
 
 ```{r}
 #| dnorm-labeled, fig.width = 6, fig.height = 4
@@ -349,7 +356,7 @@ ggplot(draws_norm) +
     stat = "bin",
     direction = "mid"
   ) +
-  geom_text(
+  geom_label(
     data = data.frame(n = 100),
     x = 1.1, y = .30, 
     label = "dnorm()", 
@@ -357,12 +364,14 @@ ggplot(draws_norm) +
     color = "darkorange",
     family = "consolas", 
     fontface = "bold",
-    size = 5
+    size = 5, 
+    fill = scales::alpha("white", .65), 
+    label.size = 0
   ) +
-  geom_text(
+  geom_label(
     data = data.frame(n = 1000),
     x = -1, 
-    y = .40, 
+    y = .35, 
     label = expression(
       frac(
         paste("bin probability"), 
@@ -371,14 +380,14 @@ ggplot(draws_norm) +
     ), 
     parse = TRUE,
     hjust = 1, 
-    size = 3.7, 
-    vjust = 1
+    size = 4, 
+    fill = scales::alpha("white", .65), 
+    label.size = 0
   ) +
   facet_wrap("n") +
   labs(y = "bin densities") + 
   current_theme + 
   coord_cartesian(clip = "off")
-
 ```
 
 
