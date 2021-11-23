@@ -1,0 +1,525 @@
+---
+title: Use `plogis()` instead of writing your own `inv_logit()` (2021-11-23)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+```
+
+This post is a public service announcement: You don't need to write your 
+own inverse-logit function. I'm looking at you arm 😉
+
+```{r}
+arm::invlogit
+```
+
+R provides this function for us already. It just has a funny name: `plogis()`. Indeed, look at how `boot::inv.logit()` is implemented:
+
+```{r}
+boot::inv.logit
+```
+
+That's the important of coding advice for this post: **use `plogis()` if
+you want to map from logit (log-odds) scale to the probability scale**.
+But now, for fun, let's unpack why this functionality is stashed away
+under the name "plogis".
+
+## The four incantations: d, p, q, r
+
+Statistical distributions in R are usually implemented as a bundle of
+four functions. They have the pattern `(prefix)(family)` where the
+prefix is one of 'd', 'p', 'q', 'r' and the family is the name of the
+distribution. Hence, the normal distribution in R is implemented with
+`dnorm()`, `pnorm()` `qnorm()`, and `rnorm()`. 
+
+This pattern, I would argue, is a great! When I see
+`brms::rstudent_t()`, I have a good sense of what to expect: a random
+number generator for the Student-t distribution. I can also expect there
+to be three functions for this distribution: `brms::dstudent_t()`,
+`brms::pstudent_t()`, `brms::qstudent_t()`. The standard naming scheme
+and bundle of four function also describes a kind of contract for
+programming. If I want to write my own implementation of the beta
+distribution using the mean-precision parameterization, I should provide
+the four 'd', 'p', 'q', 'r' functions.
+
+
+## r: random number generation function
+
+But what do these four functions do? Let's start with r: random number
+generation. If we think of statistical distributions as random number
+generators with certain mathematical features, then we need a way to
+generate numbers. `rnorm(n, mean, sd)` will generate `n` random numbers
+from a distribution with a given `mean` and `sd`:
+
+```{r}
+library(tidyverse)
+rnorm(10, mean = 0, sd = 1)
+rnorm(20, mean = 10, sd = 2)
+```
+
+Let's say we have a 100 and then 1000 of these draws. If we plot a histogram of these random draws, we can kinda see the normal distribution's characteristic bell curve.
+
+```{r}
+set.seed(20211123)
+draws_norm <- tibble(
+  x = rnorm(1000, mean = 0, sd = 1)
+)
+
+current_theme <- theme_minimal(base_size = 14) +
+  theme(panel.grid.minor = element_blank())
+
+ggplot(draws_norm) + 
+  aes(x = x) + 
+  geom_histogram(
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5
+  ) +
+  geom_histogram(
+    data = . %>% mutate(n = 1000),
+    binwidth = .2
+  ) +
+  facet_wrap("n") +
+  current_theme
+
+# 
+# draws_animation = draws_norm %>% 
+#   mutate(
+#     batch = ntile(seq_along(x), 10),
+#   ) %>% 
+#   nest(data = x) %>% 
+#   mutate(
+#     data = purrr::accumulate(data, bind_rows)
+#   ) %>% 
+#   unnest(data) %>% 
+#   rename(x = data)
+# 
+# library(gganimate)
+# ggplot(draws_animation) + 
+#   aes(x = x) + 
+#   geom_histogram(aes(y = stat(ncount)), bins = 50) + 
+#   transition_states(batch)
+```
+
+One thing to know about ggplot2 is that some plotting functions will do
+a bunch of statistical work for us and provide these values as
+**computed variables**. For example, a histogram produces the `count` of
+observations for each bin, and this is what we see on the previous plot.
+The histogram also produces the variables `ncount` (normalized counts),
+`width` (bin width), and `density` (we are working to define density
+right now). The documentation for plotting functions
+provides these in a list under the heading "Computed variables". 
+
+We can access these computed variables by using `stat()` inside an
+`aes()` specification. In the plot below, we can scale the histograms so
+that they have the same maximum bin height by using the `ncount`
+computed variable.
+
+```{r}
+ggplot(draws_norm) + 
+  aes(x = x) + 
+  geom_histogram(
+    aes(y = stat(ncount)),
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5
+  ) +
+  geom_histogram(
+    aes(y = stat(ncount)),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2
+  ) +
+  facet_wrap("n") + 
+  ggtitle("scale: normalized counts") +
+  current_theme
+```
+
+Let's scale these again. If we divide each of these heights by the sum
+of the heights, then we will have the probability of a point landing
+inside that bin. These probabilities will sum to 1.
+
+```{r}
+ggplot(draws_norm) + 
+  aes(x = x) + 
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount))),
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5
+  ) +
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount))),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2
+  ) +
+  # geom_freqpoly(
+  #   aes(y = stat(cumsum(ncount / sum(ncount)))),
+  #   data = . %>% mutate(n = 100),
+  #   binwidth = .5
+  # ) +
+  # geom_freqpoly(
+  #   aes(y = stat(cumsum(ncount / sum(ncount)))),
+  #   data = . %>% mutate(n = 1000),
+  #   binwidth = .2
+  # ) + 
+  facet_wrap("n") +
+  labs(y = "bin probabilities") + 
+  current_theme
+```
+
+If we add up the heights of successive bins, we have now have
+*cumulative probabilities*. (More precisely, we have binned empirical
+cumulative probabilities.) These range from 0 to 1, and we interpret
+them as the proportion of observations less than or equal to x.
+
+```{r}
+ggplot(draws_norm) + 
+  aes(x = x) + 
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount))),
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5,
+    # color = "white"
+  ) +
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount))),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    # color = "white"
+  ) +
+  stat_bin(
+    aes(y = stat(cumsum(ncount / sum(ncount)))),
+    data = . %>% mutate(n = 100),
+    binwidth = .5,
+    geom = "step"
+  ) + 
+  stat_bin(
+    aes(y = stat(cumsum(ncount / sum(ncount)))),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    geom = "step"
+  ) + 
+  facet_wrap("n") +
+
+  facet_wrap("n") +
+  labs(y = "bin probabilities") + 
+  current_theme
+```
+
+## p: cumulative distribution (probability) function
+
+These cumulative probabilities approximate one of the four fundamental
+functions: the *cumulative distribution function* (CDF). They have the
+prefix *p* (presumably for *probability*) and provide the probability
+P(X \<= q) where X is a random variable drawn from the distribution and
+q is some particular value.
+
+The probability of a random draw from Normal(0, 1) being less than or
+equal to -1 is about .16. The proportion of our random draws equal to or
+below -1 matches this probability.
+
+```{r}
+pnorm(q = -1, mean = 0, sd = 1)
+
+mean(draws_norm$x[1:1000] <= -1)
+```
+
+We can overlay `pnorm()` directly onto the above plot using
+`stat_function()`. Let's also include some annotations.
+
+```{r}
+#| pnorm-labeled, fig.width = 6, fig.height = 4
+ggplot(draws_norm) + 
+  aes(x = x) + 
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount))),
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5,
+    # color = "white"
+  ) +
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount))),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    # color = "white"
+  ) +
+  stat_function(fun = pnorm, color = "darkgreen", size = 1) +
+  geom_text(
+    data = data.frame(n = 100),
+    x = .25, y = .70, 
+    label = "pnorm()", 
+    hjust = 1, 
+    color = "darkgreen",
+    family = "consolas", 
+    fontface = "bold",
+    size = 5
+  ) +
+  geom_text(
+    data = data.frame(n = 100),
+    x = .75, 
+    y = .60, 
+    label = "cumulative\nsum of bin\nprobabilities", 
+    hjust = 0, 
+    size = 4.5, 
+    vjust = 1
+  ) +
+  stat_bin(
+    aes(y = stat(cumsum(ncount / sum(ncount)))),
+    data = . %>% mutate(n = 100),
+    binwidth = .5,
+    geom = "step"
+  ) + 
+  stat_bin(
+    aes(y = stat(cumsum(ncount / sum(ncount)))),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    geom = "step"
+  ) + 
+  facet_wrap("n") +
+  # geom_freqpoly(
+  #   aes(y = stat(cumsum(ncount / sum(ncount)))),
+  #   data = . %>% mutate(n = 100),
+  #   binwidth = .5
+  # ) +
+  # geom_freqpoly(
+  #   aes(y = stat(cumsum(ncount / sum(ncount)))),
+  #   data = . %>% mutate(n = 1000),
+  #   binwidth = .2
+  # ) + 
+  facet_wrap("n") +
+  labs(y = "bin probabilities") + 
+  theme_minimal(base_size = 14) +
+  theme(panel.grid.minor = element_blank())
+```
+
+
+
+
+Finally, if we divide each of the bin probabilities by the bin-widths
+(accessible by using `width` inside of `stat()`), we get the *density* of each bin. We can confirm this fact by accessing the density `stat()`.
+
+```{r}
+ggplot(draws_norm) + 
+  aes(x = x) + 
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount) / width)),
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5
+  ) +
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount) / width)),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2
+  ) +
+  geom_freqpoly(
+    aes(y = stat(density)),
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5,
+    color = "darkorange"
+  ) +
+  stat_bin(
+    aes(y = stat(density)),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    color = "orange",
+    geom = "line"
+  ) +
+
+  facet_wrap("n") +
+  ggtitle("scale: bin densities")
+```
+
+```{r}
+#| dnorm-labeled, fig.width = 6, fig.height = 4
+ggplot(draws_norm) + 
+  aes(x = x) + 
+  stat_function(fun = dnorm, color = "darkorange", size = 1) +
+  geom_step(
+    aes(y = stat(ncount / sum(ncount) / width)),
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5,
+    stat = "bin", 
+    direction = "mid"
+  ) +
+  geom_step(
+    aes(y = stat(ncount / sum(ncount) / width)),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    stat = "bin",
+    direction = "mid"
+  ) +
+  geom_text(
+    data = data.frame(n = 100),
+    x = 1.1, y = .30, 
+    label = "dnorm()", 
+    hjust = 0, 
+    color = "darkorange",
+    family = "consolas", 
+    fontface = "bold",
+    size = 5
+  ) +
+  geom_text(
+    data = data.frame(n = 1000),
+    x = -1, 
+    y = .40, 
+    label = expression(
+      frac(
+        paste("bin probability"), 
+        paste("bin width")
+      )
+    ), 
+    parse = TRUE,
+    hjust = 1, 
+    size = 3.7, 
+    vjust = 1
+  ) +
+  facet_wrap("n") +
+  labs(y = "bin densities") + 
+  current_theme + 
+  coord_cartesian(clip = "off")
+
+```
+
+
+Now let's scale these again so to divide by the sum of the heights. Now
+the heights of each of these bars will sum to 1. But each of these
+heights occurs in a bin. So let's divide these heights by the bin width. I am having trouble thinking of how to describe what we have at this point.
+
+
+```{r}
+# # density(draws_norm$x, n = 20)$y %>% sum
+# # density(draws_norm$x, n = 20)$y %>% sum
+# draws_norm %>% 
+#   arrange(x) %>% 
+#   mutate(
+#     step = ppoints(x),
+#     y = dnorm(x)
+#   ) %>% 
+#   ggplot() + 
+#     aes(x = x, y = y) + 
+#     geom_point()
+
+
+  # geom_freqpoly(
+  #   aes(y = stat(cumsum(ncount / sum(ncount)))),
+  #   data = . %>% mutate(n = 1000),
+  #   binwidth = .2, color = "blue"
+  # ) +
+  # stat_bin(
+  #   aes(y = stat(cumsum(ncount / sum(ncount)) / .2), group = n),
+  #   data = . %>% mutate(n = 1000),
+  #   binwidth = .2,
+  #   geom = "bar"
+  # ) +
+  # facet_wrap("n")
+```
+
+
+We can use the `density` `stat()` instead to get a smoothed over these histogram heights.
+
+```{r, eval = FALSE}
+ggplot(draws_norm) + 
+  aes(x = x) + 
+  geom_histogram(
+    aes(y = stat(ncount)),
+    data = . %>% head(100) %>% mutate(n = 100),
+    binwidth = .5
+  ) +
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount) / .2)),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2
+  ) +
+  stat_bin(
+    aes(y = stat(density)),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2, 
+    geom = "line", 
+    color = "orange"
+  ) +
+  facet_wrap("n")
+
+plot(density(draws_norm$x, bw = .2))
+
+# geom_histogram(
+  #   aes(y = stat(ncount / sum(ncount))),
+  #   data = . %>% mutate(n = 1000),
+  #   bins = 40
+  # ) +
+  geom_histogram(
+    aes(y = stat(ncount / sum(ncount) / .2)),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2
+  ) +
+  # stat_bin(
+  #   aes(y = stat(cumsum(ncount / sum(ncount) / .2))),
+  #   data = . %>% mutate(n = 1000),
+  #   binwidth = .2,
+  #   geom ="line"
+  # ) +
+  stat_bin(
+    aes(y = stat(density)),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    geom ="line", color = "pink"
+  ) +
+  stat_bin(
+    aes(y = stat(cumsum(density)) ),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    geom ="line", color = "blue"
+  ) +
+  # stat_bin(
+  #   aes(y = stat(cumsum(ndensity))),
+  #   data = . %>% mutate(n = 1000),
+  #   binwidth = .2,
+  #   geom ="line", color = "red"
+  # ) +
+  stat_bin(
+    aes(y = stat(ncount / sum(ncount))),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    geom ="line", color = "orange"
+  ) +
+  stat_bin(
+    aes(y = stat(cumsum(ncount / sum(ncount)))),
+    data = . %>% mutate(n = 1000),
+    binwidth = .2,
+    geom ="line", color = "orange"
+  ) +
+  # geom_histogram(
+  #   aes(y = stat(ncount / sum(ncount) / .2)),
+  #   data = . %>% mutate(n = 1000),
+  #   binwidth = .2
+  # ) +
+  # geom_histogram(
+  #   aes(y = stat(density)),
+  #   data = . %>% mutate(n = 1000),
+  #   bins = 40,
+  #   fill = "blue"
+  # ) +
+  facet_wrap("n") +
+  stat_function(fun = dnorm)
+
+StatDensity$compute_group
+
+```
+
+
+```{r}
+ggplot() + 
+  stat_function(
+    fun = rnorm, 
+    args = list(n = 100, mean = 10, sd = 2),
+    geom = "bin", 
+  )
+
+```
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```
