@@ -4,32 +4,30 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-td <- function(x) {
+downlit_plus_yaml <- function(x) {
   t <- tempfile()
   y <- tempfile()
   writeLines(x, t)
+
   yaml <- ymlthis::as_yml(rmarkdown::yaml_front_matter(t))
-  dl <- downlit::downlit_md_string(x, format = c("gfm"))
+  dl <- downlit::downlit_md_string(x, format = c("gfm+footnotes"))
   ymlthis::use_rmarkdown(yaml, path = y, body = dl)
-  x2 <- paste0(readLines(y), collapse = "\n")
-  writeLines(x2, "test.txt")
-  x2
-  # y <- paste0(capture.output(yaml), collapse = "\n")
-  # paste0(, "\n", dl, collapse = "\n")
+  paste0(readLines(y), collapse = "\n")
 }
-knitr::knit_hooks$set(document = td)
-# 
-# knitr::opts_chunk$set(echo = TRUE)
+
+knitr::knit_hooks$set(document = downlit_plus_yaml)
 ```
+
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+`stats::rnorm()` makes numbers.
 
 ```{r cars}
+library(tidyverse)
 summary(cars)
+
+cars %>% pull(1) %>% head()
 ```
 
 ## Including Plots

@@ -105,7 +105,7 @@ spiky <- trends_with_data %>%
   
 ggplot(spiky) +
   aes(x = year, y = prop, color = name) +
-  geom_line() +
+  geom_line(alpha = .5) +
   hrbrthemes::scale_y_percent() +
   ggrepel::geom_text_repel(
     aes(label = name), 
@@ -128,13 +128,14 @@ bowly <- trends_with_data %>%
   
 ggplot(bowly) +
   aes(x = year, y = prop, color = name) +
-  geom_line() +
+  geom_line(alpha = .5) +
   hrbrthemes::scale_y_percent() +
   ggrepel::geom_text_repel(
     aes(label = name), 
     data = peak_years %>% inner_join(bowly), 
     size = 5,
-    segment.alpha = 0) +
+    segment.alpha = 0, max.overlaps = 100
+  ) +
   ylab("Percent of births with name") +
   labs(color = NULL) +
   guides(color = "none")
