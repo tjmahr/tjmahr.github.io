@@ -251,22 +251,21 @@ ggplot(data %>% filter(!is.na(inIcuCurrently))) +
 
 Look at New York (NY). That's the jump in original plot. 
 
-By adding incomplete data from NY to the rest of the states, the 
-analyst effectively treated all of the missing points in the NY panel 
-as zeros. 
+By adding incomplete data from NY to the rest of the states, the analyst
+effectively treated all of the missing points in the NY panel as zeros.
 
 ## What could they have done differently?
 
 It's fun to complain about haunted plots, but I will try to be
 constructive for a moment. How would a fixed version of this plot look?
 
-**Option 1: Don't do it.** Given all the missing and incomplete data,  
-it's just not worth it to make this plot. 
+**Option 1: Don't do it.** Given all the missing and incomplete data,
+it's just not worth it to make this plot.
 
 **Option 2: Don't aggregate.** Or we might embrace the missingness, and
-show all and only the data we have. Here is a sketch of this kind of 
-approach. We will show individual state data and provide labels for the 
-states that stand out from the pack. We will also note the number of 
+show all and only the data we have. Here is a sketch of this kind of
+approach. We will show individual state data and provide labels for the
+states that stand out from the pack. We will also note the number of
 missing lines in the caption.
 
 ```{r try-to-fix-it, fig.asp = NA, fig.width = 5, fig.height = 4, fig.cap = "An attempt to fix the plot that uses the bad data. It shows one line per included state. In the middle of the line is the abbreviation for the state. In the top right, we can see the NY line dominating the rest of the lines. The caption notes the number of missing states/territories."}
