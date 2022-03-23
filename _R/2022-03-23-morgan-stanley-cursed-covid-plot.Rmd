@@ -1,0 +1,313 @@
+---
+title: The cursed Morgan Stanley Covid-19 visualization
+excerpt: What went wrong?
+tags:
+  - r
+  - covid19
+  - ggplot2
+share: true
+header:
+  overlay_image: "assets/images/2022-03-ghost.jpg"
+  image_description: "Someone wearing a sheet over their head like a ghost. But they are also wearing sunglasses."
+  overlay_filter: rgba(10, 10, 10, 0)
+  caption: "Photo credit: [**Carlos Nunez**](https://unsplash.com/photos/la55DWqpt_s)"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+library(tidyverse)
+a_stat_smooth <- downlit::autolink_url("ggplot2::stat_smooth()")
+
+knitr::opts_template$set(
+  by_state = list(fig.asp = NA, fig.width = 6, fig.height = 5)
+)
+```
+
+
+Darren Dahly, username [@statsepi](https://twitter.com/statsepi), asked
+people on Twitter to share some of their favorite or least favorite data
+visualizations from the pandemic. I nominated the notorious ["cubic fit"
+'forecast'](https://twitter.com/WhiteHouseCEA45/status/1257680258364555264)
+from the Council of Economic Advisers. But then there was the reply
+by Travis Whitfill, username
+[@twhitfill](https://twitter.com/twhitfill), showing a nightmare of a
+figure from a report produced by Morgan Stanley:
+
+```{asis}
+<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><p lang="en" dir="ltr">I’d like to submit this one from Morgan Stanley 🤦🏻‍♂️ <a href="https://t.co/D5CYi6zSrT">pic.twitter.com/D5CYi6zSrT</a></p>
+  <img src="/assets/images/2022-03-morgan-stanley.jpg" alt="A two panel plot showing the current number of Covid-19 patients in ICU beds in 'closed' versus 'open' states." />
+  <br/>
+&mdash; Travis Whitfill MPH (@twhitfill) <a href="https://twitter.com/twhitfill/status/1505974833217437696?ref_src=twsrc%5Etfw">March 21, 2022</a></blockquote> 
+```
+
+The main statistical problem here is the completely inappropriate
+"smoothing" line. The panel on the left is really two linear trends: a
+steady trend around 8,500 patients until May 6th and a decreasing trend
+from 11,000 patients starting on May 7th. Upon seeing data like these
+points, I would be inclined to ask, "What changed in the data? Was a new
+state added to the dataset? Did the definition of what counts as an ICU
+bed change?" The analysts here instead imposed a linear trend on the
+points.
+
+Another problem with this plot is rhetorical: it's tryhard
+counterinuitive bullshit. I think analysts will fetishize surprising or
+counterintuitive findings, with an attitude of "oh, you would think that
+such-and-such is true but the data show us that *actually* the opposite
+is true". At the time of this plot, our belief was something like
+"Covid-19 protections like stay-at-home orders can help flatten the curve
+and reduce the spread of the disease and the number of
+hospitalizations." This plot sashays into the room and tells us "well,
+according to the data, it's the states without Covid-19 protections that have
+decreasing numbers of ICU patients, and get this: Covid lockdowns make things
+worse!". Granted, I could not find the original report for this
+image, so I don't know how the authors interpreted it in the report's
+narrative. Yet, I can only assume the authors added these linear trend
+lines--overriding the default GAM or LOESS smooth used by
+[`stat_smooth()`](`r a_stat_smooth`)--to make this particular point.
+
+
+When I first saw it, this plot [made me
+quip](https://twitter.com/tjmahr/status/1506019955661234184): "I hate
+statistics now. it’s been a good run. gonna live my days out as a
+druid". But it's been a few days, and I'm still haunted by this plot.
+What did go wrong? Why do the ICU counts shoot upwards like that? So, I
+investigated it.
+
+
+## Attempt 1: There is no jump
+
+I tried to find the original report, searching Google and Twitter for a
+report with this image from around May 12, 2020, but nothing came up.
+After dredging through a bunch of Morgan Stanley report PDFs, I noticed
+that the reports usually had a small number of authors, so I am
+wondering whether (and hoping that) the original report was something
+more akin to a dashed-off newsletter than a research report.
+
+Failing to find the original image, I tried to recreate it. The original
+image credits The COVID Tracking Project, and [their downloads
+page](https://covidtracking.com/data/download) provides a .csv file with
+state-level data. Here we read in just the relevant columns, filter down
+to the time range of the cursed image, and plot the total number of current
+ICU patients.
+
+```{r most-recent-totals, fig.cap = "A plot showing the total number of Covid-19 patients in ICU beds from April 28, 2020 to May 11, 2020. The numbers steadily decrease from around 14,000 to 12,000."}
+library(tidyverse)
+
+# a helper function to download the data from github
+# in case you want to play along
+path_blog_data <- function(x) {
+  file.path(
+    "https://raw.githubusercontent.com",
+    "tjmahr/tjmahr.github.io/master/_R/data",
+    x
+  )
+}
+
+data <- readr::read_csv(
+  path_blog_data("all-states-history.csv"), 
+  col_types = cols(
+    date = col_date(), 
+    state = col_character(), 
+    inIcuCurrently = col_number(), 
+    .default = col_skip()
+  ), 
+  progress = FALSE
+)
+
+data <- data %>% 
+  filter(
+    as.Date("2020-04-28") <= date,
+    date <= as.Date("2020-05-11")
+  )
+
+ggplot(data) + 
+  aes(x = date, y = inIcuCurrently) + 
+  stat_summary(fun = "sum", geom = "point", size = 3) +
+  labs(
+    x = "Date", 
+    y = "Current patients in ICU",
+    caption = "Data from The COVID Project (March 23, 2022)"
+  ) +
+  theme_grey(base_size = 16)
+```
+
+There is no jump in ICU patients, and because the jump disappeared when we
+used a more recent (and presumably better) version of the dataset, the
+jump was probably some kind of artifact. 
+
+Out of curiosity, let's look at the state-by-state data. Because
+(spoiler alert) half the states only have `NA` values for this time
+period, we will filter out the `NA` points and look at the remaining
+points.
+
+```{r most-recent-state, opts.label = "by_state", fig.cap = "A plot showing the current number of Covid-19 patients in ICU beds in states with available data (around 30)."}
+ggplot(data %>% filter(!is.na(inIcuCurrently))) + 
+  aes(x = date, y = inIcuCurrently) + 
+  geom_point() +
+  facet_wrap("state") +
+  labs(
+    x = "Date", 
+    y = "Current patients in ICU",
+    caption = "Data from The COVID Project (March 23, 2022)"
+  ) +   
+  theme_grey(base_size = 12)
+```
+
+So, some states have ICU patient data added midway through this window and
+many states are completely missing data from this window. The whole
+open-versus-closed-states question was doomed from the get-go because we
+don't know what happened in every state.
+
+
+## Attempt 2: Let's go back in time
+
+If we poke around the COVID Tracking Project's GitHub repository, we
+find a [folder of data
+backups](https://github.com/COVID19Tracking/covid-tracking-data/tree/master/data)
+with a file called `states_daily_4pm_et.csv`. This file provides the
+same result as the previously loaded data.
+
+```{r latest-total, fig.cap = "A plot showing the total number of Covid-19 patients in ICU beds from April 28, 2020 to May 11, 2020. The numbers steadily decrease from around 14,000 to 12,000."}
+data <- readr::read_csv(
+  path_blog_data("states_daily_4pm_et.csv"), 
+  col_types = cols(
+    date = col_date("%Y%m%d"),
+    state = col_character(),
+    inIcuCurrently = col_number(),
+    .default = col_skip()
+  ),
+  progress = FALSE
+)
+
+data <- data %>% 
+  filter(
+    as.Date("2020-04-28") <= date,
+    date <= as.Date("2020-05-11")
+  )
+
+ggplot(data) + 
+  aes(x = date, y = inIcuCurrently) + 
+  stat_summary(fun = "sum", geom = "point", size = 3) +
+  labs(
+    x = "Date", 
+    y = "Current patients in ICU",
+    caption = "Data from The COVID Project (March 23, 2022)"
+  ) +
+  theme_grey(base_size = 16)
+```
+
+But because this file is hosted on GitHub, we can go back in time and find
+the [version of the data from
+May 12, 2020](https://github.com/COVID19Tracking/covid-tracking-data/blob/5ec9962d5f5f6505bb0593df150ab62867af98f7/data/states_daily_4pm_et.csv)
+and use that file instead.
+
+```{r old-total, fig.cap = "A plot showing the total number of Covid-19 patients in ICU beds from April 28, 2020 to May 11, 2020. The numbers hover around 9000 and then rapidly jump to over 12000 after May 7."}
+data <- readr::read_csv(
+  path_blog_data("2020-05-12-states_daily_4pm_et.csv"), 
+  col_types = cols(
+    date = col_date("%Y%m%d"),
+    state = col_character(),
+    inIcuCurrently = col_number(),
+    .default = col_skip()
+  ),
+  progress = FALSE
+)
+
+data <- data %>% 
+  filter(
+    as.Date("2020-04-28") <= date,
+    date <= as.Date("2020-05-11")
+  )
+
+ggplot(data) + 
+  aes(x = date, y = inIcuCurrently) + 
+  stat_summary(fun = "sum", geom = "point", size = 3) +
+  labs(
+    x = "Date", 
+    y = "Current patients in ICU",
+    caption = "Data from The COVID19 Project (May 12, 2020)"
+  ) +
+  theme_grey(base_size = 16)
+```
+
+
+There it is: the jump ICU patients on May 7th. Let's look at the
+state-by-state data:
+
+```{r old-state, opts.label = "by_state", fig.cap = "A plot showing the current number of Covid-19 patients in ICU beds in states with available data (around 25). Of note is the New York which only has 5 points and they are all above 2000."}
+ggplot(data %>% filter(!is.na(inIcuCurrently))) + 
+  aes(x = date, y = inIcuCurrently) + 
+  geom_point() +
+  facet_wrap("state") +
+  labs(
+    x = "Date", 
+    y = "Current patients in ICU",
+    caption = "Data from The COVID Project (May 12, 2020)"
+  ) +
+  theme_grey(base_size = 12)
+```
+
+Look at New York (NY). That's the jump in original plot. 
+
+By adding incomplete data from NY to the rest of the states, the 
+analyst effectively treated all of the missing points in the NY panel 
+as zeros. 
+
+## What could they have done differently?
+
+It's fun to complain about haunted plots, but I will try to be
+constructive for a moment. How would a fixed version of this plot look?
+
+**Option 1: Don't do it.** Given all the missing and incomplete data,  
+it's just not worth it to make this plot. 
+
+**Option 2: Don't aggregate.** Or we might embrace the missingness, and
+show all and only the data we have. Here is a sketch of this kind of 
+approach. We will show individual state data and provide labels for the 
+states that stand out from the pack. We will also note the number of 
+missing lines in the caption.
+
+```{r try-to-fix-it, fig.asp = NA, fig.width = 5, fig.height = 4, fig.cap = "An attempt to fix the plot that uses the bad data. It shows one line per included state. In the middle of the line is the abbreviation for the state. In the top right, we can see the NY line dominating the rest of the lines. The caption notes the number of missing states/territories."}
+data_for_plot <- data %>% 
+  filter(!is.na(inIcuCurrently)) %>% 
+  group_by(state) %>%
+  mutate(state_icu_max = max(inIcuCurrently)) %>% 
+  ungroup() 
+
+total_regions <- data$state %>% unique() %>% length()
+plotted_regions <- data_for_plot$state %>% unique() %>% length()
+
+ggplot(data_for_plot) + 
+  aes(x = date, y = inIcuCurrently) + 
+  geomtextpath::geom_textline(
+    aes(label = state, group = state, hjust = state),
+    data = . %>% filter(state_icu_max > 250)
+  ) +
+  geomtextpath::scale_hjust_discrete() +
+  geom_line(
+    aes(group = state),
+    data = . %>% filter(state_icu_max <= 250)) +
+  labs(
+    x = "Date", 
+    y = "Current patients in ICU",
+    caption = glue::glue(
+      "
+      Data from The COVID Project (May 12, 2020).
+      No data available for {total_regions - plotted_regions} states/territories.
+      "
+    )
+  ) + 
+  theme_grey(base_size = 14)
+```
+
+And then we can put the linear regression "smooth" on it. 🙃
+
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_R/_footer.Rmd"}
+```
