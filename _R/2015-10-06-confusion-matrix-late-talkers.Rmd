@@ -116,7 +116,7 @@ most children not diagnosed as late talkers did not show a delay one year later
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 [^PPV]: Technically, caret uses the [sensitivity, specificity and prevalence](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) form of the PPV calculation.

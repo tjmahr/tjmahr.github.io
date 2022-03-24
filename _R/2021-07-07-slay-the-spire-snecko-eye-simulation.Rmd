@@ -260,7 +260,7 @@ pc4plus <- mean(simulated_confused_cards_played >= 4) %>% f_prop()
 Here the average number of cards played is `r mc` and we play 4--5 cards
 per turn `r pc4plus` of the time. This percentage is greater than the
 baseline case (`r p4`), but the nightmare case is worse (1 card),
-occuring `r pc1` of the time.
+occurring `r pc1` of the time.
 
 We can plot the three simulations side by side and observe the
 distributions. First, we package them together into a single dataframe
@@ -504,7 +504,7 @@ per turn.
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 [rogue-like]: https://en.wikipedia.org/wiki/Roguelike "Roguelike on Wikipedia"
