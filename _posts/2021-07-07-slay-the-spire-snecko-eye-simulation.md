@@ -276,7 +276,7 @@ proportions(table(simulated_confused_cards_played))
 Here the average number of cards played is 3.0 and we play 4--5 cards
 per turn 29.8% of the time. This percentage is greater than the
 baseline case (21.8%), but the nightmare case is worse (1 card),
-occuring 3.6% of the time.
+occurring 3.6% of the time.
 
 We can plot the three simulations side by side and observe the
 distributions. First, we package them together into a single dataframe
@@ -550,79 +550,77 @@ per turn.
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-03-24. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-07-slay-the-spire-snecko-eye-simulation.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: person in steamy room: light skin tone, flag: Japan, flag: Australia
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R Under development (unstable) (2022-03-02 r81842 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-03-24
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version date (UTC) lib source
-    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
-    #>  cli           3.1.0   2021-10-27 [1] CRAN (R 4.1.1)
-    #>  colorspace    2.0-2   2021-06-24 [1] CRAN (R 4.1.0)
-    #>  crayon        1.4.2   2021-10-29 [1] CRAN (R 4.1.1)
-    #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
-    #>  digest        0.6.28  2021-09-23 [1] CRAN (R 4.1.1)
-    #>  dplyr       * 1.0.7   2021-06-18 [1] CRAN (R 4.1.0)
-    #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.1.0)
-    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.1.0)
-    #>  fansi         0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
-    #>  farver        2.1.0   2021-02-28 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.1   2021-10-25 [1] CRAN (R 4.1.1)
-    #>  ggplot2     * 3.3.5   2021-06-25 [1] CRAN (R 4.1.0)
-    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.1.1)
-    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.1.0)
-    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
-    #>  highr         0.9     2021-04-16 [1] CRAN (R 4.1.0)
-    #>  knitr       * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
-    #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.1.0)
-    #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.1.1)
-    #>  magrittr    * 2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
-    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.1.0)
-    #>  pillar        1.6.4   2021-10-18 [1] CRAN (R 4.1.1)
-    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
-    #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
-    #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.1.1)
-    #>  ragg          1.2.0   2021-10-30 [1] CRAN (R 4.1.1)
-    #>  rlang         0.4.12  2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.1.0)
-    #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.2.1   2021-11-02 [1] CRAN (R 4.1.2)
-    #>  stringi       1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.3   2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.1.1)
-    #>  tibble        3.1.5   2021-09-30 [1] CRAN (R 4.1.1)
-    #>  tidyr         1.1.4   2021-09-27 [1] CRAN (R 4.1.1)
-    #>  tidyselect    1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
-    #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.1.0)
-    #>  vctrs         0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
-    #>  withr         2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
-    #>  xfun          0.27    2021-10-18 [1] CRAN (R 4.1.1)
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
+    #>  digest        0.6.29  2021-12-01 [1] CRAN (R 4.2.0)
+    #>  dplyr       * 1.0.8   2022-02-08 [1] CRAN (R 4.2.0)
+    #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+    #>  evaluate      0.15    2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi         1.0.2   2022-01-14 [1] CRAN (R 4.2.0)
+    #>  farver        2.1.0   2021-02-28 [1] CRAN (R 4.2.0)
+    #>  generics      0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
+    #>  ggplot2     * 3.3.5   2021-06-25 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
+    #>  highr         0.9     2021-04-16 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.37    2021-12-16 [1] CRAN (R 4.2.0)
+    #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.2.0)
+    #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
+    #>  magrittr    * 2.0.2   2022-01-26 [1] CRAN (R 4.2.0)
+    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
+    #>  pillar        1.7.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+    #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+    #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  rlang         1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.2.0)
+    #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.2.0)
+    #>  sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts   1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble        3.1.6   2021-11-07 [1] CRAN (R 4.2.0)
+    #>  tidyr         1.2.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  tidyselect    1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs         0.3.8   2021-04-29 [1] CRAN (R 4.2.0)
+    #>  withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+    #>  xfun          0.30    2022-03-02 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-devel/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```
 
 [rogue-like]: https://en.wikipedia.org/wiki/Roguelike "Roguelike on Wikipedia"

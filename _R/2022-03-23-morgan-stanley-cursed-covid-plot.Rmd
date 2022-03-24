@@ -52,7 +52,7 @@ bed change?" The analysts here instead imposed a linear trend on the
 points.
 
 Another problem with this plot is rhetorical: it's tryhard
-counterinuitive bullshit. I think analysts will fetishize surprising or
+counterintuitive bullshit. I think analysts will fetishize surprising or
 counterintuitive findings, with an attitude of "oh, you would think that
 such-and-such is true but the data show us that *actually* the opposite
 is true". At the time of this plot, our belief was something like
@@ -79,18 +79,20 @@ investigated it.
 ## Attempt 1: There is no jump
 
 I tried to find the original report, searching Google and Twitter for a
-report with this image from around May 12, 2020, but nothing came up.
-After dredging through a bunch of Morgan Stanley report PDFs, I noticed
-that the reports usually had a small number of authors, so I am
-wondering whether (and hoping that) the original report was something
-more akin to a dashed-off newsletter than a research report.
+report with this image from around May 12, 2020 (when @twhitfill [first
+shared it](https://twitter.com/twhitfill/status/1263119423847661569)),
+but nothing came up. After dredging through a bunch of Morgan Stanley
+report PDFs, I noticed that the reports usually had a small number of
+authors, so I am wondering whether (and hoping that) the original report
+was something more akin to a dashed-off newsletter than a research
+report.
 
-Failing to find the original image, I tried to recreate it. The original
-image credits The COVID Tracking Project, and [their downloads
+Failing to find the original image, I tried to recreate it in R. The
+original image credits The COVID Tracking Project, and [their downloads
 page](https://covidtracking.com/data/download) provides a .csv file with
 state-level data. Here we read in just the relevant columns, filter down
-to the time range of the cursed image, and plot the total number of current
-ICU patients.
+to the time range of the cursed image, and plot the total number of
+current ICU patients.
 
 ```{r most-recent-totals, fig.cap = "A plot showing the total number of Covid-19 patients in ICU beds from April 28, 2020 to May 11, 2020. The numbers steadily decrease from around 14,000 to 12,000."}
 library(tidyverse)
@@ -133,14 +135,14 @@ ggplot(data) +
   theme_grey(base_size = 16)
 ```
 
-There is no jump in ICU patients, and because the jump disappeared when we
-used a more recent (and presumably better) version of the dataset, the
-jump was probably some kind of artifact. 
+There is no jump in ICU patients ❌, and because the jump disappeared
+when we used a more recent (and presumably better) version of the
+dataset, the jump was probably some kind of artifact. 
 
 Out of curiosity, let's look at the state-by-state data. Because
-(spoiler alert) half the states only have `NA` values for this time
-period, we will filter out the `NA` points and look at the remaining
-points.
+(*spoiler alert*) about half the states only have `NA` values for this
+time period, we will filter out the `NA` points and look at the
+remaining points.
 
 ```{r most-recent-state, opts.label = "by_state", fig.cap = "A plot showing the current number of Covid-19 patients in ICU beds in states with available data (around 30)."}
 ggplot(data %>% filter(!is.na(inIcuCurrently))) + 
@@ -232,8 +234,7 @@ ggplot(data) +
   theme_grey(base_size = 16)
 ```
 
-
-There it is: the jump ICU patients on May 7th. Let's look at the
+There it is: the jump ICU patients on May 7th ✔️. Let's look at the
 state-by-state data:
 
 ```{r old-state, opts.label = "by_state", fig.cap = "A plot showing the current number of Covid-19 patients in ICU beds in states with available data (around 25). Of note is the New York which only has 5 points and they are all above 2000."}
@@ -249,10 +250,12 @@ ggplot(data %>% filter(!is.na(inIcuCurrently))) +
   theme_grey(base_size = 12)
 ```
 
-Look at New York (NY). That's the jump in original plot. 
+Look at New York (NY)! That's the jump in original plot. New York had a
+large number of ICU patients but their data only became available on
+May 7th, giving the spurious increase in ICU patients.
 
 By adding incomplete data from NY to the rest of the states, the analyst
-effectively treated all of the missing points in the NY panel as zeros.
+effectively treated all of the missing points in the NY panel as zeros.  
 
 ## What could they have done differently?
 
@@ -303,6 +306,39 @@ ggplot(data_for_plot) +
 
 And then we can put the linear regression "smooth" on it. 🙃
 
+## Update: Notes from the Tracking Project trenches [_Mar. 24, 2022_] 
+
+After releasing this post, COVID Tracking Project alum Quang Nguyen
+[shared some behind the scenes
+details](https://twitter.com/quangpmnguyen/status/1506807264295936002)
+of what happened around May 7th, 2020. I will repost the Twitter thread here:
+
+
+```{asis}
+<blockquote class="twitter-tweet" data-dnt="true"><p lang="en" dir="ltr">OMG <a href="https://twitter.com/COVID19Tracking?ref_src=twsrc%5Etfw">@COVID19Tracking</a> history lesson (short 🧵)!! First, shoutout to our data infrastructure folks <a href="https://twitter.com/zachlipton?ref_src=twsrc%5Etfw">@zachlipton</a> <a href="https://twitter.com/JuliaKodysh?ref_src=twsrc%5Etfw">@JuliaKodysh</a> for the GitHub archive! Second, I actually dug through the slack to figure out what happened (jokes on me, I was shift lead that day). <a href="https://t.co/7U6LOm8HKE">https://t.co/7U6LOm8HKE</a> <a href="https://t.co/iXdPO9EV6A">pic.twitter.com/iXdPO9EV6A</a></p>
+
+&mdash; Quang Nguyen (@quangpmnguyen) <a href="https://twitter.com/quangpmnguyen/status/1506807264295936002?ref_src=twsrc%5Etfw">March 24, 2022</a></blockquote> 
+
+<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><p lang="en" dir="ltr">The problem was, back in May 2020, the only way you can get hospitalization data for the state of NY was to take low-res screenshots of the governor&#39;s presentation and then try to piece the information together (also shoutout to <a href="https://twitter.com/justinhendrix?ref_src=twsrc%5Etfw">@justinhendrix</a> for watching these press conf.). <a href="https://t.co/5UnGP1RUox">pic.twitter.com/5UnGP1RUox</a></p>
+
+  <img src="/assets/images/2022-03-cuomo.jpg" alt="A screenshot of a Slack post of two screenshots of a Cuomo Covid update showing statistics drawn on hard-to-read plots in the background." />
+  <br/>
+  
+&mdash; Quang Nguyen (@quangpmnguyen) <a href="https://twitter.com/quangpmnguyen/status/1506807269752815617?ref_src=twsrc%5Etfw">March 24, 2022</a></blockquote> 
+
+<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><p lang="en" dir="ltr">Using this weird graph, we actually tried to back-calculate total hospitalization numbers, but unfortunately, it was super messy and nothing came out of it. This source also doesn&#39;t have current ICU numbers.</p>&mdash; Quang Nguyen (@quangpmnguyen) <a href="https://twitter.com/quangpmnguyen/status/1506807271698968579?ref_src=twsrc%5Etfw">March 24, 2022</a></blockquote>
+
+<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><p lang="en" dir="ltr">We actually found a new source from Twitter (!!) who apparently got these numbers from a press email list from the governor (??). May 7th was the first day where we got data directly from the email list, which was the BLIP in total ICU data that made it onto the disastrous graph.</p>&mdash; Quang Nguyen (@quangpmnguyen) <a href="https://twitter.com/quangpmnguyen/status/1506807272990773248?ref_src=twsrc%5Etfw">March 24, 2022</a></blockquote> 
+
+<blockquote class="twitter-tweet" data-dnt="true"><p lang="en" dir="ltr">The bottom line is: data from 2020 was a mess, and don&#39;t trust anything that came out of it. A group of volunteers taped it together using nothing but hot glue and scotch tape.</p>&mdash; Quang Nguyen (@quangpmnguyen) <a href="https://twitter.com/quangpmnguyen/status/1506807274211270662?ref_src=twsrc%5Etfw">March 24, 2022</a></blockquote> 
+```
+
+The fact they had to pull numbers from the graphs in the Governor's
+Covid briefings is an important reminder that high-quality Covid-19 was
+hard to come by at the start of the pandemic ([especially from the Cuomo
+administration](https://www.nytimes.com/2022/03/15/nyregion/nursing-home-deaths-cuomo-covid.html)).
+We needed something like the COVID Tracking Project where volunteers
+would go to heroic lengths to curate data.
 
 
 ```{r, include = FALSE}

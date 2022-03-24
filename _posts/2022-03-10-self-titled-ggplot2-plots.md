@@ -332,7 +332,7 @@ print(f, useSource = TRUE)
 #>   theme_minimal() +
 #>   labs(title = "A basic histogram")
 #> }
-#> <environment: 0x000001746d339b68>
+#> <environment: 0x000001c6c127d948>
 ```
 
 I have no idea how to go about exploiting this feature for
@@ -344,7 +344,7 @@ self-documenting plots, however.
 
 ***
 
-*Last knitted on 2022-03-10. [Source code on
+*Last knitted on 2022-03-24. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-self-titled-ggplot2-plots.Rmd).*[^si] 
 
 [^si]: 
@@ -361,13 +361,12 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-03-10
+    #>  date     2022-03-24
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version date (UTC) lib source
     #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
-    #>  backports     1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
     #>  cachem        1.0.6   2021-08-19 [1] CRAN (R 4.2.0)
     #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
     #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
@@ -385,7 +384,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  fastmap       1.1.0   2021-01-25 [1] CRAN (R 4.2.0)
     #>  generics      0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
     #>  ggplot2     * 3.3.5   2021-06-25 [1] CRAN (R 4.2.0)
-    #>  git2r         0.29.0  2021-11-22 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
     #>  glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
     #>  grkstyle      0.0.3   2022-03-10 [1] Github (gadenbuie/grkstyle@6a7011c)
     #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
@@ -410,12 +409,12 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  rlang         1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
     #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.2.0)
     #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.2.0)
-    #>  Rttf2pt1      1.3.8   2020-01-10 [1] CRAN (R 4.2.0)
+    #>  Rttf2pt1      1.3.10  2022-02-07 [1] CRAN (R 4.2.0)
     #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.2.0)
     #>  sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
     #>  stringi       1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
     #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
-    #>  styler        1.6.2   2021-09-23 [1] CRAN (R 4.2.0)
+    #>  styler        1.7.0   2022-03-13 [1] CRAN (R 4.2.0)
     #>  systemfonts   1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
     #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
     #>  tibble        3.1.6   2021-11-07 [1] CRAN (R 4.2.0)
