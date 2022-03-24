@@ -65,3 +65,9 @@ $base0f: #8b6c37 !default;
 @import "minimal-mistakes/archive";
 @import "minimal-mistakes/sidebar";
 @import "minimal-mistakes/print";
+
+
+blockquote.twitter-tweet > p {
+  font-style: normal;
+}
+
