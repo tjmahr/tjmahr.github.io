@@ -133,8 +133,12 @@ I have also peer-reviewed software:
 .{% endif %}
 {% endcapture %}
 
-{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
+{% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}). {% endif %}{% endcapture %}
+{% capture bonus %}
+{% if pub.bonus %}
+[{{pub.bonus.text}}]
+{% endif %}
+{% endcapture %}
 
 {% capture author_line %}
 {% for author in pub.authors %}
@@ -178,7 +182,12 @@ I have also peer-reviewed software:
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
 
-{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
+{% capture bonus %}
+{% if pub.bonus %}
+[{{pub.bonus.text}}]
+{% endif %}
+{% endcapture %}
+
 
 {{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
@@ -208,7 +217,11 @@ I have also peer-reviewed software:
 {% endcapture %}
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
+{% capture bonus %}
+{% if pub.bonus %}
+[{{pub.bonus.text}}]
+{% endif %}
+{% endcapture %}
 
 {{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus | strip_newlines }}
 {% endfor %}
@@ -230,7 +243,11 @@ I have also peer-reviewed software:
 {% endcapture %}
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
+{% capture bonus %}
+{% if pub.bonus %}
+[{{pub.bonus.text}}]
+{% endif %}
+{% endcapture %}
 
 {{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}
@@ -251,7 +268,11 @@ I have also peer-reviewed software:
 {% endcapture %}
 
 {% capture doi %}{% if pub.doi %} [{{pub.doi}}](http://doi.org/{{pub.doi}}).{% endif %}{% endcapture %}
-{% capture bonus %}{% if pub.bonus %} [[<i class="fa fa-{{pub.bonus.type}}" aria-hidden="true"></i> {{pub.bonus.text}}]({{pub.bonus.url}})] {% endif %}{% endcapture %}
+{% capture bonus %}
+{% if pub.bonus %}
+[{{pub.bonus.text}}]
+{% endif %}
+{% endcapture %}
 
 {{ author_line | strip_newlines }} ({{ pub.when.year }}, {{ pub.when.month }}). **{{ pub.title  | strip_newlines }}**. {{ pub.where  | strip_newlines }} {{doi}} {{ bonus  | strip_newlines }}
 {% endfor %}

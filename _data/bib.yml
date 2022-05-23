@@ -17,13 +17,92 @@ abbreviations:
   - &pjr Rathouz, P. J.
   - &vb Berisha, V.
   - &kk Kawabata, K.
-  - &jl Liss, Julie
+  - &jus Soriano, J. U.
+  - &jl Liss, J.
+  - &hl Long, H. L.
   - &where_srcld_poster >
     Poster session presented at the annual Symposium on Research in Child
     Language Disorders, Madison, WI.
+  - &where_dmcn Developmental Medicine & Child Neurology
+  - &where_jslhr Journal of Speech, Language, and Hearing Research
 
 
 publications:
+
+  -
+    authors:
+      - *hl
+      - *tjm
+      - *pemn
+      - *pjr
+      - *kch
+    when:
+      year: 2022
+    title: >
+      Longitudinal change in speech classification between 4 and 10 years in
+      children with cerebral palsy
+    where:
+      journal: *where_dmcn
+      # volume: todo - epub ahead of print
+      # pages: todo - epub ahead of print
+    doi: 10.1111/dmcn.15198
+    bonus:
+      text: 🔓&nbsp;Open Access.
+
+
+
+
+
+
+
+
+  -
+    authors:
+      - *tjm
+      - *jus
+      - *pjr
+      - *kch
+    when:
+      year: 2021
+    title: >
+      Speech Development Between 30 and 119 Months in Typical Children II:
+      Articulation Rate Growth Curves
+    where:
+      journal: *where_jslhr
+      volume: 64
+      pages: 4057--4070
+    doi: 10.1044/2021_JSLHR-21-00206
+    bonus:
+      text: >
+        🔓&nbsp;Open Access. 📄&nbsp;[Preprint](https://psyarxiv.com/8wb3g/).
+
+  -
+    authors:
+      - *kch
+      - *tjm
+      - *pemn
+      - *pjr
+    when:
+      year: 2021
+    title: >
+      Speech Development Between 30 and 119 Months in Typical Children I:
+      Intelligibility Growth Curves for Single-Word and Multiword Productions
+    where:
+      journal: *where_jslhr
+      volume: 64
+      pages: 3707--3719
+    doi: 10.1044/2021_JSLHR-21-00142
+    bonus:
+      text: >
+        🔓&nbsp;Open Access.
+        ⭐&nbsp;[ASHA Journals' most read article of 2021](https://academy.pubs.asha.org/2022/01/in-case-you-missed-it-our-top-articles-of-2021/).
+        📰&nbsp;[Summary by *The Informed SLP*](https://www.theinformedslp.com/review/into-intelligibility-here-s-intel).
+
+
+
+
+
+
 
   -
     authors:
@@ -37,14 +116,12 @@ publications:
     title: >
       Performance of Forced-Alignment Algorithms on Children's Speech
     where:
-      journal: Journal of Speech, Language, and Hearing Research
-      # volume: todo - epub ahead of print
-      # pages: todo - epub ahead of print
+      journal: *where_jslhr
+      volume: 64
+      pages: 2213--2222
     doi: 10.1044/2020_JSLHR-20-00268
     bonus:
-      type: file-alt
-      text: Preprint.
-      url: https://psyarxiv.com/97jp4/
+      text: 📄&nbsp;[Preprint](https://psyarxiv.com/97jp4/).
 
   -
     authors:
@@ -74,9 +151,9 @@ publications:
       Longitudinal Growth in Intelligibility of Connected Speech From 2 to
       8 Years in Children With Cerebral Palsy: A Novel Bayesian Approach
     where:
-      journal: Journal of Speech, Language, and Hearing Research
+      journal: *where_jslhr
       volume: 63
-      pages: 2880-2893
+      pages: 2880--2893
     doi: 10.1044/2020_JSLHR-20-00181
 
 
@@ -91,7 +168,7 @@ publications:
     title: >
       Development of Speech Intelligibility Between 30 and 47 Months in Typically Developing Children: A Cross-Sectional Study of Growth
     where:
-      journal: Journal of Speech, Language, and Hearing Research
+      journal: *where_jslhr
       volume: 63
       pages: 1675-1687
     doi: 10.1044/2020_JSLHR-20-00008
@@ -127,7 +204,7 @@ publications:
       Cerebral Palsy From 24 to 96 Months of Age: Effects of Speech-Language
       Profile Group Membership on Outcomes
     where:
-      journal: Journal of Speech, Language, and Hearing Research
+      journal: *where_jslhr
       volume: 63
       pages: 32--48
     doi: 10.1044/2019_JSLHR-19-00033
@@ -192,9 +269,7 @@ publications:
       journal: Developmental Science
     doi: 10.1111/desc.12685
     bonus:
-      type: flask
-      text: Data and scripts on Github.
-      url: https://github.com/tjmahr/mahr-edwards-2017
+      text: 🧪&nbsp;[Data and scripts on GitHub](https://github.com/tjmahr/mahr-edwards-2017).
 
   - authors:
     - *flaw
@@ -224,9 +299,7 @@ publications:
       pages: 345--350
     doi: 10.1016/j.cognition.2015.05.009
     bonus:
-      type: flask
-      text: Data, scripts, stimuli on Github.
-      url: https://github.com/tjmahr/2015_Coartic
+      text: 🧪&nbsp;[Data, scripts, stimuli on GitHub](https://github.com/tjmahr/2015_Coartic).
 
 
 
@@ -260,9 +333,7 @@ talks:
     where: >
       Presentation at SatRday Chicago.
     bonus:
-      type: flask
-      text: Github repository.
-      url: https://github.com/tjmahr/bayesplot-satrdays-2019
+      text: 🧪&nbsp;[GitHub repository](https://github.com/tjmahr/bayesplot-satrdays-2019).
 
 
   # UW-Madison Prosem
@@ -291,9 +362,7 @@ talks:
       Presentation at the 42nd annual Boston University Conference on
       Language Development, Boston, MA.
     bonus:
-      type: flask
-      text: Data, scripts, slides on Github.
-      url: https://github.com/tjmahr/bucld17
+      text: 🧪&nbsp;[Data, scripts, slides on GitHub](https://github.com/tjmahr/bucld17).
 
   # ASHA 2016
   - type: coauthored
@@ -341,9 +410,7 @@ talks:
       month: September
     where: Presentation for the Madison R Users Group, Madison, WI.
     bonus:
-      type: flask
-      text: Github repository.
-      url: https://github.com/tjmahr/MadR_RStanARM
+      text: 🧪&nbsp;[GitHub repository](https://github.com/tjmahr/MadR_RStanARM).
 
   # BUCLD 2015
   - type: coauthored
@@ -390,8 +457,7 @@ talks:
     where: Presentation for the Madison R Users Group, Madison, WI.
     bonus:
       type: flask
-      text: Github repository.
-      url: https://github.com/tjmahr/MadR_Pipelines
+      text: 🧪&nbsp;[GitHub repository](https://github.com/tjmahr/MadR_Pipelines).
 
   # UW-Madison Prosem
   - type: invited
@@ -444,6 +510,20 @@ talks:
 
 posters:
 
+  # Motorspeech 2022
+  - authors:
+    - *tjm
+    - *kch
+    when:
+      year: 2022
+      month: February
+    title: >
+      Lexical predictors of single-word intelligibility in young children's speech
+    where: >
+      Poster presented (by K. C. Hustad) at the Conference on Motor Speech, Charleston, SC.
+    bonus:
+      text: 🧪&nbsp;[Poster on GitHub](https://github.com/tjmahr/Motorspeech2022).
+
   # ASHA 2020
   - authors:
     - *as
@@ -469,18 +549,15 @@ posters:
     - Vradelis, H.
     - *jl
     - *kch
-    - *kch
     when:
       year: 2020
       month: February
     title: >
-       Performance of forced-alignment algorithms on children’s speech
+      Performance of forced-alignment algorithms on children’s speech
     where: >
-      Proposal accepted at the Conference on Motor Speech, Santa Barbara, CA.
+      Poster presented at the Conference on Motor Speech, Santa Barbara, CA.
     bonus:
-      type: flask
-      text: Poster on Github.
-      url: https://github.com/tjmahr/Motorspeech2020
+      text: 🧪&nbsp;[Poster on GitHub](https://github.com/tjmahr/Motorspeech2020).
 
   # ASHA 2019
   - authors:
@@ -495,7 +572,9 @@ posters:
       Developing Children
     where: >
       Poster session presented at the Annual Conference of the American
-      Speech-Language-Hearing Association, Orlando, FL. [<i class="fas fa-award"></i> Meritorious poster award.]
+      Speech-Language-Hearing Association, Orlando, FL.
+    bonus:
+      text: 🏆&nbsp;Meritorious poster award.
 
   # ASHA 2019
   - authors:
@@ -528,9 +607,7 @@ posters:
       Intelligibility in multiword utterances in children with cerebral palsy
     where: *where_srcld_poster
     bonus:
-      type: flask
-      text: Poster on Github.
-      url: https://github.com/tjmahr/SRCLD2019
+      text: 🧪&nbsp;[Poster on GitHub](https://github.com/tjmahr/SRCLD2019).
 
   # SRCLD 2018
   - authors:
@@ -542,9 +619,7 @@ posters:
     title: Development of familiar word recognition in preschoolers
     where: *where_srcld_poster
     bonus:
-      type: flask
-      text: Poster on Github.
-      url: https://github.com/tjmahr/SRCLD2018
+      text: 🧪&nbsp;[Poster on GitHub](https://github.com/tjmahr/SRCLD2018).
 
   # BUCLD 2017
   - authors:
@@ -561,9 +636,7 @@ posters:
       Poster session at the 42nd annual Boston University Conference on
       Language Development, Boston, MA.
     bonus:
-      type: flask
-      text: Data, scripts, poster on Github.
-      url: https://github.com/tjmahr/bucld2017b
+      text: 🧪&nbsp;[Data, scripts, poster on GitHub](https://github.com/tjmahr/bucld2017b).
 
 
   # ASHA 2017
