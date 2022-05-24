@@ -287,11 +287,11 @@ ggplot(data) +
 
 
 
-Finally, let's make another version of this figure. How might we make an
-accessible of this information (of who held a record and when), assuming
-we have a static image? A legend with players/colors is a nonstarter.
-One idea would be to label the point with a line whenever there is a new
-record holder.
+Finally, let's make another version of this figure. How might we make a
+more accessible presentation of this information (of who held a record
+and when), assuming that we only have a static image? A legend with
+players/colors is a nonstarter. One idea would be to label the point
+with an annotation whenever there is a new record holder.
 
 ```{r informative-plot, fig.width = 6.5, fig.cap = "A step plot showing the world record progression. The name of the player is next to their point whenever the record changes."}
 showtext_auto(FALSE)
@@ -323,7 +323,7 @@ ggplot(data) +
   geom_text(
     aes(
       label = player2,
-      y = run_time_s  + 30 * offset 
+      y = run_time_s + 30 * offset 
     ),
     hjust = 0,
     size = 4,
@@ -331,7 +331,8 @@ ggplot(data) +
   ) +
   geom_segment(
     aes(
-      yend = run_time_s  + 30 * offset * .95, 
+      # i.e., run the line up to .95 of the label's height
+      yend = run_time_s + 30 * offset * .95, 
       xend = date_posix
     ),     
     data = data_lab, 
@@ -342,12 +343,12 @@ ggplot(data) +
   expand_limits(x = max(data$date_posix) + 4e7) +
   guides(color = "none") +
   scale_x_datetime(
-    NULL,
+    name = NULL,
     date_breaks = "2 years", 
     date_labels = "%Y"
   ) +
   scale_y_continuous(
-    "World record",
+    name = "World record",
     breaks = 21:27 * 60,
     labels = function(x) sprintf("%d:%02.f", x %/% 60, x %% 60)
   ) + 
