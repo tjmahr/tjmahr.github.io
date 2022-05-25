@@ -268,5 +268,5 @@ Science*](http://r4ds.had.co.nz/tibbles.html).
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```

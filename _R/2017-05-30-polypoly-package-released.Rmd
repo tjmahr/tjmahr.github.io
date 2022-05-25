@@ -315,7 +315,7 @@ ggplot(df_both) +
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 [CRAN]: https://cran.r-project.org/web/packages/polypoly/index.html "CRAN page for polypoly"

@@ -253,7 +253,7 @@ continue its *organic* growth.
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 [^gelman-hill]: When they briefly cover the ICC, Gelman and Hill (2007) do 

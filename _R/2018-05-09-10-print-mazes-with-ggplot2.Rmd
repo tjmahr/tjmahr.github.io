@@ -350,7 +350,7 @@ draw_10_print(cols = 26, rows = 80, p = rep(p_letter, 80)) +
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 

@@ -434,7 +434,7 @@ It's fun to think about.)
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 [bc-youtube]: https://www.youtube.com/watch?v=qQFF4tPgeWI

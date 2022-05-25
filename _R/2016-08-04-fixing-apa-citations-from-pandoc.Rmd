@@ -173,7 +173,7 @@ that issue in practice though.
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 [pandoc-home]: http://pandoc.org/ "pandoc: a universal document converter"

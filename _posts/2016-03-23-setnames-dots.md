@@ -35,7 +35,7 @@ mtcars %>%
 #> See vignette('programming') for more help
 #> This warning is displayed once every 8 hours.
 #> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
-#> # A tibble: 32 x 13
+#> # A tibble: 32 × 13
 #>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb  zMPG   zHP
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4  0.15 -0.54
@@ -48,7 +48,7 @@ mtcars %>%
 #>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2  0.72 -1.24
 #>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2  0.45 -0.75
 #> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4 -0.15 -0.35
-#> # ... with 22 more rows
+#> # … with 22 more rows
 ```
 
 If we programmatically assemble or manipulate those expressions before calling
@@ -64,12 +64,13 @@ exps <- list(
 
 mtcars %>% 
   mutate_(exps)
-#> Error: Can't convert a list to a quosure.
+#> Error in `compat_lazy()`:
+#> ! Can't convert a list to a quosure.
 
 mtcars %>% 
   mutate_(.dots = exps) %>% 
   as_tibble()
-#> # A tibble: 32 x 13
+#> # A tibble: 32 × 13
 #>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb  zMPG   zHP
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4  0.15 -0.54
@@ -82,7 +83,7 @@ mtcars %>%
 #>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2  0.72 -1.24
 #>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2  0.45 -0.75
 #> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4 -0.15 -0.35
-#> # ... with 22 more rows
+#> # … with 22 more rows
 ```
 
 ### [*Jan. 4, 2021*] Hello from the future
@@ -108,7 +109,7 @@ exprs
 mtcars %>% 
   mutate(!!! exprs) %>% 
   as_tibble()
-#> # A tibble: 32 x 13
+#> # A tibble: 32 × 13
 #>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb  zMPG   zHP
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4  0.15 -0.54
@@ -121,7 +122,7 @@ mtcars %>%
 #>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2  0.72 -1.24
 #>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2  0.45 -0.75
 #> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4 -0.15 -0.35
-#> # ... with 22 more rows
+#> # … with 22 more rows
 
 quosures <- quos(
   zMPG = z_round(mpg), 
@@ -135,17 +136,17 @@ quosures
 #> $zMPG
 #> <quosure>
 #> expr: ^z_round(mpg)
-#> env:  00000000176F5248
+#> env:  0x000002c86f56e880
 #> 
 #> $zHP
 #> <quosure>
 #> expr: ^z_round(hp)
-#> env:  00000000176F5248
+#> env:  0x000002c86f56e880
 
 mtcars %>% 
   mutate(!!! quosures) %>% 
   as_tibble()
-#> # A tibble: 32 x 13
+#> # A tibble: 32 × 13
 #>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb  zMPG   zHP
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4  0.15 -0.54
@@ -158,7 +159,7 @@ mtcars %>%
 #>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2  0.72 -1.24
 #>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2  0.45 -0.75
 #> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4 -0.15 -0.35
-#> # ... with 22 more rows
+#> # … with 22 more rows
 ```
 
 
@@ -167,66 +168,64 @@ mtcars %>%
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-03-23-setnames-dots.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: zipper-mouth face, flag: Diego Garcia, waving hand
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version date (UTC) lib source
-    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
-    #>  cli           3.1.0   2021-10-27 [1] CRAN (R 4.1.1)
-    #>  crayon        1.4.2   2021-10-29 [1] CRAN (R 4.1.1)
-    #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
-    #>  dplyr       * 1.0.7   2021-06-18 [1] CRAN (R 4.1.0)
-    #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.1.0)
-    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.1.0)
-    #>  fansi         0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.1   2021-10-25 [1] CRAN (R 4.1.1)
-    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.1.1)
-    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
-    #>  knitr       * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
-    #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.1.1)
-    #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
-    #>  pillar        1.6.4   2021-10-18 [1] CRAN (R 4.1.1)
-    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
-    #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
-    #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.1.1)
-    #>  ragg          1.2.0   2021-10-30 [1] CRAN (R 4.1.1)
-    #>  rlang         0.4.12  2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.2.1   2021-11-02 [1] CRAN (R 4.1.2)
-    #>  stringi       1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.3   2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.1.1)
-    #>  tibble        3.1.5   2021-09-30 [1] CRAN (R 4.1.1)
-    #>  tidyselect    1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
-    #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.1.0)
-    #>  vctrs         0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
-    #>  xfun          0.27    2021-10-18 [1] CRAN (R 4.1.1)
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
+    #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
+    #>  dplyr       * 1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
+    #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+    #>  evaluate      0.15    2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi         1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
+    #>  generics      0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
+    #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
+    #>  magrittr      2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+    #>  pillar        1.7.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+    #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+    #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  rlang         1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.3   2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.2.0)
+    #>  sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts   1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble        3.1.7   2022-05-03 [1] CRAN (R 4.2.0)
+    #>  tidyselect    1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs         0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```

@@ -386,7 +386,7 @@ inference and learn that statistical framework.
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 [bulbapedia]: http://bulbapedia.bulbagarden.net/wiki/Unown_(Pok%C3%A9mon)

@@ -385,7 +385,7 @@ or how to blank out subexpressions in an easier way, I would love to hear it.
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 [^other-terms]: By the way, some other ways to describe the asymptote besides 
