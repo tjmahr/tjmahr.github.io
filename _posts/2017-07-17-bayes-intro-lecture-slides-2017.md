@@ -76,56 +76,54 @@ what makes Bayes different. ¯\\\_(ツ)\_/¯
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-07-17-bayes-intro-lecture-slides-2017.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: flag: Clipperton Island, basketball, grimacing face
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version    date (UTC) lib source
-    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.1.0)
-    #>  cli           3.1.0      2021-10-27 [1] CRAN (R 4.1.1)
-    #>  crayon        1.4.2      2021-10-29 [1] CRAN (R 4.1.1)
-    #>  emo           0.0.0.9000 2021-10-14 [1] Github (hadley/emo@3f03b11)
-    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.1      2021-10-25 [1] CRAN (R 4.1.1)
-    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.1.1)
-    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.1.0)
-    #>  knitr       * 1.36       2021-09-29 [1] CRAN (R 4.1.1)
-    #>  lubridate     1.8.0      2021-10-07 [1] CRAN (R 4.1.1)
-    #>  magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.1.0)
-    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.1.0)
-    #>  ragg          1.2.0      2021-10-30 [1] CRAN (R 4.1.1)
-    #>  rlang         0.4.12     2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.2.1      2021-11-02 [1] CRAN (R 4.1.2)
-    #>  stringi       1.7.5      2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.3      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  xfun          0.27       2021-10-18 [1] CRAN (R 4.1.1)
+    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
+    #>  cli           3.2.0      2022-02-14 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
+    #>  emo           0.0.0.9000 2022-05-25 [1] Github (hadley/emo@3f03b11)
+    #>  evaluate      0.15       2022-02-18 [1] CRAN (R 4.2.0)
+    #>  generics      0.1.2      2022-01-31 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1     2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
+    #>  lubridate     1.8.0      2021-10-07 [1] CRAN (R 4.2.0)
+    #>  magrittr      2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.2      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  rlang         1.0.2      2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.3      2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.2.0)
+    #>  sessioninfo   1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.6      2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts   1.0.4      2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.2.0)
+    #>  xfun          0.31       2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```

@@ -46,7 +46,7 @@ library(tibble)
 library(magrittr)
 
 tibble(x = 1:5, x_squared = x ^ 2)
-#> # A tibble: 5 x 2
+#> # A tibble: 5 × 2
 #>       x x_squared
 #>   <int>     <dbl>
 #> 1     1         1
@@ -78,7 +78,7 @@ embrace `tibble()`.
 
 # That's better.
 tibble(x = 1:5, x_squared = x ^ 2)
-#> # A tibble: 5 x 2
+#> # A tibble: 5 × 2
 #>       x x_squared
 #>   <int>     <dbl>
 #> 1     1         1
@@ -100,7 +100,7 @@ tribble(
   "The Empire Strikes Back", 1980,
   "Return of the Jedi", 1983
 )
-#> # A tibble: 3 x 2
+#> # A tibble: 3 × 2
 #>   Film                     Year
 #>   <chr>                   <dbl>
 #> 1 A New Hope               1977
@@ -157,7 +157,7 @@ tibbles.
 
 ```r
 as_tibble(mtcars)
-#> # A tibble: 32 x 11
+#> # A tibble: 32 × 11
 #>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -170,7 +170,7 @@ as_tibble(mtcars)
 #>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
 #>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
 #> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
-#> # ... with 22 more rows
+#> # … with 22 more rows
 ```
 
 We can convert simple named vectors into tibbles with `enframe()`. 
@@ -184,7 +184,7 @@ quantiles
 #>  66.0  96.5 123.0 180.0 243.5
 
 enframe(quantiles, "quantile", "value")
-#> # A tibble: 5 x 2
+#> # A tibble: 5 × 2
 #>   quantile value
 #>   <chr>    <dbl>
 #> 1 10%       66  
@@ -217,7 +217,7 @@ df <- as.data.frame(replicate(26, 1:200)) %>%
   as_tibble()
 
 df
-#> # A tibble: 200 x 26
+#> # A tibble: 200 × 26
 #>        a     b     c     d     e     f     g     h     i     j     k     l     m
 #>    <int> <int> <int> <int> <int> <int> <int> <int> <int> <int> <int> <int> <int>
 #>  1     1     1     1     1     1     1     1     1     1     1     1     1     1
@@ -230,7 +230,7 @@ df
 #>  8     8     8     8     8     8     8     8     8     8     8     8     8     8
 #>  9     9     9     9     9     9     9     9     9     9     9     9     9     9
 #> 10    10    10    10    10    10    10    10    10    10    10    10    10    10
-#> # ... with 190 more rows, and 13 more variables: n <int>, o <int>, p <int>,
+#> # … with 190 more rows, and 13 more variables: n <int>, o <int>, p <int>,
 #> #   q <int>, r <int>, s <int>, t <int>, u <int>, v <int>, w <int>, x <int>,
 #> #   y <int>, z <int>
 ```
@@ -244,32 +244,32 @@ console.
 glimpse(df)
 #> Rows: 200
 #> Columns: 26
-#> $ a <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ b <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ c <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ d <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ e <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ f <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ g <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ h <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ i <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ j <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ k <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ l <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ m <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ n <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ o <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ p <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ q <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ r <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ s <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ t <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ u <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ v <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ w <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ x <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ y <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
-#> $ z <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2~
+#> $ a <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ b <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ c <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ d <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ e <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ f <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ g <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ h <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ i <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ j <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ k <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ l <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ m <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ n <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ o <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ p <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ q <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ r <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ s <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ t <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ u <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ v <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ w <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ x <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ y <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
+#> $ z <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2…
 ```
 
 
@@ -288,7 +288,7 @@ iteratively, so we can define the values of `x_squared` in terms of `x`.
 ```r
 df <- tibble(comment = "original", x = 1:2, x_squared = x ^ 2)
 df
-#> # A tibble: 2 x 3
+#> # A tibble: 2 × 3
 #>   comment      x x_squared
 #>   <chr>    <int>     <dbl>
 #> 1 original     1         1
@@ -298,7 +298,7 @@ df <- df %>%
   add_row(comment = "append", x = 3:4, x_squared = x ^ 2) %>% 
   add_row(comment = "prepend", x = 0, x_squared = x ^ 2, .before = 1)
 df
-#> # A tibble: 5 x 3
+#> # A tibble: 5 × 3
 #>   comment      x x_squared
 #>   <chr>    <dbl>     <dbl>
 #> 1 prepend      0         0
@@ -317,7 +317,7 @@ don't have to write out the columns in any particular order.
 df %>% 
   add_row(x = 5, comment = "NA defaults") %>% 
   add_row(x_squared = 36, x = 6, comment = "order doesn't matter")
-#> # A tibble: 7 x 3
+#> # A tibble: 7 × 3
 #>   comment                  x x_squared
 #>   <chr>                <dbl>     <dbl>
 #> 1 prepend                  0         0
@@ -335,7 +335,7 @@ We can similarly add columns with `add_column()`.
 ```r
 df %>% 
   add_column(comment2 = "inserted column", .after = "comment")
-#> # A tibble: 5 x 4
+#> # A tibble: 5 × 4
 #>   comment  comment2            x x_squared
 #>   <chr>    <chr>           <dbl>     <dbl>
 #> 1 prepend  inserted column     0         0
@@ -357,7 +357,7 @@ Look at the converted `mtcars` tibble again.
 
 ```r
 as_tibble(mtcars)
-#> # A tibble: 32 x 11
+#> # A tibble: 32 × 11
 #>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -370,7 +370,7 @@ as_tibble(mtcars)
 #>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
 #>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
 #> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
-#> # ... with 22 more rows
+#> # … with 22 more rows
 ```
 
 The row numbers in the converted dataframe have an asterisk `*` above them. That
@@ -386,7 +386,7 @@ We should move those row-names into an explicit column, and
 mtcars %>% 
   as_tibble() %>% 
   rownames_to_column("model")
-#> # A tibble: 32 x 12
+#> # A tibble: 32 × 12
 #>    model   mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #>    <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1 1      21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -399,7 +399,7 @@ mtcars %>%
 #>  8 8      24.4     4  147.    62  3.69  3.19  20       1     0     4     2
 #>  9 9      22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
 #> 10 10     19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
-#> # ... with 22 more rows
+#> # … with 22 more rows
 ```
 
 When I fit Bayesian models, I end up with a bunch of samples from a posterior 
@@ -415,7 +415,7 @@ data(line, package = "coda")
 line1 <- as.matrix(line$line1) %>% 
   as_tibble()
 line1
-#> # A tibble: 200 x 3
+#> # A tibble: 200 × 3
 #>    alpha   beta  sigma
 #>    <dbl>  <dbl>  <dbl>
 #>  1  7.17 -1.57  11.2  
@@ -428,10 +428,10 @@ line1
 #>  8  2.96  1.09   0.459
 #>  9  3.53  1.07   0.634
 #> 10  2.09  1.48   0.913
-#> # ... with 190 more rows
+#> # … with 190 more rows
 
 line1 %>% rowid_to_column("draw")
-#> # A tibble: 200 x 4
+#> # A tibble: 200 × 4
 #>     draw alpha   beta  sigma
 #>    <int> <dbl>  <dbl>  <dbl>
 #>  1     1  7.17 -1.57  11.2  
@@ -444,7 +444,7 @@ line1 %>% rowid_to_column("draw")
 #>  8     8  2.96  1.09   0.459
 #>  9     9  3.53  1.07   0.634
 #> 10    10  2.09  1.48   0.913
-#> # ... with 190 more rows
+#> # … with 190 more rows
 ```
 
 From here, I could reshape the data into a long format or draw some random
@@ -464,66 +464,64 @@ Science*](http://r4ds.had.co.nz/tibbles.html).
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-07-10-tibble-package-tour.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: man student, elf: medium-light skin tone, nose: light skin tone
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version    date (UTC) lib source
-    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.1.0)
-    #>  cli           3.1.0      2021-10-27 [1] CRAN (R 4.1.1)
-    #>  coda        * 0.19-4     2020-09-30 [1] CRAN (R 4.1.0)
-    #>  crayon        1.4.2      2021-10-29 [1] CRAN (R 4.1.1)
-    #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.1.0)
-    #>  emo           0.0.0.9000 2021-10-14 [1] Github (hadley/emo@3f03b11)
-    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.1.0)
-    #>  fansi         0.5.0      2021-05-25 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.1      2021-10-25 [1] CRAN (R 4.1.1)
-    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.1.1)
-    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.1.0)
-    #>  knitr       * 1.36       2021-09-29 [1] CRAN (R 4.1.1)
-    #>  lattice       0.20-45    2021-09-22 [2] CRAN (R 4.1.2)
-    #>  lifecycle     1.0.1      2021-09-24 [1] CRAN (R 4.1.1)
-    #>  lubridate     1.8.0      2021-10-07 [1] CRAN (R 4.1.1)
-    #>  magrittr    * 2.0.1      2020-11-17 [1] CRAN (R 4.1.0)
-    #>  pillar        1.6.4      2021-10-18 [1] CRAN (R 4.1.1)
-    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.1.0)
-    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.1.0)
-    #>  ragg          1.2.0      2021-10-30 [1] CRAN (R 4.1.1)
-    #>  rlang         0.4.12     2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.2.1      2021-11-02 [1] CRAN (R 4.1.2)
-    #>  stringi       1.7.5      2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.3      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  tibble      * 3.1.5      2021-09-30 [1] CRAN (R 4.1.1)
-    #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.1.0)
-    #>  vctrs         0.3.8      2021-04-29 [1] CRAN (R 4.1.0)
-    #>  xfun          0.27       2021-10-18 [1] CRAN (R 4.1.1)
+    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
+    #>  cli           3.2.0      2022-02-14 [1] CRAN (R 4.2.0)
+    #>  coda        * 0.19-4     2020-09-30 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
+    #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
+    #>  emo           0.0.0.9000 2022-05-25 [1] Github (hadley/emo@3f03b11)
+    #>  evaluate      0.15       2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi         1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
+    #>  generics      0.1.2      2022-01-31 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1     2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
+    #>  lattice       0.20-45    2021-09-22 [2] CRAN (R 4.2.0)
+    #>  lifecycle     1.0.1      2021-09-24 [1] CRAN (R 4.2.0)
+    #>  lubridate     1.8.0      2021-10-07 [1] CRAN (R 4.2.0)
+    #>  magrittr    * 2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+    #>  pillar        1.7.0      2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
+    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.2      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  rlang         1.0.2      2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.3      2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.2.0)
+    #>  sessioninfo   1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.6      2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts   1.0.4      2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble      * 3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
+    #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs         0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
+    #>  xfun          0.31       2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```

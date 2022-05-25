@@ -57,12 +57,12 @@ for each of those visits.
 
 ```r
 library(tidyverse)
-#> -- Attaching packages ----------------------------- tidyverse 1.3.1 --
-#> v ggplot2 3.3.5     v purrr   0.3.4
-#> v tibble  3.1.5     v dplyr   1.0.7
-#> v tidyr   1.1.4     v stringr 1.4.0
-#> v readr   2.0.2     v forcats 0.5.1
-#> -- Conflicts -------------------------------- tidyverse_conflicts() --
+#> ── Attaching packages ───────────────────────────── tidyverse 1.3.1 ──
+#> ✓ ggplot2 3.3.6     ✓ purrr   0.3.4
+#> ✓ tibble  3.1.7     ✓ dplyr   1.0.9
+#> ✓ tidyr   1.2.0     ✓ stringr 1.4.0
+#> ✓ readr   2.1.2     ✓ forcats 0.5.1
+#> ── Conflicts ──────────────────────────────── tidyverse_conflicts() ──
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 theme_set(theme_minimal())
@@ -423,99 +423,96 @@ or how to blank out subexpressions in an easier way, I would love to hear it.
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-02-15-anatomy-of-a-logistic-growth-curve.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  ----------------------------------------------------
-    #>  hash: man teacher: medium skin tone, flag: Niger, film projector
-    #> 
+    #> ─ Session info ─────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages ---------------------------------------------------------
+    #> ─ Packages ─────────────────────────────────────────────────────────
     #>  package     * version date (UTC) lib source
-    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
-    #>  backports     1.3.0   2021-10-27 [1] CRAN (R 4.1.1)
-    #>  broom         0.7.10  2021-10-31 [1] CRAN (R 4.1.1)
-    #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.1.0)
-    #>  cli           3.1.0   2021-10-27 [1] CRAN (R 4.1.1)
-    #>  colorspace    2.0-2   2021-06-24 [1] CRAN (R 4.1.0)
-    #>  crayon        1.4.2   2021-10-29 [1] CRAN (R 4.1.1)
-    #>  DBI           1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
-    #>  dbplyr        2.1.1   2021-04-06 [1] CRAN (R 4.1.0)
-    #>  digest        0.6.28  2021-09-23 [1] CRAN (R 4.1.1)
-    #>  dplyr       * 1.0.7   2021-06-18 [1] CRAN (R 4.1.0)
-    #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.1.0)
-    #>  evaluate      0.14    2019-05-28 [1] CRAN (R 4.1.0)
-    #>  fansi         0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
-    #>  farver        2.1.0   2021-02-28 [1] CRAN (R 4.1.0)
-    #>  forcats     * 0.5.1   2021-01-27 [1] CRAN (R 4.1.0)
-    #>  fs            1.5.0   2020-07-31 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.1   2021-10-25 [1] CRAN (R 4.1.1)
-    #>  ggplot2     * 3.3.5   2021-06-25 [1] CRAN (R 4.1.0)
-    #>  git2r         0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2   2020-08-27 [1] CRAN (R 4.1.1)
-    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.1.0)
-    #>  haven         2.4.3   2021-08-04 [1] CRAN (R 4.1.0)
-    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
-    #>  highr         0.9     2021-04-16 [1] CRAN (R 4.1.0)
-    #>  hms           1.1.1   2021-09-26 [1] CRAN (R 4.1.1)
-    #>  httr          1.4.2   2020-07-20 [1] CRAN (R 4.1.0)
-    #>  jsonlite      1.7.2   2020-12-09 [1] CRAN (R 4.1.0)
-    #>  knitr       * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
-    #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.1.0)
-    #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.1.1)
-    #>  lubridate     1.8.0   2021-10-07 [1] CRAN (R 4.1.1)
-    #>  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
-    #>  modelr        0.1.8   2020-05-19 [1] CRAN (R 4.1.0)
-    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.1.0)
-    #>  pillar        1.6.4   2021-10-18 [1] CRAN (R 4.1.1)
-    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
-    #>  purrr       * 0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
-    #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.1.1)
-    #>  ragg          1.2.0   2021-10-30 [1] CRAN (R 4.1.1)
-    #>  Rcpp          1.0.7   2021-07-07 [1] CRAN (R 4.1.0)
-    #>  readr       * 2.0.2   2021-09-27 [1] CRAN (R 4.1.1)
-    #>  readxl        1.3.1   2019-03-13 [1] CRAN (R 4.1.0)
-    #>  reprex        2.0.1   2021-08-05 [1] CRAN (R 4.1.0)
-    #>  rlang         0.4.12  2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.1.0)
-    #>  rvest         1.0.2   2021-10-16 [1] CRAN (R 4.1.1)
-    #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.2.1   2021-11-02 [1] CRAN (R 4.1.2)
-    #>  stringi       1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.3   2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.1.1)
-    #>  tibble      * 3.1.5   2021-09-30 [1] CRAN (R 4.1.1)
-    #>  tidyr       * 1.1.4   2021-09-27 [1] CRAN (R 4.1.1)
-    #>  tidyselect    1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
-    #>  tidyverse   * 1.3.1   2021-04-15 [1] CRAN (R 4.1.0)
-    #>  tzdb          0.2.0   2021-10-27 [1] CRAN (R 4.1.1)
-    #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.1.0)
-    #>  vctrs         0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
-    #>  withr         2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
-    #>  xfun          0.27    2021-10-18 [1] CRAN (R 4.1.1)
-    #>  xml2          1.3.2   2020-04-23 [1] CRAN (R 4.1.0)
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+    #>  backports     1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
+    #>  broom         0.8.0   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.2.0)
+    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
+    #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
+    #>  dbplyr        2.1.1   2021-04-06 [1] CRAN (R 4.2.0)
+    #>  digest        0.6.29  2021-12-01 [1] CRAN (R 4.2.0)
+    #>  dplyr       * 1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
+    #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+    #>  evaluate      0.15    2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi         1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
+    #>  farver        2.1.0   2021-02-28 [1] CRAN (R 4.2.0)
+    #>  forcats     * 0.5.1   2021-01-27 [1] CRAN (R 4.2.0)
+    #>  fs            1.5.2   2021-12-08 [1] CRAN (R 4.2.0)
+    #>  generics      0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
+    #>  ggplot2     * 3.3.6   2022-05-03 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
+    #>  haven         2.5.0   2022-04-15 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
+    #>  highr         0.9     2021-04-16 [1] CRAN (R 4.2.0)
+    #>  hms           1.1.1   2021-09-26 [1] CRAN (R 4.2.0)
+    #>  httr          1.4.3   2022-05-04 [1] CRAN (R 4.2.0)
+    #>  jsonlite      1.8.0   2022-02-22 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
+    #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.2.0)
+    #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
+    #>  lubridate     1.8.0   2021-10-07 [1] CRAN (R 4.2.0)
+    #>  magrittr      2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+    #>  modelr        0.1.8   2020-05-19 [1] CRAN (R 4.2.0)
+    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
+    #>  pillar        1.7.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+    #>  purrr       * 0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+    #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  readr       * 2.1.2   2022-01-30 [1] CRAN (R 4.2.0)
+    #>  readxl        1.4.0   2022-03-28 [1] CRAN (R 4.2.0)
+    #>  reprex        2.0.1   2021-08-05 [1] CRAN (R 4.2.0)
+    #>  rlang         1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.3   2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.2.0)
+    #>  rvest         1.0.2   2021-10-16 [1] CRAN (R 4.2.0)
+    #>  scales        1.2.0   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr     * 1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts   1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble      * 3.1.7   2022-05-03 [1] CRAN (R 4.2.0)
+    #>  tidyr       * 1.2.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  tidyselect    1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  tidyverse   * 1.3.1   2021-04-15 [1] CRAN (R 4.2.0)
+    #>  tzdb          0.3.0   2022-03-28 [1] CRAN (R 4.2.0)
+    #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs         0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+    #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
+    #>  xml2          1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #> --------------------------------------------------------------------
+    #> ────────────────────────────────────────────────────────────────────
     ```
 
 [^other-terms]: By the way, some other ways to describe the asymptote besides 

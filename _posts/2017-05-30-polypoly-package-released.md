@@ -48,7 +48,7 @@ library(dplyr)
 
 # The data
 d
-#> # A tibble: 986 x 6
+#> # A tibble: 986 × 6
 #>     Subj Condition     Time ToDistractor ToTarget Proportion
 #>    <int> <chr>        <int>        <int>    <int>      <dbl>
 #>  1     1 facilitating   200            9        9      0.5  
@@ -61,7 +61,7 @@ d
 #>  8     1 facilitating   550            6       12      0.667
 #>  9     1 facilitating   600            4       12      0.75 
 #> 10     1 facilitating   650            3       15      0.833
-#> # ... with 976 more rows
+#> # … with 976 more rows
 
 # Helper dataframe of where to put condition labels on the next plot
 df_labs <- tibble(
@@ -173,7 +173,7 @@ models %>%
   bind_rows(.id = "model") %>% 
   select(model:estimate) %>% 
   mutate(estimate = round(estimate, 2))
-#> # A tibble: 9 x 3
+#> # A tibble: 9 × 3
 #>   model term        estimate
 #>   <chr> <chr>          <dbl>
 #> 1 m1    (Intercept)   626.  
@@ -203,7 +203,7 @@ models2 %>%
   bind_rows(.id = "model") %>% 
   select(model:estimate) %>% 
   mutate(estimate = round(estimate, 2))
-#> # A tibble: 9 x 3
+#> # A tibble: 9 × 3
 #>   model term        estimate
 #>   <chr> <chr>          <dbl>
 #> 1 m1    (Intercept)    -119.
@@ -338,7 +338,7 @@ neut_coefs <- fixef(m)[1:4]
 faci_coefs <- neut_coefs + fixef(m)[5:8]
 faci_coefs
 #>  (Intercept)          ot1          ot2          ot3 
-#>  0.699944477  2.014222959  0.006643989 -0.226649045
+#>  0.699914630  2.014092454  0.006641487 -0.226682309
 
 set_colnames <- `colnames<-`
 
@@ -431,103 +431,101 @@ ggplot(df_both) +
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-30-polypoly-package-released.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: sun behind large cloud, person facepalming: medium skin tone, zebra
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
-    #>  package     * version  date (UTC) lib source
-    #>  abind         1.4-5    2016-07-21 [1] CRAN (R 4.1.0)
-    #>  arm           1.12-2   2021-10-15 [1] CRAN (R 4.1.1)
-    #>  assertthat    0.2.1    2019-03-21 [1] CRAN (R 4.1.0)
-    #>  backports     1.3.0    2021-10-27 [1] CRAN (R 4.1.1)
-    #>  bit           4.0.4    2020-08-04 [1] CRAN (R 4.1.0)
-    #>  bit64         4.0.5    2020-08-30 [1] CRAN (R 4.1.0)
-    #>  boot          1.3-28   2021-05-03 [2] CRAN (R 4.1.2)
-    #>  broom         0.7.10   2021-10-31 [1] CRAN (R 4.1.1)
-    #>  cli           3.1.0    2021-10-27 [1] CRAN (R 4.1.1)
-    #>  coda          0.19-4   2020-09-30 [1] CRAN (R 4.1.0)
-    #>  colorspace    2.0-2    2021-06-24 [1] CRAN (R 4.1.0)
-    #>  crayon        1.4.2    2021-10-29 [1] CRAN (R 4.1.1)
-    #>  curl          4.3.2    2021-06-23 [1] CRAN (R 4.1.0)
-    #>  DBI           1.1.1    2021-01-15 [1] CRAN (R 4.1.0)
-    #>  digest        0.6.28   2021-09-23 [1] CRAN (R 4.1.1)
-    #>  dplyr       * 1.0.7    2021-06-18 [1] CRAN (R 4.1.0)
-    #>  ellipsis      0.3.2    2021-04-29 [1] CRAN (R 4.1.0)
-    #>  evaluate      0.14     2019-05-28 [1] CRAN (R 4.1.0)
-    #>  fansi         0.5.0    2021-05-25 [1] CRAN (R 4.1.0)
-    #>  farver        2.1.0    2021-02-28 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.1    2021-10-25 [1] CRAN (R 4.1.1)
-    #>  ggplot2     * 3.3.5    2021-06-25 [1] CRAN (R 4.1.0)
-    #>  git2r         0.28.0   2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2    2020-08-27 [1] CRAN (R 4.1.1)
-    #>  gtable        0.3.0    2019-03-25 [1] CRAN (R 4.1.0)
-    #>  here          1.0.1    2020-12-13 [1] CRAN (R 4.1.0)
-    #>  highr         0.9      2021-04-16 [1] CRAN (R 4.1.0)
-    #>  hms           1.1.1    2021-09-26 [1] CRAN (R 4.1.1)
-    #>  knitr       * 1.36     2021-09-29 [1] CRAN (R 4.1.1)
-    #>  labeling      0.4.2    2020-10-20 [1] CRAN (R 4.1.0)
-    #>  lattice       0.20-45  2021-09-22 [2] CRAN (R 4.1.2)
-    #>  lifecycle     1.0.1    2021-09-24 [1] CRAN (R 4.1.1)
-    #>  lme4        * 1.1-27.1 2021-06-22 [1] CRAN (R 4.1.0)
-    #>  magrittr      2.0.1    2020-11-17 [1] CRAN (R 4.1.0)
-    #>  MASS          7.3-54   2021-05-03 [2] CRAN (R 4.1.2)
-    #>  Matrix      * 1.3-4    2021-06-01 [2] CRAN (R 4.1.2)
-    #>  minqa         1.2.4    2014-10-09 [1] CRAN (R 4.1.0)
-    #>  munsell       0.5.0    2018-06-12 [1] CRAN (R 4.1.0)
-    #>  nlme          3.1-153  2021-09-07 [2] CRAN (R 4.1.2)
-    #>  nloptr        1.2.2.2  2020-07-02 [1] CRAN (R 4.1.1)
-    #>  pillar        1.6.4    2021-10-18 [1] CRAN (R 4.1.1)
-    #>  pkgconfig     2.0.3    2019-09-22 [1] CRAN (R 4.1.0)
-    #>  plyr          1.8.6    2020-03-03 [1] CRAN (R 4.1.0)
-    #>  polypoly      0.0.2    2017-05-27 [1] CRAN (R 4.1.1)
-    #>  purrr         0.3.4    2020-04-17 [1] CRAN (R 4.1.0)
-    #>  R6            2.5.1    2021-08-19 [1] CRAN (R 4.1.1)
-    #>  ragg          1.2.0    2021-10-30 [1] CRAN (R 4.1.1)
-    #>  Rcpp          1.0.7    2021-07-07 [1] CRAN (R 4.1.0)
-    #>  readr       * 2.0.2    2021-09-27 [1] CRAN (R 4.1.1)
-    #>  reshape2      1.4.4    2020-04-09 [1] CRAN (R 4.1.0)
-    #>  rlang         0.4.12   2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot     2.0.2    2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi    0.13     2020-11-12 [1] CRAN (R 4.1.0)
-    #>  scales        1.1.1    2020-05-11 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.2.1    2021-11-02 [1] CRAN (R 4.1.2)
-    #>  stringi       1.7.5    2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr       1.4.0    2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.3    2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping   0.3.6    2021-10-13 [1] CRAN (R 4.1.1)
-    #>  tibble        3.1.5    2021-09-30 [1] CRAN (R 4.1.1)
-    #>  tidyr         1.1.4    2021-09-27 [1] CRAN (R 4.1.1)
-    #>  tidyselect    1.1.1    2021-04-30 [1] CRAN (R 4.1.0)
-    #>  tzdb          0.2.0    2021-10-27 [1] CRAN (R 4.1.1)
-    #>  utf8          1.2.2    2021-07-24 [1] CRAN (R 4.1.0)
-    #>  vctrs         0.3.8    2021-04-29 [1] CRAN (R 4.1.0)
-    #>  vroom         1.5.5    2021-09-14 [1] CRAN (R 4.1.1)
-    #>  withr         2.4.2    2021-04-18 [1] CRAN (R 4.1.0)
-    #>  xfun          0.27     2021-10-18 [1] CRAN (R 4.1.1)
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
+    #>  package     * version date (UTC) lib source
+    #>  abind         1.4-5   2016-07-21 [1] CRAN (R 4.2.0)
+    #>  arm           1.12-2  2021-10-15 [1] CRAN (R 4.2.0)
+    #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+    #>  backports     1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
+    #>  bit           4.0.4   2020-08-04 [1] CRAN (R 4.2.0)
+    #>  bit64         4.0.5   2020-08-30 [1] CRAN (R 4.2.0)
+    #>  boot          1.3-28  2021-05-03 [2] CRAN (R 4.2.0)
+    #>  broom         0.8.0   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  coda          0.19-4  2020-09-30 [1] CRAN (R 4.2.0)
+    #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
+    #>  curl          4.3.2   2021-06-23 [1] CRAN (R 4.2.0)
+    #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
+    #>  digest        0.6.29  2021-12-01 [1] CRAN (R 4.2.0)
+    #>  dplyr       * 1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
+    #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+    #>  evaluate      0.15    2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi         1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
+    #>  farver        2.1.0   2021-02-28 [1] CRAN (R 4.2.0)
+    #>  generics      0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
+    #>  ggplot2     * 3.3.6   2022-05-03 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+    #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
+    #>  highr         0.9     2021-04-16 [1] CRAN (R 4.2.0)
+    #>  hms           1.1.1   2021-09-26 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
+    #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.2.0)
+    #>  lattice       0.20-45 2021-09-22 [2] CRAN (R 4.2.0)
+    #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
+    #>  lme4        * 1.1-29  2022-04-07 [1] CRAN (R 4.2.0)
+    #>  magrittr      2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+    #>  MASS          7.3-56  2022-03-23 [2] CRAN (R 4.2.0)
+    #>  Matrix      * 1.4-1   2022-03-23 [2] CRAN (R 4.2.0)
+    #>  minqa         1.2.4   2014-10-09 [1] CRAN (R 4.2.0)
+    #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
+    #>  nlme          3.1-157 2022-03-25 [2] CRAN (R 4.2.0)
+    #>  nloptr        2.0.2   2022-05-19 [1] CRAN (R 4.2.0)
+    #>  pillar        1.7.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+    #>  plyr          1.8.7   2022-03-24 [1] CRAN (R 4.2.0)
+    #>  polypoly      0.0.2   2017-05-27 [1] CRAN (R 4.2.0)
+    #>  purrr         0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+    #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  Rcpp          1.0.8.3 2022-03-17 [1] CRAN (R 4.2.0)
+    #>  readr       * 2.1.2   2022-01-30 [1] CRAN (R 4.2.0)
+    #>  reshape2      1.4.4   2020-04-09 [1] CRAN (R 4.2.0)
+    #>  rlang         1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.3   2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.2.0)
+    #>  scales        1.2.0   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts   1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble        3.1.7   2022-05-03 [1] CRAN (R 4.2.0)
+    #>  tidyr         1.2.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  tidyselect    1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  tzdb          0.3.0   2022-03-28 [1] CRAN (R 4.2.0)
+    #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs         0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  vroom         1.5.7   2021-11-30 [1] CRAN (R 4.2.0)
+    #>  withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+    #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```
 
 [CRAN]: https://cran.r-project.org/web/packages/polypoly/index.html "CRAN page for polypoly"

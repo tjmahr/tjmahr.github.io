@@ -208,10 +208,10 @@ microbenchmark::microbenchmark(
   with_recur = rrrepeated(1:100, 100, shuffle),
   times = 1000
 )
-#> Unit: microseconds
-#>        expr   min     lq      mean  median     uq    max neval
-#>  with_while 866.3  905.9  971.3574  917.75  934.6 4756.4  1000
-#>  with_recur 957.3 1006.6 1077.2931 1024.85 1050.0 7629.7  1000
+#> Unit: milliseconds
+#>        expr    min      lq     mean  median      uq     max neval cld
+#>  with_while 1.0806 1.10180 1.271301 1.11430 1.16840 12.9536  1000  a 
+#>  with_recur 1.1751 1.19695 1.380082 1.21275 1.26655  7.3061  1000   b
 ```
 
 But I don't usually worry about performance unless I can notice the computation
@@ -223,7 +223,7 @@ recursion when I crank up the number of repetitions:
 
 ```r
 repeated(1:20, 1000, shuffle)
-#>  [1] 16  7  6  2  4  1  9 10  5 20 19 15 14 18  3 11 17 12 13  8
+#>  [1] 10  8  1  5 12  4  2  9 14 18 19  7 15  3 11 13 16 20  6 17
 rrrepeated(1:20, 1000, shuffle)
 #> Error: evaluation nested too deeply: infinite recursion / options(expressions=)?
 ```
@@ -253,52 +253,60 @@ here](https://tailrecursion.com/wondr/posts/tail-recursion-in-r.html). [_Oct.
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-repeatedly-calling-a-function.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: musical notes, heart exclamation, shaved ice
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package        * version date (UTC) lib source
-    #>  assertthat       0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
-    #>  cli              3.1.0   2021-10-27 [1] CRAN (R 4.1.1)
-    #>  evaluate         0.14    2019-05-28 [1] CRAN (R 4.1.0)
-    #>  git2r            0.28.0  2021-01-10 [1] CRAN (R 4.1.1)
-    #>  here             1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
-    #>  knitr          * 1.36    2021-09-29 [1] CRAN (R 4.1.1)
-    #>  magrittr         2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
-    #>  microbenchmark   1.4.8   2021-10-31 [1] CRAN (R 4.1.1)
-    #>  purrr          * 0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
-    #>  ragg             1.2.0   2021-10-30 [1] CRAN (R 4.1.1)
-    #>  rlang            0.4.12  2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot        2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi       0.13    2020-11-12 [1] CRAN (R 4.1.0)
-    #>  sessioninfo      1.2.1   2021-11-02 [1] CRAN (R 4.1.2)
-    #>  stringi          1.7.5   2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr          1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts      1.0.3   2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping      0.3.6   2021-10-13 [1] CRAN (R 4.1.1)
-    #>  xfun             0.27    2021-10-18 [1] CRAN (R 4.1.1)
+    #>  assertthat       0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+    #>  cli              3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  codetools        0.2-18  2020-11-04 [2] CRAN (R 4.2.0)
+    #>  evaluate         0.15    2022-02-18 [1] CRAN (R 4.2.0)
+    #>  git2r            0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
+    #>  here             1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
+    #>  knitr          * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
+    #>  lattice          0.20-45 2021-09-22 [2] CRAN (R 4.2.0)
+    #>  magrittr         2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+    #>  MASS             7.3-56  2022-03-23 [2] CRAN (R 4.2.0)
+    #>  Matrix           1.4-1   2022-03-23 [2] CRAN (R 4.2.0)
+    #>  microbenchmark   1.4.9   2021-11-09 [1] CRAN (R 4.2.0)
+    #>  multcomp         1.4-19  2022-04-26 [1] CRAN (R 4.2.0)
+    #>  mvtnorm          1.1-3   2021-10-08 [1] CRAN (R 4.2.0)
+    #>  purrr          * 0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+    #>  ragg             1.2.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  rlang            1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot        2.0.3   2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi       0.13    2020-11-12 [1] CRAN (R 4.2.0)
+    #>  sandwich         3.0-1   2021-05-18 [1] CRAN (R 4.2.0)
+    #>  sessioninfo      1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi          1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr          1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+    #>  survival         3.3-1   2022-03-03 [2] CRAN (R 4.2.0)
+    #>  systemfonts      1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping      0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
+    #>  TH.data          1.1-1   2022-04-26 [1] CRAN (R 4.2.0)
+    #>  xfun             0.31    2022-05-10 [1] CRAN (R 4.2.0)
+    #>  zoo              1.8-10  2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```

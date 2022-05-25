@@ -78,8 +78,8 @@ Read more about [`knitr::knit()`](`r knitted_doc_url`)`.
 
 ::::
 
-Reported prepared on 2021-11-16 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
-with knitr version 1.36 😄.
+Reported prepared on 2022-05-25 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
+with knitr version 1.39 😄.
 Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`. 
 ````
 
@@ -127,8 +127,8 @@ Read more about [`knitr::knit()`](`r knitted$doc_url`)`.
 
 ::::
 
-Reported prepared on 2021-11-16 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
-with knitr version 1.36 😀. 
+Reported prepared on 2022-05-25 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
+with knitr version 1.39 🙋. 
 Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`. 
 ````
 
@@ -150,13 +150,13 @@ process all at once.
 ```r
 knitted
 #> $when
-#> [1] "2021-11-16"
+#> [1] "2022-05-25"
 #> 
 #> $where
 #> [1] "2021-02-05-lists-knitr-secret-weapon.Rmd"
 #> 
 #> $with
-#> [1] '1.36'
+#> [1] '1.39'
 #> 
 #> $doc_url
 #> [1] "https://rdrr.io/pkg/knitr/man/knit.html"
@@ -242,7 +242,7 @@ library(tidyverse)
 library(broom.mixed)
 tidy(m, conf.int = TRUE) %>% 
   filter(effect == "fixed") 
-#> # A tibble: 4 x 8
+#> # A tibble: 4 × 8
 #>   effect group term            estimate std.error statistic conf.low conf.high
 #>   <chr>  <chr> <chr>              <dbl>     <dbl>     <dbl>    <dbl>     <dbl>
 #> 1 fixed  <NA>  (Intercept)       4.25      0.131     32.5     4.00     4.51   
@@ -279,7 +279,7 @@ text_ready <- tidy(m, conf.int = TRUE) %>%
   ) %>% 
   select(term, estimate, se, ci)
 text_ready
-#> # A tibble: 4 x 4
+#> # A tibble: 4 × 4
 #>   term            estimate    se    ci                        
 #>   <chr>           <chr>       <chr> <glue>                    
 #> 1 (Intercept)     4.25        0.131 [4.00, 4.51]              
@@ -333,22 +333,22 @@ Now we have a list of one-row dataframes:
 ```r
 str(stats)
 #> List of 4
-#>  $ hund_days      : tibble [1 x 4] (S3: tbl_df/tbl/data.frame)
+#>  $ hund_days      : tibble [1 × 4] (S3: tbl_df/tbl/data.frame)
 #>   ..$ term    : chr "hund_days"
 #>   ..$ estimate: chr "0.34"
 #>   ..$ se      : chr "0.013"
 #>   ..$ ci      : 'glue' chr "[0.31, 0.36]"
-#>  $ hund_days_ozone: tibble [1 x 4] (S3: tbl_df/tbl/data.frame)
+#>  $ hund_days_ozone: tibble [1 × 4] (S3: tbl_df/tbl/data.frame)
 #>   ..$ term    : chr "hund_days_ozone"
 #>   ..$ estimate: chr "&minus;0.04"
 #>   ..$ se      : chr "0.015"
 #>   ..$ ci      : 'glue' chr "[&minus;0.07, &minus;0.01]"
-#>  $ intercept      : tibble [1 x 4] (S3: tbl_df/tbl/data.frame)
+#>  $ intercept      : tibble [1 × 4] (S3: tbl_df/tbl/data.frame)
 #>   ..$ term    : chr "intercept"
 #>   ..$ estimate: chr "4.25"
 #>   ..$ se      : chr "0.131"
 #>   ..$ ci      : 'glue' chr "[4.00, 4.51]"
-#>  $ ozone          : tibble [1 x 4] (S3: tbl_df/tbl/data.frame)
+#>  $ ozone          : tibble [1 × 4] (S3: tbl_df/tbl/data.frame)
 #>   ..$ term    : chr "ozone"
 #>   ..$ estimate: chr "&minus;0.14"
 #>   ..$ se      : chr "0.158"
@@ -446,7 +446,7 @@ car_means <- mtcars %>%
     c = paste0("cyl_", cyl),
   )
 car_means
-#> # A tibble: 6 x 6
+#> # A tibble: 6 × 6
 #>     cyl    am     n mean_mpg a     c    
 #>   <dbl> <dbl> <int>    <dbl> <chr> <chr>
 #> 1     4     0     3     22.9 am_0  cyl_4
@@ -468,13 +468,13 @@ car_stats <- car_means %>%
 str(car_stats, max.level = 3)
 #> List of 2
 #>  $ am_0:List of 3
-#>   ..$ cyl_4: tibble [1 x 6] (S3: tbl_df/tbl/data.frame)
-#>   ..$ cyl_6: tibble [1 x 6] (S3: tbl_df/tbl/data.frame)
-#>   ..$ cyl_8: tibble [1 x 6] (S3: tbl_df/tbl/data.frame)
+#>   ..$ cyl_4: tibble [1 × 6] (S3: tbl_df/tbl/data.frame)
+#>   ..$ cyl_6: tibble [1 × 6] (S3: tbl_df/tbl/data.frame)
+#>   ..$ cyl_8: tibble [1 × 6] (S3: tbl_df/tbl/data.frame)
 #>  $ am_1:List of 3
-#>   ..$ cyl_4: tibble [1 x 6] (S3: tbl_df/tbl/data.frame)
-#>   ..$ cyl_6: tibble [1 x 6] (S3: tbl_df/tbl/data.frame)
-#>   ..$ cyl_8: tibble [1 x 6] (S3: tbl_df/tbl/data.frame)
+#>   ..$ cyl_4: tibble [1 × 6] (S3: tbl_df/tbl/data.frame)
+#>   ..$ cyl_6: tibble [1 × 6] (S3: tbl_df/tbl/data.frame)
+#>   ..$ cyl_8: tibble [1 × 6] (S3: tbl_df/tbl/data.frame)
 ```
 
 Here, we have a list of lists of 1-row dataframes, and we can just use
@@ -496,7 +496,7 @@ two functions:
   - `split()` adds a level of depth to a list by splitting a list into
     sublists using a variable.
   - [`purrr::map_depth(.x, .depth,
-    .f)`](https://purrr.tidyverse.org/reference/map_if.html)
+    .f)`](https://rdrr.io/pkg/purrr/man/map_if.html)
     applies a function `.f` on the lists at a given `.depth`.
 
 So the function walks through each variable and applies `split()` at
@@ -521,7 +521,7 @@ super_split <- function(.data, ...) {
 The first variable splits the list at depth 0, the second variable
 splits the sublists at depth 1 (which were created in the prior split),
 and so on. The business with
-[`enquos(...)`](https://rlang.r-lib.org/reference/nse-defuse.html) is there
+[`enquos(...)`](https://rdrr.io/pkg/rlang/man/enquo.html) is there
 to let me refer to the variable names directly.
 
 
@@ -530,113 +530,117 @@ to let me refer to the variable names directly.
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lists-knitr-secret-weapon.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: selfie: medium-dark skin tone, fearful face, paintbrush
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version    date (UTC) lib source
-    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.1.0)
-    #>  backports     1.3.0      2021-10-27 [1] CRAN (R 4.1.1)
-    #>  boot          1.3-28     2021-05-03 [2] CRAN (R 4.1.2)
-    #>  broom         0.7.10     2021-10-31 [1] CRAN (R 4.1.1)
-    #>  broom.mixed * 0.2.7      2021-07-07 [1] CRAN (R 4.1.0)
-    #>  cachem        1.0.6      2021-08-19 [1] CRAN (R 4.1.1)
-    #>  cellranger    1.1.0      2016-07-27 [1] CRAN (R 4.1.0)
-    #>  cli           3.1.0      2021-10-27 [1] CRAN (R 4.1.1)
-    #>  colorspace    2.0-2      2021-06-24 [1] CRAN (R 4.1.0)
-    #>  crayon        1.4.2      2021-10-29 [1] CRAN (R 4.1.1)
-    #>  DBI           1.1.1      2021-01-15 [1] CRAN (R 4.1.0)
-    #>  dbplyr        2.1.1      2021-04-06 [1] CRAN (R 4.1.0)
-    #>  downlit       0.4.0      2021-10-29 [1] CRAN (R 4.1.1)
-    #>  dplyr       * 1.0.7      2021-06-18 [1] CRAN (R 4.1.0)
-    #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.1.0)
-    #>  emo           0.0.0.9000 2021-10-14 [1] Github (hadley/emo@3f03b11)
-    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.1.0)
-    #>  fansi         0.5.0      2021-05-25 [1] CRAN (R 4.1.0)
-    #>  fastmap       1.1.0      2021-01-25 [1] CRAN (R 4.1.0)
-    #>  forcats     * 0.5.1      2021-01-27 [1] CRAN (R 4.1.0)
-    #>  fs            1.5.0      2020-07-31 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.1      2021-10-25 [1] CRAN (R 4.1.1)
-    #>  ggplot2     * 3.3.5      2021-06-25 [1] CRAN (R 4.1.0)
-    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.1.1)
-    #>  gtable        0.3.0      2019-03-25 [1] CRAN (R 4.1.0)
-    #>  haven         2.4.3      2021-08-04 [1] CRAN (R 4.1.0)
-    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.1.0)
-    #>  hms           1.1.1      2021-09-26 [1] CRAN (R 4.1.1)
-    #>  httr          1.4.2      2020-07-20 [1] CRAN (R 4.1.0)
-    #>  janitor       2.1.0      2021-01-05 [1] CRAN (R 4.1.0)
-    #>  jsonlite      1.7.2      2020-12-09 [1] CRAN (R 4.1.0)
-    #>  knitr       * 1.36       2021-09-29 [1] CRAN (R 4.1.1)
-    #>  lattice       0.20-45    2021-09-22 [2] CRAN (R 4.1.2)
-    #>  lifecycle     1.0.1      2021-09-24 [1] CRAN (R 4.1.1)
-    #>  lme4        * 1.1-27.1   2021-06-22 [1] CRAN (R 4.1.0)
-    #>  lubridate     1.8.0      2021-10-07 [1] CRAN (R 4.1.1)
-    #>  magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.1.0)
-    #>  MASS          7.3-54     2021-05-03 [2] CRAN (R 4.1.2)
-    #>  Matrix      * 1.3-4      2021-06-01 [2] CRAN (R 4.1.2)
-    #>  memoise       2.0.0      2021-01-26 [1] CRAN (R 4.1.0)
-    #>  minqa         1.2.4      2014-10-09 [1] CRAN (R 4.1.0)
-    #>  modelr        0.1.8      2020-05-19 [1] CRAN (R 4.1.0)
-    #>  munsell       0.5.0      2018-06-12 [1] CRAN (R 4.1.0)
-    #>  nlme          3.1-153    2021-09-07 [2] CRAN (R 4.1.2)
-    #>  nloptr        1.2.2.2    2020-07-02 [1] CRAN (R 4.1.1)
-    #>  pillar        1.6.4      2021-10-18 [1] CRAN (R 4.1.1)
-    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.1.0)
-    #>  printy        0.0.0.9003 2021-10-14 [1] Github (tjmahr/printy@df0d96e)
-    #>  purrr       * 0.3.4      2020-04-17 [1] CRAN (R 4.1.0)
-    #>  R6            2.5.1      2021-08-19 [1] CRAN (R 4.1.1)
-    #>  ragg          1.2.0      2021-10-30 [1] CRAN (R 4.1.1)
-    #>  Rcpp          1.0.7      2021-07-07 [1] CRAN (R 4.1.0)
-    #>  readr       * 2.0.2      2021-09-27 [1] CRAN (R 4.1.1)
-    #>  readxl        1.3.1      2019-03-13 [1] CRAN (R 4.1.0)
-    #>  reprex        2.0.1      2021-08-05 [1] CRAN (R 4.1.0)
-    #>  rlang         0.4.12     2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.1.0)
-    #>  rvest         1.0.2      2021-10-16 [1] CRAN (R 4.1.1)
-    #>  scales        1.1.1      2020-05-11 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.2.1      2021-11-02 [1] CRAN (R 4.1.2)
-    #>  snakecase     0.11.0     2019-05-25 [1] CRAN (R 4.1.0)
-    #>  stringi       1.7.5      2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr     * 1.4.0      2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.3      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  tibble      * 3.1.5      2021-09-30 [1] CRAN (R 4.1.1)
-    #>  tidyr       * 1.1.4      2021-09-27 [1] CRAN (R 4.1.1)
-    #>  tidyselect    1.1.1      2021-04-30 [1] CRAN (R 4.1.0)
-    #>  tidyverse   * 1.3.1      2021-04-15 [1] CRAN (R 4.1.0)
-    #>  tzdb          0.2.0      2021-10-27 [1] CRAN (R 4.1.1)
-    #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.1.0)
-    #>  vctrs         0.3.8      2021-04-29 [1] CRAN (R 4.1.0)
-    #>  withr         2.4.2      2021-04-18 [1] CRAN (R 4.1.0)
-    #>  xfun          0.27       2021-10-18 [1] CRAN (R 4.1.1)
-    #>  xml2          1.3.2      2020-04-23 [1] CRAN (R 4.1.0)
-    #>  yaml          2.2.1      2020-02-01 [1] CRAN (R 4.1.0)
+    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
+    #>  backports     1.4.1      2021-12-13 [1] CRAN (R 4.2.0)
+    #>  boot          1.3-28     2021-05-03 [2] CRAN (R 4.2.0)
+    #>  broom         0.8.0      2022-04-13 [1] CRAN (R 4.2.0)
+    #>  broom.mixed * 0.2.9.4    2022-04-17 [1] CRAN (R 4.2.0)
+    #>  cachem        1.0.6      2021-08-19 [1] CRAN (R 4.2.0)
+    #>  cellranger    1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
+    #>  cli           3.2.0      2022-02-14 [1] CRAN (R 4.2.0)
+    #>  codetools     0.2-18     2020-11-04 [2] CRAN (R 4.2.0)
+    #>  colorspace    2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
+    #>  DBI           1.1.2      2021-12-20 [1] CRAN (R 4.2.0)
+    #>  dbplyr        2.1.1      2021-04-06 [1] CRAN (R 4.2.0)
+    #>  digest        0.6.29     2021-12-01 [1] CRAN (R 4.2.0)
+    #>  downlit       0.4.0      2021-10-29 [1] CRAN (R 4.2.0)
+    #>  dplyr       * 1.0.9      2022-04-28 [1] CRAN (R 4.2.0)
+    #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
+    #>  emo           0.0.0.9000 2022-05-25 [1] Github (hadley/emo@3f03b11)
+    #>  evaluate      0.15       2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi         1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
+    #>  fastmap       1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
+    #>  forcats     * 0.5.1      2021-01-27 [1] CRAN (R 4.2.0)
+    #>  fs            1.5.2      2021-12-08 [1] CRAN (R 4.2.0)
+    #>  furrr         0.3.0      2022-05-04 [1] CRAN (R 4.2.0)
+    #>  future        1.25.0     2022-04-24 [1] CRAN (R 4.2.0)
+    #>  generics      0.1.2      2022-01-31 [1] CRAN (R 4.2.0)
+    #>  ggplot2     * 3.3.6      2022-05-03 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1     2022-03-16 [1] CRAN (R 4.2.0)
+    #>  globals       0.15.0     2022-05-09 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+    #>  gtable        0.3.0      2019-03-25 [1] CRAN (R 4.2.0)
+    #>  haven         2.5.0      2022-04-15 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.2.0)
+    #>  hms           1.1.1      2021-09-26 [1] CRAN (R 4.2.0)
+    #>  httr          1.4.3      2022-05-04 [1] CRAN (R 4.2.0)
+    #>  janitor       2.1.0      2021-01-05 [1] CRAN (R 4.2.0)
+    #>  jsonlite      1.8.0      2022-02-22 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
+    #>  lattice       0.20-45    2021-09-22 [2] CRAN (R 4.2.0)
+    #>  lifecycle     1.0.1      2021-09-24 [1] CRAN (R 4.2.0)
+    #>  listenv       0.8.0      2019-12-05 [1] CRAN (R 4.2.0)
+    #>  lme4        * 1.1-29     2022-04-07 [1] CRAN (R 4.2.0)
+    #>  lubridate     1.8.0      2021-10-07 [1] CRAN (R 4.2.0)
+    #>  magrittr      2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+    #>  MASS          7.3-56     2022-03-23 [2] CRAN (R 4.2.0)
+    #>  Matrix      * 1.4-1      2022-03-23 [2] CRAN (R 4.2.0)
+    #>  memoise       2.0.1      2021-11-26 [1] CRAN (R 4.2.0)
+    #>  minqa         1.2.4      2014-10-09 [1] CRAN (R 4.2.0)
+    #>  modelr        0.1.8      2020-05-19 [1] CRAN (R 4.2.0)
+    #>  munsell       0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
+    #>  nlme          3.1-157    2022-03-25 [2] CRAN (R 4.2.0)
+    #>  nloptr        2.0.2      2022-05-19 [1] CRAN (R 4.2.0)
+    #>  parallelly    1.31.1     2022-04-22 [1] CRAN (R 4.2.0)
+    #>  pillar        1.7.0      2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
+    #>  printy        0.0.0.9003 2022-03-16 [1] Github (tjmahr/printy@df0d96e)
+    #>  purrr       * 0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
+    #>  R6            2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.2      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  Rcpp          1.0.8.3    2022-03-17 [1] CRAN (R 4.2.0)
+    #>  readr       * 2.1.2      2022-01-30 [1] CRAN (R 4.2.0)
+    #>  readxl        1.4.0      2022-03-28 [1] CRAN (R 4.2.0)
+    #>  reprex        2.0.1      2021-08-05 [1] CRAN (R 4.2.0)
+    #>  rlang         1.0.2      2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.3      2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.2.0)
+    #>  rvest         1.0.2      2021-10-16 [1] CRAN (R 4.2.0)
+    #>  scales        1.2.0      2022-04-13 [1] CRAN (R 4.2.0)
+    #>  sessioninfo   1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+    #>  snakecase     0.11.0     2019-05-25 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.6      2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr     * 1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts   1.0.4      2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble      * 3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
+    #>  tidyr       * 1.2.0      2022-02-01 [1] CRAN (R 4.2.0)
+    #>  tidyselect    1.1.2      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  tidyverse   * 1.3.1      2021-04-15 [1] CRAN (R 4.2.0)
+    #>  tzdb          0.3.0      2022-03-28 [1] CRAN (R 4.2.0)
+    #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs         0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
+    #>  withr         2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
+    #>  xfun          0.31       2022-05-10 [1] CRAN (R 4.2.0)
+    #>  xml2          1.3.3      2021-11-30 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```
 
 [inline]: https://bookdown.org/yihui/rmarkdown-cookbook/r-code.html "Inline reporting page in a RMarkdown Cookbook"

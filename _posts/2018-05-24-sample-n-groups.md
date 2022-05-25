@@ -153,7 +153,7 @@ which returns the grouping index for each row in a grouped dataframe.
 ```r
 grouped %>% 
   tibble::add_column(group_index = group_indices(grouped)) 
-#> # A tibble: 6,507 x 6
+#> # A tibble: 6,507 × 6
 #> # Groups:   name [50]
 #>     year sex   name          n    prop group_index
 #>    <dbl> <chr> <chr>     <int>   <dbl>       <int>
@@ -167,7 +167,7 @@ grouped %>%
 #>  8  1880 F     Laura      1012 0.0104           29
 #>  9  1880 F     Catherine   688 0.00705          11
 #> 10  1880 F     Helen       636 0.00652          22
-#> # ... with 6,497 more rows
+#> # … with 6,497 more rows
 ```
 
 We can randomly sample five of the group indices and keep the rows for
@@ -183,7 +183,7 @@ sampled_groups
 subset_of_the_data <- data %>% 
   filter(group_indices(grouped) %in% sampled_groups)
 subset_of_the_data
-#> # A tibble: 684 x 5
+#> # A tibble: 684 × 5
 #>     year sex   name         n      prop
 #>    <dbl> <chr> <chr>    <int>     <dbl>
 #>  1  1880 F     Emma      2003 0.0205   
@@ -196,12 +196,12 @@ subset_of_the_data
 #>  8  1881 F     Linda       38 0.000384 
 #>  9  1881 F     Karen        6 0.0000607
 #> 10  1882 F     Emma      2303 0.0199   
-#> # ... with 674 more rows
+#> # … with 674 more rows
 
 # Confirm that only five names are in the dataset
 subset_of_the_data %>% 
   distinct(name)
-#> # A tibble: 5 x 1
+#> # A tibble: 5 × 1
 #>   name    
 #>   <chr>   
 #> 1 Emma    
@@ -237,7 +237,7 @@ names returns the data for 10 names.
 ten_names <- top_names %>% 
   sample_n_of(10, name) %>% 
   print()
-#> # A tibble: 1,271 x 5
+#> # A tibble: 1,271 × 5
 #>     year sex   name         n     prop
 #>    <dbl> <chr> <chr>    <int>    <dbl>
 #>  1  1880 F     Margaret  1578 0.0162  
@@ -250,11 +250,11 @@ ten_names <- top_names %>%
 #>  8  1881 F     Alice     1308 0.0132  
 #>  9  1881 F     Ruth       275 0.00278 
 #> 10  1881 F     Rebecca    226 0.00229 
-#> # ... with 1,261 more rows
+#> # … with 1,261 more rows
 
 ten_names %>% 
   distinct(name)
-#> # A tibble: 10 x 1
+#> # A tibble: 10 × 1
 #>    name    
 #>    <chr>   
 #>  1 Margaret
@@ -276,7 +276,7 @@ and years should return just ten rows.
 ```r
 top_names %>% 
   sample_n_of(10, name, year) 
-#> # A tibble: 10 x 5
+#> # A tibble: 10 × 5
 #>     year sex   name          n      prop
 #>    <dbl> <chr> <chr>     <int>     <dbl>
 #>  1  1882 F     Evelyn      125 0.00108  
@@ -312,7 +312,7 @@ grouping variables provided.
 ```r
 top_names %>% 
   tjmisc::sample_n_of(2)
-#> # A tibble: 2 x 5
+#> # A tibble: 2 × 5
 #>    year sex   name        n     prop
 #>   <dbl> <chr> <chr>   <int>    <dbl>
 #> 1  1882 F     Donna      19 0.000164
@@ -327,10 +327,10 @@ function we wrote above fails.
 top_names %>% 
   group_by(name) %>% 
   sample_n_of(2, year)
-#> Error: Problem with `filter()` input `..1`.
-#> i Input `..1` is `group_ids %in% sampled_groups`.
+#> Error in `filter()`:
+#> ! Problem while computing `..1 = group_ids %in% sampled_groups`.
 #> x Input `..1` must be of size 138 or 1, not size 6507.
-#> i The error occurred in group 1: name = "Alice".
+#> ℹ The error occurred in group 1: name = "Alice".
 ```
 
 Is this a problem?
@@ -343,7 +343,7 @@ name. Should it be the same two years? Then this should be fine.
 ```r
 top_names %>% 
   sample_n_of(2, year)
-#> # A tibble: 90 x 5
+#> # A tibble: 90 × 5
 #>     year sex   name          n    prop
 #>    <dbl> <chr> <chr>     <int>   <dbl>
 #>  1  1895 F     Mary      13446 0.0544 
@@ -356,7 +356,7 @@ top_names %>%
 #>  8  1895 F     Alice      2457 0.00994
 #>  9  1895 F     Frances    1834 0.00742
 #> 10  1895 F     Sarah      1777 0.00719
-#> # ... with 80 more rows
+#> # … with 80 more rows
 ```
 
 Or, should those two years be randomly selected for each name? Then, we
@@ -368,7 +368,7 @@ dataframe, applies it to each group, and returns the combined result.
 top_names %>% 
   group_by(name) %>% 
   do(sample_n_of(., 2, year))
-#> # A tibble: 100 x 5
+#> # A tibble: 100 × 5
 #> # Groups:   name [50]
 #>     year sex   name       n     prop
 #>    <dbl> <chr> <chr>  <int>    <dbl>
@@ -382,7 +382,7 @@ top_names %>%
 #>  8  1936 F     Angela   595 0.000552
 #>  9  1881 F     Anna    2698 0.0273  
 #> 10  1965 F     Anna    3921 0.00215 
-#> # ... with 90 more rows
+#> # … with 90 more rows
 ```
 
 I think raising an error and forcing the user to clarify their code is a
@@ -395,79 +395,77 @@ expects.
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-24-sample-n-groups.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: man mechanic: medium-dark skin tone, input numbers, old man
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version    date (UTC) lib source
-    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.1.0)
-    #>  babynames     1.0.1      2021-04-12 [1] CRAN (R 4.1.1)
-    #>  cli           3.1.0      2021-10-27 [1] CRAN (R 4.1.1)
-    #>  colorspace    2.0-2      2021-06-24 [1] CRAN (R 4.1.0)
-    #>  crayon        1.4.2      2021-10-29 [1] CRAN (R 4.1.1)
-    #>  DBI           1.1.1      2021-01-15 [1] CRAN (R 4.1.0)
-    #>  digest        0.6.28     2021-09-23 [1] CRAN (R 4.1.1)
-    #>  dplyr       * 1.0.7      2021-06-18 [1] CRAN (R 4.1.0)
-    #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.1.0)
-    #>  evaluate      0.14       2019-05-28 [1] CRAN (R 4.1.0)
-    #>  fansi         0.5.0      2021-05-25 [1] CRAN (R 4.1.0)
-    #>  farver        2.1.0      2021-02-28 [1] CRAN (R 4.1.0)
-    #>  generics      0.1.1      2021-10-25 [1] CRAN (R 4.1.1)
-    #>  ggplot2     * 3.3.5      2021-06-25 [1] CRAN (R 4.1.0)
-    #>  git2r         0.28.0     2021-01-10 [1] CRAN (R 4.1.1)
-    #>  glue          1.4.2      2020-08-27 [1] CRAN (R 4.1.1)
-    #>  gtable        0.3.0      2019-03-25 [1] CRAN (R 4.1.0)
-    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.1.0)
-    #>  highr         0.9        2021-04-16 [1] CRAN (R 4.1.0)
-    #>  knitr       * 1.36       2021-09-29 [1] CRAN (R 4.1.1)
-    #>  labeling      0.4.2      2020-10-20 [1] CRAN (R 4.1.0)
-    #>  lifecycle     1.0.1      2021-09-24 [1] CRAN (R 4.1.1)
-    #>  magrittr      2.0.1      2020-11-17 [1] CRAN (R 4.1.0)
-    #>  munsell       0.5.0      2018-06-12 [1] CRAN (R 4.1.0)
-    #>  pillar        1.6.4      2021-10-18 [1] CRAN (R 4.1.1)
-    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.1.0)
-    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.1.0)
-    #>  R6            2.5.1      2021-08-19 [1] CRAN (R 4.1.1)
-    #>  ragg          1.2.0      2021-10-30 [1] CRAN (R 4.1.1)
-    #>  rlang         0.4.12     2021-10-18 [1] CRAN (R 4.1.1)
-    #>  rprojroot     2.0.2      2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.1.0)
-    #>  scales        1.1.1      2020-05-11 [1] CRAN (R 4.1.0)
-    #>  sessioninfo   1.2.1      2021-11-02 [1] CRAN (R 4.1.2)
-    #>  stringi       1.7.5      2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts   1.0.3      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  tibble        3.1.5      2021-09-30 [1] CRAN (R 4.1.1)
-    #>  tidyselect    1.1.1      2021-04-30 [1] CRAN (R 4.1.0)
-    #>  tjmisc        0.0.0.9000 2021-11-16 [1] Github (tjmahr/tjmisc@6724405)
-    #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.1.0)
-    #>  vctrs         0.3.8      2021-04-29 [1] CRAN (R 4.1.0)
-    #>  withr         2.4.2      2021-04-18 [1] CRAN (R 4.1.0)
-    #>  xfun          0.27       2021-10-18 [1] CRAN (R 4.1.1)
+    #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
+    #>  babynames     1.0.1      2021-04-12 [1] CRAN (R 4.2.0)
+    #>  cli           3.2.0      2022-02-14 [1] CRAN (R 4.2.0)
+    #>  colorspace    2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
+    #>  DBI           1.1.2      2021-12-20 [1] CRAN (R 4.2.0)
+    #>  digest        0.6.29     2021-12-01 [1] CRAN (R 4.2.0)
+    #>  dplyr       * 1.0.9      2022-04-28 [1] CRAN (R 4.2.0)
+    #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
+    #>  evaluate      0.15       2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi         1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
+    #>  farver        2.1.0      2021-02-28 [1] CRAN (R 4.2.0)
+    #>  generics      0.1.2      2022-01-31 [1] CRAN (R 4.2.0)
+    #>  ggplot2     * 3.3.6      2022-05-03 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1     2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+    #>  gtable        0.3.0      2019-03-25 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1      2020-12-13 [1] CRAN (R 4.2.0)
+    #>  highr         0.9        2021-04-16 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
+    #>  labeling      0.4.2      2020-10-20 [1] CRAN (R 4.2.0)
+    #>  lifecycle     1.0.1      2021-09-24 [1] CRAN (R 4.2.0)
+    #>  magrittr      2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+    #>  munsell       0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
+    #>  pillar        1.7.0      2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
+    #>  purrr         0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
+    #>  R6            2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.2      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  rlang         1.0.2      2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.3      2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.13       2020-11-12 [1] CRAN (R 4.2.0)
+    #>  scales        1.2.0      2022-04-13 [1] CRAN (R 4.2.0)
+    #>  sessioninfo   1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.6      2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr       1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts   1.0.4      2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble        3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
+    #>  tidyselect    1.1.2      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  tjmisc        0.0.0.9000 2022-03-21 [1] Github (tjmahr/tjmisc@6724405)
+    #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs         0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
+    #>  withr         2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
+    #>  xfun          0.31       2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```
 

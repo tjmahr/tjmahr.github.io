@@ -37,20 +37,20 @@ library(ggplot2)
 msleep %>% 
   select(name, sleep_total, brainwt, bodywt, everything()) %>% 
   arrange(desc(brainwt / bodywt))
-#> # A tibble: 83 x 11
-#>    name     sleep_total brainwt bodywt genus  vore  order conservation sleep_rem
-#>    <chr>          <dbl>   <dbl>  <dbl> <chr>  <chr> <chr> <chr>            <dbl>
-#>  1 Thirtee~        13.8 0.004    0.101 Sperm~ herbi Rode~ lc                 3.4
-#>  2 Owl mon~        17   0.0155   0.48  Aotus  omni  Prim~ <NA>               1.8
-#>  3 Lesser ~         9.1 0.00014  0.005 Crypt~ omni  Sori~ lc                 1.4
-#>  4 Squirre~         9.6 0.02     0.743 Saimi~ omni  Prim~ <NA>               1.4
-#>  5 Macaque         10.1 0.179    6.8   Macaca omni  Prim~ <NA>               1.2
-#>  6 Little ~        19.9 0.00025  0.01  Myotis inse~ Chir~ <NA>               2  
-#>  7 Galago           9.8 0.005    0.2   Galago omni  Prim~ <NA>               1.1
-#>  8 Mole rat        10.6 0.003    0.122 Spalax <NA>  Rode~ <NA>               2.4
-#>  9 Tree sh~         8.9 0.0025   0.104 Tupaia omni  Scan~ <NA>               2.6
-#> 10 Human            8   1.32    62     Homo   omni  Prim~ <NA>               1.9
-#> # ... with 73 more rows, and 2 more variables: sleep_cycle <dbl>, awake <dbl>
+#> # A tibble: 83 × 11
+#>    name      sleep_total brainwt bodywt genus vore  order conservation sleep_rem
+#>    <chr>           <dbl>   <dbl>  <dbl> <chr> <chr> <chr> <chr>            <dbl>
+#>  1 Thirteen…        13.8 0.004    0.101 Sper… herbi Rode… lc                 3.4
+#>  2 Owl monk…        17   0.0155   0.48  Aotus omni  Prim… <NA>               1.8
+#>  3 Lesser s…         9.1 0.00014  0.005 Cryp… omni  Sori… lc                 1.4
+#>  4 Squirrel…         9.6 0.02     0.743 Saim… omni  Prim… <NA>               1.4
+#>  5 Macaque          10.1 0.179    6.8   Maca… omni  Prim… <NA>               1.2
+#>  6 Little b…        19.9 0.00025  0.01  Myot… inse… Chir… <NA>               2  
+#>  7 Galago            9.8 0.005    0.2   Gala… omni  Prim… <NA>               1.1
+#>  8 Mole rat         10.6 0.003    0.122 Spal… <NA>  Rode… <NA>               2.4
+#>  9 Tree shr…         8.9 0.0025   0.104 Tupa… omni  Scan… <NA>               2.6
+#> 10 Human             8   1.32    62     Homo  omni  Prim… <NA>               1.9
+#> # … with 73 more rows, and 2 more variables: sleep_cycle <dbl>, awake <dbl>
 
 ggplot(msleep) + 
   aes(x = brainwt, y = sleep_total) + 
@@ -199,6 +199,8 @@ m1 <- stan_glm(
   log_sleep_total ~ log_brainwt, 
   family = gaussian(), 
   data = msleep, 
+  # for reproducibility
+  seed = 20161118,
   prior = normal(0, 3),
   prior_intercept = normal(0, 3)
 )
@@ -234,11 +236,11 @@ summary(m1)
 #> 
 #> MCMC diagnostics
 #>               mcse Rhat n_eff
-#> (Intercept)   0.0  1.0  3694 
-#> log_brainwt   0.0  1.0  3114 
-#> sigma         0.0  1.0  3547 
-#> mean_PPD      0.0  1.0  3657 
-#> log-posterior 0.0  1.0  2026 
+#> (Intercept)   0.0  1.0  3683 
+#> log_brainwt   0.0  1.0  3808 
+#> sigma         0.0  1.0  2949 
+#> mean_PPD      0.0  1.0  3714 
+#> log-posterior 0.0  1.0  1646 
 #> 
 #> For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
 ```
@@ -250,7 +252,7 @@ the median parameter values.
 ```r
 coef(m1)
 #> (Intercept) log_brainwt 
-#>   0.7382638  -0.1263530
+#>   0.7369320  -0.1264927
 coef(m1_classical)
 #> (Intercept) log_brainwt 
 #>   0.7363492  -0.1264049
@@ -274,20 +276,20 @@ fits <- m1 %>%
   rename(intercept = `(Intercept)`) %>% 
   select(-sigma)
 fits
-#> # A tibble: 4,000 x 2
+#> # A tibble: 4,000 × 2
 #>    intercept log_brainwt
 #>        <dbl>       <dbl>
-#>  1     0.740      -0.135
-#>  2     0.741      -0.134
-#>  3     0.732      -0.125
-#>  4     0.742      -0.127
-#>  5     0.725      -0.132
-#>  6     0.726      -0.134
-#>  7     0.749      -0.119
-#>  8     0.729      -0.144
-#>  9     0.680      -0.166
-#> 10     0.687      -0.162
-#> # ... with 3,990 more rows
+#>  1     0.743     -0.136 
+#>  2     0.728     -0.118 
+#>  3     0.723     -0.136 
+#>  4     0.801     -0.104 
+#>  5     0.826     -0.0719
+#>  6     0.822     -0.0603
+#>  7     0.757     -0.103 
+#>  8     0.760     -0.117 
+#>  9     0.730     -0.123 
+#> 10     0.719     -0.146 
+#> # … with 3,990 more rows
 ```
 
 We now plot the 500 randomly sampled lines from our model with light, 
@@ -306,7 +308,7 @@ ggplot(msleep) +
   # Plot a random sample of rows as gray semi-transparent lines
   geom_abline(
     aes(intercept = intercept, slope = log_brainwt), 
-    data = sample_n(fits, n_draws), 
+    data = slice_sample(fits, n = n_draws), 
     color = col_draw, 
     alpha = alpha_level
   ) + 
@@ -364,7 +366,7 @@ new_data <- tibble(
   log_brainwt = x_steps
 )
 new_data
-#> # A tibble: 80 x 2
+#> # A tibble: 80 × 2
 #>    observation log_brainwt
 #>          <int>       <dbl>
 #>  1           1       -3.85
@@ -377,7 +379,7 @@ new_data
 #>  8           8       -3.45
 #>  9           9       -3.39
 #> 10          10       -3.33
-#> # ... with 70 more rows
+#> # … with 70 more rows
 ```
 
 The function `posterior_linpred()` returns the model-fitted means for a data-frame
@@ -406,19 +408,23 @@ tidy_predictions <- function(
   prob_lwr = .025, 
   prob_upr = .975
 ) {
-  # Get data-frame with one row per fitted value per posterior sample
+  # Get dataframe with one row per fitted value per posterior sample
   df_pred <- mat_pred %>% 
     as_tibble() %>% 
     setNames(seq_len(ncol(.))) %>% 
     tibble::rownames_to_column("posterior_sample") %>% 
-    tidyr::gather_(obs_name, "fitted", setdiff(names(.), "posterior_sample"))
+    tidyr::pivot_longer(
+      cols = c(-posterior_sample),
+      names_to = obs_name,
+      values_to = "fitted"
+    )
 
   # Helps with joining later
   class(df_pred[[obs_name]]) <- class(df_data[[obs_name]])
   
   # Summarise prediction interval for each observation
   df_pred %>% 
-    group_by_(obs_name) %>% 
+    group_by(.data[[obs_name]]) %>% 
     summarise(
       median = median(fitted),
       lower = quantile(fitted, prob_lwr), 
@@ -428,26 +434,21 @@ tidy_predictions <- function(
 }
 
 df_pred_lin <- tidy_predictions(pred_lin, new_data)
-#> Warning: `group_by_()` was deprecated in dplyr 0.7.0.
-#> Please use `group_by()` instead.
-#> See vignette('programming') for more help
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
 df_pred_lin
-#> # A tibble: 80 x 5
+#> # A tibble: 80 × 5
 #>    observation median lower upper log_brainwt
 #>          <int>  <dbl> <dbl> <dbl>       <dbl>
 #>  1           1   1.22  1.12  1.32       -3.85
-#>  2           2   1.22  1.12  1.31       -3.80
+#>  2           2   1.22  1.11  1.31       -3.80
 #>  3           3   1.21  1.11  1.30       -3.74
-#>  4           4   1.20  1.11  1.29       -3.68
-#>  5           5   1.19  1.10  1.28       -3.62
-#>  6           6   1.19  1.10  1.27       -3.56
+#>  4           4   1.20  1.10  1.29       -3.68
+#>  5           5   1.19  1.10  1.29       -3.62
+#>  6           6   1.19  1.09  1.28       -3.56
 #>  7           7   1.18  1.09  1.27       -3.50
-#>  8           8   1.17  1.09  1.26       -3.45
+#>  8           8   1.17  1.08  1.26       -3.45
 #>  9           9   1.17  1.08  1.25       -3.39
-#> 10          10   1.16  1.08  1.24       -3.33
-#> # ... with 70 more rows
+#> 10          10   1.16  1.07  1.24       -3.33
+#> # … with 70 more rows
 ```
 
 We can do the line-plus-interval plot using `geom_ribbon()` for the uncertainty
@@ -538,20 +539,20 @@ dim(pred_post)
 
 df_pred_post <- tidy_predictions(pred_post, new_data)
 df_pred_post
-#> # A tibble: 80 x 5
+#> # A tibble: 80 × 5
 #>    observation median lower upper log_brainwt
 #>          <int>  <dbl> <dbl> <dbl>       <dbl>
-#>  1           1   1.22 0.861  1.58       -3.85
-#>  2           2   1.21 0.862  1.58       -3.80
-#>  3           3   1.21 0.862  1.57       -3.74
-#>  4           4   1.20 0.843  1.56       -3.68
-#>  5           5   1.19 0.836  1.56       -3.62
-#>  6           6   1.19 0.828  1.55       -3.56
-#>  7           7   1.18 0.816  1.53       -3.50
-#>  8           8   1.17 0.824  1.52       -3.45
-#>  9           9   1.17 0.813  1.51       -3.39
-#> 10          10   1.16 0.803  1.53       -3.33
-#> # ... with 70 more rows
+#>  1           1   1.22 0.868  1.59       -3.85
+#>  2           2   1.22 0.868  1.57       -3.80
+#>  3           3   1.21 0.849  1.56       -3.74
+#>  4           4   1.21 0.854  1.56       -3.68
+#>  5           5   1.21 0.840  1.55       -3.62
+#>  6           6   1.19 0.830  1.55       -3.56
+#>  7           7   1.18 0.827  1.54       -3.50
+#>  8           8   1.17 0.816  1.52       -3.45
+#>  9           9   1.16 0.816  1.52       -3.39
+#> 10          10   1.16 0.793  1.53       -3.33
+#> # … with 70 more rows
 ```
 
 And we can plot the interval in the same way.
@@ -637,143 +638,137 @@ goes live.
 
 ***
 
-*Last knitted on 2021-11-16. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-11-18-visualizing-uncertainty-rstanarm.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
     sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: black small square, input symbols, breast-feeding: light skin tone
-    #> 
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.2 (2021-11-01)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-16
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  ! package      * version  date (UTC) lib source
-    #>    abind          1.4-5    2016-07-21 [1] CRAN (R 4.1.0)
-    #>    arm            1.12-2   2021-10-15 [1] CRAN (R 4.1.1)
-    #>    assertthat     0.2.1    2019-03-21 [1] CRAN (R 4.1.0)
-    #>    base64enc      0.1-3    2015-07-28 [1] CRAN (R 4.1.0)
-    #>    bayesplot      1.8.1    2021-06-14 [1] CRAN (R 4.1.0)
-    #>    boot           1.3-28   2021-05-03 [2] CRAN (R 4.1.2)
-    #>    callr          3.7.0    2021-04-20 [1] CRAN (R 4.1.0)
-    #>    cli            3.1.0    2021-10-27 [1] CRAN (R 4.1.1)
-    #>    coda           0.19-4   2020-09-30 [1] CRAN (R 4.1.0)
-    #>    codetools      0.2-18   2020-11-04 [2] CRAN (R 4.1.2)
-    #>    colorspace     2.0-2    2021-06-24 [1] CRAN (R 4.1.0)
-    #>    colourpicker   1.1.1    2021-10-04 [1] CRAN (R 4.1.1)
-    #>    crayon         1.4.2    2021-10-29 [1] CRAN (R 4.1.1)
-    #>    crosstalk      1.2.0    2021-11-04 [1] CRAN (R 4.1.2)
-    #>    curl           4.3.2    2021-06-23 [1] CRAN (R 4.1.0)
-    #>    DBI            1.1.1    2021-01-15 [1] CRAN (R 4.1.0)
-    #>    digest         0.6.28   2021-09-23 [1] CRAN (R 4.1.1)
-    #>    dplyr        * 1.0.7    2021-06-18 [1] CRAN (R 4.1.0)
-    #>    DT             0.20     2021-11-15 [1] CRAN (R 4.1.2)
-    #>    dygraphs       1.1.1.6  2018-07-11 [1] CRAN (R 4.1.0)
-    #>    ellipsis       0.3.2    2021-04-29 [1] CRAN (R 4.1.0)
-    #>    evaluate       0.14     2019-05-28 [1] CRAN (R 4.1.0)
-    #>    fansi          0.5.0    2021-05-25 [1] CRAN (R 4.1.0)
-    #>    farver         2.1.0    2021-02-28 [1] CRAN (R 4.1.0)
-    #>    fastmap        1.1.0    2021-01-25 [1] CRAN (R 4.1.0)
-    #>    generics       0.1.1    2021-10-25 [1] CRAN (R 4.1.1)
-    #>    ggplot2      * 3.3.5    2021-06-25 [1] CRAN (R 4.1.0)
-    #>    ggrepel        0.9.1    2021-01-15 [1] CRAN (R 4.1.1)
-    #>    ggridges       0.5.3    2021-01-08 [1] CRAN (R 4.1.0)
-    #>    git2r          0.28.0   2021-01-10 [1] CRAN (R 4.1.1)
-    #>    glue           1.4.2    2020-08-27 [1] CRAN (R 4.1.1)
-    #>    gridExtra      2.3      2017-09-09 [1] CRAN (R 4.1.0)
-    #>    gtable         0.3.0    2019-03-25 [1] CRAN (R 4.1.0)
-    #>    gtools         3.9.2    2021-06-06 [1] CRAN (R 4.1.0)
-    #>    here           1.0.1    2020-12-13 [1] CRAN (R 4.1.0)
-    #>    highr          0.9      2021-04-16 [1] CRAN (R 4.1.0)
-    #>    htmltools      0.5.2    2021-08-25 [1] CRAN (R 4.1.1)
-    #>    htmlwidgets    1.5.4    2021-09-08 [1] CRAN (R 4.1.1)
-    #>    httpuv         1.6.3    2021-09-09 [1] CRAN (R 4.1.1)
-    #>    igraph         1.2.7    2021-10-15 [1] CRAN (R 4.1.1)
-    #>    inline         0.3.19   2021-05-31 [1] CRAN (R 4.1.0)
-    #>    jsonlite       1.7.2    2020-12-09 [1] CRAN (R 4.1.0)
-    #>    knitr        * 1.36     2021-09-29 [1] CRAN (R 4.1.1)
-    #>    labeling       0.4.2    2020-10-20 [1] CRAN (R 4.1.0)
-    #>    later          1.3.0    2021-08-18 [1] CRAN (R 4.1.1)
-    #>    lattice        0.20-45  2021-09-22 [2] CRAN (R 4.1.2)
-    #>    lifecycle      1.0.1    2021-09-24 [1] CRAN (R 4.1.1)
-    #>    lme4           1.1-27.1 2021-06-22 [1] CRAN (R 4.1.0)
-    #>    loo            2.4.1    2020-12-09 [1] CRAN (R 4.1.0)
-    #>    magrittr       2.0.1    2020-11-17 [1] CRAN (R 4.1.0)
-    #>    markdown       1.1      2019-08-07 [1] CRAN (R 4.1.0)
-    #>    MASS           7.3-54   2021-05-03 [2] CRAN (R 4.1.2)
-    #>    Matrix         1.3-4    2021-06-01 [2] CRAN (R 4.1.2)
-    #>    matrixStats    0.61.0   2021-09-17 [1] CRAN (R 4.1.1)
-    #>    mgcv           1.8-38   2021-10-06 [2] CRAN (R 4.1.2)
-    #>    mime           0.12     2021-09-28 [1] CRAN (R 4.1.1)
-    #>    miniUI         0.1.1.1  2018-05-18 [1] CRAN (R 4.1.0)
-    #>    minqa          1.2.4    2014-10-09 [1] CRAN (R 4.1.0)
-    #>    munsell        0.5.0    2018-06-12 [1] CRAN (R 4.1.0)
-    #>    nlme           3.1-153  2021-09-07 [2] CRAN (R 4.1.2)
-    #>    nloptr         1.2.2.2  2020-07-02 [1] CRAN (R 4.1.1)
-    #>    pillar         1.6.4    2021-10-18 [1] CRAN (R 4.1.1)
-    #>    pkgbuild       1.2.0    2020-12-15 [1] CRAN (R 4.1.0)
-    #>    pkgconfig      2.0.3    2019-09-22 [1] CRAN (R 4.1.0)
-    #>    plyr           1.8.6    2020-03-03 [1] CRAN (R 4.1.0)
-    #>    prettyunits    1.1.1    2020-01-24 [1] CRAN (R 4.1.0)
-    #>    processx       3.5.2    2021-04-30 [1] CRAN (R 4.1.0)
-    #>    promises       1.2.0.1  2021-02-11 [1] CRAN (R 4.1.0)
-    #>    ps             1.6.0    2021-02-28 [1] CRAN (R 4.1.0)
-    #>    purrr          0.3.4    2020-04-17 [1] CRAN (R 4.1.0)
-    #>    R6             2.5.1    2021-08-19 [1] CRAN (R 4.1.1)
-    #>    ragg           1.2.0    2021-10-30 [1] CRAN (R 4.1.1)
-    #>    Rcpp         * 1.0.7    2021-07-07 [1] CRAN (R 4.1.0)
-    #>  D RcppParallel   5.1.4    2021-05-04 [1] CRAN (R 4.1.0)
-    #>    reshape2       1.4.4    2020-04-09 [1] CRAN (R 4.1.0)
-    #>    rlang          0.4.12   2021-10-18 [1] CRAN (R 4.1.1)
-    #>    rprojroot      2.0.2    2020-11-15 [1] CRAN (R 4.1.0)
-    #>    rsconnect      0.8.24   2021-08-05 [1] CRAN (R 4.1.0)
-    #>    rstan          2.21.2   2020-07-27 [1] CRAN (R 4.1.0)
-    #>    rstanarm     * 2.21.1   2020-07-20 [1] CRAN (R 4.1.1)
-    #>    rstantools     2.1.1    2020-07-06 [1] CRAN (R 4.1.0)
-    #>    rstudioapi     0.13     2020-11-12 [1] CRAN (R 4.1.0)
-    #>    scales         1.1.1    2020-05-11 [1] CRAN (R 4.1.0)
-    #>    sessioninfo    1.2.1    2021-11-02 [1] CRAN (R 4.1.2)
-    #>    shiny          1.7.1    2021-10-02 [1] CRAN (R 4.1.1)
-    #>    shinyjs        2.0.0    2020-09-09 [1] CRAN (R 4.1.0)
-    #>    shinystan      2.5.0    2018-05-01 [1] CRAN (R 4.1.1)
-    #>    shinythemes    1.2.0    2021-01-25 [1] CRAN (R 4.1.0)
-    #>    StanHeaders    2.21.0-7 2020-12-17 [1] CRAN (R 4.1.0)
-    #>    stringi        1.7.5    2021-10-04 [1] CRAN (R 4.1.1)
-    #>    stringr        1.4.0    2019-02-10 [1] CRAN (R 4.1.0)
-    #>    survival       3.2-13   2021-08-24 [2] CRAN (R 4.1.2)
-    #>    systemfonts    1.0.3    2021-10-13 [1] CRAN (R 4.1.1)
-    #>    textshaping    0.3.6    2021-10-13 [1] CRAN (R 4.1.1)
-    #>    threejs        0.3.3    2020-01-21 [1] CRAN (R 4.1.0)
-    #>    tibble         3.1.5    2021-09-30 [1] CRAN (R 4.1.1)
-    #>    tidyr          1.1.4    2021-09-27 [1] CRAN (R 4.1.1)
-    #>    tidyselect     1.1.1    2021-04-30 [1] CRAN (R 4.1.0)
-    #>    utf8           1.2.2    2021-07-24 [1] CRAN (R 4.1.0)
-    #>    V8             3.4.2    2021-05-01 [1] CRAN (R 4.1.1)
-    #>    vctrs          0.3.8    2021-04-29 [1] CRAN (R 4.1.0)
-    #>    withr          2.4.2    2021-04-18 [1] CRAN (R 4.1.0)
-    #>    xfun           0.27     2021-10-18 [1] CRAN (R 4.1.1)
-    #>    xtable         1.8-4    2019-04-21 [1] CRAN (R 4.1.0)
-    #>    xts            0.12.1   2020-09-09 [1] CRAN (R 4.1.0)
-    #>    zoo            1.8-9    2021-03-09 [1] CRAN (R 4.1.0)
+    #>    abind          1.4-5    2016-07-21 [1] CRAN (R 4.2.0)
+    #>    arm            1.12-2   2021-10-15 [1] CRAN (R 4.2.0)
+    #>    assertthat     0.2.1    2019-03-21 [1] CRAN (R 4.2.0)
+    #>    base64enc      0.1-3    2015-07-28 [1] CRAN (R 4.2.0)
+    #>    bayesplot      1.9.0    2022-03-10 [1] CRAN (R 4.2.0)
+    #>    boot           1.3-28   2021-05-03 [2] CRAN (R 4.2.0)
+    #>    callr          3.7.0    2021-04-20 [1] CRAN (R 4.2.0)
+    #>    cli            3.2.0    2022-02-14 [1] CRAN (R 4.2.0)
+    #>    coda           0.19-4   2020-09-30 [1] CRAN (R 4.2.0)
+    #>    codetools      0.2-18   2020-11-04 [2] CRAN (R 4.2.0)
+    #>    colorspace     2.0-3    2022-02-21 [1] CRAN (R 4.2.0)
+    #>    colourpicker   1.1.1    2021-10-04 [1] CRAN (R 4.2.0)
+    #>    crayon         1.5.1    2022-03-26 [1] CRAN (R 4.2.0)
+    #>    crosstalk      1.2.0    2021-11-04 [1] CRAN (R 4.2.0)
+    #>    DBI            1.1.2    2021-12-20 [1] CRAN (R 4.2.0)
+    #>    digest         0.6.29   2021-12-01 [1] CRAN (R 4.2.0)
+    #>    dplyr        * 1.0.9    2022-04-28 [1] CRAN (R 4.2.0)
+    #>    DT             0.23     2022-05-10 [1] CRAN (R 4.2.0)
+    #>    dygraphs       1.1.1.6  2018-07-11 [1] CRAN (R 4.2.0)
+    #>    ellipsis       0.3.2    2021-04-29 [1] CRAN (R 4.2.0)
+    #>    evaluate       0.15     2022-02-18 [1] CRAN (R 4.2.0)
+    #>    fansi          1.0.3    2022-03-24 [1] CRAN (R 4.2.0)
+    #>    farver         2.1.0    2021-02-28 [1] CRAN (R 4.2.0)
+    #>    fastmap        1.1.0    2021-01-25 [1] CRAN (R 4.2.0)
+    #>    generics       0.1.2    2022-01-31 [1] CRAN (R 4.2.0)
+    #>    ggplot2      * 3.3.6    2022-05-03 [1] CRAN (R 4.2.0)
+    #>    ggrepel        0.9.1    2021-01-15 [1] CRAN (R 4.2.0)
+    #>    ggridges       0.5.3    2021-01-08 [1] CRAN (R 4.2.0)
+    #>    git2r          0.30.1   2022-03-16 [1] CRAN (R 4.2.0)
+    #>    glue           1.6.2    2022-02-24 [1] CRAN (R 4.2.0)
+    #>    gridExtra      2.3      2017-09-09 [1] CRAN (R 4.2.0)
+    #>    gtable         0.3.0    2019-03-25 [1] CRAN (R 4.2.0)
+    #>    gtools         3.9.2    2021-06-06 [1] CRAN (R 4.2.0)
+    #>    here           1.0.1    2020-12-13 [1] CRAN (R 4.2.0)
+    #>    highr          0.9      2021-04-16 [1] CRAN (R 4.2.0)
+    #>    htmltools      0.5.2    2021-08-25 [1] CRAN (R 4.2.0)
+    #>    htmlwidgets    1.5.4    2021-09-08 [1] CRAN (R 4.2.0)
+    #>    httpuv         1.6.5    2022-01-05 [1] CRAN (R 4.2.0)
+    #>    igraph         1.3.1    2022-04-20 [1] CRAN (R 4.2.0)
+    #>    inline         0.3.19   2021-05-31 [1] CRAN (R 4.2.0)
+    #>    knitr        * 1.39     2022-04-26 [1] CRAN (R 4.2.0)
+    #>    labeling       0.4.2    2020-10-20 [1] CRAN (R 4.2.0)
+    #>    later          1.3.0    2021-08-18 [1] CRAN (R 4.2.0)
+    #>    lattice        0.20-45  2021-09-22 [2] CRAN (R 4.2.0)
+    #>    lifecycle      1.0.1    2021-09-24 [1] CRAN (R 4.2.0)
+    #>    lme4           1.1-29   2022-04-07 [1] CRAN (R 4.2.0)
+    #>    loo            2.5.1    2022-03-24 [1] CRAN (R 4.2.0)
+    #>    magrittr       2.0.3    2022-03-30 [1] CRAN (R 4.2.0)
+    #>    markdown       1.1      2019-08-07 [1] CRAN (R 4.2.0)
+    #>    MASS           7.3-56   2022-03-23 [2] CRAN (R 4.2.0)
+    #>    Matrix         1.4-1    2022-03-23 [2] CRAN (R 4.2.0)
+    #>    matrixStats    0.62.0   2022-04-19 [1] CRAN (R 4.2.0)
+    #>    mgcv           1.8-40   2022-03-29 [2] CRAN (R 4.2.0)
+    #>    mime           0.12     2021-09-28 [1] CRAN (R 4.2.0)
+    #>    miniUI         0.1.1.1  2018-05-18 [1] CRAN (R 4.2.0)
+    #>    minqa          1.2.4    2014-10-09 [1] CRAN (R 4.2.0)
+    #>    munsell        0.5.0    2018-06-12 [1] CRAN (R 4.2.0)
+    #>    nlme           3.1-157  2022-03-25 [2] CRAN (R 4.2.0)
+    #>    nloptr         2.0.2    2022-05-19 [1] CRAN (R 4.2.0)
+    #>    pillar         1.7.0    2022-02-01 [1] CRAN (R 4.2.0)
+    #>    pkgbuild       1.3.1    2021-12-20 [1] CRAN (R 4.2.0)
+    #>    pkgconfig      2.0.3    2019-09-22 [1] CRAN (R 4.2.0)
+    #>    plyr           1.8.7    2022-03-24 [1] CRAN (R 4.2.0)
+    #>    prettyunits    1.1.1    2020-01-24 [1] CRAN (R 4.2.0)
+    #>    processx       3.5.3    2022-03-25 [1] CRAN (R 4.2.0)
+    #>    promises       1.2.0.1  2021-02-11 [1] CRAN (R 4.2.0)
+    #>    ps             1.7.0    2022-04-23 [1] CRAN (R 4.2.0)
+    #>    purrr          0.3.4    2020-04-17 [1] CRAN (R 4.2.0)
+    #>    R6             2.5.1    2021-08-19 [1] CRAN (R 4.2.0)
+    #>    ragg           1.2.2    2022-02-21 [1] CRAN (R 4.2.0)
+    #>    Rcpp         * 1.0.8.3  2022-03-17 [1] CRAN (R 4.2.0)
+    #>  D RcppParallel   5.1.5    2022-01-05 [1] CRAN (R 4.2.0)
+    #>    reshape2       1.4.4    2020-04-09 [1] CRAN (R 4.2.0)
+    #>    rlang          1.0.2    2022-03-04 [1] CRAN (R 4.2.0)
+    #>    rprojroot      2.0.3    2022-04-02 [1] CRAN (R 4.2.0)
+    #>    rstan          2.21.5   2022-04-11 [1] CRAN (R 4.2.0)
+    #>    rstanarm     * 2.21.3   2022-04-09 [1] CRAN (R 4.2.0)
+    #>    rstantools     2.2.0    2022-04-08 [1] CRAN (R 4.2.0)
+    #>    rstudioapi     0.13     2020-11-12 [1] CRAN (R 4.2.0)
+    #>    scales         1.2.0    2022-04-13 [1] CRAN (R 4.2.0)
+    #>    sessioninfo    1.2.2    2021-12-06 [1] CRAN (R 4.2.0)
+    #>    shiny          1.7.1    2021-10-02 [1] CRAN (R 4.2.0)
+    #>    shinyjs        2.1.0    2021-12-23 [1] CRAN (R 4.2.0)
+    #>    shinystan      2.6.0    2022-03-03 [1] CRAN (R 4.2.0)
+    #>    shinythemes    1.2.0    2021-01-25 [1] CRAN (R 4.2.0)
+    #>    StanHeaders    2.21.0-7 2020-12-17 [1] CRAN (R 4.2.0)
+    #>    stringi        1.7.6    2021-11-29 [1] CRAN (R 4.2.0)
+    #>    stringr        1.4.0    2019-02-10 [1] CRAN (R 4.2.0)
+    #>    survival       3.3-1    2022-03-03 [2] CRAN (R 4.2.0)
+    #>    systemfonts    1.0.4    2022-02-11 [1] CRAN (R 4.2.0)
+    #>    textshaping    0.3.6    2021-10-13 [1] CRAN (R 4.2.0)
+    #>    threejs        0.3.3    2020-01-21 [1] CRAN (R 4.2.0)
+    #>    tibble         3.1.7    2022-05-03 [1] CRAN (R 4.2.0)
+    #>    tidyr          1.2.0    2022-02-01 [1] CRAN (R 4.2.0)
+    #>    tidyselect     1.1.2    2022-02-21 [1] CRAN (R 4.2.0)
+    #>    utf8           1.2.2    2021-07-24 [1] CRAN (R 4.2.0)
+    #>    vctrs          0.4.1    2022-04-13 [1] CRAN (R 4.2.0)
+    #>    withr          2.5.0    2022-03-03 [1] CRAN (R 4.2.0)
+    #>    xfun           0.31     2022-05-10 [1] CRAN (R 4.2.0)
+    #>    xtable         1.8-4    2019-04-21 [1] CRAN (R 4.2.0)
+    #>    xts            0.12.1   2020-09-09 [1] CRAN (R 4.2.0)
+    #>    zoo            1.8-10   2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.2/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
-    #>  D -- DLL MD5 mismatch, broken installation.
+    #>  D ── DLL MD5 mismatch, broken installation.
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```
 
 [^1]: That is, if we map the plot's color aesthetic to a categorical variable 
