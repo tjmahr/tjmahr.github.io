@@ -7,13 +7,16 @@ library(knitr)
 #   "ggmcmc", "ellipse", "ggrepel", "pryr", "lobstr", "conflicted",
 #   "reticulate", "cowplot", "gamair", "microbenchmark", "polypoly",
 #   "irr", "psych", "DiagrammeR", "babynames", "DiagrammeRsvg",
-#   "uuid", "gratia", "lazyeval", "cowplot"
+#   "uuid", "gratia", "lazyeval", "cowplot", "geomtextpath",
+#   "janeaustenr"
 # )
 #
 # missing <- setdiff(dont_forget_these_packages, installed.packages()[, 1])
 # if (length(missing)) {
 #   install.packages(missing)
+#   remotes::install_github("hadley/emo")
 #   remotes::install_github("tjmahr/iccbot")
+#   remotes::install_github("gadenbuie/grkstyle")
 #   remotes::install_github("tjmahr/fillgaze")
 #   remotes::install_github("tjmahr/solarizeddocx")
 # }
@@ -82,7 +85,7 @@ paths_draft_posts <- list_rmds("./_R/_drafts")
 
 
 # Set target-specific options such as packages.
-tar_option_set(packages = "knitr")
+tar_option_set(packages = "knitr", error = "continue")
 
 make_post_name <- function(xs, prefix = "post") {
   candidates <- xs %>%

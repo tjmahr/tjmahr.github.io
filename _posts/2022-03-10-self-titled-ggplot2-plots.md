@@ -69,7 +69,7 @@ way to combine these two graphical objects together (the code and the
 plot produced by ggplot2). I like the
 [patchwork](https://patchwork.data-imaginist.com/articles/patchwork.html)
 package for this job. Here we use
-[`wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html) to capture the plot into a
+[`wrap_elements()`](https://rdrr.io/pkg/patchwork/man/wrap_elements.html) to capture the plot into a
 "patch" that patchwork can annotate.
 
 
@@ -137,7 +137,7 @@ Time for some *nonstandard evaluation*. I will use the
 [rlang](https://rlang.r-lib.org/) package, although in principle we
 could use functions in base R to accomplish these goals.
 
-First, we are going to use [`rlang::expr()`](https://rlang.r-lib.org/reference/expr.html) to
+First, we are going to use [`rlang::expr()`](https://rdrr.io/pkg/rlang/man/expr.html) to
 capture/quote/[defuse](https://rlang.r-lib.org/reference/topic-defuse.html)
 the R code as an expression. We can print the code as code, print it as
 text, and use `eval()` to show the plot.
@@ -217,7 +217,7 @@ wrap_elements(eval(p_code)) +
 ## Putting it all together
 
 When we write our `self_document()` function, the only change we have to
-make is using [`rlang::enexpr()`](https://rlang.r-lib.org/reference/defusing-advanced.html) instead `rlang::expr()`. The
+make is using [`rlang::enexpr()`](https://rdrr.io/pkg/rlang/man/defusing-advanced.html) instead `rlang::expr()`. The
 en-variant is used when we want to *en*-quote exactly what the user
 provided. Aside from that change, our `self_document()` function just bundles together all of the code we developed above:
 
@@ -332,7 +332,7 @@ print(f, useSource = TRUE)
 #>   theme_minimal() +
 #>   labs(title = "A basic histogram")
 #> }
-#> <environment: 0x000001c6c127d948>
+#> <environment: 0x0000027429a9fcb0>
 ```
 
 I have no idea how to go about exploiting this feature for
@@ -344,7 +344,7 @@ self-documenting plots, however.
 
 ***
 
-*Last knitted on 2022-03-24. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-self-titled-ggplot2-plots.Rmd).*[^si] 
 
 [^si]: 
@@ -353,7 +353,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     sessioninfo::session_info()
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R Under development (unstable) (2022-03-02 r81842 ucrt)
+    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -361,7 +361,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-03-24
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -370,30 +370,30 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  cachem        1.0.6   2021-08-19 [1] CRAN (R 4.2.0)
     #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
     #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
-    #>  crayon        1.5.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
     #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
     #>  digest        0.6.29  2021-12-01 [1] CRAN (R 4.2.0)
     #>  downlit       0.4.0   2021-10-29 [1] CRAN (R 4.2.0)
-    #>  dplyr         1.0.8   2022-02-08 [1] CRAN (R 4.2.0)
+    #>  dplyr         1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
     #>  ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
     #>  evaluate      0.15    2022-02-18 [1] CRAN (R 4.2.0)
-    #>  extrafont     0.17    2014-12-08 [1] CRAN (R 4.2.0)
+    #>  extrafont     0.18    2022-04-12 [1] CRAN (R 4.2.0)
     #>  extrafontdb   1.0     2012-06-11 [1] CRAN (R 4.2.0)
-    #>  fansi         1.0.2   2022-01-14 [1] CRAN (R 4.2.0)
+    #>  fansi         1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
     #>  farver        2.1.0   2021-02-28 [1] CRAN (R 4.2.0)
     #>  fastmap       1.1.0   2021-01-25 [1] CRAN (R 4.2.0)
     #>  generics      0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
-    #>  ggplot2     * 3.3.5   2021-06-25 [1] CRAN (R 4.2.0)
+    #>  ggplot2     * 3.3.6   2022-05-03 [1] CRAN (R 4.2.0)
     #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
     #>  glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
-    #>  grkstyle      0.0.3   2022-03-10 [1] Github (gadenbuie/grkstyle@6a7011c)
+    #>  grkstyle      0.0.3   2022-05-25 [1] Github (gadenbuie/grkstyle@6a7011c)
     #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
     #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
     #>  highr         0.9     2021-04-16 [1] CRAN (R 4.2.0)
-    #>  knitr       * 1.37    2021-12-16 [1] CRAN (R 4.2.0)
+    #>  knitr       * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
     #>  labeling      0.4.2   2020-10-20 [1] CRAN (R 4.2.0)
     #>  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
-    #>  magrittr      2.0.2   2022-01-26 [1] CRAN (R 4.2.0)
+    #>  magrittr      2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
     #>  memoise       2.0.1   2021-11-26 [1] CRAN (R 4.2.0)
     #>  munsell       0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
     #>  patchwork   * 1.1.1   2020-12-17 [1] CRAN (R 4.2.0)
@@ -407,26 +407,26 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
     #>  ragg          1.2.2   2022-02-21 [1] CRAN (R 4.2.0)
     #>  rlang         1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
-    #>  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.2.0)
+    #>  rprojroot     2.0.3   2022-04-02 [1] CRAN (R 4.2.0)
     #>  rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.2.0)
     #>  Rttf2pt1      1.3.10  2022-02-07 [1] CRAN (R 4.2.0)
-    #>  scales        1.1.1   2020-05-11 [1] CRAN (R 4.2.0)
+    #>  scales        1.2.0   2022-04-13 [1] CRAN (R 4.2.0)
     #>  sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
     #>  stringi       1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
     #>  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
     #>  styler        1.7.0   2022-03-13 [1] CRAN (R 4.2.0)
     #>  systemfonts   1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
     #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
-    #>  tibble        3.1.6   2021-11-07 [1] CRAN (R 4.2.0)
+    #>  tibble        3.1.7   2022-05-03 [1] CRAN (R 4.2.0)
     #>  tidyselect    1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
     #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
-    #>  vctrs         0.3.8   2021-04-29 [1] CRAN (R 4.2.0)
+    #>  vctrs         0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
     #>  withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
-    #>  xfun          0.30    2022-03-02 [1] CRAN (R 4.2.0)
+    #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  yaml          2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-devel/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0rc/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```
