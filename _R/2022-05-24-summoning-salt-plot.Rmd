@@ -191,9 +191,9 @@ ggplot(data) +
   geom_point()
 ```
 
-Oops! It assumed that we wanted to connected the dots separate for each
-color. We set the `group` aesthetic to a constant value so there is only
-one line drawn.
+Oops! It assumed that we wanted to connected the dots separately for
+each color. We have to set the `group` aesthetic to a constant value so
+there is only one line drawn.
 
 ```{r plot-grouped-correctly, fig.cap = "A step plot showing the world record progression. There is a single line and it changes color whenever a new record-holder takes over."}
 ggplot(data) + 
@@ -223,9 +223,9 @@ font_add_google("Press Start 2P")
 showtext_auto(TRUE)
 ```
 
-The void font provides nothing, so we have to specify the main colors,
+The void theme provides nothing, so we have to specify the main colors,
 the axis lines, and the plotting margin. We also crank up the chroma
-values for intense colors on the black background.
+values to have more intense colors for the black background.
 
 ```{r void-plot-2, fig.width = 4, fig.height = 2, fig.cap = "A step plot showing the world record progression. There is a black background now and an 8-bit looking font."}
 ggplot(data) + 
@@ -251,9 +251,13 @@ ggplot(data) +
 ```
 
 To keep overlapping points from looking like blobs, we can use a filled
-point. We see the outline of the points to black and the fill to the
-player color. Then we have to make sure that guide for the fill doesn't
-appear and that fill and color have the same color scale.
+point. For these, `color` is used on the border and `fill` is used on
+the inside. We will set the outline of the points to black and the fill
+to the player color. (If you look at more professional data
+visualizations, you see this trick frequently with white bordering
+around points.) With a new fill aesthetic in place, e have to make sure
+that guide for the fill doesn't appear and that fill and color have the
+same color scale.
 
 
 ```{r void-plot-3, fig.width = 4, fig.height = 2, fig.cap = "A step plot showing the world record progression. The points have been restyled to have a black outline."}
@@ -290,40 +294,47 @@ ggplot(data) +
 Finally, let's make another version of this figure. How might we make a
 more accessible presentation of this information (of who held a record
 and when), assuming that we only have a static image? A legend with
-players/colors is a nonstarter. One idea would be to label the point
-with an annotation whenever there is a new record holder.
+players/colors is a nonstarter. We could give each player their own
+distinct point shape so that color/shape encode the same information,
+but shapes get rough once you have to use more than four of them. We
+could use a player's first letter instead of a point (show an F for
+FadeVanity) but the letters quickly overlap.
+
+One idea would be to label the point with an annotation whenever there
+is a new record holder. 
 
 ```{r informative-plot, fig.width = 6.5, fig.cap = "A step plot showing the world record progression. The name of the player is next to their point whenever the record changes."}
 showtext_auto(FALSE)
-
 data <- data |>
-  # record whenever the title holder changes an "era"
   mutate(
+    # Remove the country flag annotation from this player
     player2 = ifelse(
       player == "[gb/eng]FadeVanity", 
       "FadeVanity", 
       player
     ),
+    # Record whenever the title holder changes as an "era"
     change = player != lag(player) | is.na(lag(player)),
     era = cumsum(change)
   ) 
 
-# I am going to hardcode some position adjustments for the labels
+# I am going to hardcode some vertical position adjustments for the labels.
 offsets <- c(1, 2, 1, 5, -1, 5, 4, 3, 2, 1, -4, -3, -2, -1)
 
 data_lab <- data |> 
   group_by(era) |> 
+  # Label the last point in an era
   filter(run_time_s == max(run_time_s)) |> 
   ungroup() |> 
   mutate(offset = offsets)
 
+nudge_factor <- 30
 ggplot(data) + 
   aes(x = date_posix, y = run_time_s, color = player) + 
-  geom_step(aes(group = 1), size = 1) +
   geom_text(
     aes(
       label = player2,
-      y = run_time_s + 30 * offset 
+      y = run_time_s + nudge_factor * offset 
     ),
     hjust = 0,
     size = 4,
@@ -331,13 +342,14 @@ ggplot(data) +
   ) +
   geom_segment(
     aes(
-      # i.e., run the line up to .95 of the label's height
-      yend = run_time_s + 30 * offset * .95, 
+      # i.e., run the line up to .95 of the label's nudging
+      yend = run_time_s + nudge_factor * offset * .95, 
       xend = date_posix
     ),     
     data = data_lab, 
     linetype = "dashed"
   ) + 
+  geom_step(aes(group = 1), size = 1) +
   geom_point(size = 3) +
   # yes, I'm adding forty million seconds to the last datetime
   expand_limits(x = max(data$date_posix) + 4e7) +
@@ -350,6 +362,7 @@ ggplot(data) +
   scale_y_continuous(
     name = "World record",
     breaks = 21:27 * 60,
+    # Show the minutes value with zero-padded seconds
     labels = function(x) sprintf("%d:%02.f", x %/% 60, x %% 60)
   ) + 
   theme_minimal(base_size = 14) +

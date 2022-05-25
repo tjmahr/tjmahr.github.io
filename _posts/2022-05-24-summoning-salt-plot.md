@@ -281,7 +281,7 @@ work on the plot.
 
 We want to draw a point for each particular record-setting event, and we
 want to draw a line that connects all of the points.
-[`geom_step()`](https://ggplot2.tidyverse.org/reference/geom_path.html) draws a line plot but it can move
+[`geom_step()`](https://rdrr.io/pkg/ggplot2/man/geom_path.html) draws a line plot but it can move
 straight up/down or straight left/right---no diagonal lines---so it's
 what we want. We also want to the color of these geometries to change
 with the record holder (`player`).
@@ -296,9 +296,9 @@ ggplot(data) +
 
 <img src="/figs/2022-05-24-summoning-salt-plot/plot-oops-1.png" title="A step plot with one line per player. It is not what we want." alt="A step plot with one line per player. It is not what we want." width="80%" style="display: block; margin: auto;" />
 
-Oops! It assumed that we wanted to connected the dots separate for each
-color. We set the `group` aesthetic to a constant value so there is only
-one line drawn.
+Oops! It assumed that we wanted to connected the dots separately for
+each color. We have to set the `group` aesthetic to a constant value so
+there is only one line drawn.
 
 
 ```r
@@ -311,7 +311,7 @@ ggplot(data) +
 <img src="/figs/2022-05-24-summoning-salt-plot/plot-grouped-correctly-1.png" title="A step plot showing the world record progression. There is a single line and it changes color whenever a new record-holder takes over." alt="A step plot showing the world record progression. There is a single line and it changes color whenever a new record-holder takes over." width="80%" style="display: block; margin: auto;" />
 
 Making the Summoning Salt version is just a matter of theming at this
-point. We use [`theme_void()`](https://ggplot2.tidyverse.org/reference/ggtheme.html) to completely wipe out
+point. We use [`theme_void()`](https://rdrr.io/pkg/ggplot2/man/ggtheme.html) to completely wipe out
 the current theme, and we hide the color legend.
 
 
@@ -337,9 +337,9 @@ font_add_google("Press Start 2P")
 showtext_auto(TRUE)
 ```
 
-The void font provides nothing, so we have to specify the main colors,
+The void theme provides nothing, so we have to specify the main colors,
 the axis lines, and the plotting margin. We also crank up the chroma
-values for intense colors on the black background.
+values to have more intense colors for the black background.
 
 
 ```r
@@ -367,9 +367,13 @@ ggplot(data) +
 <img src="/figs/2022-05-24-summoning-salt-plot/void-plot-2-1.png" title="A step plot showing the world record progression. There is a black background now and an 8-bit looking font." alt="A step plot showing the world record progression. There is a black background now and an 8-bit looking font." width="80%" style="display: block; margin: auto;" />
 
 To keep overlapping points from looking like blobs, we can use a filled
-point. We see the outline of the points to black and the fill to the
-player color. Then we have to make sure that guide for the fill doesn't
-appear and that fill and color have the same color scale.
+point. For these, `color` is used on the border and `fill` is used on
+the inside. We will set the outline of the points to black and the fill
+to the player color. (If you look at more professional data
+visualizations, you see this trick frequently with white bordering
+around points.) With a new fill aesthetic in place, e have to make sure
+that guide for the fill doesn't appear and that fill and color have the
+same color scale.
 
 
 
@@ -409,41 +413,48 @@ ggplot(data) +
 Finally, let's make another version of this figure. How might we make a
 more accessible presentation of this information (of who held a record
 and when), assuming that we only have a static image? A legend with
-players/colors is a nonstarter. One idea would be to label the point
-with an annotation whenever there is a new record holder.
+players/colors is a nonstarter. We could give each player their own
+distinct point shape so that color/shape encode the same information,
+but shapes get rough once you have to use more than four of them. We
+could use a player's first letter instead of a point (show an F for
+FadeVanity) but the letters quickly overlap.
+
+One idea would be to label the point with an annotation whenever there
+is a new record holder. 
 
 
 ```r
 showtext_auto(FALSE)
-
 data <- data |>
-  # record whenever the title holder changes an "era"
   mutate(
+    # Remove the country flag annotation from this player
     player2 = ifelse(
       player == "[gb/eng]FadeVanity", 
       "FadeVanity", 
       player
     ),
+    # Record whenever the title holder changes as an "era"
     change = player != lag(player) | is.na(lag(player)),
     era = cumsum(change)
   ) 
 
-# I am going to hardcode some position adjustments for the labels
+# I am going to hardcode some vertical position adjustments for the labels.
 offsets <- c(1, 2, 1, 5, -1, 5, 4, 3, 2, 1, -4, -3, -2, -1)
 
 data_lab <- data |> 
   group_by(era) |> 
+  # Label the last point in an era
   filter(run_time_s == max(run_time_s)) |> 
   ungroup() |> 
   mutate(offset = offsets)
 
+nudge_factor <- 30
 ggplot(data) + 
   aes(x = date_posix, y = run_time_s, color = player) + 
-  geom_step(aes(group = 1), size = 1) +
   geom_text(
     aes(
       label = player2,
-      y = run_time_s + 30 * offset 
+      y = run_time_s + nudge_factor * offset 
     ),
     hjust = 0,
     size = 4,
@@ -451,13 +462,14 @@ ggplot(data) +
   ) +
   geom_segment(
     aes(
-      # i.e., run the line up to .95 of the label's height
-      yend = run_time_s + 30 * offset * .95, 
+      # i.e., run the line up to .95 of the label's nudging
+      yend = run_time_s + nudge_factor * offset * .95, 
       xend = date_posix
     ),     
     data = data_lab, 
     linetype = "dashed"
   ) + 
+  geom_step(aes(group = 1), size = 1) +
   geom_point(size = 3) +
   # yes, I'm adding forty million seconds to the last datetime
   expand_limits(x = max(data$date_posix) + 4e7) +
@@ -470,6 +482,7 @@ ggplot(data) +
   scale_y_continuous(
     name = "World record",
     breaks = 21:27 * 60,
+    # Show the minutes value with zero-padded seconds
     labels = function(x) sprintf("%d:%02.f", x %/% 60, x %% 60)
   ) + 
   theme_minimal(base_size = 14) +
@@ -486,7 +499,7 @@ ggplot(data) +
 
 ***
 
-*Last knitted on 2022-05-24. [Source code on
+*Last knitted on 2022-05-25. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-05-24-summoning-salt-plot.Rmd).*[^si] 
 
 [^si]: 
@@ -503,7 +516,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-05-24-sum
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-24
+    #>  date     2022-05-25
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -579,7 +592,6 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-05-24-sum
     #>  withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  xml2          1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
-    #>  yaml          2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
     #> 
     #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0rc/library
