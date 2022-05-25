@@ -34,7 +34,7 @@ console.log(x || y);
 ```
 
 In R, we have *two* versions of logical *and* (`&` and `&&`) and logical
-*or* (`|` and `||`). What's going on? 
+*or* (`|` and `||`). What's going on?
 
 Documentation in [`help("Logic",
 package = "base")`](https://rdrr.io/r/base/Logic.html) provides the
@@ -71,11 +71,54 @@ In contrast, `&&` and `||` only work on *scalars* (length-one values).
 They return just one element. In this example, they look at `ttff[1]`
 and `tftf[1]`.
 
+```{r, eval = FALSE}
+# R 4.1.2 behavior
+
+# Returns something of length one
+ttff && tftf
+#> [1] TRUE
+ttff || tftf
+#> [1] TRUE
+```
+
+
+
+{% capture notice-text %}
+**Update: R is stricter now about some behaviors I had documented in
+this post**. R 4.2.0 was released after this post was written. Two
+[changes in that
+version](https://cran.rstudio.com/bin/windows/base/NEWS.R-4.2.0.html)
+change the behavior in this post. Here are the bullet points from the
+release notes:
+
+  - Calling `&&` or `||` with either argument of length greater than one
+    now gives a warning (which it is intended will become an error).
+
+  - Calling `if()` or `while()` with a condition of length greater than
+    one gives an error rather than a warning. Consequently, environment variable `_R_CHECK_LENGTH_1_CONDITION_` no longer has any effect. 
+
+These are good changes. They make it harder to do the wrong thing. But
+they also make this post inaccurate. Like, comically inaccurate: I went
+out of my way to demonstrate `_R_CHECK_LENGTH_1_CONDITION_` and now it
+doesn't do anything. I have updated some examples to show old and new
+behaviors.
+
 ```{r}
+# R current behavior
 # Returns something of length one
 ttff && tftf
 ttff || tftf
 ```
+
+The fact that `&&` throws two warnings and `||` throws one warning follows 
+from the short-circuit behavior discussed below in this post. [*May 25, 2022*]
+{% endcapture %}
+
+<div class="notice--info">
+  {{ notice-text | markdownify }}
+</div>
+
+
 
 To help remember the distinction, **think of the longer versions (`&&`,
 `||`) as *stricter* forms of the logical operators**. They don't just care
@@ -179,13 +222,25 @@ Recall the following from the documentation:
 
 `if()` statements are not vectorized. (See
 [`ifelse()`](https://rdrr.io/r/base/ifelse.html) instead.) `if()`
-statements complain when they see a vector:
+statements ~~complain~~ <u>error</u> when they see a vector:
 
-```{r}
+```{r, eval = FALSE}
+# R 4.1.2 behavior
 if (ttff | tftf) {
-  "We are going to get a warning."  
+  "We used to get a warning (before R 4.2.0)."  
+}
+#> Warning in if (ttff | tftf) {: the condition has length > 1 and only the first
+#> element will be used
+#> [1] "We used to get a warning (before R 4.2.0)." 
+```
+```{r}
+# R current behavior
+if (ttff | tftf) {
+  "We used to get a warning (before R 4.2.0)."  
 }
 ```
+
+
 
 The idea behind the documentation is that because `&` and `|` return
 vectors and because `if()` only likes scalars, we should not use the
@@ -193,17 +248,31 @@ shorter forms in `if()` statements. They provide the wrong output for
 `if()`. But that *does not mean* the following code with the stricter
 *or* operator is correct.
 
-```{r}
+```{r, eval = FALSE}
+# R 4.1.2 behavior
 if (ttff || tftf) {
-  "No warning but this code is not right."  
+  c(
+    "We used to not get a warning (before R 4.2.0), ", 
+    "even though this code is not right."
+  )
+}
+#> [1] "We used to not get a warning (before R 4.2.0), "
+#> [2] "even though this code is not right." 
+```
+```{r}
+# R current behavior
+if (ttff || tftf) {
+  c(
+    "We used to not get a warning (before R 4.2.0), ", 
+    "even though this code is not right."
+  )
 }
 ```
 
-Although the code here does not raise any warnings, it reduces all of
-the information in `ttff` and `tftf` into just `ttff[1]` and
-`tftf[1]`. Those values likely will not be appropriate for the
+Although the code here ~~does not~~ <u>used to not</u> raise any warnings, it
+reduces all of the information in `ttff` and `tftf` into just `ttff[1]`
+and `tftf[1]`. Those values likely will not be appropriate for the
 programming task at hand, so we should provide the scalars ourselves.
-
 
 ### `all()` and `any()` can apply *and* and *or* down a vector
 
@@ -239,9 +308,20 @@ all(FALSE, stop("this is an error"))
 Recall the following unsettling example where just `ttff[1]` and
 `tftf[1]` are considered in the `if()` statement. 
 
+
+```{r, eval = FALSE}
+# R 4.1.2 behavior
+if (ttff | tftf) {
+  "We used to get a warning (before R 4.2.0)."  
+}
+#> Warning in if (ttff | tftf) {: the condition has length > 1 and only the first
+#> element will be used
+#> [1] "We used to get a warning (before R 4.2.0)." 
+```
 ```{r}
-if (ttff || tftf) {
-  "No warning but this code is not right."  
+# R current behavior
+if (ttff | tftf) {
+  "We used to get a warning (before R 4.2.0)."  
 }
 ```
 
@@ -250,7 +330,23 @@ behavior illegal. In fact, we can make our code stricter by setting the
 system environment variable `_R_CHECK_LENGTH_1_LOGIC2_`. Once set, using
 the strict forms on inputs longer than 1 will throw an error. 
 
+```r
+# R 4.1.2 behavior
+Sys.setenv("_R_CHECK_LENGTH_1_LOGIC2_" = "TRUE")
+ttff && tftf
+#> Error in ttff && tftf: 'length(x) = 4 > 1' in coercion to 'logical(1)'
+ttff || tftf
+#> Error in ttff || tftf: 'length(x) = 4 > 1' in coercion to 'logical(1)'
+
+# Default behavior
+Sys.unsetenv("_R_CHECK_LENGTH_1_LOGIC2_")
+ttff && tftf
+#> [1] TRUE
+ttff || tftf
+#> [1] TRUE
+```
 ```{r}
+# R current behavior
 Sys.setenv("_R_CHECK_LENGTH_1_LOGIC2_" = "TRUE")
 ttff && tftf
 ttff || tftf
@@ -261,28 +357,17 @@ ttff && tftf
 ttff || tftf
 ```
 
-A related environment variable is `_R_CHECK_LENGTH_1_CONDITION_` that
-turn vectors inside of `if()` into errors instead of warnings.
+A related environment variable ~~is~~ <u>used to be</u>
+`_R_CHECK_LENGTH_1_CONDITION_` that turns vectors inside of `if()` into
+errors instead of warnings. [I had documented this variable in this
+post but I have removed it.--*May 25, 2022*].
 
-```{r}
-Sys.setenv("_R_CHECK_LENGTH_1_CONDITION_" = "TRUE")
-if (ttff | tftf) { 
-  "This code will not even be seen."
-}
-
-# Default behavior
-Sys.unsetenv("_R_CHECK_LENGTH_1_CONDITION_")
-if (ttff | tftf) { 
-  "We are going to get a warning."
-}
-```
-
-To make project code more robust, one might consider setting these
-inside of [a .Renviron
+To make project code more robust, one might consider setting
+`_R_CHECK_LENGTH_1_LOGIC2_` inside of [a .Renviron
 file](https://support.rstudio.com/hc/en-us/articles/360047157094-Managing-R-with-Rprofile-Renviron-Rprofile-site-Renviron-site-rsession-conf-and-repos-conf)
 or using them with [dotenv](https://github.com/gaborcsardi/dotenv). (But
-if I remember correctly, these checks apply to package code so you
-get errors for legal-but-dodgy R code in other people's packages.)
+if I remember correctly, these checks apply to package code so you get
+errors for legal-but-dodgy R code in other people's packages.)
 
 
 ## `NA`s infect other values

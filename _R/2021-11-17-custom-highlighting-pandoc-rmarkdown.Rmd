@@ -428,8 +428,8 @@ magick::image_read(png) %>%
   magick::image_crop(magick::geometry_area(1050, 400, 100, 100))
 ```
 
-The options also work with [`word_document()`](`r a_word_document`). In fact, that's how 
-`solarizeddocx::document()` works.
+The options also work with [`word_document()`](`r a_word_document`). In
+fact, that's how `solarizeddocx::document()` works.
 
 
 

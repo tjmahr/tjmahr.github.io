@@ -171,6 +171,8 @@ m1 <- stan_glm(
   log_sleep_total ~ log_brainwt, 
   family = gaussian(), 
   data = msleep, 
+  # for reproducibility
+  seed = 20161118,
   prior = normal(0, 3),
   prior_intercept = normal(0, 3)
 )
@@ -224,7 +226,7 @@ ggplot(msleep) +
   # Plot a random sample of rows as gray semi-transparent lines
   geom_abline(
     aes(intercept = intercept, slope = log_brainwt), 
-    data = sample_n(fits, n_draws), 
+    data = slice_sample(fits, n = n_draws), 
     color = col_draw, 
     alpha = alpha_level
   ) + 
@@ -304,19 +306,23 @@ tidy_predictions <- function(
   prob_lwr = .025, 
   prob_upr = .975
 ) {
-  # Get data-frame with one row per fitted value per posterior sample
+  # Get dataframe with one row per fitted value per posterior sample
   df_pred <- mat_pred %>% 
     as_tibble() %>% 
     setNames(seq_len(ncol(.))) %>% 
     tibble::rownames_to_column("posterior_sample") %>% 
-    tidyr::gather_(obs_name, "fitted", setdiff(names(.), "posterior_sample"))
+    tidyr::pivot_longer(
+      cols = c(-posterior_sample),
+      names_to = obs_name,
+      values_to = "fitted"
+    )
 
   # Helps with joining later
   class(df_pred[[obs_name]]) <- class(df_data[[obs_name]])
   
   # Summarise prediction interval for each observation
   df_pred %>% 
-    group_by_(obs_name) %>% 
+    group_by(.data[[obs_name]]) %>% 
     summarise(
       median = median(fitted),
       lower = quantile(fitted, prob_lwr), 
