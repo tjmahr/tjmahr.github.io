@@ -115,7 +115,8 @@ b_radon <- brm(
   log_radon ~ 1 + (1 | county), 
   radon, 
   family = gaussian, 
-  file = "radon"
+  file = "_caches/2021-02-26-radon", 
+  backend = "cmdstanr"
 )
 b_radon
 ```
@@ -724,7 +725,8 @@ b_gam_20 <- brm(
   accel ~ s(times, bs = "cr", k = 20),
   data = mcycle, 
   family = gaussian,
-  file = "b-gam-20"
+  file = "_caches/2021-02-26-mcycle20", 
+  backend = "cmdstanr"
 )
 summary(b_gam_20)
 ```
@@ -751,7 +753,7 @@ $$
    \mathbf{Z} &:  \texttt{zs_1_1} & \texttt{// standardized spline coefficients}\\
    \mathbf{S} &= \sigma \mathbf{Z} & \texttt{s_1_1 = sds_1_1 * zs_1_1}; \\
    \mathbf{Z} &\sim \textsf{Normal}(0, 1) & \texttt{target += std_normal_lpdf(zs_1_1);}\\
-   \mathbf{\sigma} &\sim \textsf{StudentT}(3, 0, 35.6) & \texttt{target += student_t_lpdf(sds_1_1 | 3, 0, 35.6) ...}\\
+   \mathbf{\sigma} &\sim \textsf{StudentT}(3, 0, 35.6) & \texttt{lprior += student_t_lpdf(sds_1_1 | 3, 0, 35.6) ...}\\
 
 \end{align*}
 $$
@@ -778,17 +780,18 @@ b_radon$model
 ...
 parameters {
   ...
-  vector<lower=0>[M_1] sd_1;  // group-level standard deviations
-  vector[N_1] z_1[M_1];  // standardized group-level effects
+  vector<lower=0>[M_1] sd_1; // group-level standard deviations
+  array[M_1] vector[N_1] z_1; // standardized group-level effects
 }
 transformed parameters {
-  vector[N_1] r_1_1;  // actual group-level effects
-  r_1_1 = (sd_1[1] * (z_1[1]));
+  vector[N_1] r_1_1; // actual group-level effects
+  r_1_1 = sd_1[1] * z_1[1];
+  real lprior = 0; // prior contributions to the log posterior
+  lprior += student_t_lpdf(sd_1 | 3, 0, 2.5)
+          - 1 * student_t_lccdf(0 | 3, 0, 2.5);
 }
 model {
   ...
-  target += student_t_lpdf(sd_1 | 3, 0, 2.5)
-    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
   target += std_normal_lpdf(z_1[1]);
 }
 ```
@@ -818,7 +821,7 @@ gam_radon <- gam(
 In this case, the basis matrix is just a single indicator variable for
 county.
 
-```{r, fig.cap = "A series are 85 spikes."}
+```{r, fig.cap = "A series of 85 spikes."}
 ggmatplot(model.matrix(gam_radon)[, -1])
 ```
 
@@ -847,7 +850,9 @@ Which closely matches the estimates from the Bayesian model above:
 
 ```{r}
 b_radon %>% 
-  posterior_summary(pars = c("sd_county__Intercept", "sigma")) %>% 
+  posterior_summary(
+    variable = c("sd_county__Intercept", "sigma")
+  ) %>% 
   round(3)
 ```
 
@@ -909,7 +914,7 @@ distinction when we use the phrase "random effects".
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd", R.options=list(width = 85)}
+```{r, child = "_R/_footer.Rmd"}
 ```
 
 
