@@ -542,16 +542,16 @@ df_pred_post
 #> # A tibble: 80 × 5
 #>    observation median lower upper log_brainwt
 #>          <int>  <dbl> <dbl> <dbl>       <dbl>
-#>  1           1   1.22 0.868  1.59       -3.85
-#>  2           2   1.22 0.868  1.57       -3.80
-#>  3           3   1.21 0.849  1.56       -3.74
-#>  4           4   1.21 0.854  1.56       -3.68
-#>  5           5   1.21 0.840  1.55       -3.62
-#>  6           6   1.19 0.830  1.55       -3.56
-#>  7           7   1.18 0.827  1.54       -3.50
-#>  8           8   1.17 0.816  1.52       -3.45
-#>  9           9   1.16 0.816  1.52       -3.39
-#> 10          10   1.16 0.793  1.53       -3.33
+#>  1           1   1.23 0.868  1.58       -3.85
+#>  2           2   1.22 0.864  1.57       -3.80
+#>  3           3   1.21 0.858  1.56       -3.74
+#>  4           4   1.20 0.856  1.55       -3.68
+#>  5           5   1.20 0.816  1.55       -3.62
+#>  6           6   1.19 0.837  1.54       -3.56
+#>  7           7   1.18 0.812  1.55       -3.50
+#>  8           8   1.18 0.816  1.54       -3.45
+#>  9           9   1.16 0.806  1.53       -3.39
+#> 10          10   1.16 0.814  1.52       -3.33
 #> # … with 70 more rows
 ```
 
@@ -638,25 +638,26 @@ goes live.
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-11-18-visualizing-uncertainty-rstanarm.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
-    #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
-    #>  os       Windows 10 x64 (build 22000)
-    #>  system   x86_64, mingw32
-    #>  ui       RTerm
-    #>  language (EN)
-    #>  collate  English_United States.utf8
-    #>  ctype    English_United States.utf8
-    #>  tz       America/Chicago
-    #>  date     2022-05-25
-    #>  pandoc   NA
+    #>  setting      value
+    #>  version      R version 4.2.0 (2022-04-22 ucrt)
+    #>  os           Windows 10 x64 (build 22000)
+    #>  system       x86_64, mingw32
+    #>  ui           RTerm
+    #>  language     (EN)
+    #>  collate      English_United States.utf8
+    #>  ctype        English_United States.utf8
+    #>  tz           America/Chicago
+    #>  date         2022-05-26
+    #>  pandoc       NA
+    #>  stan (rstan) 2.21.0
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  ! package      * version  date (UTC) lib source
@@ -667,7 +668,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-11-18-vis
     #>    bayesplot      1.9.0    2022-03-10 [1] CRAN (R 4.2.0)
     #>    boot           1.3-28   2021-05-03 [2] CRAN (R 4.2.0)
     #>    callr          3.7.0    2021-04-20 [1] CRAN (R 4.2.0)
-    #>    cli            3.2.0    2022-02-14 [1] CRAN (R 4.2.0)
+    #>    cli            3.3.0    2022-04-25 [1] CRAN (R 4.2.0)
     #>    coda           0.19-4   2020-09-30 [1] CRAN (R 4.2.0)
     #>    codetools      0.2-18   2020-11-04 [2] CRAN (R 4.2.0)
     #>    colorspace     2.0-3    2022-02-21 [1] CRAN (R 4.2.0)
@@ -692,7 +693,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-11-18-vis
     #>    glue           1.6.2    2022-02-24 [1] CRAN (R 4.2.0)
     #>    gridExtra      2.3      2017-09-09 [1] CRAN (R 4.2.0)
     #>    gtable         0.3.0    2019-03-25 [1] CRAN (R 4.2.0)
-    #>    gtools         3.9.2    2021-06-06 [1] CRAN (R 4.2.0)
+    #>    gtools         3.9.2.1  2022-05-23 [1] CRAN (R 4.2.0)
     #>    here           1.0.1    2020-12-13 [1] CRAN (R 4.2.0)
     #>    highr          0.9      2021-04-16 [1] CRAN (R 4.2.0)
     #>    htmltools      0.5.2    2021-08-25 [1] CRAN (R 4.2.0)
@@ -763,8 +764,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-11-18-vis
     #>    xts            0.12.1   2020-09-09 [1] CRAN (R 4.2.0)
     #>    zoo            1.8-10   2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #>  D ── DLL MD5 mismatch, broken installation.
     #> 

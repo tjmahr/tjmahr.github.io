@@ -78,7 +78,7 @@ Read more about [`knitr::knit()`](`r knitted_doc_url`)`.
 
 ::::
 
-Reported prepared on 2022-05-25 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
+Reported prepared on 2022-05-26 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
 with knitr version 1.39 😄.
 Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`. 
 ````
@@ -127,7 +127,7 @@ Read more about [`knitr::knit()`](`r knitted$doc_url`)`.
 
 ::::
 
-Reported prepared on 2022-05-25 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
+Reported prepared on 2022-05-26 from `2021-02-05-lists-knitr-secret-weapon.Rmd` 
 with knitr version 1.39 🙋. 
 Read more about [`knitr::knit()`](https://rdrr.io/pkg/knitr/man/knit.html)`. 
 ````
@@ -150,7 +150,7 @@ process all at once.
 ```r
 knitted
 #> $when
-#> [1] "2022-05-25"
+#> [1] "2022-05-26"
 #> 
 #> $where
 #> [1] "2021-02-05-lists-knitr-secret-weapon.Rmd"
@@ -496,7 +496,7 @@ two functions:
   - `split()` adds a level of depth to a list by splitting a list into
     sublists using a variable.
   - [`purrr::map_depth(.x, .depth,
-    .f)`](https://rdrr.io/pkg/purrr/man/map_if.html)
+    .f)`](https://purrr.tidyverse.org/reference/map_if.html)
     applies a function `.f` on the lists at a given `.depth`.
 
 So the function walks through each variable and applies `split()` at
@@ -521,7 +521,7 @@ super_split <- function(.data, ...) {
 The first variable splits the list at depth 0, the second variable
 splits the sublists at depth 1 (which were created in the prior split),
 and so on. The business with
-[`enquos(...)`](https://rdrr.io/pkg/rlang/man/enquo.html) is there
+[`enquos(...)`](https://rlang.r-lib.org/reference/enquo.html) is there
 to let me refer to the variable names directly.
 
 
@@ -530,16 +530,16 @@ to let me refer to the variable names directly.
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lists-knitr-secret-weapon.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -547,7 +547,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -559,7 +559,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>  broom.mixed * 0.2.9.4    2022-04-17 [1] CRAN (R 4.2.0)
     #>  cachem        1.0.6      2021-08-19 [1] CRAN (R 4.2.0)
     #>  cellranger    1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
-    #>  cli           3.2.0      2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli           3.3.0      2022-04-25 [1] CRAN (R 4.2.0)
     #>  codetools     0.2-18     2020-11-04 [2] CRAN (R 4.2.0)
     #>  colorspace    2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
     #>  crayon        1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
@@ -569,7 +569,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>  downlit       0.4.0      2021-10-29 [1] CRAN (R 4.2.0)
     #>  dplyr       * 1.0.9      2022-04-28 [1] CRAN (R 4.2.0)
     #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
-    #>  emo           0.0.0.9000 2022-05-25 [1] Github (hadley/emo@3f03b11)
+    #>  emo           0.0.0.9000 2022-05-26 [1] Github (hadley/emo@3f03b11)
     #>  evaluate      0.15       2022-02-18 [1] CRAN (R 4.2.0)
     #>  fansi         1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
     #>  fastmap       1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
@@ -607,7 +607,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>  parallelly    1.31.1     2022-04-22 [1] CRAN (R 4.2.0)
     #>  pillar        1.7.0      2022-02-01 [1] CRAN (R 4.2.0)
     #>  pkgconfig     2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
-    #>  printy        0.0.0.9003 2022-03-16 [1] Github (tjmahr/printy@df0d96e)
+    #>  printy        0.0.0.9003 2022-03-10 [1] Github (tjmahr/printy@df0d96e)
     #>  purrr       * 0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
     #>  R6            2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
     #>  ragg          1.2.2      2022-02-21 [1] CRAN (R 4.2.0)
@@ -636,9 +636,10 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-05-lis
     #>  withr         2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
     #>  xfun          0.31       2022-05-10 [1] CRAN (R 4.2.0)
     #>  xml2          1.3.3      2021-11-30 [1] CRAN (R 4.2.0)
+    #>  yaml          2.3.5      2022-02-21 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```

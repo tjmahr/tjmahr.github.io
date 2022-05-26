@@ -249,7 +249,7 @@ FALSE %||% 2
 #>         y
 #>     else x
 #> }
-#> <bytecode: 0x000001d947047590>
+#> <bytecode: 0x00000222b6a61598>
 #> <environment: namespace:rlang>
 ```
 
@@ -539,16 +539,16 @@ they are stricter.
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-think-of-stricter-logical-operators.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -556,12 +556,12 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-thi
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version date (UTC) lib source
-    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli           3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
     #>  evaluate      0.15    2022-02-18 [1] CRAN (R 4.2.0)
     #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
     #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
@@ -586,17 +586,21 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-thi
     #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ─ Python configuration ───────────────────────────────────────────────────────
-    #>  python:         C:/Users/Tristan/AppData/Local/r-miniconda/envs/r-reticulate/python.exe
-    #>  libpython:      C:/Users/Tristan/AppData/Local/r-miniconda/envs/r-reticulate/python36.dll
-    #>  pythonhome:     C:/Users/Tristan/AppData/Local/r-miniconda/envs/r-reticulate
-    #>  version:        3.6.10 (default, Mar  5 2020, 10:17:47) [MSC v.1900 64 bit (AMD64)]
+    #>  python:         C:/Users/trist/miniconda3/envs/aligner/python.exe
+    #>  libpython:      C:/Users/trist/miniconda3/envs/aligner/python38.dll
+    #>  pythonhome:     C:/Users/trist/miniconda3/envs/aligner
+    #>  version:        3.8.10 | packaged by conda-forge | (default, May 11 2021, 06:25:23) [MSC v.1916 64 bit (AMD64)]
     #>  Architecture:   64bit
-    #>  numpy:          C:/Users/Tristan/AppData/Local/r-miniconda/envs/r-reticulate/Lib/site-packages/numpy
-    #>  numpy_version:  1.18.5
+    #>  numpy:          C:/Users/trist/miniconda3/envs/aligner/Lib/site-packages/numpy
+    #>  numpy_version:  1.20.3
+    #>  
+    #>  python versions found: 
+    #>   C:/Users/trist/miniconda3/python.exe
+    #>   C:/Users/trist/miniconda3/envs/aligner/python.exe
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```

@@ -281,7 +281,7 @@ work on the plot.
 
 We want to draw a point for each particular record-setting event, and we
 want to draw a line that connects all of the points.
-[`geom_step()`](https://rdrr.io/pkg/ggplot2/man/geom_path.html) draws a line plot but it can move
+[`geom_step()`](https://ggplot2.tidyverse.org/reference/geom_path.html) draws a line plot but it can move
 straight up/down or straight left/right---no diagonal lines---so it's
 what we want. We also want to the color of these geometries to change
 with the record holder (`player`).
@@ -311,7 +311,7 @@ ggplot(data) +
 <img src="/figs/2022-05-24-summoning-salt-plot/plot-grouped-correctly-1.png" title="A step plot showing the world record progression. There is a single line and it changes color whenever a new record-holder takes over." alt="A step plot showing the world record progression. There is a single line and it changes color whenever a new record-holder takes over." width="80%" style="display: block; margin: auto;" />
 
 Making the Summoning Salt version is just a matter of theming at this
-point. We use [`theme_void()`](https://rdrr.io/pkg/ggplot2/man/ggtheme.html) to completely wipe out
+point. We use [`theme_void()`](https://ggplot2.tidyverse.org/reference/ggtheme.html) to completely wipe out
 the current theme, and we hide the color legend.
 
 
@@ -499,16 +499,16 @@ ggplot(data) +
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-05-24-summoning-salt-plot.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -516,7 +516,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-05-24-sum
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -526,7 +526,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-05-24-sum
     #>  broom         0.8.0   2022-04-13 [1] CRAN (R 4.2.0)
     #>  cachem        1.0.6   2021-08-19 [1] CRAN (R 4.2.0)
     #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.2.0)
-    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli           3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
     #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
     #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
     #>  curl          4.3.2   2021-06-23 [1] CRAN (R 4.2.0)
@@ -592,9 +592,10 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-05-24-sum
     #>  withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  xml2          1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
+    #>  yaml          2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```

@@ -266,16 +266,16 @@ str_replace_chars(strings, rules)
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-09-recode-values-with-character-subsetting.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -283,13 +283,13 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-09-rec
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version date (UTC) lib source
     #>  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
-    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli           3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
     #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
     #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
     #>  dplyr         1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
@@ -322,8 +322,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-09-rec
     #>  vctrs         0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```

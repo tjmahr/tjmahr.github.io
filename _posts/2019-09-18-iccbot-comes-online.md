@@ -319,16 +319,16 @@ continue its *organic* growth.
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-iccbot-comes-online.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -336,7 +336,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-icc
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -346,7 +346,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-icc
     #>  boot          1.3-28  2021-05-03 [2] CRAN (R 4.2.0)
     #>  broom         0.8.0   2022-04-13 [1] CRAN (R 4.2.0)
     #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.2.0)
-    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli           3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
     #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
     #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
     #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
@@ -366,7 +366,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-icc
     #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
     #>  hms           1.1.1   2021-09-26 [1] CRAN (R 4.2.0)
     #>  httr          1.4.3   2022-05-04 [1] CRAN (R 4.2.0)
-    #>  iccbot        0.0.2   2022-05-25 [1] Github (tjmahr/iccbot@b6c566d)
+    #>  iccbot        0.0.2   2022-03-10 [1] Github (tjmahr/iccbot@b6c566d)
     #>  irr           0.84.1  2019-01-26 [1] CRAN (R 4.2.0)
     #>  jsonlite      1.8.0   2022-02-22 [1] CRAN (R 4.2.0)
     #>  knitr       * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
@@ -416,8 +416,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-09-18-icc
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  xml2          1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```

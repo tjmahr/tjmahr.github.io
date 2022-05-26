@@ -8,7 +8,7 @@ library(knitr)
 #   "reticulate", "cowplot", "gamair", "microbenchmark", "polypoly",
 #   "irr", "psych", "DiagrammeR", "babynames", "DiagrammeRsvg",
 #   "uuid", "gratia", "lazyeval", "cowplot", "geomtextpath",
-#   "janeaustenr"
+#   "janeaustenr", "cmdstanr", "gridGraphics"
 # )
 #
 # missing <- setdiff(dont_forget_these_packages, installed.packages()[, 1])

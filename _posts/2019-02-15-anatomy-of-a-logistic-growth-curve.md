@@ -58,13 +58,13 @@ for each of those visits.
 ```r
 library(tidyverse)
 #> ── Attaching packages ───────────────────────────── tidyverse 1.3.1 ──
-#> ✓ ggplot2 3.3.6     ✓ purrr   0.3.4
-#> ✓ tibble  3.1.7     ✓ dplyr   1.0.9
-#> ✓ tidyr   1.2.0     ✓ stringr 1.4.0
-#> ✓ readr   2.1.2     ✓ forcats 0.5.1
+#> ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+#> ✔ tibble  3.1.7     ✔ dplyr   1.0.9
+#> ✔ tidyr   1.2.0     ✔ stringr 1.4.0
+#> ✔ readr   2.1.2     ✔ forcats 0.5.1
 #> ── Conflicts ──────────────────────────────── tidyverse_conflicts() ──
-#> x dplyr::filter() masks stats::filter()
-#> x dplyr::lag()    masks stats::lag()
+#> ✖ dplyr::filter() masks stats::filter()
+#> ✖ dplyr::lag()    masks stats::lag()
 theme_set(theme_minimal())
 
 points <- tibble(
@@ -423,16 +423,16 @@ or how to blank out subexpressions in an easier way, I would love to hear it.
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-02-15-anatomy-of-a-logistic-growth-curve.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ─────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -440,7 +440,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-02-15-ana
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ─────────────────────────────────────────────────────────
@@ -449,7 +449,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-02-15-ana
     #>  backports     1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
     #>  broom         0.8.0   2022-04-13 [1] CRAN (R 4.2.0)
     #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.2.0)
-    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli           3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
     #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
     #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
     #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
@@ -509,8 +509,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-02-15-ana
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  xml2          1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ────────────────────────────────────────────────────────────────────
     ```

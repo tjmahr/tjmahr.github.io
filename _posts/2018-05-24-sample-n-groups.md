@@ -329,7 +329,7 @@ top_names %>%
   sample_n_of(2, year)
 #> Error in `filter()`:
 #> ! Problem while computing `..1 = group_ids %in% sampled_groups`.
-#> x Input `..1` must be of size 138 or 1, not size 6507.
+#> ✖ Input `..1` must be of size 138 or 1, not size 6507.
 #> ℹ The error occurred in group 1: name = "Alice".
 ```
 
@@ -395,16 +395,16 @@ expects.
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-24-sample-n-groups.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -412,14 +412,14 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-24-sam
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package     * version    date (UTC) lib source
     #>  assertthat    0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
     #>  babynames     1.0.1      2021-04-12 [1] CRAN (R 4.2.0)
-    #>  cli           3.2.0      2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli           3.3.0      2022-04-25 [1] CRAN (R 4.2.0)
     #>  colorspace    2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
     #>  crayon        1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
     #>  DBI           1.1.2      2021-12-20 [1] CRAN (R 4.2.0)
@@ -457,14 +457,14 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-24-sam
     #>  textshaping   0.3.6      2021-10-13 [1] CRAN (R 4.2.0)
     #>  tibble        3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
     #>  tidyselect    1.1.2      2022-02-21 [1] CRAN (R 4.2.0)
-    #>  tjmisc        0.0.0.9000 2022-03-21 [1] Github (tjmahr/tjmisc@6724405)
+    #>  tjmisc        0.0.0.9000 2022-03-01 [1] Github (tjmahr/tjmisc@6724405)
     #>  utf8          1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
     #>  vctrs         0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
     #>  withr         2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
     #>  xfun          0.31       2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```

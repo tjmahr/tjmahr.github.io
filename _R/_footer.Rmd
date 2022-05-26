@@ -4,14 +4,22 @@
   url_web <- gsub(".git$", replacement = "", x = url_git)
   file.path(url_web, "blob/master/_R", x)
 }
+.url_parent_doc <- .url_gh(.parent_doc)
+.session_info <- sessioninfo::session_info()
+if (isNamespaceLoaded("rstan") || isNamespaceLoaded("rstanarm")) {
+  .session_info$platform$`stan (rstan)` <- rstan::stan_version()
+}
+if (isNamespaceLoaded("cmdstanr")) {
+  .session_info$platform$`stan (cmdstanr)` <- cmdstanr::cmdstan_version()
+}
 ```
 
 ***
 
 *Last knitted on `r format(Sys.Date())`. [Source code on
-GitHub](`r .url_gh(.parent_doc)`).*[^si] 
+GitHub](`r .url_parent_doc`).*[^si] 
 
 [^si]: 
     ```{r, results = "markup"}
-    sessioninfo::session_info()
+    .session_info
     ```

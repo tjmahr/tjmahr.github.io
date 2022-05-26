@@ -208,10 +208,10 @@ microbenchmark::microbenchmark(
   with_recur = rrrepeated(1:100, 100, shuffle),
   times = 1000
 )
-#> Unit: milliseconds
-#>        expr    min      lq     mean  median      uq     max neval cld
-#>  with_while 1.0806 1.10180 1.271301 1.11430 1.16840 12.9536  1000  a 
-#>  with_recur 1.1751 1.19695 1.380082 1.21275 1.26655  7.3061  1000   b
+#> Unit: microseconds
+#>        expr    min      lq     mean  median     uq  max neval cld
+#>  with_while  998.5 1031.00 1097.617 1044.60 1081.8 5759  1000  a 
+#>  with_recur 1095.1 1130.75 1262.433 1151.05 1193.0 8195  1000   b
 ```
 
 But I don't usually worry about performance unless I can notice the computation
@@ -223,7 +223,7 @@ recursion when I crank up the number of repetitions:
 
 ```r
 repeated(1:20, 1000, shuffle)
-#>  [1] 10  8  1  5 12  4  2  9 14 18 19  7 15  3 11 13 16 20  6 17
+#>  [1]  9  7  1  4  5 16  6 20 11  8 13  2 12 14  3 19 10 18 17 15
 rrrepeated(1:20, 1000, shuffle)
 #> Error: evaluation nested too deeply: infinite recursion / options(expressions=)?
 ```
@@ -253,16 +253,16 @@ here](https://tailrecursion.com/wondr/posts/tail-recursion-in-r.html). [_Oct.
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-repeatedly-calling-a-function.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -270,13 +270,13 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-rep
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package        * version date (UTC) lib source
     #>  assertthat       0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
-    #>  cli              3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli              3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
     #>  codetools        0.2-18  2020-11-04 [2] CRAN (R 4.2.0)
     #>  evaluate         0.15    2022-02-18 [1] CRAN (R 4.2.0)
     #>  git2r            0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
@@ -305,8 +305,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-rep
     #>  xfun             0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  zoo              1.8-10  2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```

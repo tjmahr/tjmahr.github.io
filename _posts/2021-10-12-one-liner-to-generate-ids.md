@@ -83,16 +83,16 @@ data %>%
 #> # A tibble: 10 × 3
 #>    participant                          timepoint score
 #>    <chr>                                    <dbl> <dbl>
-#>  1 3cb4ed7d-107c-451b-96a1-a180315d404f         1     7
-#>  2 3cb4ed7d-107c-451b-96a1-a180315d404f         2     8
-#>  3 3cb4ed7d-107c-451b-96a1-a180315d404f         3     8
-#>  4 66bb03f7-dd1d-49bb-9620-ae07144410b4         1    NA
-#>  5 66bb03f7-dd1d-49bb-9620-ae07144410b4         2     9
-#>  6 d7fe714b-58b6-4ffb-8ed2-770372852942         1     9
-#>  7 d7fe714b-58b6-4ffb-8ed2-770372852942         2     8
-#>  8 ee4ce53d-b0ac-4504-8031-993f2630deec         1    10
-#>  9 ee4ce53d-b0ac-4504-8031-993f2630deec         2    10
-#> 10 ee4ce53d-b0ac-4504-8031-993f2630deec         3    10
+#>  1 6ccf779f-6cf6-44f4-94c7-f266e6224b5a         1     7
+#>  2 6ccf779f-6cf6-44f4-94c7-f266e6224b5a         2     8
+#>  3 6ccf779f-6cf6-44f4-94c7-f266e6224b5a         3     8
+#>  4 389f2e47-9578-4841-b13a-3986d9f031d4         1    NA
+#>  5 389f2e47-9578-4841-b13a-3986d9f031d4         2     9
+#>  6 600c58ea-07c8-473e-b5a8-3cf56463c9dd         1     9
+#>  7 600c58ea-07c8-473e-b5a8-3cf56463c9dd         2     8
+#>  8 c9429d4b-7c27-4edb-b859-295ae4ba32a6         1    10
+#>  9 c9429d4b-7c27-4edb-b859-295ae4ba32a6         2    10
+#> 10 c9429d4b-7c27-4edb-b859-295ae4ba32a6         3    10
 ```
 
 Again, these IDs seem excessive: Imagine plotting data with one participant 
@@ -284,7 +284,7 @@ c("7", "A", "L") %in% LETTERS
 `%in%`
 #> function (x, table) 
 #> match(x, table, nomatch = 0L) > 0L
-#> <bytecode: 0x0000020f543cb580>
+#> <bytecode: 0x0000023daa395730>
 #> <environment: namespace:base>
 
 is.element(c("7", "A", "L"), LETTERS)
@@ -293,7 +293,7 @@ is.element(c("7", "A", "L"), LETTERS)
 is.element
 #> function (el, set) 
 #> match(as.vector(el), as.vector(set), 0L) > 0L
-#> <bytecode: 0x0000020f57070db0>
+#> <bytecode: 0x0000023dad036de0>
 #> <environment: namespace:base>
 ```
 
@@ -306,16 +306,16 @@ is.element
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-26. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-10-12-one-liner-to-generate-ids.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
@@ -323,7 +323,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-10-12-one
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-25
+    #>  date     2022-05-26
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -332,7 +332,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-10-12-one
     #>  backports     1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
     #>  broom         0.8.0   2022-04-13 [1] CRAN (R 4.2.0)
     #>  cellranger    1.1.0   2016-07-27 [1] CRAN (R 4.2.0)
-    #>  cli           3.2.0   2022-02-14 [1] CRAN (R 4.2.0)
+    #>  cli           3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
     #>  colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
     #>  crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
     #>  DBI           1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
@@ -391,8 +391,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-10-12-one
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  xml2          1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```
