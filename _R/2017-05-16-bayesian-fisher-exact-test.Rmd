@@ -28,12 +28,13 @@ df_version <- as.data.frame(m) %>%
   setNames(c("sex", "n left handed", "n right handed")) 
 ```
 
-A few days ago, I watched a [terrific lecture by Bob Carpenter][bc-youtube] on
-Bayesian models. He started with a Bayesian approach to Fisher's exact test. I
-had never heard of this classical procedure, so I was curious to play with the
-example. In this post, I use the same data that he used in the lecture and
-in an earlier, [pre-Stan blog post][bc-blog]. I show how I would go about
-fitting the model in Stan and inspecting the results in R.
+A few days ago, I watched a [terrific lecture by Bob
+Carpenter][bc-youtube] on Bayesian models. He started with a Bayesian
+approach to Fisher's exact test. I had never heard of this classical
+procedure, so I was curious to play with the example. In this post, I
+use the same data that he used in the lecture and in an earlier,
+[pre-Stan blog post][bc-blog]. I show how I would go about fitting
+the model in Stan and inspecting the results in R.
 
 ## Problem statement
 
@@ -43,15 +44,16 @@ We observed the following data.
 knitr::kable(df_version)
 ```
 
-Question: Is the rate of left-handedness different between the male and female
-groups? Specifically, is left-handedness more likely in the male group?
+Question: Is the rate of left-handedness different between the male and
+female groups? Specifically, is left-handedness more likely in the male
+group?
 
 
 ### Classical approach
 
-In frequentist statistics, we might run Fisher's exact test. At least, that's what
-the [flow charts][flow-charts] tell us. To do that, we first put the data in a
-matrix.
+In frequentist statistics, we might run Fisher's exact test. At least,
+that's what the [flow charts][flow-charts] tell us. To do that, we
+first put the data in a matrix.
 
 ```{r}
 # Create a matrix representation of the data for the fisher test
@@ -72,19 +74,19 @@ We can run the two-tailed test: Are the two groups different?
 fisher.test(m)
 ```
 
-The output is a little verbose, but I do like how it spells out a sentence
-describing the alternative hypothesis.
+The output is a little verbose, but I do like how it spells out a
+sentence describing the alternative hypothesis.
 
-We can also consider one-sided test: Is left-handedness greater in the male
-group?
+We can also consider one-sided test: Is left-handedness greater in the
+male group?
 
 ```{r}
 fisher.test(m, alternative = "greater")
 ```
 
-In both tests, we cannot reject the null hypothesis because the *p*-value is
-greater than .05 `r emo::ji("x")`, so we would conclude that the two groups are
-not different.
+In both tests, we cannot reject the null hypothesis because the
+*p*-value is greater than .05 ❌, so we would conclude that the two
+groups are not different.
 
 ```{r, echo = FALSE, results = 'hide'}
 glm <- glm(
@@ -95,29 +97,32 @@ glm <- glm(
 summary(glm)
 ```
 
-But I don't really know this test that well. We never covered it in any of my
-stats classes, and indeed, this post is the first time I ever used the function
-`fisher.test()`. If I had never heard of the test, I am not quite sure what I
-would have done. Maybe a logistic regression (*p* = .191 `r emo::ji("x")`).
+But I don't really know this test that well. We never covered it in any
+of my stats classes, and indeed, this post is the first time I ever used
+the function `fisher.test()`. If I had never heard of the test, I am not
+quite sure what I would have done. Maybe a logistic regression (*p* =
+.191 ❌).
 
 
 ## Creating a Stan model
 
-I'm very not fluent in the classical bag of tricks, but that's okay. I know some
-Stan, I have an idea about how the data could have been generated, and that's 
-good enough :relaxed:. I can just write down my data-generating story in a model
-and let Stan compute a posterior distribution for the difference in handedness
-rates between the two groups.
+I'm very not fluent in the classical bag of tricks, but that's okay. I
+know some Stan, I have an idea about how the data could have been
+generated, and that's good enough ☺️. I can just write down my
+data-generating story in a model and let Stan compute a posterior
+distribution for the difference in handedness rates between the two
+groups.
 
-For my model, I'm going to suppose that in each group, there is a probability of
-being left-handed called _&theta;_ and that the counts we see result from a 
-binomial process. The 9 left-handed males we observe are the number of successes
-from 52 observations of a process that "succeeds" with probability
-_&theta;_<sub>male</sub>.
+For my model, I'm going to suppose that in each group, there is a
+probability of being left-handed called *θ* and that the counts we see
+result from a binomial process. The 9 left-handed males we observe are
+the number of successes from 52 observations of a process that
+"succeeds" with probability *θ*<sub>male</sub>.
 
-To fit the model, we need a prior distribution. The prior's job is to generate
-possible _&theta;_'s, and we will use our data to update the prior. The Beta
-distribution generates values between 0 and 1, so it's an obvious choice.
+To fit the model, we need a prior distribution. The prior's job is to
+generate possible *θ*'s, and we will use our data to update the prior.
+The Beta distribution generates values between 0 and 1, so it's an
+obvious choice.
 
 In math, the model for a group would be:
 
@@ -129,7 +134,7 @@ $$
 \end{align*}
 $$
 
-We can use a flat, uninformative prior by using _a_&nbsp;= 1, _b_&nbsp;= 1. This
+We can use a flat, uninformative prior by using *a* = 1, *b* = 1. This
 prior considers all probabilities from 0 to 1 as equally plausible.
 
 ```{r flat, fig.width = 4, fig.height = 2, fig.asp = NULL, fig.cap = "Density plot of the flat, uninformative prior."}
@@ -143,11 +148,11 @@ ggplot(data.frame(x = steps, y = dbeta(steps, shape1 = 1, shape2 = 1))) +
   labs(x = "p(left-handed)", y = "density", title = "beta(1,1)")
 ```
 
-But I also think that 10-ish% of people are left handed. (I don't know where I 
-first heard this number, but it'll serve as my prior information.) I toyed 
-around with `shape1` and `shape2` parameters in `dbeta()` until I got the prior 
-Beta(5, 40), which is peaked around .1-ish but wide enough to keep .5 and .15 as
-plausible values too.
+But I also think that 10-ish% of people are left handed. (I don't know
+where I first heard this number, but it'll serve as my prior
+information.) I toyed around with `shape1` and `shape2` parameters in
+`dbeta()` until I got the prior Beta(5, 40), which is peaked around
+.1-ish but wide enough to keep .5 and .15 as plausible values too.
 
 ```{r informative, fig.width = 4, fig.height = 2, fig.asp = NULL, , fig.cap = "Density plot of the informative prior."}
 ggplot(data.frame(x = steps, y = dbeta(steps, shape1 = 5, shape2 = 40))) + 
@@ -156,12 +161,12 @@ ggplot(data.frame(x = steps, y = dbeta(steps, shape1 = 5, shape2 = 40))) +
   labs(x = "p(left-handed)", y = "density", title = "beta(5,40)")
 ```
 
-Let's write out a really simple model in Stan. Okay, it _used to_ be really 
-simple. Then I made the parameters for the Beta prior data values, and then I
-created an option to just sample the prior distribution. But the core of it is
-simple. The most important lines are the one with `~` symbols. These
-correspond to the sampling statements in the mathematical description of the
-model.
+Let's write out a really simple model in Stan. Okay, it *used to* be
+really simple. Then I made the parameters for the Beta prior data
+values, and then I created an option to just sample the prior
+distribution. But the core of it is simple. The most important lines are
+the one with `~` symbols. These correspond to the sampling statements in
+the mathematical description of the model.
 
 ```{r model_code, cache = TRUE}
 model_code <- "
@@ -195,28 +200,53 @@ generated quantities {
 ```
 
 The `generated quantities` block runs on every sample of the posterior
-distribution. Here, we compute the
-_&theta;_<sub>male</sub>&nbsp;&minus; _&theta;_<sub>female</sub> on every
-draw. Computing the difference inside the model code means that Stan
-will treat the `diff` values like any other parameter of the model. It will show
-up in summary functions and in plots of model parameters. That saves us some 
-work later on.
+distribution. Here, we compute the *θ*<sub>male</sub> −
+*θ*<sub>female</sub> on every draw. Computing the difference inside the
+model code means that Stan will treat the `diff` values like any other
+parameter of the model. It will show up in summary functions and in
+plots of model parameters. That saves us some work later on.
+
+
+{% capture notice-text %}
+**Update: Migrated to cmdstanr**. This post was originally written
+in 2017 and used the [rstan](https://mc-stan.org/rstan/) interface to
+compile Stan models from R. I have updated this post to use the
+[cmdstanr](https://mc-stan.org/cmdstanr/) interface instead. I have kept
+around the original rstan code in place, albeit commented out.
+[*May 26, 2022*]
+{% endcapture %}
+
+<div class="notice--info">
+  {{ notice-text | markdownify }}
+</div>
+
 
 ```{r}
-library(rstan)
+# # 2017 rstan-based version  
+# library(rstan)
+
+# 2022 cmdstanr version
+library(cmdstanr)
 ```
 
-I begin by compiling the model. This step will create an executable 
-program that can sample from the model. I do the compilation in its own step so
-that I can re-use the program for different versions of the model.
+I begin by compiling the model. This step will create an executable
+program that can sample from the model. I do the compilation in its own
+step so that I can re-use the program for different versions of the
+model.
 
-```{r model_program, cache = FALSE, dependson = "model_code", results = 'hide'}
-model_program <- stan_model(model_code = model_code)
+```{r model_program, results = 'hide'}
+# # 2017 rstan-based version  
+# model_program <- stan_model(model_code = model_code)
+
+# 2022 cmdstanr version
+file <- write_stan_file(model_code, dir = "_caches", basename = "bfet")
+model_program <- cmdstan_model(file)
 ```
 
-For convenience, I wrote a function that fits different versions of this model. 
-This step is not necessary, but I don't like repeating myself. (Normally, you 
-would use `sampling(model_program, stan_data)` to get samples from a 
+For convenience, I wrote a function that fits different versions of this
+model. This step is not necessary, but I don't like repeating myself.
+(Normally, you would use `sampling(model_program, stan_data)` with rstan or
+`model_program$sample(stan_data)` with cmdstanr to get samples from a
 model-program.)
 
 ```{r}
@@ -228,29 +258,37 @@ run_model <- function(beta_a, beta_b, sample_prior_only) {
     n_total_2 = 4 + 44,
     n_hits_1 = 9,
     n_hits_2 = 4,
-    sample_prior_only = sample_prior_only)
+    sample_prior_only = sample_prior_only
+  )
+
+  # # 2017 rstan-based version  
+  # 
+  # # Use quietly() to hide the sampler's output text
+  # # model <- purrr::quietly(sampling)(model_program, stan_data)
+  # model <- purrr::quietly(sampling)(model_program, stan_data)
+  # 
+  # # But print any warnings that would have appeared
+  # invisible(lapply(model$warnings, warning, call. = FALSE))
+  # 
+  # model$result
   
-  # Use quietly() to hide the sampler's output text
-  model <- purrr::quietly(sampling)(model_program, stan_data)
-  
-  # But print any warnings that would have appeared
-  invisible(lapply(model$warnings, warning, call. = FALSE))
-  
-  model$result
+  # 2022 cmdstanr version
+  model <- model_program$sample(data = stan_data, refresh = 0)
+  model
 }
 ```
 
-The actual left-handed versus right-handed numbers are hard-coded, but I can 
-adjust the parameters for the Beta prior and toggle between sampling from the 
-prior and the posterior. Stan normally prints out verbose progress information
-but I suppress that by using `purrr::quietly()`. I still want warnings, so I
-print them if they arise.
+The actual left-handed versus right-handed numbers are hard-coded, but I
+can adjust the parameters for the Beta prior and toggle between sampling
+from the prior and the posterior. ~~Stan normally prints out verbose
+progress information but I suppress that by using `purrr::quietly()`. I
+still want warnings, so I print them if they arise.~~
 
 ### Checking our prior information
 
-Now, let's draw samples from the priors of each model. This step lets us check 
-that our program works as expected. We know how the values should be 
-distributed---we made up the numbers!
+Now, let's draw samples from the priors of each model. This step lets us
+check that our program works as expected. We know how the values should
+be distributed---we made up the numbers!
 
 ```{r}
 m_informative_pd <- run_model(beta_a = 5, beta_b = 40, sample_prior_only = 1)
@@ -262,24 +300,31 @@ m_flat_pd
 
 ```{r, echo = FALSE}
 as_percent <- function(x) paste0(x * 100, "%")
-df_flat_pd <- as.data.frame(m_flat_pd)
-df_informative_pd <- as.data.frame(m_informative_pd)
+
+# # 2017 rstan-based version
+# df_flat_pd <- as.data.frame(m_flat_pd)
+# df_informative_pd <- as.data.frame(m_informative_pd)
+
+# 2022 cmdstanr version
+df_flat_pd <- posterior::as_draws_df(m_flat_pd)
+df_informative_pd <- posterior::as_draws_df(m_informative_pd)
+
 i_cred <- round(quantile(df_informative_pd$theta_1, c(.025, .975)), 2)
 d_med <- round(quantile(df_informative_pd$diff, c(.5)), 2)
 ```
 
-We can confirm (by inspecting the `diff` row) that the difference in 
+We can confirm (by inspecting the `diff` row) that the difference in
 left-handedness in both groups is `r d_med` according to our priors. The
 informative prior says that the values between `r i_cred[1]` and
 `r i_cred[2]` are plausible rates of left-handedness in each group.
 
-It's worth a moment to reflect on how obviously wrong the uninformative prior is.
-The central _&theta;_ value in each group is .5. Therefore, half of the prior 
-samples assert that there are more left-handed individuals than right-handed 
-ones! If there is anything we know about handedness, it's that left-handedness is
-less common than right-handedness. _Uninformative_ sometimes connotes "unbiased"
-or "letting the data speak for itself", but in this case, I would say
-"gullible".
+It's worth a moment to reflect on how obviously wrong the uninformative
+prior is. The central *θ* value in each group is .5. Therefore, half of
+the prior samples assert that there are more left-handed individuals
+than right-handed ones! If there is anything we know about handedness,
+it's that left-handedness is less common than right-handedness.
+*Uninformative* sometimes connotes "unbiased" or "letting the data speak
+for itself", but in this case, I would say "gullible".
 
 ## Sampling the posterior
 
@@ -294,8 +339,13 @@ m_flat
 ```
 
 ```{r, echo = FALSE, results = 'hide'}
-df_flat <- as.data.frame(m_flat)
-df_informative <- as.data.frame(m_informative)
+# # 2017 rstan-based version
+# df_flat <- as.data.frame(m_flat)
+# df_informative <- as.data.frame(m_informative)
+
+# 2022 cmdstanr version
+df_flat <- posterior::as_draws_df(m_flat)
+df_informative <- posterior::as_draws_df(m_informative)
 
 q_flat <- round(quantile(df_flat$diff, c(.05, .5, .95)), 2)
 q_info <- round(quantile(df_informative$diff, c(.05, .5, .95)), 2)
@@ -304,37 +354,38 @@ flat_diff <- median(df_flat$diff) %>% round(2)
 median(df_informative$diff)
 ```
 
-The flat model puts the difference at `r q_flat[2]` and 90% of the plausible
-values fall in the interval [`r q_flat[1]`, `r q_flat[3]`]. The informative
-model is more skeptical of higher left-handedness rates, so it puts the
-difference at `r q_info[2]` with 90% of the values between [`r q_info[1]`,
-`r q_info[3]`]. Both of these intervals contain 0 and negative values
-`r emo::ji("x")`, so there is not much evidence for higher left-handedness in
-the male group.
+The flat model puts the difference at `r q_flat[2]` and 90% of the
+plausible values fall in the interval [`r q_flat[1]`, `r q_flat[3]`].
+The informative model is more skeptical of higher left-handedness rates,
+so it puts the difference at `r q_info[2]` with 90% of the values
+between [`r q_info[1]`, `r q_info[3]`]. Both of these intervals
+contain 0 and negative values ❌, so there is not much evidence for
+higher left-handedness in the male group.
 
-To compute a "Bayesian _p_-value", we could ask what proportion of differences 
-are 0 or negative. There are more proper ways to make this inference in a
-Bayesian framework, but this approach is the easiest and it works for a model
-this simple. If 10% of the plausible values for the group differences are
-negative, then we assign a 10% probability to a negative group difference.
+To compute a "Bayesian *p*-value", we could ask what proportion of
+differences are 0 or negative. There are more proper ways to make this
+inference in a Bayesian framework, but this approach is the easiest and
+it works for a model this simple. If 10% of the plausible values for the
+group differences are negative, then we assign a 10% probability to a
+negative group difference.
 
 ```{r}
-df_flat <- as.data.frame(m_flat)
 mean(df_flat$diff <= 0)
 
-df_informative <- as.data.frame(m_informative)
 mean(df_informative$diff <= 0)
 ```
 
-It's also worth comparing the two models. I've recently become a fan of the
-[ggmcmc package](http://xavier-fim.net/packages/ggmcmc/) for quick visualization
-of Stan models. The package uses a function `ggs()` to create a long dataframe
-of MCMC samples. Then you plug those dataframes into various plotting functions
-that start with `ggs_`. I especially like how the package returns a plain
-ggplot2 plot that I can easily adjust with a few extra lines of code.
+It's also worth comparing the two models. I've recently become a fan of
+the [ggmcmc package](http://xavier-fim.net/packages/ggmcmc/) for quick
+visualization of Stan models. The package uses a function `ggs()` to
+create a long dataframe of MCMC samples. Then you plug those dataframes
+into various plotting functions that start with `ggs_`. I especially
+like how the package returns a plain ggplot2 plot that I can easily
+adjust with a few extra lines of code.
 
 For example, not much effort is required---after some practice and
-trial-and-error, of course---to visualize the posterior samples in each model.
+trial-and-error, of course---to visualize the posterior samples in each
+model.
 
 ```{r ggmcmc-density, warning = FALSE, fig.show='hold', fig.width = 4, fig.height = 6, fig.asp = NULL, out.width = "50%", fig.align = "default", fig.cap = "Density plot of the MCMC samples for the parameters in each model."}
 library(ggmcmc)
@@ -346,15 +397,27 @@ labels <- data.frame(
   Label = c("theta[male]", "theta[female]", "theta[male] - theta[female]")
 )
 
+# # 2017 rstan-based version
+# a <- m_flat
+# b <- m_informative
+
+# 2022 cmdstanr version
+a <- as_mcmc.list(m_flat)
+b <- as_mcmc.list(m_informative)
+
 # Get ggmcmc's tidy dataframe of each model.
 # ggs() doesn't like that labels I made have brackets so I am suppressing its
 # warnings.
 ggs_flat <- suppressWarnings(
-  ggs(m_flat, description = "flat", par_labels = labels)
+  ggs(a, description = "flat", par_labels = labels)
 )
 ggs_informative <- suppressWarnings(
-  ggs(m_informative, description = "informative", par_labels = labels)
+  ggs(b, description = "informative", par_labels = labels)
 )
+
+# Remove log-posterior density if it sneaks in
+ggs_flat <- ggs_flat[ggs_flat$Parameter != "lp__", ]
+ggs_informative <- ggs_informative[ggs_informative$Parameter != "lp__", ]
 
 ggs_density(ggs_flat) + 
   facet_grid(Parameter ~ ., labeller = label_parsed) + 
@@ -375,8 +438,8 @@ ggs_density(ggs_informative) +
 
 
 
-We can also compare the models together in a single plot by passing a list of
-model dataframes into `ggs_caterpillar()`.
+We can also compare the models together in a single plot by passing a
+list of model dataframes into `ggs_caterpillar()`.
 
 ```{r ggmcmc-caterpillar, fig.cap = "Caterpillar plot of the MCMC samples for the parameters in each model."}
 ggs_caterpillar(
@@ -398,38 +461,41 @@ ggs_caterpillar(
   theme_grey(base_size = 14)
 ```
 
-There's a lot of useful information here. First, the intervals in the flat prior
-model are wider than the ones for the informative model. The two models largely
-agree on the values in the female group, although the flat prior model is wider.
-These wider intervals indicate greater uncertainty about the parameter values.
-The two models disagree on the male group, because the informative model assigns
-little prior probability to values greater than .25 but the flat model doesn't
+There's a lot of useful information here. First, the intervals in the
+flat prior model are wider than the ones for the informative model. The
+two models largely agree on the values in the female group, although the
+flat prior model is wider. These wider intervals indicate greater
+uncertainty about the parameter values. The two models disagree on the
+male group, because the informative model assigns little prior
+probability to values greater than .25 but the flat model doesn't
 discount those possibilities.
 
-The models also demonstrate the **regularizing effect of prior information**.
-Regularization broadly refers to techniques to avoid overfitting a dataset.
-Priors can regularize a model by making it skeptical of certain parameter
-values---in this case, high values of left-handedness. The male probabilities in
-the flat model are basically pulled towards the values in the informative prior
-(.1-ish). We can see this effect in how the midpoint is shifted in the flat
-model versus the informative model.
+The models also demonstrate the **regularizing effect of prior
+information**. Regularization broadly refers to techniques to avoid
+overfitting a dataset. Priors can regularize a model by making it
+skeptical of certain parameter values---in this case, high values of
+left-handedness. The male probabilities in the flat model are basically
+pulled towards the values in the informative prior (.1-ish). We can see
+this effect in how the midpoint is shifted in the flat model versus the
+informative model.
 
 
 ***
 
-I would be remiss if I didn't end with the following disclaimer/trivia. In a 
-way, the question behind this post is ill-posed because handedness is not quite 
-a binary measure. Some years ago, I had a class on stuttering and fluency 
-disorders. (I used to be a speech pathologist.) There once was a lot of research
-on the association between handedness and stuttering, and at some point, 
-researchers figured out that they could measure handedness as a continuous 
-measure. They gave people a survey asking which hands they use for certain tasks
-and then computed a so-called [dextrality quotient][dq] from the responses. I 
-had the concept driven home when I once saw my wife casually switch 
-between her left and right hands while brushing her teeth. I would probably poke
-a hole through my cheek if I used my left hand! So: Handedness may be a matter 
-of degree. (Or maybe not. I mostly wanted to mention the dextrality quotient.
-It's fun to think about.)
+I would be remiss if I didn't end with the following disclaimer/trivia.
+In a way, the question behind this post is ill-posed because handedness
+is not quite a binary measure. Some years ago, I had a class on
+stuttering and fluency disorders. (I used to be a speech pathologist.)
+There once was a lot of research on the association between handedness
+and stuttering, and at some point, researchers figured out that they
+could measure handedness as a continuous measure. They gave people a
+survey asking which hands they use for certain tasks and then computed a
+so-called [dextrality quotient][dq] from the responses. I had the
+concept driven home when I once saw my wife casually switch between her
+left and right hands while brushing her teeth. I would probably poke a
+hole through my cheek if I used my left hand! So: Handedness may be a
+matter of degree. (Or maybe not. I mostly wanted to mention the
+dextrality quotient. It's fun to think about.)
 
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
