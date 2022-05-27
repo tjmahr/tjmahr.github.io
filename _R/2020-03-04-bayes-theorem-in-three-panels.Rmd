@@ -18,13 +18,16 @@ knitr::opts_chunk$set(
   eval = TRUE,
   fig.asp = NULL
 )
+.a <- list()
+.a$nls <- downlit::autolink_url("stats::nls()")
+.a$add_epred <- downlit::autolink_url("tidybayes::add_epred_draws()")
 ```
 
-In [my last post](/another-mixed-effects-model-visualization/), I walked through
-an intuition-building visualization I created to describe mixed-effects models
-for a nonspecialist audience. For that presentation, I also created an analogous
-visualization to introduce Bayes' Theorem, so here I will walk through that
-figure.
+In [my last post](/another-mixed-effects-model-visualization/), I walked
+through an intuition-building visualization I created to describe
+mixed-effects models for a nonspecialist audience. For that
+presentation, I also created an analogous visualization to introduce
+Bayes' Theorem, so here I will walk through that figure.
 
 As in the earlier post, let's start by looking at the visualization and
 then we will recreate it using a simpler model and smaller dataset.
@@ -36,65 +39,69 @@ then we will recreate it using a simpler model and smaller dataset.
 
 ## Names for things
 
-First, let's review the theorem. Mathematically, it says how to convert one
-conditional probability into another one.
+First, let's review the theorem. Mathematically, it says how to convert
+one conditional probability into another one.
 
 $$ P(B \mid A) = \frac{ P(A \mid B) * P(B)}{P(A)} $$
 
-The formula becomes more interesting in the context of statistical modeling. We
-have some model that describes a data-generating process and we have some
-*observed* data, but we want to estimate some *unknown* model parameters. 
-In that case, the formula reads like:
+The formula becomes more interesting in the context of statistical
+modeling. We have some model that describes a data-generating process
+and we have some *observed* data, but we want to estimate some *unknown*
+model parameters. In that case, the formula reads like:
 
 $$ P(\text{unknown} \mid \text{observed}) = \frac{ P(\text{observed} \mid \text{unknown}) * P(\text{unknown})}{P(\text{observed})} $$
 
-When I was first learning Bayes, this form was my anchor for remembering the
-formula. The goal is to learn about unknown quantity from data, so the left side
-needs to be "unknown given data".
+When I was first learning Bayes, this form was my anchor for remembering
+the formula. The goal is to learn about unknown quantity from data, so
+the left side needs to be "unknown given data".
 
 These terms have conventional names:
 
 $$ \text{posterior} = \frac{ \text{likelihood} * \text{prior}}{\text{average likelihood}} $$
 
-*Prior* and *posterior* describe when information is obtained: what we know pre-data is our
-prior information, and what we learn post-data is the updated information
-("posterior"). 
+*Prior* and *posterior* describe when information is obtained: what we
+know pre-data is our prior information, and what we learn post-data is
+the updated information ("posterior").
 
-The *likelihood* in the equation says how likely the data is given the model
-parameters. I think of it as *fit*: How well do the parameters fit the data?
-Classical regression's line of best fit is the maximum likelihood line. The
-likelihood also encompasses the data-generating process behind the model. For
-example, if we assume that the observed data is normally distributed, then we
-evaluate the likelihood by using the normal probability density function. You
-don't need to know what that last sentence means. What's important is that the
-likelihood contains our built-in assumptions about how the data is distributed.
+The *likelihood* in the equation says how likely the data is given the
+model parameters. I think of it as *fit*: How well do the parameters fit
+the data? Classical regression's line of best fit is the maximum
+likelihood line. The likelihood also encompasses the data-generating
+process behind the model. For example, if we assume that the observed
+data is normally distributed, then we evaluate the likelihood by using
+the normal probability density function. You don't need to know what
+that last sentence means. What's important is that the likelihood
+contains our built-in assumptions about how the data is distributed.
 
-The *average likelihood*---sometimes called *evidence*---is weird. I don't have a
-script for how to describe it in an intuitive way. It's there to make sure the
-math works out so that the posterior probabilities sum to 1. Some presentations
-of Bayes' theorem gloss over it, noting that the posterior is proportional to the
-likelihood and prior information.
+The *average likelihood*---sometimes called *evidence*---is weird. I
+don't have a script for how to describe it in an intuitive way. It's
+there to make sure the math works out so that the posterior
+probabilities sum to 1. Some presentations of Bayes' theorem gloss over
+it, noting that the posterior is proportional to the likelihood and
+prior information.
 
 $$ 
 \text{updated information} \propto 
   \text{likelihood of data} * \text{prior information} 
 $$
 
-There it is. *Update your prior information in proportion to how well it fits
-the observed data.* My plot about Bayes' theorem is really just this form of the
-equation expressed visually. 
+There it is. *Update your prior information in proportion to how well it
+fits the observed data.* My plot about Bayes' theorem is really just
+this form of the equation expressed visually.
 
-Here is an [earlier post with some slides](/bayes-intro-lecture-slides-2017/)
-that work through these terms with some examples.
+Here is an [earlier post with some
+slides](/bayes-intro-lecture-slides-2017/) that work through these terms
+with some examples.
 
 {% include figure image_path="/assets/images/2020-03-bayes-shirt.jpg" alt="Me wearing a shirt with Bayes' theorem last year." caption="For my birthday last year, I got a shirt with Bayes' theorem on it." %}{: style="max-width: 50%;"}
 
 
 ## The model: nonlinear beta regression
 
-The data I presented at the conference involved the same kinds of [logistic growth
-curves I wrote about last year](/anatomy-of-a-logistic-growth-curve/). I will
-use the same example dataset as in that post.
+The data I presented at the conference involved the same kinds of
+[logistic growth curves I wrote about last
+year](/anatomy-of-a-logistic-growth-curve/). I will use the same example
+dataset as in that post.
 
 ```{r, results="hide"}
 library(tidyverse)
@@ -105,13 +112,14 @@ data <- tibble(
 )
 ```
 
-Here *x* is a child's age in months and *y* is how intelligible the child's
-speech is to strangers as a proportion. We use a nonlinear beta regression
-model. The beta regression handles the fact that the data are proportions, and
-the nonlinear piece encodes some assumptions about growth: it starts at 0,
-reaches some asymptote, etc. Finally, our prior information comes from our
-knowledge about when and how children learn to talk. (Nobody is talking in
-understandable sentences at 16 months of age.)
+Here *x* is a child's age in months and *y* is how intelligible the
+child's speech is to strangers as a proportion. We use a nonlinear beta
+regression model. The beta regression handles the fact that the data are
+proportions, and the nonlinear piece encodes some assumptions about
+growth: it starts at 0, reaches some asymptote, etc. Finally, our prior
+information comes from our knowledge about when and how children learn
+to talk. (Nobody is talking in understandable sentences at 16 months of
+age.)
 
 Here is the model specification. I won't go over it in detail.
 
@@ -148,11 +156,13 @@ prior_phi <- c(
 
 ## Sampling from the prior
 
-Bayesian models are generative. They describe a data-generating process, so they
-can be used to simulate new observations. [Richard McElreath sometimes uses the
+Bayesian models are generative. They describe a data-generating process,
+so they can be used to simulate new observations. [Richard McElreath
+sometimes uses the
 language](https://speakerdeck.com/rmcelreath/bayesian-inference-is-just-counting?slide=44)
-of running a model *forwards* to generate new observations using parameters and
-running it *backwards* to infer the data-generating parameters from the data. 
+of running a model *forwards* to generate new observations using
+parameters and running it *backwards* to infer the data-generating
+parameters from the data.
 
 If we don't have any data in hand, then running the model forwards will
 simulate data using only the prior. I am not going as far as simulating
@@ -173,14 +183,17 @@ fit_prior <- brm(
   sample_prior = "only", 
   cores = 1,
   control = list(adapt_delta = 0.9, max_treedepth = 15),
-  seed = 20211014
+  seed = 20211014,
+  file = "_caches/2020-03-04-bayes-prior",
+  backend = "cmdstanr",
+  refresh = 0
 )
 ```
 
 We can randomly draw some lines from the prior distribution by using
-[`add_epred_draws()`](http://mjskay.github.io/tidybayes/reference/add_predicted_draws.html)
-from the tidybayes package. An "epred" is a *predicted expectation* (a
-model-drawn average on the same scale as the data).
+[`add_epred_draws()`](`r .a$add_epred`) from the tidybayes package. An
+"epred" is a *predicted expectation* (a model-drawn average on the same
+scale as the data).
 
 ```{r prior-draws, fig.width = 3.5, fig.height = 3.5, fig.asp = 1, out.width="50%", fig.cap = "The first panel of the visualization showing growth trajectories sampled from the prior distribution."}
 draws_prior <- data %>%
@@ -200,27 +213,29 @@ p1 <- ggplot(draws_prior) +
 p1
 ```
 
-**A word of encouragement!** The prior is an intimidating part of Bayesian
-statistics. It seems highly subjective, as though we are pulling numbers from
-thin air, and it can be overwhelming for complex models. But if we are familiar
-with the kind of data we are modeling, we have prior information. We can have
-the model simulate new observations using the prior distribution and then
-plot the hypothetical data. Does anything look wrong or implausible about the
-simulated data? If so, then we have some prior information that we can include
-in our model. Note that we do not evaluate the plausibility of the simulated
-data based on the data we have in hand (the data we want to model); that's not 
-prior information. 
+**A word of encouragement!** The prior is an intimidating part of
+Bayesian statistics. It seems highly subjective, as though we are
+pulling numbers from thin air, and it can be overwhelming for complex
+models. But if we are familiar with the kind of data we are modeling, we
+have prior information. We can have the model simulate new observations
+using the prior distribution and then plot the hypothetical data. Does
+anything look wrong or implausible about the simulated data? If so, then
+we have some prior information that we can include in our model. Note
+that we do not evaluate the plausibility of the simulated data based on
+the data we have in hand (the data we want to model); that's not prior
+information. 
 {: .notice--info}
 
 
 ## Finding the best fit
 
-To illustrate the likelihood, I am going to visualize a curve with a very high
-likelihood. I won't use Bayes here; instead, I will use nonlinear least squares
-`nls()` to illustrate what a purely data-driven fit would be. This approach is
-not the same as finding the best-fitting line from the posterior
-distribution[^map]---*waves hands*---but hey, we're just building intuitions 
-here.
+To illustrate the likelihood, I am going to visualize a curve with a
+very high likelihood. I won't use Bayes here; instead, I will use
+nonlinear least squares [`nls()`](`r .a$nls`) to illustrate what a
+purely data-driven fit would be. This approach is not the same as
+finding the best-fitting line from the posterior
+distribution[^map]---*waves hands*---but hey, we're just building
+intuitions here.
 
 ```{r nls-plot, fig.width = 3.5, fig.height = 3.5, fig.asp = 1, out.width="50%", fig.cap = "The middle panel of the visualization showing a maximum likelihood estimate."}
 # Maximum likelihood estimate
@@ -250,8 +265,8 @@ p2
 
 ## Sample from the posterior
 
-Now, let's fit the actual model and randomly draw regression lines from the
-posterior distribution.
+Now, let's fit the actual model and randomly draw regression lines from
+the posterior distribution.
 
 ```{r, results = "hide"}
 fit <- brm(
@@ -262,7 +277,10 @@ fit <- brm(
   chains = 4,
   cores = 1,
   control = list(adapt_delta = 0.9, max_treedepth = 15), 
-  seed = 20211014
+  seed = 20211014,
+  file = "_caches/2020-03-04-bayes-posterior",
+  backend = "cmdstanr",
+  refresh = 0
 )
 
 draws_posterior <- data %>%
@@ -270,7 +288,8 @@ draws_posterior <- data %>%
   tidybayes::add_epred_draws(fit, ndraws = 100) 
 ```
 
-And now let's plot the curves with the data, as we have data in hand now.
+And now let's plot the curves with the data, as we have data in hand
+now.
 
 ```{r posterior-draws, fig.width = 3.5, fig.height = 3.5, fig.asp = 1, out.width="50%", fig.cap = "The last panel of the visualization showing growth trajectories sampled from the posterior distribution."}
 p3 <- ggplot(draws_posterior) +
@@ -291,7 +310,6 @@ p3 <- ggplot(draws_posterior) +
 p3
 ```
 
-
 Finally, we can assemble everything into one nice plot.
 
 ```{r ensemble, fig.width = 10.5, fig.height = 3.5, out.width = "100%"}
@@ -301,16 +319,17 @@ p1 + p2 + p3
 
 ## A nice echo
 
-3Blue1Brown is a YouTube channel that specializes in visualizing mathematical
-concepts. It's amazing. About a month after my presentation, the channel
-[covered Bayes'
-theorem](https://www.youtube.com/watch?v=HZGCoVF3YvM&feature=youtu.be). The
-approach was more basic: It looked at probability as discrete frequency counts
-and using Bayes to synthesize different frequency probabilities together. Think
-of the familiar illness-screening puzzle: *x*% of positive tests are accurate, *y*%
-of the population has the illness, what is the chance of having the illness
-given a positive test? And yet, the video recapped Bayes' theorem with a
-three-panel visualization:
+3Blue1Brown is a YouTube channel that specializes in visualizing
+mathematical concepts. It's amazing. About a month after my
+presentation, the channel [covered Bayes'
+theorem](https://www.youtube.com/watch?v=HZGCoVF3YvM&feature=youtu.be).
+The approach was more basic: It looked at probability as discrete
+frequency counts and using Bayes to synthesize different frequency
+probabilities together. Think of the familiar illness-screening puzzle:
+*x*% of positive tests are accurate, *y*% of the population has the
+illness, what is the chance of having the illness given a positive test?
+And yet, the video recapped Bayes' theorem with a three-panel
+visualization:
 
 {% include figure image_path="/assets/images/2020-03-bayes-screenshot.jpg" alt="Three panels illustrating Bayes' theorem. The left panel shows the space of all possible outcomes, the center shows the outcomes fitting the data, and the right panel shows the ratio behind the posterior probability." caption="Bayesian triptych used by 3Blue1Brown." %}
 

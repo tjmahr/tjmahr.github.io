@@ -207,12 +207,6 @@ Here's a model about [some famous flowers](https://en.wikipedia.org/wiki/Iris_fl
 
 ```r
 library(rstanarm)
-#> Loading required package: Rcpp
-#> This is rstanarm version 2.21.1
-#> - See https://mc-stan.org/rstanarm/articles/priors for changes to default priors!
-#> - Default priors may change, so it's safest to specify priors, even if equivalent to the defaults.
-#> - For execution on a local, multicore CPU with excess RAM we recommend calling
-#>   options(mc.cores = parallel::detectCores())
 
 model <- stan_glm(
   Petal.Width ~ Petal.Length * Species,
@@ -254,10 +248,10 @@ summary(model)
 #> Estimates:
 #>                                  mean   sd   10%   50%   90%
 #> (Intercept)                     0.0    0.2 -0.3   0.0   0.3 
-#> Petal.Length                    0.2    0.1  0.0   0.2   0.3 
+#> Petal.Length                    0.2    0.1  0.0   0.2   0.4 
 #> Speciesversicolor              -0.1    0.3 -0.5  -0.1   0.3 
-#> Speciesvirginica                1.1    0.3  0.6   1.1   1.5 
-#> Petal.Length:Speciesversicolor  0.2    0.1  0.0   0.2   0.4 
+#> Speciesvirginica                1.1    0.3  0.7   1.1   1.5 
+#> Petal.Length:Speciesversicolor  0.2    0.1  0.0   0.2   0.3 
 #> Petal.Length:Speciesvirginica   0.0    0.1 -0.2   0.0   0.2 
 #> sigma                           0.2    0.0  0.2   0.2   0.2 
 #> 
@@ -269,15 +263,15 @@ summary(model)
 #> 
 #> MCMC diagnostics
 #>                                mcse Rhat n_eff
-#> (Intercept)                    0.0  1.0   965 
-#> Petal.Length                   0.0  1.0   973 
-#> Speciesversicolor              0.0  1.0   934 
-#> Speciesvirginica               0.0  1.0  1503 
-#> Petal.Length:Speciesversicolor 0.0  1.0   837 
-#> Petal.Length:Speciesvirginica  0.0  1.0   991 
-#> sigma                          0.0  1.0  2422 
-#> mean_PPD                       0.0  1.0  3156 
-#> log-posterior                  0.1  1.0  1457 
+#> (Intercept)                    0.0  1.0   937 
+#> Petal.Length                   0.0  1.0   949 
+#> Speciesversicolor              0.0  1.0  1268 
+#> Speciesvirginica               0.0  1.0  1238 
+#> Petal.Length:Speciesversicolor 0.0  1.0   941 
+#> Petal.Length:Speciesvirginica  0.0  1.0   874 
+#> sigma                          0.0  1.0  2173 
+#> mean_PPD                       0.0  1.0  3282 
+#> log-posterior                  0.1  1.0  1251 
 #> 
 #> For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
 ```
@@ -302,7 +296,7 @@ posterior_proportion_ <- function(model, inequality) {
 }
 
 posterior_proportion_(model, ~ 0 < Petal.Length)
-#> [1] 0.8795
+#> [1] 0.895
 ```
 
 **But all those tildes**... The final underscore in `posterior_proportion_()`
@@ -320,7 +314,7 @@ posterior_proportion <- function(model, expr) {
 }
 
 posterior_proportion(model, 0 < Petal.Length)
-#> [1] 0.8795
+#> [1] 0.895
 ```
 
 Here's another question: What proportion of the posterior of the `Petal.Length` 
@@ -338,7 +332,7 @@ posterior_proportion(model, 0 < Petal.Length + `Petal.Length:Speciesversicolor`)
 #> [1] 1
 
 posterior_proportion(model, 0 < Petal.Length + `Petal.Length:Speciesvirginica`)
-#> [1] 0.99975
+#> [1] 1
 ```
 
 (The backticks around `Petal.Length:Speciesversicolor` here prevent the `:`
@@ -346,8 +340,8 @@ symbol from being evaluated as an operator.)
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
-GitHub](https://github.com/tjmahr/tjmahr.github.io.git/blob/master/_R/2016-08-15-recent-adventures-with-lazyeval.Rmd).*[^si] 
+*Last knitted on 2022-05-27. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-08-15-recent-adventures-with-lazyeval.Rmd).*[^si] 
 
 [^si]: 
     
@@ -363,7 +357,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io.git/blob/master/_R/2016-08-15
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -467,7 +461,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io.git/blob/master/_R/2016-08-15
     #>    xts            0.12.1   2020-09-09 [1] CRAN (R 4.2.0)
     #>    zoo            1.8-10   2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #>  D ── DLL MD5 mismatch, broken installation.

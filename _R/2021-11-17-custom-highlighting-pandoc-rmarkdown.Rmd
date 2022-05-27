@@ -68,8 +68,8 @@ rmarkdown::render(
 ```
 
 solarizeddocx also exports its document assets so that they can be used
-in other output formats, and it exports theme-building tools to create new
-[pandoc] syntax highlighting themes. I am most proud of these
+in other output formats, and it exports theme-building tools to create
+new [pandoc] syntax highlighting themes. I am most proud of these
 features, so I will demonstrate each of these in turn and create a brand
 new syntax highlighting theme in this post.
 
@@ -83,12 +83,13 @@ new syntax highlighting theme in this post.
 ## knitr: .Rmd to .md conversion
 
 To give a simplified description, RMarkdown works by knitting the code
-in an RMarkdown (.Rmd) file with [knitr] to obtain a markdown (.md) file and then post-processing
-this knitr output with other tools. In particular, it uses pandoc which
-converts between all kinds of document formats. For this demonstration,
-we will do the knitting and pandoc steps separately without relying on
-RMarkdown. That said, the options we pass to pandoc can usually be
-used in RMarkdown (as we demonstrate at the very end of this post).
+in an RMarkdown (.Rmd) file with [knitr] to obtain a markdown (.md)
+file and then post-processing this knitr output with other tools. In
+particular, it uses pandoc which converts between all kinds of document
+formats. For this demonstration, we will do the knitting and pandoc
+steps separately without relying on RMarkdown. That said, the options we
+pass to pandoc can usually be used in RMarkdown (as we demonstrate at
+the very end of this post).
 
 Our input file is a small .Rmd file. It's very basic, meant to
 illustrate some function calls, strings, numbers, code comments and
@@ -123,8 +124,9 @@ writeLines(readLines(md_file))
 
 ## pandoc: .md to *everything* conversion
 
-Everything we do with syntax highlighting occurs at this point when we have an .md file. For this demo, we will use
-pandoc to convert this .md file to an HTML document.
+Everything we do with syntax highlighting occurs at this point when we
+have an .md file. For this demo, we will use pandoc to convert this .md
+file to an HTML document.
 
 To make life easier, let's set up a workflow for quickly converting a
 .md file to an HTML document and taking a screenshot of the document.
@@ -160,16 +162,18 @@ page_thumbnail <- function(url, file, ...) {
     zoom = 2
   )
 }
-
 pd_style <- function(x) c("--highlight-style", x)
 pd_syntax <- function(x) c("--syntax-definition", x)
+
+# Update from May 2022: Make file paths into urls
+url_file <- function(x) paste0("file://localhost/", x)
 ```
 
 These tools let us preview the default syntax highlighting in pandoc:
 
 ```{r shot1, fig.cap = "Screenshot of html file created by pandoc"}
 results <- run_pandoc(md_file, pd_style("tango"))
-page_thumbnail(results, "shot1.png")
+page_thumbnail(url_file(results), "shot1.png")
 ```
 
 ## Setting pandoc options
@@ -180,7 +184,7 @@ highlighting style:
 ```{r shot2, fig.cap = "Screenshot of html file created by pandoc. It now has solarized colors."}
 theme_sl <- solarizeddocx::file_solarized_light_theme()
 results <- run_pandoc(md_file, pd_style(theme_sl))
-page_thumbnail(results, "shot2.png")
+page_thumbnail(url_file(results), "shot2.png")
 ```
 
 By convention, we see two kinds of comment lines: actual code comments
@@ -191,9 +195,9 @@ kinds of information**, and I'd like them to be styled differently. The
 `#` code comments can stay unintrusive (light italic type), but the `#>`
 out comments should be legible (darker roman type).
 
-To treat these two type of comments differently, I modified the [R syntax definition][syntax] used by pandoc to
-recognize `#` and `#>` as different entities. We can pass that syntax
-definition to pandoc:
+To treat these two type of comments differently, I modified the [R
+syntax definition][syntax] used by pandoc to recognize `#` and `#>`
+as different entities. We can pass that syntax definition to pandoc:
 
 [syntax]: https://github.com/KDE/syntax-highlighting/blob/master/data/syntax/r.xml "GitHub page for the r.xml syntax definition"
 
@@ -204,7 +208,7 @@ results <- run_pandoc(
   pd_style(theme_sl), 
   pd_syntax(syntax_sl)
 )
-page_thumbnail(results, "shot3.png")
+page_thumbnail(url_file(results), "shot3.png")
 ```
 
 ## Creating a theme from scratch
@@ -231,8 +235,8 @@ ff_colors <- list(
 
 If we use the correct command, pandoc will provide us with a syntax
 highlighting theme as a JSON file. `copy_base_pandoc_theme()` will call
-this command for us. We can read that file into R and see that it is a list
-of global style options followed by a list of individual style
+this command for us. We can read that file into R and see that it is a
+list of global style options followed by a list of individual style
 definitions.
 
 ```{r}
@@ -253,8 +257,8 @@ str(data_theme$`text-styles`$Comment)
 solarizeddocx provides a helper function `set_theme_text_style()` for
 setting individual style options. Let's set up Fairy Floss's global and
 comment styles. We use the fake name `"global"` to access the global
-style options, and we use style definition names like `"Comment"` to access
-those specifically. 
+style options, and we use style definition names like `"Comment"` to
+access those specifically. 
 
 ```{r}
 library(magrittr)
@@ -283,18 +287,22 @@ results <- run_pandoc(
   pd_style(temptheme), 
   pd_syntax(syntax_sl)
 )
-page_thumbnail(results, "shot4.png")
+page_thumbnail(url_file(results), "shot4.png")
 ```
 
 This is a good start, but when I first ported the solarized theme, I had
-to use 20 calls to `set_theme_text_style()`. That's a lot. Plus, **themes
-are data**. Can't we just describe what needs to change in a list? Yes.
-For this post, I made `solarizeddocx::patch_theme_text_style()` where we
-describe the changes to make as a list of patches.
+to use 20 calls to `set_theme_text_style()`. That's a lot. Plus,
+**themes are data**. Can't we just describe what needs to change in a
+list? Yes. For this post, I made
+`solarizeddocx::patch_theme_text_style()` where we describe the changes
+to make as a list of patches.
 
 Let's write our list of patches to make to the base theme. Because some
 style definitions are identical, we will use tibble's lazy list
-[`tibble::lst()`](`r a_lst`)to reuse patches along the way. For this application of the palette, I consulted the [Fairy Floss .tmTheme file][fftm] and the [rsthemes implementation][ffrs] of Fairy Floss.
+[`tibble::lst()`](`r a_lst`)to reuse patches along the way. For this
+application of the palette, I consulted the [Fairy Floss .tmTheme
+file][fftm] and the [rsthemes implementation][ffrs] of Fairy
+Floss.
 
 [fftm]: http://tmtheme-editor.herokuapp.com/#!/editor/url/https://raw.githubusercontent.com/sailorhg/fairyfloss/gh-pages/fairyfloss.tmTheme "Fairy Floss Theme in online editor"
 
@@ -353,7 +361,6 @@ by pandoc.)
 </div>
 {::options parse_block_html="false" /}
 
-
 Now we apply our patches to the theme:
 
 ```{r shot5, fig.cap = "Screenshot of html file created by pandoc. It now has Fairy Floss colors."}
@@ -368,34 +375,54 @@ results <- run_pandoc(
   pd_style(temptheme), 
   pd_syntax(syntax_sl)
 )
-page_thumbnail(results, "shot5.png")
+page_thumbnail(url_file(results), "shot5.png")
 ```
 
 Wonderful!
 
 ## Sneaking these features into RMarkdown
 
-So far, we have set these options by directly calling pandoc with the style
-and syntax options. We can use these options in RMarkdown *some of the time*.
-For example, here we try to send the Fairy Floss theme into an 
-[`html_document()`](`r a_html_document`) and fail.
+
+
+{::options parse_block_html="true" /}
+<div class = "notice--info">
+**Update: This problem has been fixed**. When I first wrote this post,
+it was not possible to use custom highlighting themes with RMarkdown
+HTML documents. The syntax highlighting for this format was overhauled
+in
+[rmarkdown 2.12](https://cran.r-project.org/web/packages/rmarkdown/news/news.html).
+[*May 27, 2022*]
+</div>
+{::options parse_block_html="false" /}
+
+
+So far, we have set these options by directly calling pandoc with the
+style and syntax options. ~~We can use these options in RMarkdown *some of
+the time*. For example, here we try to send the Fairy Floss theme into
+an [`html_document()`](`r a_html_document`) and fail.~~
 
 ```{r shot6, fig.cap = "Screenshot of html file created by RMarkdown. It has the default colors."}
 out <- rmarkdown::render(
   md_file, 
   output_format = rmarkdown::html_document(
-    pandoc_args = c(pd_style(temptheme), pd_syntax(syntax_sl))
+    # Update, May 2022: Adding this line fixes things
+    highlight = pd_style(temptheme)[2],
+    pandoc_args = c(
+      pd_syntax(syntax_sl)
+    )
   ),
   quiet = TRUE
 )
-page_thumbnail(out, "shot6.png")
+page_thumbnail(url_file(out), "shot6.png")
 ```
 
-RMarkdown assembles and performs a giant pandoc command. The problem, as
-far as I can tell, is that this command includes our
+
+
+~~RMarkdown assembles and performs a giant pandoc command. The problem,
+as far as I can tell, is that this command includes our
 `pd_style(temptheme)` which sets the option for
 `--highlight-style`---but later on it also includes `--no-highlight`
-which blocks our style. Bummer.
+which blocks our style. Bummer.~~
 
 If we use the simpler [`html_document_base()`](`r a_html_document_base`)
 format, however, we can see Fairy Floss output.
@@ -408,10 +435,11 @@ out <- rmarkdown::render(
   ),
   quiet = TRUE
 )
-page_thumbnail(out, "shot7.png")
+page_thumbnail(url_file(out), "shot7.png")
 ```
 
-The options also work for the [`pdf_document()`](`r a_pdf_document`) format.
+The options also work for the [`pdf_document()`](`r a_pdf_document`)
+format.
 
 ```{r shot8, fig.cap = "Screenshot of a cropped pdf file created by RMarkdown. It has the Fairy Floss colors."}
 out <- rmarkdown::render(

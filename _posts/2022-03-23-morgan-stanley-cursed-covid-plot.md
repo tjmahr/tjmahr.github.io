@@ -53,7 +53,7 @@ worse!". Granted, I could not find the original report for this
 image, so I don't know how the authors interpreted it in the report's
 narrative. Yet, I can only assume the authors added these linear trend
 lines--overriding the default GAM or LOESS smooth used by
-[`stat_smooth()`](https://ggplot2.tidyverse.org/reference/geom_smooth.html)--to make this particular point.
+[`stat_smooth()`](https://rdrr.io/pkg/ggplot2/man/geom_smooth.html)--to make this particular point.
 
 
 When I first saw it, this plot [made me
@@ -354,7 +354,7 @@ would go to heroic lengths to curate data.
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-23-morgan-stanley-cursed-covid-plot.Rmd).*[^si] 
 
 [^si]: 
@@ -371,7 +371,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-23-mor
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -448,9 +448,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-23-mor
     #>  withr          2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
     #>  xfun           0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  xml2           1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
-    #>  yaml           2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────

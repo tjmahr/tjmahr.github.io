@@ -875,7 +875,7 @@ puzzle that are helpful in other contexts:
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-05-nonstandard-eval-register-machines.Rmd).*[^si] 
 
 [^si]: 
@@ -892,7 +892,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-05-non
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -905,7 +905,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-05-non
     #>  crayon        1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
     #>  curl          4.3.2      2021-06-23 [1] CRAN (R 4.2.0)
     #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
-    #>  emo           0.0.0.9000 2022-05-26 [1] Github (hadley/emo@3f03b11)
+    #>  emo           0.0.0.9000 2022-05-25 [1] Github (hadley/emo@3f03b11)
     #>  evaluate      0.15       2022-02-18 [1] CRAN (R 4.2.0)
     #>  fansi         1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
     #>  generics      0.1.2      2022-01-31 [1] CRAN (R 4.2.0)
@@ -942,7 +942,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-01-05-non
     #>  vroom         1.5.7      2021-11-30 [1] CRAN (R 4.2.0)
     #>  xfun          0.31       2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────

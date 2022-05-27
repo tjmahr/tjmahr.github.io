@@ -427,7 +427,7 @@ draw_10_print(cols = 26, rows = 80, p = rep(p_letter, 80)) +
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-09-10-print-mazes-with-ggplot2.Rmd).*[^si] 
 
 [^si]: 
@@ -444,7 +444,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-09-10-
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -495,18 +495,18 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2018-05-09-10-
     #>  withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```
 
 
-[with-options]: https://withr.r-lib.org/reference/with_options.html 
+[with-options]: https://rdrr.io/pkg/withr/man/with_options.html 
     "withr documentation"
 
 [cat]: https://rdrr.io/r/base/cat.html 
     "cat() documentation"
 
-[geom-segment]: https://ggplot2.tidyverse.org/reference/geom_segment.html 
+[geom-segment]: https://rdrr.io/pkg/ggplot2/man/geom_segment.html 
     "geom_segment() documentation"

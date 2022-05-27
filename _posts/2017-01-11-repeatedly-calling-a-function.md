@@ -208,10 +208,10 @@ microbenchmark::microbenchmark(
   with_recur = rrrepeated(1:100, 100, shuffle),
   times = 1000
 )
-#> Unit: microseconds
-#>        expr    min      lq     mean  median     uq  max neval cld
-#>  with_while  998.5 1031.00 1097.617 1044.60 1081.8 5759  1000  a 
-#>  with_recur 1095.1 1130.75 1262.433 1151.05 1193.0 8195  1000   b
+#> Unit: milliseconds
+#>        expr    min      lq     mean median      uq    max neval cld
+#>  with_while 1.0974 1.11680 1.234334 1.1299 1.19625 7.9749  1000  a 
+#>  with_recur 1.1904 1.21975 1.350891 1.2488 1.33330 7.2524  1000   b
 ```
 
 But I don't usually worry about performance unless I can notice the computation
@@ -223,7 +223,7 @@ recursion when I crank up the number of repetitions:
 
 ```r
 repeated(1:20, 1000, shuffle)
-#>  [1]  9  7  1  4  5 16  6 20 11  8 13  2 12 14  3 19 10 18 17 15
+#>  [1] 17 16  9  7 19  5  3  2 20  8 10 14  4 18 12 15 13  1  6 11
 rrrepeated(1:20, 1000, shuffle)
 #> Error: evaluation nested too deeply: infinite recursion / options(expressions=)?
 ```
@@ -253,7 +253,7 @@ here](https://tailrecursion.com/wondr/posts/tail-recursion-in-r.html). [_Oct.
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-repeatedly-calling-a-function.Rmd).*[^si] 
 
 [^si]: 
@@ -270,7 +270,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-rep
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -305,7 +305,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-01-11-rep
     #>  xfun             0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  zoo              1.8-10  2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────

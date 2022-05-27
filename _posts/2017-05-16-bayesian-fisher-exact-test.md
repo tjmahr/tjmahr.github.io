@@ -244,9 +244,9 @@ around the original rstan code in place, albeit commented out.
 
 # 2022 cmdstanr version
 library(cmdstanr)
-#> This is cmdstanr version 0.5.1.9000
+#> This is cmdstanr version 0.5.2
 #> - CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
-#> - CmdStan path: C:/Users/trist/Documents/.cmdstan/cmdstan-2.29.2
+#> - CmdStan path: C:/Users/Tristan/Documents/.cmdstan/cmdstan-2.29.2
 #> - CmdStan version: 2.29.2
 ```
 
@@ -325,13 +325,13 @@ m_informative_pd <- run_model(beta_a = 5, beta_b = 40, sample_prior_only = 1)
 #> 
 #> All 4 chains finished successfully.
 #> Mean chain execution time: 0.0 seconds.
-#> Total execution time: 0.7 seconds.
+#> Total execution time: 0.8 seconds.
 m_informative_pd
 #>  variable   mean median   sd  mad     q5    q95 rhat ess_bulk ess_tail
-#>   lp__    -32.44 -32.13 1.02 0.74 -34.56 -31.45 1.00     1950     2229
-#>   theta_1   0.11   0.11 0.05 0.05   0.05   0.20 1.00     2908     2217
-#>   theta_2   0.11   0.10 0.05 0.05   0.05   0.19 1.00     3147     2389
-#>   diff      0.00   0.00 0.07 0.06  -0.10   0.11 1.00     3371     2832
+#>   lp__    -32.42 -32.09 1.03 0.72 -34.48 -31.45 1.00     1996     2506
+#>   theta_1   0.11   0.11 0.05 0.05   0.05   0.20 1.00     3854     2857
+#>   theta_2   0.11   0.11 0.05 0.04   0.05   0.20 1.00     3248     2659
+#>   diff      0.00   0.00 0.07 0.06  -0.11   0.11 1.00     3607     2889
 
 m_flat_pd <- run_model(beta_a = 1, beta_b = 1, sample_prior_only = 1)
 #> Running MCMC with 4 sequential chains...
@@ -346,10 +346,10 @@ m_flat_pd <- run_model(beta_a = 1, beta_b = 1, sample_prior_only = 1)
 #> Total execution time: 0.6 seconds.
 m_flat_pd
 #>  variable  mean median   sd  mad    q5   q95 rhat ess_bulk ess_tail
-#>   lp__    -3.98  -3.64 1.14 0.89 -6.31 -2.84 1.00     1695     2199
-#>   theta_1  0.51   0.51 0.28 0.36  0.06  0.96 1.00     2771     2021
-#>   theta_2  0.50   0.51 0.29 0.38  0.05  0.95 1.00     3339     2439
-#>   diff     0.01   0.00 0.41 0.43 -0.68  0.68 1.00     3197     2852
+#>   lp__    -4.01  -3.68 1.15 0.91 -6.26 -2.85 1.00     1709     1980
+#>   theta_1  0.50   0.50 0.29 0.38  0.05  0.95 1.00     2919     2042
+#>   theta_2  0.50   0.50 0.29 0.37  0.05  0.96 1.00     3053     2330
+#>   diff     0.00   0.00 0.41 0.44 -0.68  0.68 1.00     3438     3009
 ```
 
 
@@ -386,10 +386,10 @@ m_informative <- run_model(beta_a = 5, beta_b = 40, sample_prior_only = 0)
 #> Total execution time: 0.6 seconds.
 m_informative
 #>  variable   mean median   sd  mad     q5    q95 rhat ess_bulk ess_tail
-#>   lp__    -70.60 -70.30 0.98 0.70 -72.59 -69.66 1.00     1812     2469
-#>   theta_1   0.14   0.14 0.04 0.04   0.09   0.21 1.00     3172     2645
-#>   theta_2   0.10   0.09 0.03 0.03   0.05   0.15 1.00     3166     2776
-#>   diff      0.05   0.05 0.05 0.05  -0.03   0.12 1.00     3484     2374
+#>   lp__    -70.62 -70.29 1.04 0.72 -72.62 -69.65 1.00     1883     2310
+#>   theta_1   0.14   0.14 0.04 0.03   0.09   0.20 1.00     3057     2417
+#>   theta_2   0.10   0.09 0.03 0.03   0.05   0.15 1.00     2798     2196
+#>   diff      0.05   0.05 0.05 0.04  -0.03   0.12 1.00     3044     2559
 
 m_flat <- run_model(beta_a = 1, beta_b = 1, sample_prior_only = 0)
 #> Running MCMC with 4 sequential chains...
@@ -404,16 +404,16 @@ m_flat <- run_model(beta_a = 1, beta_b = 1, sample_prior_only = 0)
 #> Total execution time: 0.6 seconds.
 m_flat
 #>  variable   mean median   sd  mad     q5    q95 rhat ess_bulk ess_tail
-#>   lp__    -43.15 -42.83 1.03 0.74 -45.23 -42.18 1.00     1809     2218
-#>   theta_1   0.19   0.18 0.05 0.05   0.11   0.28 1.00     3174     2476
-#>   theta_2   0.10   0.10 0.04 0.04   0.04   0.18 1.00     3334     2449
-#>   diff      0.09   0.08 0.07 0.07  -0.02   0.20 1.00     3654     2880
+#>   lp__    -43.15 -42.82 1.02 0.73 -45.23 -42.18 1.00     1853     2211
+#>   theta_1   0.18   0.18 0.05 0.05   0.11   0.28 1.00     3454     2414
+#>   theta_2   0.10   0.09 0.04 0.04   0.04   0.18 1.00     3052     2393
+#>   diff      0.08   0.08 0.07 0.07  -0.03   0.19 1.00     3525     2802
 ```
 
 
 
 The flat model puts the difference at 0.08 and 90% of the
-plausible values fall in the interval [-0.02, 0.2].
+plausible values fall in the interval [-0.03, 0.19].
 The informative model is more skeptical of higher left-handedness rates,
 so it puts the difference at 0.05 with 90% of the values
 between [-0.03, 0.12]. Both of these intervals
@@ -430,10 +430,10 @@ negative group difference.
 
 ```r
 mean(df_flat$diff <= 0)
-#> [1] 0.09475
+#> [1] 0.104
 
 mean(df_informative$diff <= 0)
-#> [1] 0.1485
+#> [1] 0.1415
 ```
 
 It's also worth comparing the two models. I've recently become a fan of
@@ -570,7 +570,7 @@ dextrality quotient. It's fun to think about.)
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-16-bayesian-fisher-exact-test.Rmd).*[^si] 
 
 [^si]: 
@@ -587,76 +587,76 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-05-16-bay
     #>  collate         English_United States.utf8
     #>  ctype           English_United States.utf8
     #>  tz              America/Chicago
-    #>  date            2022-05-26
+    #>  date            2022-05-27
     #>  pandoc          NA
     #>  stan (cmdstanr) 2.29.2
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
-    #>  package        * version    date (UTC) lib source
-    #>  abind            1.4-5      2016-07-21 [1] CRAN (R 4.2.0)
-    #>  assertthat       0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
-    #>  backports        1.4.1      2021-12-13 [1] CRAN (R 4.2.0)
-    #>  checkmate        2.1.0      2022-04-21 [1] CRAN (R 4.2.0)
-    #>  cli              3.3.0      2022-04-25 [1] CRAN (R 4.2.0)
-    #>  cmdstanr       * 0.5.1.9000 2022-04-18 [1] Github (stan-dev/cmdstanr@cc261b9)
-    #>  colorspace       2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
-    #>  crayon           1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
-    #>  data.table       1.14.2     2021-09-27 [1] CRAN (R 4.2.0)
-    #>  DBI              1.1.2      2021-12-20 [1] CRAN (R 4.2.0)
-    #>  digest           0.6.29     2021-12-01 [1] CRAN (R 4.2.0)
-    #>  distributional   0.3.0      2022-01-05 [1] CRAN (R 4.2.0)
-    #>  dplyr          * 1.0.9      2022-04-28 [1] CRAN (R 4.2.0)
-    #>  ellipsis         0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
-    #>  evaluate         0.15       2022-02-18 [1] CRAN (R 4.2.0)
-    #>  fansi            1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
-    #>  farver           2.1.0      2021-02-28 [1] CRAN (R 4.2.0)
-    #>  generics         0.1.2      2022-01-31 [1] CRAN (R 4.2.0)
-    #>  GGally           2.1.2      2021-06-21 [1] CRAN (R 4.2.0)
-    #>  ggmcmc         * 1.5.1.1    2021-02-10 [1] CRAN (R 4.2.0)
-    #>  ggplot2        * 3.3.6      2022-05-03 [1] CRAN (R 4.2.0)
-    #>  git2r            0.30.1     2022-03-16 [1] CRAN (R 4.2.0)
-    #>  glue             1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
-    #>  gtable           0.3.0      2019-03-25 [1] CRAN (R 4.2.0)
-    #>  here             1.0.1      2020-12-13 [1] CRAN (R 4.2.0)
-    #>  highr            0.9        2021-04-16 [1] CRAN (R 4.2.0)
-    #>  jsonlite         1.8.0      2022-02-22 [1] CRAN (R 4.2.0)
-    #>  knitr          * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
-    #>  labeling         0.4.2      2020-10-20 [1] CRAN (R 4.2.0)
-    #>  lifecycle        1.0.1      2021-09-24 [1] CRAN (R 4.2.0)
-    #>  magrittr         2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
-    #>  matrixStats      0.62.0     2022-04-19 [1] CRAN (R 4.2.0)
-    #>  munsell          0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
-    #>  pillar           1.7.0      2022-02-01 [1] CRAN (R 4.2.0)
-    #>  pkgconfig        2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
-    #>  plyr             1.8.7      2022-03-24 [1] CRAN (R 4.2.0)
-    #>  posterior        1.2.1      2022-03-07 [1] CRAN (R 4.2.0)
-    #>  processx         3.5.3      2022-03-25 [1] CRAN (R 4.2.0)
-    #>  ps               1.7.0      2022-04-23 [1] CRAN (R 4.2.0)
-    #>  purrr            0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
-    #>  R6               2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
-    #>  ragg             1.2.2      2022-02-21 [1] CRAN (R 4.2.0)
-    #>  RColorBrewer     1.1-3      2022-04-03 [1] CRAN (R 4.2.0)
-    #>  Rcpp             1.0.8.3    2022-03-17 [1] CRAN (R 4.2.0)
-    #>  reshape          0.8.9      2022-04-12 [1] CRAN (R 4.2.0)
-    #>  rlang            1.0.2      2022-03-04 [1] CRAN (R 4.2.0)
-    #>  rprojroot        2.0.3      2022-04-02 [1] CRAN (R 4.2.0)
-    #>  rstudioapi       0.13       2020-11-12 [1] CRAN (R 4.2.0)
-    #>  scales           1.2.0      2022-04-13 [1] CRAN (R 4.2.0)
-    #>  sessioninfo      1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
-    #>  stringi          1.7.6      2021-11-29 [1] CRAN (R 4.2.0)
-    #>  stringr          1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
-    #>  systemfonts      1.0.4      2022-02-11 [1] CRAN (R 4.2.0)
-    #>  tensorA          0.36.2     2020-11-19 [1] CRAN (R 4.2.0)
-    #>  textshaping      0.3.6      2021-10-13 [1] CRAN (R 4.2.0)
-    #>  tibble         * 3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
-    #>  tidyr          * 1.2.0      2022-02-01 [1] CRAN (R 4.2.0)
-    #>  tidyselect       1.1.2      2022-02-21 [1] CRAN (R 4.2.0)
-    #>  utf8             1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
-    #>  vctrs            0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
-    #>  withr            2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
-    #>  xfun             0.31       2022-05-10 [1] CRAN (R 4.2.0)
+    #>  package        * version date (UTC) lib source
+    #>  abind            1.4-5   2016-07-21 [1] CRAN (R 4.2.0)
+    #>  assertthat       0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+    #>  backports        1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
+    #>  checkmate        2.1.0   2022-04-21 [1] CRAN (R 4.2.0)
+    #>  cli              3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
+    #>  cmdstanr       * 0.5.2   2022-05-01 [1] Github (stan-dev/cmdstanr@e9c12be)
+    #>  colorspace       2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  crayon           1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
+    #>  data.table       1.14.2  2021-09-27 [1] CRAN (R 4.2.0)
+    #>  DBI              1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
+    #>  digest           0.6.29  2021-12-01 [1] CRAN (R 4.2.0)
+    #>  distributional   0.3.0   2022-01-05 [1] CRAN (R 4.2.0)
+    #>  dplyr          * 1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
+    #>  ellipsis         0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+    #>  evaluate         0.15    2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi            1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
+    #>  farver           2.1.0   2021-02-28 [1] CRAN (R 4.2.0)
+    #>  generics         0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
+    #>  GGally           2.1.2   2021-06-21 [1] CRAN (R 4.2.0)
+    #>  ggmcmc         * 1.5.1.1 2021-02-10 [1] CRAN (R 4.2.0)
+    #>  ggplot2        * 3.3.6   2022-05-03 [1] CRAN (R 4.2.0)
+    #>  git2r            0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue             1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+    #>  gtable           0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
+    #>  here             1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
+    #>  highr            0.9     2021-04-16 [1] CRAN (R 4.2.0)
+    #>  jsonlite         1.8.0   2022-02-22 [1] CRAN (R 4.2.0)
+    #>  knitr          * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
+    #>  labeling         0.4.2   2020-10-20 [1] CRAN (R 4.2.0)
+    #>  lifecycle        1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
+    #>  magrittr         2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+    #>  matrixStats      0.62.0  2022-04-19 [1] CRAN (R 4.2.0)
+    #>  munsell          0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
+    #>  pillar           1.7.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig        2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+    #>  plyr             1.8.7   2022-03-24 [1] CRAN (R 4.2.0)
+    #>  posterior        1.2.1   2022-03-07 [1] CRAN (R 4.2.0)
+    #>  processx         3.5.3   2022-03-25 [1] CRAN (R 4.2.0)
+    #>  ps               1.7.0   2022-04-23 [1] CRAN (R 4.2.0)
+    #>  purrr            0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+    #>  R6               2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg             1.2.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  RColorBrewer     1.1-3   2022-04-03 [1] CRAN (R 4.2.0)
+    #>  Rcpp             1.0.8.3 2022-03-17 [1] CRAN (R 4.2.0)
+    #>  reshape          0.8.9   2022-04-12 [1] CRAN (R 4.2.0)
+    #>  rlang            1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rprojroot        2.0.3   2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi       0.13    2020-11-12 [1] CRAN (R 4.2.0)
+    #>  scales           1.2.0   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  sessioninfo      1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi          1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr          1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts      1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
+    #>  tensorA          0.36.2  2020-11-19 [1] CRAN (R 4.2.0)
+    #>  textshaping      0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble         * 3.1.7   2022-05-03 [1] CRAN (R 4.2.0)
+    #>  tidyr          * 1.2.0   2022-02-01 [1] CRAN (R 4.2.0)
+    #>  tidyselect       1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
+    #>  utf8             1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs            0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
+    #>  withr            2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+    #>  xfun             0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────

@@ -516,25 +516,26 @@ this diagram.
 
 ***
 
-*Last knitted on 2022-05-25. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-11-25-another-mixed-effects-model-visualization.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
+    .session_info
     #> ─ Session info ───────────────────────────────────────────────────────────────
-    #>  setting  value
-    #>  version  R version 4.2.0 RC (2022-04-21 r82226 ucrt)
-    #>  os       Windows 10 x64 (build 22000)
-    #>  system   x86_64, mingw32
-    #>  ui       RTerm
-    #>  language (EN)
-    #>  collate  English_United States.utf8
-    #>  ctype    English_United States.utf8
-    #>  tz       America/Chicago
-    #>  date     2022-05-25
-    #>  pandoc   NA
+    #>  setting      value
+    #>  version      R version 4.2.0 (2022-04-22 ucrt)
+    #>  os           Windows 10 x64 (build 22000)
+    #>  system       x86_64, mingw32
+    #>  ui           RTerm
+    #>  language     (EN)
+    #>  collate      English_United States.utf8
+    #>  ctype        English_United States.utf8
+    #>  tz           America/Chicago
+    #>  date         2022-05-27
+    #>  pandoc       NA
+    #>  stan (rstan) 2.21.0
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  ! package        * version  date (UTC) lib source
@@ -552,7 +553,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-11-25-ano
     #>    callr            3.7.0    2021-04-20 [1] CRAN (R 4.2.0)
     #>    cellranger       1.1.0    2016-07-27 [1] CRAN (R 4.2.0)
     #>    checkmate        2.1.0    2022-04-21 [1] CRAN (R 4.2.0)
-    #>    cli              3.2.0    2022-02-14 [1] CRAN (R 4.2.0)
+    #>    cli              3.3.0    2022-04-25 [1] CRAN (R 4.2.0)
     #>    coda             0.19-4   2020-09-30 [1] CRAN (R 4.2.0)
     #>    codetools        0.2-18   2020-11-04 [2] CRAN (R 4.2.0)
     #>    colorspace       2.0-3    2022-02-21 [1] CRAN (R 4.2.0)
@@ -584,7 +585,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-11-25-ano
     #>    glue             1.6.2    2022-02-24 [1] CRAN (R 4.2.0)
     #>    gridExtra        2.3      2017-09-09 [1] CRAN (R 4.2.0)
     #>    gtable           0.3.0    2019-03-25 [1] CRAN (R 4.2.0)
-    #>    gtools           3.9.2    2021-06-06 [1] CRAN (R 4.2.0)
+    #>    gtools           3.9.2.1  2022-05-23 [1] CRAN (R 4.2.0)
     #>    haven            2.5.0    2022-04-15 [1] CRAN (R 4.2.0)
     #>    here             1.0.1    2020-12-13 [1] CRAN (R 4.2.0)
     #>    highr            0.9      2021-04-16 [1] CRAN (R 4.2.0)
@@ -676,7 +677,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2019-11-25-ano
     #>    zoo              1.8-10   2022-04-15 [1] CRAN (R 4.2.0)
     #> 
     #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
-    #>  [2] C:/Program Files/R/R-4.2.0rc/library
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #>  D ── DLL MD5 mismatch, broken installation.
     #> 

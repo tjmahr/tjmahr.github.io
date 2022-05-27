@@ -136,12 +136,12 @@ quosures
 #> $zMPG
 #> <quosure>
 #> expr: ^z_round(mpg)
-#> env:  0x0000016b09228918
+#> env:  0x000001c4fb613818
 #> 
 #> $zHP
 #> <quosure>
 #> expr: ^z_round(hp)
-#> env:  0x0000016b09228918
+#> env:  0x000001c4fb613818
 
 mtcars %>% 
   mutate(!!! quosures) %>% 
@@ -168,7 +168,7 @@ mtcars %>%
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-03-23-setnames-dots.Rmd).*[^si] 
 
 [^si]: 
@@ -185,7 +185,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-03-23-set
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -224,7 +224,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-03-23-set
     #>  vctrs         0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────

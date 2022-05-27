@@ -109,7 +109,8 @@ b_radon <- brm(
   radon, 
   family = gaussian, 
   file = "_caches/2021-02-26-radon", 
-  backend = "cmdstanr"
+  backend = "cmdstanr",
+  refresh = 0
 )
 b_radon
 #>  Family: gaussian 
@@ -122,15 +123,15 @@ b_radon
 #> Group-Level Effects: 
 #> ~county (Number of levels: 85) 
 #>               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#> sd(Intercept)     0.30      0.05     0.22     0.40 1.00     1516     2152
+#> sd(Intercept)     0.30      0.05     0.22     0.40 1.00     1708     2355
 #> 
 #> Population-Level Effects: 
 #>           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#> Intercept     1.35      0.05     1.25     1.44 1.00     3023     3004
+#> Intercept     1.35      0.05     1.25     1.45 1.00     3128     3435
 #> 
 #> Family Specific Parameters: 
 #>       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#> sigma     0.77      0.02     0.73     0.80 1.00     6193     2831
+#> sigma     0.77      0.02     0.73     0.80 1.00     6203     3067
 #> 
 #> Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 #> and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -839,7 +840,8 @@ b_gam_20 <- brm(
   data = mcycle, 
   family = gaussian,
   file = "_caches/2021-02-26-mcycle20", 
-  backend = "cmdstanr"
+  backend = "cmdstanr",
+  refresh = 0
 )
 summary(b_gam_20)
 #>  Family: gaussian 
@@ -851,16 +853,16 @@ summary(b_gam_20)
 #> 
 #> Smooth Terms: 
 #>               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#> sds(stimes_1)     4.95      1.23     3.16     7.86 1.00      732     1457
+#> sds(stimes_1)     4.96      1.19     3.17     7.81 1.00     1007     1598
 #> 
 #> Population-Level Effects: 
 #>           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#> Intercept   -25.50      1.95   -29.30   -21.60 1.00     6191     2871
-#> stimes_1      1.64      0.34     0.96     2.31 1.00     4455     2834
+#> Intercept   -25.44      2.00   -29.24   -21.46 1.00     5627     2802
+#> stimes_1      1.65      0.34     0.98     2.31 1.00     4744     2952
 #> 
 #> Family Specific Parameters: 
 #>       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#> sigma    22.76      1.48    20.03    25.86 1.00     5487     3015
+#> sigma    22.79      1.50    20.09    25.91 1.00     3932     2740
 #> 
 #> Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 #> and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1070,8 +1072,8 @@ b_radon %>%
   ) %>% 
   round(3)
 #>                      Estimate Est.Error  Q2.5 Q97.5
-#> sd_county__Intercept    0.302     0.047 0.216 0.399
-#> sigma                   0.767     0.018 0.733 0.804
+#> sd_county__Intercept    0.304     0.048 0.215 0.404
+#> sigma                   0.767     0.018 0.732 0.803
 ```
 
 What I think is the coolest feature of random intercepts as
@@ -1117,16 +1119,16 @@ loo(b_radon)
 #> Computed from 4000 by 919 log-likelihood matrix
 #> 
 #>          Estimate   SE
-#> elpd_loo  -1084.0 28.8
+#> elpd_loo  -1083.6 28.8
 #> p_loo        44.5  4.1
-#> looic      2167.9 57.5
+#> looic      2167.1 57.5
 #> ------
 #> Monte Carlo SE of elpd_loo is 0.1.
 #> 
 #> Pareto k diagnostic values:
 #>                          Count Pct.    Min. n_eff
-#> (-Inf, 0.5]   (good)     916   99.7%   702       
-#>  (0.5, 0.7]   (ok)         3    0.3%   198       
+#> (-Inf, 0.5]   (good)     916   99.7%   301       
+#>  (0.5, 0.7]   (ok)         3    0.3%   360       
 #>    (0.7, 1]   (bad)        0    0.0%   <NA>      
 #>    (1, Inf)   (very bad)   0    0.0%   <NA>      
 #> 
@@ -1178,7 +1180,7 @@ distinction when we use the phrase "random effects".
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-random-effects-penalized-splines-same-thing.Rmd).*[^si] 
 
 [^si]: 
@@ -1195,7 +1197,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
     #>  collate         English_United States.utf8
     #>  ctype           English_United States.utf8
     #>  tz              America/Chicago
-    #>  date            2022-05-26
+    #>  date            2022-05-27
     #>  pandoc          NA
     #>  stan (rstan)    2.21.0
     #>  stan (cmdstanr) 2.29.2
@@ -1217,7 +1219,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
     #>    cellranger       1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
     #>    checkmate        2.1.0      2022-04-21 [1] CRAN (R 4.2.0)
     #>    cli              3.3.0      2022-04-25 [1] CRAN (R 4.2.0)
-    #>    cmdstanr         0.5.1.9000 2022-04-18 [1] Github (stan-dev/cmdstanr@cc261b9)
+    #>    cmdstanr         0.5.2      2022-05-01 [1] Github (stan-dev/cmdstanr@e9c12be)
     #>    coda             0.19-4     2020-09-30 [1] CRAN (R 4.2.0)
     #>    codetools        0.2-18     2020-11-04 [2] CRAN (R 4.2.0)
     #>    colorspace       2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
@@ -1333,7 +1335,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
     #>    tidyr          * 1.2.0      2022-02-01 [1] CRAN (R 4.2.0)
     #>    tidyselect       1.1.2      2022-02-21 [1] CRAN (R 4.2.0)
     #>    tidyverse      * 1.3.1      2021-04-15 [1] CRAN (R 4.2.0)
-    #>    tjmisc           0.0.0.9000 2022-03-01 [1] Github (tjmahr/tjmisc@6724405)
+    #>    tjmisc           0.0.0.9000 2022-03-21 [1] Github (tjmahr/tjmisc@6724405)
     #>    tzdb             0.3.0      2022-03-28 [1] CRAN (R 4.2.0)
     #>    utf8             1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
     #>    vctrs            0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
@@ -1344,7 +1346,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-02-26-ran
     #>    xts              0.12.1     2020-09-09 [1] CRAN (R 4.2.0)
     #>    zoo              1.8-10     2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #>  D ── DLL MD5 mismatch, broken installation.

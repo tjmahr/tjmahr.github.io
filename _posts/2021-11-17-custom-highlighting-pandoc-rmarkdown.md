@@ -25,7 +25,7 @@ I recently developed and released an R package called
 shows a comparison of the solarizeddocx and the default docx format:
 
 
-{% include figure image_path="/assets/images/2021-11-solarized.png" alt="Side-by-side comparison of solarizeddocx::document() and rmarkdown::word_document()" caption = "Side-by-side comparison of `solarizeddocx::document()` and [`rmarkdown::word_document()`](https://rdrr.io/pkg/rmarkdown/man/word_document.html)." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
+{% include figure image_path="/assets/images/2021-11-solarized.png" alt="Side-by-side comparison of solarizeddocx::document() and rmarkdown::word_document()" caption = "Side-by-side comparison of `solarizeddocx::document()` and [`rmarkdown::word_document()`](https://pkgs.rstudio.com/rmarkdown/reference/word_document.html)." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
 
 The package provides a demo document which is essentially a vignette
 where I describe all the customizations used by the package and put the
@@ -57,8 +57,8 @@ rmarkdown::render(
 ```
 
 solarizeddocx also exports its document assets so that they can be used
-in other output formats, and it exports theme-building tools to create new
-[pandoc] syntax highlighting themes. I am most proud of these
+in other output formats, and it exports theme-building tools to create
+new [pandoc] syntax highlighting themes. I am most proud of these
 features, so I will demonstrate each of these in turn and create a brand
 new syntax highlighting theme in this post.
 
@@ -72,12 +72,13 @@ new syntax highlighting theme in this post.
 ## knitr: .Rmd to .md conversion
 
 To give a simplified description, RMarkdown works by knitting the code
-in an RMarkdown (.Rmd) file with [knitr] to obtain a markdown (.md) file and then post-processing
-this knitr output with other tools. In particular, it uses pandoc which
-converts between all kinds of document formats. For this demonstration,
-we will do the knitting and pandoc steps separately without relying on
-RMarkdown. That said, the options we pass to pandoc can usually be
-used in RMarkdown (as we demonstrate at the very end of this post).
+in an RMarkdown (.Rmd) file with [knitr] to obtain a markdown (.md)
+file and then post-processing this knitr output with other tools. In
+particular, it uses pandoc which converts between all kinds of document
+formats. For this demonstration, we will do the knitting and pandoc
+steps separately without relying on RMarkdown. That said, the options we
+pass to pandoc can usually be used in RMarkdown (as we demonstrate at
+the very end of this post).
 
 Our input file is a small .Rmd file. It's very basic, meant to
 illustrate some function calls, strings, numbers, code comments and
@@ -142,16 +143,17 @@ predict(model, data.frame(cyl = 8L))
 
 ## pandoc: .md to *everything* conversion
 
-Everything we do with syntax highlighting occurs at this point when we have an .md file. For this demo, we will use
-pandoc to convert this .md file to an HTML document.
+Everything we do with syntax highlighting occurs at this point when we
+have an .md file. For this demo, we will use pandoc to convert this .md
+file to an HTML document.
 
 To make life easier, let's set up a workflow for quickly converting a
 .md file to an HTML document and taking a screenshot of the document.
 `run_pandoc()` is a wrapper over
-[`rmarkdown::pandoc_convert()`](https://rdrr.io/pkg/rmarkdown/man/pandoc_convert.html) but hard-codes
+[`rmarkdown::pandoc_convert()`](https://pkgs.rstudio.com/rmarkdown/reference/pandoc_convert.html) but hard-codes
 some output options and lets us more easily forward `options` to pandoc
 using `...`.s `page_thumbnail()` is a wrapper over
-[`webshot::webshot()`](https://rdrr.io/pkg/webshot/man/webshot.html) with some predefined output
+[`webshot::webshot()`](http://wch.github.io/webshot/reference/webshot.html) with some predefined output
 options. `pd_style()` and `pd_syntax()` are helpers we will use later
 for setting pandoc options.
 
@@ -180,9 +182,11 @@ page_thumbnail <- function(url, file, ...) {
     zoom = 2
   )
 }
-
 pd_style <- function(x) c("--highlight-style", x)
 pd_syntax <- function(x) c("--syntax-definition", x)
+
+# Update from May 2022: Make file paths into urls
+url_file <- function(x) paste0("file://localhost/", x)
 ```
 
 These tools let us preview the default syntax highlighting in pandoc:
@@ -190,7 +194,7 @@ These tools let us preview the default syntax highlighting in pandoc:
 
 ```r
 results <- run_pandoc(md_file, pd_style("tango"))
-page_thumbnail(results, "shot1.png")
+page_thumbnail(url_file(results), "shot1.png")
 ```
 
 <img src="/figs/2021-11-17-custom-highlighting-pandoc-rmarkdown/shot1-1.png" title="Screenshot of html file created by pandoc" alt="Screenshot of html file created by pandoc" width="80%" style="display: block; margin: auto;" />
@@ -204,7 +208,7 @@ highlighting style:
 ```r
 theme_sl <- solarizeddocx::file_solarized_light_theme()
 results <- run_pandoc(md_file, pd_style(theme_sl))
-page_thumbnail(results, "shot2.png")
+page_thumbnail(url_file(results), "shot2.png")
 ```
 
 <img src="/figs/2021-11-17-custom-highlighting-pandoc-rmarkdown/shot2-1.png" title="Screenshot of html file created by pandoc. It now has solarized colors." alt="Screenshot of html file created by pandoc. It now has solarized colors." width="80%" style="display: block; margin: auto;" />
@@ -217,9 +221,9 @@ kinds of information**, and I'd like them to be styled differently. The
 `#` code comments can stay unintrusive (light italic type), but the `#>`
 out comments should be legible (darker roman type).
 
-To treat these two type of comments differently, I modified the [R syntax definition][syntax] used by pandoc to
-recognize `#` and `#>` as different entities. We can pass that syntax
-definition to pandoc:
+To treat these two type of comments differently, I modified the [R
+syntax definition][syntax] used by pandoc to recognize `#` and `#>`
+as different entities. We can pass that syntax definition to pandoc:
 
 [syntax]: https://github.com/KDE/syntax-highlighting/blob/master/data/syntax/r.xml "GitHub page for the r.xml syntax definition"
 
@@ -231,7 +235,7 @@ results <- run_pandoc(
   pd_style(theme_sl), 
   pd_syntax(syntax_sl)
 )
-page_thumbnail(results, "shot3.png")
+page_thumbnail(url_file(results), "shot3.png")
 ```
 
 <img src="/figs/2021-11-17-custom-highlighting-pandoc-rmarkdown/shot3-1.png" title="Screenshot of html file created by pandoc. It now has solarized colors and differently styled #&gt; comments." alt="Screenshot of html file created by pandoc. It now has solarized colors and differently styled #&gt; comments." width="80%" style="display: block; margin: auto;" />
@@ -261,8 +265,8 @@ ff_colors <- list(
 
 If we use the correct command, pandoc will provide us with a syntax
 highlighting theme as a JSON file. `copy_base_pandoc_theme()` will call
-this command for us. We can read that file into R and see that it is a list
-of global style options followed by a list of individual style
+this command for us. We can read that file into R and see that it is a
+list of global style options followed by a list of individual style
 definitions.
 
 
@@ -326,8 +330,8 @@ str(data_theme$`text-styles`$Comment)
 solarizeddocx provides a helper function `set_theme_text_style()` for
 setting individual style options. Let's set up Fairy Floss's global and
 comment styles. We use the fake name `"global"` to access the global
-style options, and we use style definition names like `"Comment"` to access
-those specifically. 
+style options, and we use style definition names like `"Comment"` to
+access those specifically. 
 
 
 ```r
@@ -358,20 +362,24 @@ results <- run_pandoc(
   pd_style(temptheme), 
   pd_syntax(syntax_sl)
 )
-page_thumbnail(results, "shot4.png")
+page_thumbnail(url_file(results), "shot4.png")
 ```
 
 <img src="/figs/2021-11-17-custom-highlighting-pandoc-rmarkdown/shot4-1.png" title="Screenshot of html file created by pandoc. It has a purple background, white text, gold comments and yellow strings, but it still looks bad because not all of the colors are done." alt="Screenshot of html file created by pandoc. It has a purple background, white text, gold comments and yellow strings, but it still looks bad because not all of the colors are done." width="80%" style="display: block; margin: auto;" />
 
 This is a good start, but when I first ported the solarized theme, I had
-to use 20 calls to `set_theme_text_style()`. That's a lot. Plus, **themes
-are data**. Can't we just describe what needs to change in a list? Yes.
-For this post, I made `solarizeddocx::patch_theme_text_style()` where we
-describe the changes to make as a list of patches.
+to use 20 calls to `set_theme_text_style()`. That's a lot. Plus,
+**themes are data**. Can't we just describe what needs to change in a
+list? Yes. For this post, I made
+`solarizeddocx::patch_theme_text_style()` where we describe the changes
+to make as a list of patches.
 
 Let's write our list of patches to make to the base theme. Because some
 style definitions are identical, we will use tibble's lazy list
-[`tibble::lst()`](https://rdrr.io/pkg/tibble/man/lst.html)to reuse patches along the way. For this application of the palette, I consulted the [Fairy Floss .tmTheme file][fftm] and the [rsthemes implementation][ffrs] of Fairy Floss.
+[`tibble::lst()`](https://rdrr.io/pkg/tibble/man/lst.html)to reuse patches along the way. For this
+application of the palette, I consulted the [Fairy Floss .tmTheme
+file][fftm] and the [rsthemes implementation][ffrs] of Fairy
+Floss.
 
 [fftm]: http://tmtheme-editor.herokuapp.com/#!/editor/url/https://raw.githubusercontent.com/sailorhg/fairyfloss/gh-pages/fairyfloss.tmTheme "Fairy Floss Theme in online editor"
 
@@ -431,7 +439,6 @@ by pandoc.)
 </div>
 {::options parse_block_html="false" /}
 
-
 Now we apply our patches to the theme:
 
 
@@ -447,7 +454,7 @@ results <- run_pandoc(
   pd_style(temptheme), 
   pd_syntax(syntax_sl)
 )
-page_thumbnail(results, "shot5.png")
+page_thumbnail(url_file(results), "shot5.png")
 ```
 
 <img src="/figs/2021-11-17-custom-highlighting-pandoc-rmarkdown/shot5-1.png" title="Screenshot of html file created by pandoc. It now has Fairy Floss colors." alt="Screenshot of html file created by pandoc. It now has Fairy Floss colors." width="80%" style="display: block; margin: auto;" />
@@ -456,32 +463,52 @@ Wonderful!
 
 ## Sneaking these features into RMarkdown
 
-So far, we have set these options by directly calling pandoc with the style
-and syntax options. We can use these options in RMarkdown *some of the time*.
-For example, here we try to send the Fairy Floss theme into an 
-[`html_document()`](https://rdrr.io/pkg/rmarkdown/man/html_document.html) and fail.
+
+
+{::options parse_block_html="true" /}
+<div class = "notice--info">
+**Update: This problem has been fixed**. When I first wrote this post,
+it was not possible to use custom highlighting themes with RMarkdown
+HTML documents. The syntax highlighting for this format was overhauled
+in
+[rmarkdown 2.12](https://cran.r-project.org/web/packages/rmarkdown/news/news.html).
+[*May 27, 2022*]
+</div>
+{::options parse_block_html="false" /}
+
+
+So far, we have set these options by directly calling pandoc with the
+style and syntax options. ~~We can use these options in RMarkdown *some of
+the time*. For example, here we try to send the Fairy Floss theme into
+an [`html_document()`](https://pkgs.rstudio.com/rmarkdown/reference/html_document.html) and fail.~~
 
 
 ```r
 out <- rmarkdown::render(
   md_file, 
   output_format = rmarkdown::html_document(
-    pandoc_args = c(pd_style(temptheme), pd_syntax(syntax_sl))
+    # Update, May 2022: Adding this line fixes things
+    highlight = pd_style(temptheme)[2],
+    pandoc_args = c(
+      pd_syntax(syntax_sl)
+    )
   ),
   quiet = TRUE
 )
-page_thumbnail(out, "shot6.png")
+page_thumbnail(url_file(out), "shot6.png")
 ```
 
 <img src="/figs/2021-11-17-custom-highlighting-pandoc-rmarkdown/shot6-1.png" title="Screenshot of html file created by RMarkdown. It has the default colors." alt="Screenshot of html file created by RMarkdown. It has the default colors." width="80%" style="display: block; margin: auto;" />
 
-RMarkdown assembles and performs a giant pandoc command. The problem, as
-far as I can tell, is that this command includes our
+
+
+~~RMarkdown assembles and performs a giant pandoc command. The problem,
+as far as I can tell, is that this command includes our
 `pd_style(temptheme)` which sets the option for
 `--highlight-style`---but later on it also includes `--no-highlight`
-which blocks our style. Bummer.
+which blocks our style. Bummer.~~
 
-If we use the simpler [`html_document_base()`](https://rdrr.io/pkg/rmarkdown/man/html_document_base.html)
+If we use the simpler [`html_document_base()`](https://pkgs.rstudio.com/rmarkdown/reference/html_document_base.html)
 format, however, we can see Fairy Floss output.
 
 
@@ -493,12 +520,13 @@ out <- rmarkdown::render(
   ),
   quiet = TRUE
 )
-page_thumbnail(out, "shot7.png")
+page_thumbnail(url_file(out), "shot7.png")
 ```
 
 <img src="/figs/2021-11-17-custom-highlighting-pandoc-rmarkdown/shot7-1.png" title="Screenshot of html file created by RMarkdown. It has the Fairy Floss colors." alt="Screenshot of html file created by RMarkdown. It has the Fairy Floss colors." width="80%" style="display: block; margin: auto;" />
 
-The options also work for the [`pdf_document()`](https://rdrr.io/pkg/rmarkdown/man/pdf_document.html) format.
+The options also work for the [`pdf_document()`](https://pkgs.rstudio.com/rmarkdown/reference/pdf_document.html)
+format.
 
 
 ```r
@@ -512,15 +540,15 @@ out <- rmarkdown::render(
 
 # Convert to png and crop most of the empty page
 png <- pdftools::pdf_convert(out, dpi = 144)
-#> Converting page 1 to file4ba02753dc0_1.png... done!
+#> Converting page 1 to file343c662113f3_1.png... done!
 magick::image_read(png) %>% 
   magick::image_crop(magick::geometry_area(1050, 400, 100, 100))
 ```
 
 <img src="/figs/2021-11-17-custom-highlighting-pandoc-rmarkdown/shot8-1.png" title="Screenshot of a cropped pdf file created by RMarkdown. It has the Fairy Floss colors." alt="Screenshot of a cropped pdf file created by RMarkdown. It has the Fairy Floss colors." width="80%" style="display: block; margin: auto;" />
 
-The options also work with [`word_document()`](https://rdrr.io/pkg/rmarkdown/man/word_document.html). In fact, that's how 
-`solarizeddocx::document()` works.
+The options also work with [`word_document()`](https://pkgs.rstudio.com/rmarkdown/reference/word_document.html). In
+fact, that's how `solarizeddocx::document()` works.
 
 
 
@@ -531,82 +559,82 @@ The options also work with [`word_document()`](https://rdrr.io/pkg/rmarkdown/man
 
 ***
 
-*Last knitted on 2021-11-17. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-11-17-custom-highlighting-pandoc-rmarkdown.Rmd).*[^si] 
 
 [^si]: 
     
     ```r
-    sessioninfo::session_info()
-    #> - Session info  --------------------------------------------------------------
-    #>  hash: old woman: dark skin tone, paw prints, record button
-    #> 
+    .session_info
+    #> ─ Session info ───────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R version 4.1.1 (2021-08-10)
+    #>  version  R version 4.2.0 (2022-04-22 ucrt)
     #>  os       Windows 10 x64 (build 22000)
     #>  system   x86_64, mingw32
     #>  ui       RTerm
     #>  language (EN)
-    #>  collate  English_United States.1252
-    #>  ctype    English_United States.1252
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2021-11-17
-    #>  pandoc   2.14.0.3 @ C:/Program Files/RStudio/bin/pandoc/ (via rmarkdown)
+    #>  date     2022-05-27
+    #>  pandoc   2.17.1.1 @ C:/Program Files/RStudio/bin/quarto/bin/ (via rmarkdown)
     #> 
-    #> - Packages -------------------------------------------------------------------
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
     #>  package       * version    date (UTC) lib source
-    #>  askpass         1.1        2019-01-13 [1] CRAN (R 4.1.0)
-    #>  bslib           0.3.1      2021-10-06 [1] CRAN (R 4.1.1)
-    #>  cachem          1.0.6      2021-08-19 [1] CRAN (R 4.1.1)
-    #>  callr           3.7.0      2021-04-20 [1] CRAN (R 4.1.0)
-    #>  cli             3.1.0      2021-10-27 [1] CRAN (R 4.1.1)
-    #>  crayon          1.4.2      2021-10-29 [1] CRAN (R 4.1.1)
-    #>  digest          0.6.28     2021-09-23 [1] CRAN (R 4.1.1)
-    #>  downlit         0.4.0      2021-10-29 [1] CRAN (R 4.1.1)
-    #>  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.1.0)
-    #>  evaluate        0.14       2019-05-28 [1] CRAN (R 4.1.0)
-    #>  fansi           0.5.0      2021-05-25 [1] CRAN (R 4.1.0)
-    #>  fastmap         1.1.0      2021-01-25 [1] CRAN (R 4.1.0)
-    #>  git2r           0.28.0     2021-01-10 [1] CRAN (R 4.1.0)
-    #>  here            1.0.1      2020-12-13 [1] CRAN (R 4.1.0)
-    #>  highr           0.9        2021-04-16 [1] CRAN (R 4.1.0)
-    #>  htmltools       0.5.2      2021-08-25 [1] CRAN (R 4.1.1)
-    #>  jquerylib       0.1.4      2021-04-26 [1] CRAN (R 4.1.0)
-    #>  jsonlite        1.7.2      2020-12-09 [1] CRAN (R 4.1.0)
-    #>  knitr         * 1.36       2021-09-29 [1] CRAN (R 4.1.1)
-    #>  lifecycle       1.0.1      2021-09-24 [1] CRAN (R 4.1.1)
-    #>  magick          2.7.3      2021-08-18 [1] CRAN (R 4.1.1)
-    #>  magrittr      * 2.0.1      2020-11-17 [1] CRAN (R 4.1.0)
-    #>  memoise         2.0.0      2021-01-26 [1] CRAN (R 4.1.0)
-    #>  pdftools        3.0.1      2021-05-06 [1] CRAN (R 4.1.1)
-    #>  pillar          1.6.4      2021-10-18 [1] CRAN (R 4.1.1)
-    #>  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.1.0)
-    #>  processx        3.5.2      2021-04-30 [1] CRAN (R 4.1.0)
-    #>  ps              1.6.0      2021-02-28 [1] CRAN (R 4.1.0)
-    #>  qpdf            1.1        2019-03-07 [1] CRAN (R 4.1.1)
-    #>  R6              2.5.1      2021-08-19 [1] CRAN (R 4.1.0)
-    #>  ragg            1.2.0      2021-10-30 [1] CRAN (R 4.1.1)
-    #>  Rcpp            1.0.7      2021-07-07 [1] CRAN (R 4.1.0)
-    #>  rlang           0.4.11     2021-04-30 [1] CRAN (R 4.1.1)
-    #>  rmarkdown       2.11       2021-09-14 [1] CRAN (R 4.1.1)
-    #>  rprojroot       2.0.2      2020-11-15 [1] CRAN (R 4.1.0)
-    #>  rstudioapi      0.13       2020-11-12 [1] CRAN (R 4.1.0)
-    #>  sass            0.4.0      2021-05-12 [1] CRAN (R 4.1.0)
-    #>  sessioninfo     1.2.1      2021-11-02 [1] CRAN (R 4.1.1)
-    #>  solarizeddocx   0.0.1.9000 2021-11-17 [1] Github (tjmahr/solarizeddocx@66fcec0)
-    #>  stringi         1.7.5      2021-10-04 [1] CRAN (R 4.1.1)
-    #>  stringr         1.4.0      2019-02-10 [1] CRAN (R 4.1.0)
-    #>  systemfonts     1.0.3      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  textshaping     0.3.6      2021-10-13 [1] CRAN (R 4.1.1)
-    #>  tibble          3.1.5      2021-09-30 [1] CRAN (R 4.1.1)
-    #>  tinytex         0.35       2021-11-04 [1] CRAN (R 4.1.1)
-    #>  utf8            1.2.2      2021-07-24 [1] CRAN (R 4.1.0)
-    #>  vctrs           0.3.8      2021-04-29 [1] CRAN (R 4.1.0)
-    #>  webshot         0.5.2      2019-11-22 [1] CRAN (R 4.1.0)
-    #>  xfun            0.26       2021-09-14 [1] CRAN (R 4.1.1)
+    #>  askpass         1.1        2019-01-13 [1] CRAN (R 4.2.0)
+    #>  bslib           0.3.1      2021-10-06 [1] CRAN (R 4.2.0)
+    #>  cachem          1.0.6      2021-08-19 [1] CRAN (R 4.2.0)
+    #>  callr           3.7.0      2021-04-20 [1] CRAN (R 4.2.0)
+    #>  cli             3.3.0      2022-04-25 [1] CRAN (R 4.2.0)
+    #>  crayon          1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
+    #>  digest          0.6.29     2021-12-01 [1] CRAN (R 4.2.0)
+    #>  downlit         0.4.0      2021-10-29 [1] CRAN (R 4.2.0)
+    #>  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
+    #>  evaluate        0.15       2022-02-18 [1] CRAN (R 4.2.0)
+    #>  fansi           1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
+    #>  fastmap         1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
+    #>  git2r           0.30.1     2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue            1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+    #>  here            1.0.1      2020-12-13 [1] CRAN (R 4.2.0)
+    #>  highr           0.9        2021-04-16 [1] CRAN (R 4.2.0)
+    #>  htmltools       0.5.2      2021-08-25 [1] CRAN (R 4.2.0)
+    #>  jquerylib       0.1.4      2021-04-26 [1] CRAN (R 4.2.0)
+    #>  jsonlite        1.8.0      2022-02-22 [1] CRAN (R 4.2.0)
+    #>  knitr         * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
+    #>  lifecycle       1.0.1      2021-09-24 [1] CRAN (R 4.2.0)
+    #>  magick          2.7.3      2021-08-18 [1] CRAN (R 4.2.0)
+    #>  magrittr      * 2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+    #>  memoise         2.0.1      2021-11-26 [1] CRAN (R 4.2.0)
+    #>  pdftools        3.2.0      2022-04-19 [1] CRAN (R 4.2.0)
+    #>  pillar          1.7.0      2022-02-01 [1] CRAN (R 4.2.0)
+    #>  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
+    #>  processx        3.5.3      2022-03-25 [1] CRAN (R 4.2.0)
+    #>  ps              1.7.0      2022-04-23 [1] CRAN (R 4.2.0)
+    #>  qpdf            1.1        2019-03-07 [1] CRAN (R 4.2.0)
+    #>  R6              2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg            1.2.2      2022-02-21 [1] CRAN (R 4.2.0)
+    #>  Rcpp            1.0.8.3    2022-03-17 [1] CRAN (R 4.2.0)
+    #>  rlang           1.0.2      2022-03-04 [1] CRAN (R 4.2.0)
+    #>  rmarkdown       2.14       2022-04-25 [1] CRAN (R 4.2.0)
+    #>  rprojroot       2.0.3      2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi      0.13       2020-11-12 [1] CRAN (R 4.2.0)
+    #>  sass            0.4.1      2022-03-23 [1] CRAN (R 4.2.0)
+    #>  sessioninfo     1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+    #>  solarizeddocx   0.0.1.9000 2022-05-25 [1] Github (tjmahr/solarizeddocx@8f82bf1)
+    #>  stringi         1.7.6      2021-11-29 [1] CRAN (R 4.2.0)
+    #>  stringr         1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
+    #>  systemfonts     1.0.4      2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping     0.3.6      2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble          3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
+    #>  tinytex         0.39       2022-05-16 [1] CRAN (R 4.2.0)
+    #>  utf8            1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
+    #>  vctrs           0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
+    #>  webshot         0.5.3      2022-04-14 [1] CRAN (R 4.2.0)
+    #>  xfun            0.31       2022-05-10 [1] CRAN (R 4.2.0)
+    #>  yaml            2.3.5      2022-02-21 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/Tristan/Documents/R/win-library/4.1
-    #>  [2] C:/Program Files/R/R-4.1.1/library
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
-    #> ------------------------------------------------------------------------------
+    #> ──────────────────────────────────────────────────────────────────────────────
     ```

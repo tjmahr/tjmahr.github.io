@@ -445,7 +445,7 @@ geom_ignore <- function(...) {
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggplot2-how-to-do-nothing.Rmd).*[^si] 
 
 [^si]: 
@@ -462,7 +462,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggp
     #>  collate      English_United States.utf8
     #>  ctype        English_United States.utf8
     #>  tz           America/Chicago
-    #>  date         2022-05-26
+    #>  date         2022-05-27
     #>  pandoc       NA
     #>  stan (rstan) 2.21.0
     #> 
@@ -488,7 +488,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggp
     #>    DT               0.23       2022-05-10 [1] CRAN (R 4.2.0)
     #>    dygraphs         1.1.1.6    2018-07-11 [1] CRAN (R 4.2.0)
     #>    ellipsis         0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
-    #>    emo              0.0.0.9000 2022-05-26 [1] Github (hadley/emo@3f03b11)
+    #>    emo              0.0.0.9000 2022-05-25 [1] Github (hadley/emo@3f03b11)
     #>    evaluate         0.15       2022-02-18 [1] CRAN (R 4.2.0)
     #>    fansi            1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
     #>    farver           2.1.0      2021-02-28 [1] CRAN (R 4.2.0)
@@ -563,7 +563,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-10-11-ggp
     #>    xts              0.12.1     2020-09-09 [1] CRAN (R 4.2.0)
     #>    zoo              1.8-10     2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #>  D ── DLL MD5 mismatch, broken installation.

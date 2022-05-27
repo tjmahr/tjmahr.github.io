@@ -61,8 +61,8 @@ df_sleep
 ```
 
 We can visualize all the data in ggplot2 by using
-[`facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html) to create subplots for each
-participant and [`stat_smooth()`](https://ggplot2.tidyverse.org/reference/geom_smooth.html) to create a
+[`facet_wrap()`](https://rdrr.io/pkg/ggplot2/man/facet_wrap.html) to create subplots for each
+participant and [`stat_smooth()`](https://rdrr.io/pkg/ggplot2/man/geom_smooth.html) to create a
 regression line in each subplot.
 
 
@@ -173,7 +173,7 @@ head(df_pooled)
 
 We can compare these two approaches. Instead of calculating the
 regression lines with `stat_smooth()`, we can use
-[`geom_abline()`](https://ggplot2.tidyverse.org/reference/geom_abline.html) to draw the lines from our dataframe
+[`geom_abline()`](https://rdrr.io/pkg/ggplot2/man/geom_abline.html) to draw the lines from our dataframe
 of intercept and slope parameters.
 
 
@@ -588,7 +588,7 @@ There are a few tweaks we might consider for this plot. I don't think
 the ovals need to be contained in the plot. The points are more
 important, and the plotting boundaries should be set with respect to the
 points. We can redefine the limits by using
-[`coord_cartesian()`](https://ggplot2.tidyverse.org/reference/coord_cartesian.html). (Your aesthetic preferences
+[`coord_cartesian()`](https://rdrr.io/pkg/ggplot2/man/coord_cartesian.html). (Your aesthetic preferences
 may differ. That's fine.)
 
 
@@ -733,7 +733,7 @@ We have posterior distribution of values now! That means instead of one
 "center of gravity" point, we have 4,000 plausible points for our
 central value. The center of our former contour plot has its own contour
 plot. That's Bayes for you. We can plot that easily with
-[`stat_density_2d()`](https://ggplot2.tidyverse.org/reference/geom_density_2d.html). We set the coordinate limits
+[`stat_density_2d()`](https://rdrr.io/pkg/ggplot2/man/geom_density_2d.html). We set the coordinate limits
 to be the same as the last plot, just so that we don't exaggerate the
 uncertainty around the central point by drawing a gigantic contour
 surface.
@@ -938,7 +938,7 @@ the plot from the cover of that book. 😆)
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plotting-partial-pooling-in-mixed-effects-models.Rmd).*[^si] 
 
 [^si]: 
@@ -955,7 +955,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plo
     #>  collate      English_United States.utf8
     #>  ctype        English_United States.utf8
     #>  tz           America/Chicago
-    #>  date         2022-05-26
+    #>  date         2022-05-27
     #>  pandoc       NA
     #>  stan (rstan) 2.21.0
     #> 
@@ -1012,7 +1012,6 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plo
     #>    lifecycle      1.0.1    2021-09-24 [1] CRAN (R 4.2.0)
     #>    lme4         * 1.1-29   2022-04-07 [1] CRAN (R 4.2.0)
     #>    loo            2.5.1    2022-03-24 [1] CRAN (R 4.2.0)
-    #>    lubridate      1.8.0    2021-10-07 [1] CRAN (R 4.2.0)
     #>    magrittr       2.0.3    2022-03-30 [1] CRAN (R 4.2.0)
     #>    markdown       1.1      2019-08-07 [1] CRAN (R 4.2.0)
     #>    MASS           7.3-56   2022-03-23 [2] CRAN (R 4.2.0)
@@ -1069,10 +1068,9 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2017-06-22-plo
     #>    xfun           0.31     2022-05-10 [1] CRAN (R 4.2.0)
     #>    xtable         1.8-4    2019-04-21 [1] CRAN (R 4.2.0)
     #>    xts            0.12.1   2020-09-09 [1] CRAN (R 4.2.0)
-    #>    yaml           2.3.5    2022-02-21 [1] CRAN (R 4.2.0)
     #>    zoo            1.8-10   2022-04-15 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #>  D ── DLL MD5 mismatch, broken installation.

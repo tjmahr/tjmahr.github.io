@@ -21,7 +21,7 @@ When I am showing off a plotting technique in
 [ggplot2](https://ggplot2.tidyverse.org/), I sometimes like to include
 the R code that produced the plot *as part of the plot*. Here is an
 example I made to demonstrate the `debug` parameter in
-[`element_text()`](https://ggplot2.tidyverse.org/reference/element.html):
+[`element_text()`](https://rdrr.io/pkg/ggplot2/man/element.html):
 
 
 ```r
@@ -137,7 +137,7 @@ Time for some *nonstandard evaluation*. I will use the
 [rlang](https://rlang.r-lib.org/) package, although in principle we
 could use functions in base R to accomplish these goals.
 
-First, we are going to use [`rlang::expr()`](https://rlang.r-lib.org/reference/expr.html) to
+First, we are going to use [`rlang::expr()`](https://rdrr.io/pkg/rlang/man/expr.html) to
 capture/quote/[defuse](https://rlang.r-lib.org/reference/topic-defuse.html)
 the R code as an expression. We can print the code as code, print it as
 text, and use `eval()` to show the plot.
@@ -217,7 +217,7 @@ wrap_elements(eval(p_code)) +
 ## Putting it all together
 
 When we write our `self_document()` function, the only change we have to
-make is using [`rlang::enexpr()`](https://rlang.r-lib.org/reference/defusing-advanced.html) instead `rlang::expr()`. The
+make is using [`rlang::enexpr()`](https://rdrr.io/pkg/rlang/man/defusing-advanced.html) instead `rlang::expr()`. The
 en-variant is used when we want to *en*-quote exactly what the user
 provided. Aside from that change, our `self_document()` function just bundles together all of the code we developed above:
 
@@ -332,7 +332,7 @@ print(f, useSource = TRUE)
 #>   theme_minimal() +
 #>   labs(title = "A basic histogram")
 #> }
-#> <environment: 0x00000247a163c4f8>
+#> <environment: 0x00000222d313b848>
 ```
 
 I have no idea how to go about exploiting this feature for
@@ -344,7 +344,7 @@ self-documenting plots, however.
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-self-titled-ggplot2-plots.Rmd).*[^si] 
 
 [^si]: 
@@ -361,7 +361,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -386,7 +386,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  ggplot2     * 3.3.6   2022-05-03 [1] CRAN (R 4.2.0)
     #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
     #>  glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
-    #>  grkstyle      0.0.3   2022-03-10 [1] Github (gadenbuie/grkstyle@6a7011c)
+    #>  grkstyle      0.0.3   2022-05-25 [1] Github (gadenbuie/grkstyle@6a7011c)
     #>  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
     #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
     #>  highr         0.9     2021-04-16 [1] CRAN (R 4.2.0)
@@ -425,7 +425,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-03-10-sel
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #>  yaml          2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────

@@ -263,7 +263,7 @@ did not do all of the exercises:
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-08-16-keep-it-locally-sourced.Rmd).*[^si] 
 
 [^si]: 
@@ -280,7 +280,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-08-16-kee
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -293,7 +293,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-08-16-kee
     #>  DBI           1.1.2      2021-12-20 [1] CRAN (R 4.2.0)
     #>  dplyr         1.0.9      2022-04-28 [1] CRAN (R 4.2.0)
     #>  ellipsis      0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
-    #>  emo           0.0.0.9000 2022-05-26 [1] Github (hadley/emo@3f03b11)
+    #>  emo           0.0.0.9000 2022-05-25 [1] Github (hadley/emo@3f03b11)
     #>  evaluate      0.15       2022-02-18 [1] CRAN (R 4.2.0)
     #>  fansi         1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
     #>  fastmap       1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
@@ -326,7 +326,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-08-16-kee
     #>  vctrs         0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
     #>  xfun          0.31       2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────

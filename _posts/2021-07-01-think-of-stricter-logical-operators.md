@@ -249,7 +249,7 @@ FALSE %||% 2
 #>         y
 #>     else x
 #> }
-#> <bytecode: 0x00000222b6a61598>
+#> <bytecode: 0x00000262684332f0>
 #> <environment: namespace:rlang>
 ```
 
@@ -539,7 +539,7 @@ they are stricter.
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-think-of-stricter-logical-operators.Rmd).*[^si] 
 
 [^si]: 
@@ -556,7 +556,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-thi
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -586,21 +586,17 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2021-07-01-thi
     #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ─ Python configuration ───────────────────────────────────────────────────────
-    #>  python:         C:/Users/trist/miniconda3/envs/aligner/python.exe
-    #>  libpython:      C:/Users/trist/miniconda3/envs/aligner/python38.dll
-    #>  pythonhome:     C:/Users/trist/miniconda3/envs/aligner
-    #>  version:        3.8.10 | packaged by conda-forge | (default, May 11 2021, 06:25:23) [MSC v.1916 64 bit (AMD64)]
+    #>  python:         C:/Users/Tristan/AppData/Local/r-miniconda/envs/r-reticulate/python.exe
+    #>  libpython:      C:/Users/Tristan/AppData/Local/r-miniconda/envs/r-reticulate/python36.dll
+    #>  pythonhome:     C:/Users/Tristan/AppData/Local/r-miniconda/envs/r-reticulate
+    #>  version:        3.6.10 (default, Mar  5 2020, 10:17:47) [MSC v.1900 64 bit (AMD64)]
     #>  Architecture:   64bit
-    #>  numpy:          C:/Users/trist/miniconda3/envs/aligner/Lib/site-packages/numpy
-    #>  numpy_version:  1.20.3
-    #>  
-    #>  python versions found: 
-    #>   C:/Users/trist/miniconda3/python.exe
-    #>   C:/Users/trist/miniconda3/envs/aligner/python.exe
+    #>  numpy:          C:/Users/Tristan/AppData/Local/r-miniconda/envs/r-reticulate/Lib/site-packages/numpy
+    #>  numpy_version:  1.18.5
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────
     ```

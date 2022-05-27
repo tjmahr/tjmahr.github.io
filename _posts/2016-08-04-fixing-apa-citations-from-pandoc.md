@@ -162,7 +162,7 @@ that issue in practice though.
 
 ***
 
-*Last knitted on 2022-05-26. [Source code on
+*Last knitted on 2022-05-27. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-08-04-fixing-apa-citations-from-pandoc.Rmd).*[^si] 
 
 [^si]: 
@@ -179,7 +179,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-08-04-fix
     #>  collate  English_United States.utf8
     #>  ctype    English_United States.utf8
     #>  tz       America/Chicago
-    #>  date     2022-05-26
+    #>  date     2022-05-27
     #>  pandoc   NA
     #> 
     #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -200,7 +200,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2016-08-04-fix
     #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
     #>  xfun          0.31    2022-05-10 [1] CRAN (R 4.2.0)
     #> 
-    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [1] C:/Users/Tristan/AppData/Local/R/win-library/4.2
     #>  [2] C:/Program Files/R/R-4.2.0/library
     #> 
     #> ──────────────────────────────────────────────────────────────────────────────

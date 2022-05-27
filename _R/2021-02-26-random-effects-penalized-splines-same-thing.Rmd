@@ -116,7 +116,8 @@ b_radon <- brm(
   radon, 
   family = gaussian, 
   file = "_caches/2021-02-26-radon", 
-  backend = "cmdstanr"
+  backend = "cmdstanr",
+  refresh = 0
 )
 b_radon
 ```
@@ -726,7 +727,8 @@ b_gam_20 <- brm(
   data = mcycle, 
   family = gaussian,
   file = "_caches/2021-02-26-mcycle20", 
-  backend = "cmdstanr"
+  backend = "cmdstanr",
+  refresh = 0
 )
 summary(b_gam_20)
 ```
