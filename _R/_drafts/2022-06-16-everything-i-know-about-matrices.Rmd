@@ -1,0 +1,59 @@
+---
+title: Everything I know about matrices (2022-06-16)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+```
+
+
+## Goals with this post
+
+In data work, domain specific languages are everywhere: SQL queries, regular expressions, plotting syntax, Stan/probabilistic programming models, markup languages, configuration files and Makefiles, and so on. These are specialized languages that we use to do or describe things. Linear algebra is a field of mathematics and we might think of it as an abstract Platonic thing---math is discovered or revealed; HTML was invented, right?---but it is also domain-specific language in data work. We use it do things to data. So let's not beat ourselves up for not knowing linear algebra. I don't beat myself for not knowing how to write bash scripts.
+
+
+Let's talk about fluency. I am *fluent* in regular expressions. I can read them, figure out what they are doing, and bust them out to solve problems. I can verbalize or restate the actions behind the symbols: "okay, so we are looking for filenames that start with two capital letters and end in three digits". I only have to look things up when I am getting in lookahead/lookbehind assertions or have to get beyond the usual types of characters I see in my work.  I feel *comfortable* with regular expressions.
+
+In contrast, I am neither fluent nor comfortable with linear algebra. I know that it is about vectors and matrices and linear transformations of things, and I know that as a statistician, there is tons of it behind the scenes in my work (and in basically all quantitative work). I can read an equation but I can't verbalize the action in the equation beyond basic statistics things like "this is weighting the predictors by coefficients and summing them together". I can't bust it out to solve new kinds of problems.
+
+
+All of that said, here are my goals:
+
+- to record all of the linear algebra tricks I've come across.
+- to describe some big ideas.
+
+## Notation
+
+## Big ideas
+
+
+## Various recipes
+
+The inner product $v \\cdot w$ is the sum of the pairwise products of
+the components, and when we take the inner product of a vector with
+itself, we get the squared length of the vector. We can think of this as
+generalizing the Pythagorean Theorem.
+
+
+
+For inner product of a vector with itself measures the squared length of
+the vector. $v \cdot v = (v_1^2) + v_2^2+...$. 
+
+
+- graphics: rotation matrices. shearing and stretching. everything that a super nintendo can do.
+- the coefficients * identity matrix trick
+- multivariate model / posterior samples matrix.
+- transition matrix / exponentiated adjacency matrix.
+- neural network layers.
+- similarity/correlation
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```
