@@ -1,5 +1,5 @@
 ---
-title: How to score rock-paper-scissors
+title: How to score Rock Paper Scissors
 excerpt: Lists are trees
 tags:
   - r
@@ -164,3 +164,70 @@ trick again: converting a decision tree into a data lookup problem.
 
 
 
+
+
+***
+
+*Last knitted on 2022-12-06. [Source code on
+GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2022-12-06-rock-paper-scissors-lists-are-trees.Rmd).*[^si] 
+
+[^si]: 
+    
+    ```r
+    .session_info
+    #> ─ Session info ───────────────────────────────────────────────────────────────
+    #>  setting  value
+    #>  version  R version 4.2.2 (2022-10-31 ucrt)
+    #>  os       Windows 10 x64 (build 22621)
+    #>  system   x86_64, mingw32
+    #>  ui       RTerm
+    #>  language (EN)
+    #>  collate  English_United States.utf8
+    #>  ctype    English_United States.utf8
+    #>  tz       America/Chicago
+    #>  date     2022-12-06
+    #>  pandoc   NA
+    #> 
+    #> ─ Packages ───────────────────────────────────────────────────────────────────
+    #>  package     * version date (UTC) lib source
+    #>  asciicast     2.3.0   2022-12-05 [1] CRAN (R 4.2.2)
+    #>  cli           3.4.1   2022-09-23 [1] CRAN (R 4.2.1)
+    #>  curl          4.3.3   2022-10-06 [1] CRAN (R 4.2.1)
+    #>  evaluate      0.18    2022-11-07 [1] CRAN (R 4.2.2)
+    #>  fansi         1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
+    #>  git2r         0.30.1  2022-03-16 [1] CRAN (R 4.2.0)
+    #>  glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+    #>  here          1.0.1   2020-12-13 [1] CRAN (R 4.2.0)
+    #>  highr         0.9     2021-04-16 [1] CRAN (R 4.2.0)
+    #>  jsonlite      1.8.3   2022-10-21 [1] CRAN (R 4.2.1)
+    #>  knitr       * 1.40    2022-08-24 [1] CRAN (R 4.2.1)
+    #>  lifecycle     1.0.3   2022-10-07 [1] CRAN (R 4.2.1)
+    #>  magick        2.7.3   2021-08-18 [1] CRAN (R 4.2.0)
+    #>  magrittr      2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+    #>  pillar        1.8.1   2022-08-19 [1] CRAN (R 4.2.1)
+    #>  pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+    #>  processx      3.8.0   2022-10-26 [1] CRAN (R 4.2.1)
+    #>  ps            1.7.2   2022-10-26 [1] CRAN (R 4.2.1)
+    #>  R6            2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+    #>  ragg          1.2.4   2022-10-24 [1] CRAN (R 4.2.1)
+    #>  Rcpp          1.0.9   2022-07-08 [1] CRAN (R 4.2.1)
+    #>  rlang         1.0.6   2022-09-24 [1] CRAN (R 4.2.1)
+    #>  rprojroot     2.0.3   2022-04-02 [1] CRAN (R 4.2.0)
+    #>  rstudioapi    0.14    2022-08-22 [1] CRAN (R 4.2.1)
+    #>  sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+    #>  stringi       1.7.8   2022-07-11 [1] CRAN (R 4.2.1)
+    #>  stringr       1.4.1   2022-08-20 [1] CRAN (R 4.2.1)
+    #>  systemfonts   1.0.4   2022-02-11 [1] CRAN (R 4.2.0)
+    #>  textshaping   0.3.6   2021-10-13 [1] CRAN (R 4.2.0)
+    #>  tibble        3.1.8   2022-07-22 [1] CRAN (R 4.2.1)
+    #>  utf8          1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+    #>  V8            4.2.2   2022-11-03 [1] CRAN (R 4.2.2)
+    #>  vctrs         0.5.0   2022-10-22 [1] CRAN (R 4.2.1)
+    #>  withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+    #>  xfun          0.34    2022-10-18 [1] CRAN (R 4.2.1)
+    #> 
+    #>  [1] C:/Users/trist/AppData/Local/R/win-library/4.2
+    #>  [2] C:/Program Files/R/R-4.2.2/library
+    #> 
+    #> ──────────────────────────────────────────────────────────────────────────────
+    ```

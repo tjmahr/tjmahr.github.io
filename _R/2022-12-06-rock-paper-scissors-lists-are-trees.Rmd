@@ -1,5 +1,5 @@
 ---
-title: How to score rock-paper-scissors
+title: How to score Rock Paper Scissors
 excerpt: Lists are trees
 tags:
   - r
@@ -164,5 +164,5 @@ trick again: converting a decision tree into a data lookup problem.
 ```{r, include = FALSE}
 .parent_doc <- knitr::current_input()
 ```
-```{r, child = "_footer.Rmd"}
+```{r, child = "_R/_footer.Rmd"}
 ```
