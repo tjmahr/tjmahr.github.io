@@ -1,0 +1,166 @@
+---
+title: How to score rock-paper-scissors
+excerpt: Lists are trees
+tags:
+  - r
+  - advent of code
+header:
+  overlay_image: "assets/images/2022-12-trees.jpg"
+  image_description: "A trio of bottlebrush trees"
+  overlay_filter: rgba(10, 50, 50, 0.4)
+  caption: "Photo credit: [**Debby Hudson**](https://unsplash.com/photos/tEnxDUbWds0)"
+---
+
+
+
+
+Ho ho ho, it is the most wonderful time of the year: Advent of code!
+
+AOC is a yearly collection of programming puzzles throughout the
+first 25 days of December. I like it... so much so that I wrote [an R
+package](https://github.com/tjmahr/aoc) for completing my puzzles using
+the structure of an R package. The puzzles start out easy and get
+progressively more elaborate or devious in their requirements. But I am
+going to talk about an easy puzzle in this post, and specifically, one
+little trick I used in my solution.
+
+[Day 2 of 2022](https://adventofcode.com/2022/day/2) requires us to score games of Rock Paper Scissors. The
+moves are encoded using letters, where our opponent's moves are coded as
+`A`, `B`, `C` and ours are coded as `X`, `Y`, `Z`. So, an input
+describing three moves will look like the following:
+
+
+```r
+example_input <- c(
+  "A Y",
+  "B X",
+  "C Z"
+)
+```
+
+Where the letters mean the following:
+
+
+```r
+move_codes <- c(
+  "A" = "rock",
+  "B" = "paper",
+  "C" = "scissors",
+  "X" = "rock",
+  "Y" = "paper",
+  "Z" = "scissors"
+)
+```
+
+This encoding seems like a weird bit of indirection thrown on, and *it is*,
+because the puzzle changes the meanings of the letters in Part 2. Still,
+it is straightforward to parse the input into a list of roshambo moves.
+
+
+```r
+input <- example_input |> 
+  strsplit(" ") |> 
+  # Use character subsetting to convert letters to moves
+  lapply(function(x) unname(move_codes[x])) 
+
+# Our character's move is the second element in each vector
+str(input)
+#> List of 3
+#>  $ : chr [1:2] "rock" "paper"
+#>  $ : chr [1:2] "paper" "rock"
+#>  $ : chr [1:2] "scissors" "scissors"
+```
+
+Now, for the point of this post, **how do we score each game?**
+
+The naive approach is to start typing away furiously
+
+
+
+<img src="/figs/2022-12-06-rock-paper-scissors-lists-are-trees//unnamed-chunk-5.svg" alt="center" width="100%" style="display: block; margin: auto;" />
+
+before eventually noping the hell out of there.
+
+What we have is a decision tree: we need to follow a branch for player
+one and another branch for player two. And here's the main point of this
+post: **nested lists are trees**. (Yes, I love lists---see [this
+post](/lists-knitr-secret-weapon/) where I use them in my knitr
+reporting.) The top (outer) level of the list will be all of the player
+one options, and then the bottom (inner) level will be all the player
+two options. The nodes of the tree (bottom level values) are the
+outcomes of the games.
+
+
+```r
+run_game <- function(pair) {
+  # nested lists are trees
+  rules <- list(
+    rock = list(
+      rock = "draw",
+      scissors = "lose",
+      paper = "win"
+    ),
+    scissors = list(
+      scissors = "draw",
+      rock = "win",
+      paper = "lose"
+    ),
+    paper = list(
+      paper = "draw",
+      scissors = "win",
+      rock = "lose"
+    )
+  )
+
+  # Because `rules[[pair[1]]][[pair[2]]]` is unsightly:
+  rules |>
+    getElement(pair[1]) |>
+    getElement(pair[2])
+}
+```
+
+At this point, we could take a second to ponder how the structure of
+several nested if-elses---the actual shape of the code, indenting in and
+out in and in again---resembles the structure and the shape of the
+nested list, and ponder further about how the regular, orderly shape of
+code could be the whispers of hidden data, saying "`list()` me, `list()`
+me". Or, we could run the code and see it in action.
+
+
+```r
+input |> 
+  lapply(run_game)
+#> [[1]]
+#> [1] "win"
+#> 
+#> [[2]]
+#> [1] "lose"
+#> 
+#> [[3]]
+#> [1] "draw"
+
+# Or to repeat the input
+input |> 
+  stats::setNames(input) |> 
+  lapply(run_game)
+#> $`c("rock", "paper")`
+#> [1] "win"
+#> 
+#> $`c("paper", "rock")`
+#> [1] "lose"
+#> 
+#> $`c("scissors", "scissors")`
+#> [1] "draw"
+```
+
+***
+
+Earlier in the post, I used [character
+subsetting](https://adv-r.hadley.nz/subsetting.html#lookup-tables) to
+convert letters into moves. This process turned a matching/replacement
+problem into a data lookup problem. The Rock Paper Scissors are the same
+trick again: converting a decision tree into a data lookup problem.
+
+
+
+
