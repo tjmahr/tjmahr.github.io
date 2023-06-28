@@ -1,0 +1,173 @@
+---
+title: Draft post (2023-06-28)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+```
+
+Mattan S. Ben-Shachar wrote an excellent tutorial about how to impose ordering constraints in Bayesian regression models. In that post, the data comes from archaelogy [Buck, 2017]. We have samples from `layers` in a site and we have a radiocarbon date measurement for each sample `c14` and some measurement error for each sample.
+
+```{r}
+library(tidyverse)
+
+data_buck2017 <- tribble(
+  ~layer,  ~c14, ~error,
+     "B", -5773,     30,
+     "B", -5654,     30,
+     "B", -5585,     30,
+     "C", -5861,     30,
+     "C", -5755,     30,
+     "E", -5850,     50,
+     "E", -5928,     50,
+     "E", -5905,     50,
+     "G", -6034,     30,
+     "G", -6184,     30,
+     "I", -6248,     50,
+     "I", -6350,     50
+  )
+```
+
+Because of how the layers are ordered, we a priori expect deeper layers to have older dates, so these are the ordering constraints:
+
+$$
+\textrm{age}_I < \textrm{age}_G < \textrm{age}_E < \textrm{age}_C < \textrm{age}_B
+$$
+
+Ben-Shachar's post works through some ways in brms to achieve this constraint:
+
+1. Fit the usual model but filter out posterior draws that where the ordering constraint is violated.
+
+2. Have the Stan sampler `reject` draws where the constraint is violated.
+
+3. Using brms's monotonic effect `mo()` syntax.
+
+In this post, I am going to add another option to this list: Setting
+priors on the differences between successive levels.
+
+By default, R will encode categorical variables in a regression model
+using "treatment" or "dummy" coding:
+
+
+```{r}
+m1 <- lm(c14 ~ 1 + layer, data_buck2017)
+round(coef(m1))
+
+  
+data_buck2017$layer <- factor(data_buck2017$layer)
+
+
+# https://twitter.com/CookieSci/status/1562221740230676481
+cbind(1, contrasts(data_buck2017$layer)) |> solve()
+# solve(cbind(1, contr.treatment(5)))
+# unique(model.matrix(m1)) %*% diag(round(coef(m1)))
+```
+
+Here, the `(Intercept)` = `r coef(m1)[1]` is a *reference level* of a categorical variable
+(layer B). Each of the other effects is a difference from that
+reference level. Layer C's mean is `(Intercept)` + `layerC`. The model matrix shows how these categorical variables are encoded:
+
+```{r}
+m1 |> model.matrix() |> as.data.frame()
+```
+
+The `(Intercept)` is the model constant, so it's switched on (equals 1)
+for every row. Each of the other columns are *indicator variables*.
+`layerC` turns on for the layer C rows, `layerE` turns on for layer E
+rows, and so on.
+
+The model estimates for each row are the row sums after weighting by the model coefficients. Here I use my favorite matrix trick to show the weighting without the addition.
+
+```{r}
+# weighting
+model.matrix(m1) %*% diag(coef(m1))
+# weighting with summing
+model.matrix(m1) %*% coef(m1)
+```
+
+
+But there are many other ways to encode a categorical variable. For example, I was taught in my first regression to encode a dichomotous variable with something like:
+
+```{r}
+# blah
+```
+
+
+
+These
+contrast coding schemes [link to manual page] allow us to focus on different kinds of
+comparisons. Of interest to us is consecutive differences coding. 
+
+```{r}
+# Never load MASS. 
+contr_sdif <- MASS::contr.sdif
+
+# solve(cbind(1, contr_sdif(unique(data_buck2017$layer), contrasts = TRUE)))
+
+data_buck2017$layer_sdif <- factor(data_buck2017$layer) 
+contrasts(data_buck2017$layer_sdif) <- contr_sdif(
+  unique(data_buck2017$layer), 
+  contrasts = TRUE
+)
+
+m2 <- lm(c14 ~ layer_sdif, data_buck2017)
+model.matrix(m2) |> as.data.frame()
+model.matrix(m2) |> colSums()
+model.matrix(m2) %*% diag(coef(m2))
+
+m3 <- lm(c14 ~ layer, data_buck2017, contrasts = list(layer = contr_sdif))
+summary(m3)
+model.matrix(m3)
+data_buck2017 |> 
+  aggregate(c14 ~ layer, data = _, mean) |> 
+  aggregate(c14 ~ 1, data = _, mean)
+
+aggregate(c14 ~ layer, data_buck2017, mean)
+```
+
+
+
+If we first a regression model with a categorical variable and no
+intercept term, each of the coefficients will be the estimated mean for
+each layer.
+
+```{r}
+m0 <- lm(c14 ~ 0 + layer, data_buck2017)
+round(coef(m0))
+unique(model.matrix(m0))
+```
+
+
+
+```{r, eval = FALSE}
+library(brms)
+priors <- 
+  set_prior("normal(-5975, 1000)", class = "Intercept") + 
+  set_prior("exponential(0.01)", class = "sigma")
+
+data_buck2017$layer <- ordered(data_buck2017$layer)
+mod3_mo <- brm(
+  bf(c14 | se(error, sigma = TRUE) ~ 1 + mo(layer)),
+  family = gaussian("identity"),
+  prior = priors,
+  data = data_buck2017,
+  seed = 4321,
+  backend = "cmdstanr",
+  cores = 4
+)
+# standata(mod3_mo)
+# mod3_mo$model
+# fixef(mod3_mo)
+# ecdf(data_buck2017$c14)(data_buck2017$c14)
+```
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```
