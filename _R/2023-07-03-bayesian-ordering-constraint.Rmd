@@ -1,0 +1,488 @@
+---
+title: Ordering constraints in brms using contrast coding
+excerpt: But mostly how contrast matrices are computed
+tags: 
+  - r
+  - bayesian
+  - brms
+  - math
+header:
+  overlay_image: "assets/images/2023-07-ruins-1280.jpg"
+  image_description: "An ancient ruin"
+  overlay_filter: rgba(10, 10, 10, 0.2)
+  caption: "Photo credit: [**Russ McCabe**](https://unsplash.com/photos/4f_fhoAn3bI)"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+library(MASS)
+library(tidyverse)
+library(brms)
+
+```
+
+Mattan S. Ben-Shachar wrote an [excellent tutorial][msb-blog-post]
+about how to impose ordering constraints in Bayesian regression models.
+In that post, the data comes from archaeology
+([Buck, 2017](https://arxiv.org/abs/1704.07141)). We have samples from
+`Layer`s in a site, and for each sample, we have a `C14` radiocarbon
+date measurement and its associated measurement `error`.
+
+```{r}
+library(tidyverse)
+
+table1 <- tribble(
+  ~Layer,  ~C14, ~error,
+     "B", -5773,     30,
+     "B", -5654,     30,
+     "B", -5585,     30,
+     "C", -5861,     30,
+     "C", -5755,     30,
+     "E", -5850,     50,
+     "E", -5928,     50,
+     "E", -5905,     50,
+     "G", -6034,     30,
+     "G", -6184,     30,
+     "I", -6248,     50,
+     "I", -6350,     50
+  )
+table1$Layer <- factor(table1$Layer)
+```
+
+Because of how the layers are ordered---new stuff piled on top of older
+stuff---we *a priori* expect deeper layers to have older dates, so these
+are the ordering constraints:
+
+$$
+\mu_{\text{Layer I}} < \mu_{\text{Layer G}} < \mu_{\text{Layer E}} < \mu_{\text{Layer C}} < \mu_{\text{Layer B}}
+$$
+
+where *μ* is the average `C14` age of a layer.
+
+Ben-Shachar's post works through some ways in brms to achieve this
+constraint:
+
+1.  Fit the usual model but filter out posterior draws where the
+    ordering constraint is violated.
+
+2.  Have the Stan sampler `reject` draws where the constraint is
+    violated. But note that the [documentation for
+    `reject`][reject-docs] has a section titled "Rejection is not for
+    constraints".
+
+3.  Use brms's monotonic effect [`mo()`][brms-mo] syntax.
+
+In this post, I am going to add another option to this list: 
+
+<ol start="4"><li> Use contrast coding so the model parameters 
+represent the differences between successive levels, and use priors to enforce 
+the ordering constraint.</li></ol>
+
+## Big idea of contrast coding
+
+When our model includes categorical variables, we need some way to code those
+variables in our model (that is, use numbers to represent the category levels). 
+Our choice of coding scheme will change the meaning of the model parameters, 
+allowing us to perform different comparisons (test different statistical hypotheses) about the means of the 
+category levels. Let's spell that out again, because it is the big idea of the 
+contrast coding:
+
+```
+different contrast coding schemes <-> 
+  different parameter meanings <-> 
+    different comparisons / hypotheses
+```
+
+The toolbox of contrast coding schemes is deep but also confusing.
+Whenever I step away from R's default contrast coding, I usually have
+these pages open to help me: [this tutorial][ucla-cc], Lisa
+DeBruine's [comparison article][debruine-cc], and the menu of
+[contrast schemes in
+emmeans](https://rdrr.io/pkg/emmeans/man/emmc-functions.html). So, let's 
+start with R's default contrast coding scheme.
+
+
+## The default: dummy coding
+
+By default, R will code categorical variables in a regression model
+using "treatment" or "dummy" coding. In this scheme,
+
+  - The intercept is the mean of one of the category levels (the
+    *reference level*)
+  - Parameters estimate the difference between each other level and the
+    reference level
+
+
+Let's fit a simple linear model and 
+work through the parameter meanings:
+
+```{r}
+m1 <- lm(C14 ~ 1 + Layer, table1)
+coef(m1)
+```
+
+So here, the `(Intercept)` is the mean of the reference level, and the
+reference level is the level of the categorical variable not listed in
+the other parameter names (`LayerB`). Each of the other parameters is a
+difference from that reference level. Layer C's mean is `(Intercept)` +
+`LayerC`. The model matrix shows how these categorical variables are
+coded in the model's design/contrast matrix:
+
+```{r}
+mat_m1 <- m1 |> model.matrix() |> unique()
+mat_m1
+```
+
+The `(Intercept)` is the model constant, so naturally, it's switched on
+(equals 1) for every row. Each of the other columns are *indicator
+variables*. `layerC` turns on for the layer C rows, `layerE` turns on
+for layer E rows, and so on.
+
+Matrix multiplying the contrast matrix by the model coefficients will 
+compute the mean values of each layer.
+
+$$
+\mathbf{\hat y} = \mathbf{X}\boldsymbol{\beta}
+$$
+
+Think of this equation as a contract for a contrast coding scheme.
+Multiplying the contrast matrix by the model coefficients should give us
+the means of the category levels.
+
+```{r}
+mat_m1 %*% coef(m1)
+
+# Means by hand
+aggregate(C14 ~ Layer, table1, mean)
+```
+
+If the matrix multiplication is too quick, here it is in slow motion
+where each row has been weighted (multiplied) by coefficients:
+
+```{r}
+# Sums of the rows are the means
+mat_m1 %*% diag(coef(m1))
+```
+
+
+### Successive differences coding
+
+Now, let's look at a different kind of coding: (reverse) successive differences 
+coding. In this scheme:
+
+  - The intercept is the mean of the levels means
+  - Parameters estimate the difference between adjacent levels
+  - but I have to reverse how the levels are ordered in the underlying
+    `factor()` so that the differences are positive, comparing each
+    layer with the one *below* it. (LayerB minus LayerC should be positive).
+
+We apply this coding by creating a new factor and setting the
+[`contrast()`](https://rdrr.io/r/stats/contrasts.html). R lets us set
+the contrast to the name of a function that computes contrasts, so
+we use `"contr.sdif"`.
+
+```{r}
+contr.sdif <- MASS::contr.sdif
+
+# Reverse the factor levels
+table1$LayerAlt <- factor(table1$Layer, rev(levels(table1$Layer)))
+
+contrasts(table1$LayerAlt) <- "contr.sdif"
+```
+
+Then we just fit the model as usual. As intended, the model's
+coefficients are different.
+
+```{r}
+m2 <- lm(C14 ~ 1 + LayerAlt, table1)
+coef(m2)
+```
+
+We can compute the mean of means and the layer differences by hand to
+confirm that the model parameters are computing what we expect.
+
+```{r}
+layer_means <- table1 |> 
+  split(~ Layer) |> 
+  lapply(function(x) mean(x$C14))
+str(layer_means)
+
+data.frame(
+  model_coef = coef(m2),
+  by_hand = c(
+    mean(unlist(layer_means)),
+    layer_means$G - layer_means$I,
+    layer_means$E - layer_means$G,
+    layer_means$C - layer_means$E,
+    layer_means$B - layer_means$C
+  )
+)
+```
+
+Back to our contrast coding contract, we see that the contrast matrix matrix-multiplied by
+the model coefficients gives us the level means.
+
+```{r}
+mat_m2 <- unique(model.matrix(m2))
+
+mat_m2 %*% coef(m2)
+
+# By hand
+aggregate(C14 ~ Layer, table1, mean)
+```
+
+It's so clean and simple. We still get the level means and the
+parameters estimate specific comparisons of interest to us. So, how are
+the categorical variables and their differences coded in the model's contrast
+matrix?
+
+```{r}
+mat_m2
+```
+
+Wait... what? 😕
+
+
+## The Comparison Matrix
+
+When I first started drafting this post, I made it to this point and
+noped out for a few days. My curiosity did win out, eventually, and I
+hit the books (remembered [this
+tweet](https://twitter.com/CookieSci/status/1562221740230676481) and
+[this handout](https://twitter.com/bolkerb/status/1565077056169312257),
+watched [this video](https://www.youtube.com/watch?v=yLgPpmXVVbs), read
+[this
+paper](https://www.sciencedirect.com/science/article/pii/S0749596X19300695),
+read section 9.1.2 in *Applied Regression Analysis & Generalized Linear
+Models*). Now, for the rest of the post.
+
+The best formal, citable source for what I describe here is [Schad and colleagues (2020)](https://www.sciencedirect.com/science/article/pii/S0749596X19300695), but what they call a "hypothesis matrix", I'm calling a *comparison matrix*. I do this for two reasons: 1) to get away from hypothesis testing mindset (see Figure 1) and 2) because we are using the hypothesis matrix to apply a constraint among parameter values (remember that?).
+
+{% include figure image_path="/assets/images/2023-07-bayes-sign.jpg." alt="In this house, we beleive: Bayes is good, estimate with uncertainty is better than hypothesis testing, math is hard, sampling is easy, Bayesian estimation wtih informative priors is indistinguishable from data falsifications, and it kicks ass." caption="Figure 1. The sign in my yard." %}{: style="max-width: 50%; display: block; margin: 2em auto;"}
+
+In this approach, we define the model parameters **_β_** by multiplying the
+levels means **_μ_** by the comparison matrix **C**, which activates or weights
+different level means.
+
+$$
+\mathbf{C}\boldsymbol{\mu} = \boldsymbol{\beta} \\
+ \begin{bmatrix}
+  \textrm{weights for comparison 1} \\
+  \textrm{weights for comparison 2} \\
+  \textrm{weights for comparison 3} \\
+  \cdots \\
+ \end{bmatrix}
+ \begin{bmatrix}
+  \mu_1 \\
+  \mu_2 \\
+  \mu_3 \\
+  \cdots \\
+ \end{bmatrix} = 
+ \begin{bmatrix}
+  \beta_0 \\
+  \beta_1 \\
+  \beta_2 \\
+  \cdots \\
+ \end{bmatrix}
+$$
+
+
+So, in the dummy-coded version of the model, we had the following
+comparison matrix:
+
+$$
+\mathbf{C}_\text{dummy}\boldsymbol{\mu} = \boldsymbol{\beta}_\text{dummy} \\
+ \begin{bmatrix}
+  1 & 0 & 0 & 0 & 0 \\
+  -1 & 1 & 0 & 0 & 0 \\
+  -1 & 0 & 1 & 0 & 0 \\
+  -1 & 0 & 0 & 1 & 0 \\
+  -1 & 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+ \begin{bmatrix}
+  \mu_{\text{Layer B}} \\
+  \mu_{\text{Layer C}} \\
+  \mu_{\text{Layer E}} \\
+  \mu_{\text{Layer G}} \\
+  \mu_{\text{Layer I}} \\
+ \end{bmatrix} = 
+ \begin{bmatrix}
+  \beta_0: \mu_{\text{Layer B}} \\
+  \beta_1: \mu_{\text{Layer C}} - \mu_{\text{Layer B}} \\
+  \beta_2: \mu_{\text{Layer E}} - \mu_{\text{Layer B}} \\
+  \beta_3: \mu_{\text{Layer G}} - \mu_{\text{Layer B}} \\
+  \beta_4: \mu_{\text{Layer I}} - \mu_{\text{Layer B}} \\
+ \end{bmatrix}
+$$
+
+The first row in **C** sets the Layer B as the reference value for the
+dummy coding. The second row turns both Layer B and Layer C on, but
+Layer B is negatively weighted. Thus, the corresponding model
+coefficient is the difference between Layers C and B.
+
+The comparison matrix for the reverse successive difference contrast
+coding is similar. The first row activates all of the layers buts
+equally weights them, so we get a mean of means for the model intercept. Each
+row after the first is the difference between two layer means.
+
+$$
+\mathbf{C}_\text{rev-diffs}\boldsymbol{\mu} = \boldsymbol{\beta}_\text{rev-diffs} \\
+ \begin{bmatrix}
+  .2 & .2 & .2 & .2 & .2 \\
+  0 &  0 &  0 &  1 & -1 \\
+  0 &  0 &  1 & -1 &  0 \\
+  0 &  1 & -1 &  0 &  0 \\
+  1 & -1 &  0 &  0 &  0 \\
+ \end{bmatrix}
+ \begin{bmatrix}
+  \mu_{\text{Layer B}} \\
+  \mu_{\text{Layer C}} \\
+  \mu_{\text{Layer E}} \\
+  \mu_{\text{Layer G}} \\
+  \mu_{\text{Layer I}} \\
+ \end{bmatrix} = 
+ \begin{bmatrix}
+  \beta_0: \text{mean of } \mu \\
+  \beta_1: \mu_{\text{Layer G}} - \mu_{\text{Layer I}} \\
+  \beta_2: \mu_{\text{Layer E}} - \mu_{\text{Layer G}} \\
+  \beta_3: \mu_{\text{Layer C}} - \mu_{\text{Layer E}} \\
+  \beta_4: \mu_{\text{Layer B}} - \mu_{\text{Layer C}} \\
+ \end{bmatrix}
+$$
+
+
+Now, here is the magic part 🔮. Multiplying both sides by the inverse of
+the comparison matrix will set up the design matrix for the linear model:
+
+$$
+\mathbf{C}\boldsymbol{\mu} = \boldsymbol{\beta} \\
+\mathbf{C}^{-1}\mathbf{C}\boldsymbol{\mu} = \mathbf{C}^{-1}\boldsymbol{\beta} \\
+\boldsymbol{\mu} = \mathbf{C}^{-1}\boldsymbol{\beta} \\
+\mathbf{\hat y} = \mathbf{X}\boldsymbol{\beta} \\
+$$
+
+So, we can invert our comparison matrix to get the model's contrast matrix:
+
+```{r}
+comparisons <- c(
+  .2, .2, .2, .2, .2,
+   0,  0,  0,  1, -1,
+   0,  0,  1, -1,  0,
+   0,  1, -1,  0,  0,
+   1, -1,  0,  0,  0
+)
+
+mat_comparisons <- matrix(comparisons, nrow = 5, byrow = TRUE)
+solve(mat_comparisons)
+
+mat_m2
+```
+
+Or, perhaps more commonly, we can take the contrast matrix used by a model and
+recover the comparison matrix, which is a nice trick when we have R
+automatically set the contrast values for us:
+
+```{r}
+# Dummy coding example
+mat_m1
+solve(mat_m1)
+
+# Successive differences coding example
+mat_m2
+solve(mat_m2)
+```
+
+
+
+## Finally, in Layer I of this post, the brms model
+
+Now that we know about contrasts, and how they let us define model
+parameters in terms of the comparisons we want to make, we can use this
+technique to enforce an ordering constraint.
+
+We set up our model as in Ben-Shachar's [post][msb-blog-post], but
+here we set a prior for `normal(500, 250)` on the non-intercept
+coefficients with a lower-bound of 0 `lb = 0` to enforce the
+ordering constraint. 
+
+```{r, eval = TRUE}
+library(brms)
+priors <- 
+  set_prior("normal(-5975, 1000)", class = "Intercept") + 
+  set_prior("normal(500, 250)", class = "b", lb = 0) +
+  set_prior("exponential(0.01)", class = "sigma")
+
+validate_prior(
+  priors,
+  bf(C14 | se(error, sigma = TRUE) ~ 1 + LayerAlt),
+  data = table1
+)
+```
+
+We fit the model:
+
+```{r, results = 'hide'}
+m3 <- brm(
+  bf(C14 | se(error, sigma = TRUE) ~ 1 + LayerAlt),
+  family = gaussian("identity"),
+  prior = priors,
+  data = table1,
+  seed = 4321,
+  backend = "cmdstanr",
+  cores = 4, 
+  # caching
+  file = "2023-07-03", 
+  file_refit = "on_change"
+)
+```
+
+
+We can see that the level differences are indeed positive with 95%
+intervals of positive values.
+
+```{r level-diffs, fig.cap = "Estimates of the level differences."}
+summary(m3)
+bayesplot::mcmc_intervals(m3, regex_pars = "Layer")
+```
+
+```{r level-means, fig.cap = "Conditional means for each layer."}
+conditional_effects(m3)
+```
+
+## Normally, I don't think you need contrast codes
+
+My general advice for contrast coding is to just fit the model and then
+have the software compute the appropriate estimates and comparisons
+afterwards on the outcome scale. For example,
+[emmeans](https://cran.r-project.org/web/packages/emmeans/vignettes/comparisons.html)
+can take a fitted model, run requested comparisons, and handle multiple
+comparisons and *p*-value adjustments for us.
+[marginaleffects](https://vincentarelbundock.github.io/marginaleffects/)
+probably does this too. (I really need to play with it.) And in a
+Bayesian model, we can compute comparisons of interest by doing math on
+the posterior samples (estimating things and computing differences and
+summarizing the distribution of the differences), but this particular
+model, where the coding was needed to impose the prior ordering
+constraint, ruled out the posterior post-processing approach.
+
+
+
+
+[msb-blog-post]: https://blog.msbstats.info/posts/2023-06-26-order-constraints-in-brms/ "Order Constraints in Bayes Models (with brms)"
+
+[reject-docs]: https://mc-stan.org/docs/reference-manual/reject-statements.html "Stan Manual: Reject statements"
+
+[brms-mo]: https://paul-buerkner.github.io/brms/articles/brms_monotonic.html "Estimating Monotonic Effects with brms"
+
+[ucla-cc]: https://stats.oarc.ucla.edu/spss/faq/coding-systems-for-categorical-variables-in-regression-analysis/ "https://stats.oarc.ucla.edu/spss/faq/coding-systems-for-categorical-variables-in-regression-analysis/"
+
+[debruine-cc]: https://debruine.github.io/faux/articles/contrasts.html
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_R/_footer.Rmd"}
+```
