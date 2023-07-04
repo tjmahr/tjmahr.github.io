@@ -320,7 +320,7 @@ Models*). Now, for the rest of the post.
 
 The best formal, citable source for what I describe here is [Schad and colleagues (2020)](https://www.sciencedirect.com/science/article/pii/S0749596X19300695), but what they call a "hypothesis matrix", I'm calling a *comparison matrix*. I do this for two reasons: 1) to get away from hypothesis testing mindset (see Figure 1) and 2) because we are using the hypothesis matrix to apply a constraint among parameter values (remember that?).
 
-{% include figure image_path="/assets/images/2023-07-bayes-sign.jpg." alt="In this house, we beleive: Bayes is good, estimate with uncertainty is better than hypothesis testing, math is hard, sampling is easy, Bayesian estimation wtih informative priors is indistinguishable from data falsifications, and it kicks ass." caption="Figure 1. The sign in my yard." %}{: style="max-width: 50%; display: block; margin: 2em auto;"}
+{% include figure image_path="/assets/images/2023-07-bayes-sign.jpeg" alt="In this house, we beleive: Bayes is good, estimate with uncertainty is better than hypothesis testing, math is hard, sampling is easy, Bayesian estimation wtih informative priors is indistinguishable from data falsifications, and it kicks ass." caption="Figure 1. The sign in my yard." %}{: style="max-width: 50%; display: block; margin: 2em auto;"}
 
 In this approach, we define the model parameters **_β_** by multiplying the
 levels means **_μ_** by the comparison matrix **C**, which activates or weights
@@ -615,7 +615,7 @@ Bayesian model, we can compute comparisons of interest by doing math on
 the posterior samples (estimating things and computing differences and
 summarizing the distribution of the differences), but this particular
 model, where the coding was needed to impose the prior ordering
-constraint, ruled out the posterior-sampling approach.
+constraint, ruled out the posterior post-processing approach.
 
 
 
