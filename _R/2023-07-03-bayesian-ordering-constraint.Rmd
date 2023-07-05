@@ -20,15 +20,18 @@ knitr::opts_chunk$set(
 library(MASS)
 library(tidyverse)
 library(brms)
-
+auto <- function(f) {
+  sprintf("[`%s`](%s)", f, downlit::autolink_url(f))
+}
 ```
 
 Mattan S. Ben-Shachar wrote an [excellent tutorial][msb-blog-post]
 about how to impose ordering constraints in Bayesian regression models.
-In that post, the data comes from archaeology
-([Buck, 2017](https://arxiv.org/abs/1704.07141)). We have samples from
-`Layer`s in a site, and for each sample, we have a `C14` radiocarbon
-date measurement and its associated measurement `error`.
+In that post, the data comes from archaeology (inspired by
+[Buck, 2017](https://arxiv.org/abs/1704.07141) but not an exact copy).
+We have samples from different layers (`Layer`) in a site, and for each
+sample, we have a `C14` radiocarbon date measurement and its associated
+measurement `error`.
 
 ```{r}
 library(tidyverse)
@@ -82,11 +85,12 @@ the ordering constraint.</li></ol>
 
 ## Big idea of contrast coding
 
-When our model includes categorical variables, we need some way to code those
-variables in our model (that is, use numbers to represent the category levels). 
-Our choice of coding scheme will change the meaning of the model parameters, 
-allowing us to perform different comparisons (test different statistical hypotheses) about the means of the 
-category levels. Let's spell that out again, because it is the big idea of the 
+When our model includes categorical variables, we need some way to code
+those variables in our model (that is, use numbers to represent the
+category levels). Our choice of coding scheme will change the meaning of
+the model parameters, allowing us to perform different comparisons (test
+different statistical hypotheses) about the means of the category
+levels. Let's spell that out again, because it is the big idea of the
 contrast coding:
 
 ```
@@ -95,13 +99,15 @@ different contrast coding schemes <->
     different comparisons / hypotheses
 ```
 
+(Isn't that an eye-popping graphic?)
+
 The toolbox of contrast coding schemes is deep but also confusing.
 Whenever I step away from R's default contrast coding, I usually have
-these pages open to help me: [this tutorial][ucla-cc], Lisa
-DeBruine's [comparison article][debruine-cc], and the menu of
-[contrast schemes in
+these pages open to help me: [some tutorial on a UCLA
+page][ucla-cc], Lisa DeBruine's [comparison
+article][debruine-cc], and the menu of [contrast schemes in
 emmeans](https://rdrr.io/pkg/emmeans/man/emmc-functions.html). So, let's 
-start with R's default contrast coding scheme.
+review the basics by looking at R's default contrast coding scheme.
 
 
 ## The default: dummy coding
@@ -115,23 +121,25 @@ using "treatment" or "dummy" coding. In this scheme,
     reference level
 
 
-Let's fit a simple linear model and 
-work through the parameter meanings:
+Let's fit a simple linear model and work through the parameter meanings:
 
 ```{r}
 m1 <- lm(C14 ~ 1 + Layer, table1)
 coef(m1)
 ```
 
-So here, the `(Intercept)` is the mean of the reference level, and the
+Here, the `(Intercept)` is the mean of the reference level, and the
 reference level is the level of the categorical variable not listed in
 the other parameter names (`LayerB`). Each of the other parameters is a
 difference from that reference level. Layer C's mean is `(Intercept)` +
-`LayerC`. The model matrix shows how these categorical variables are
-coded in the model's design/contrast matrix:
+`LayerC`. The `r auto("model.matrix()")` shows how these
+categorical variables are coded in the model's design/contrast matrix:
 
 ```{r}
-mat_m1 <- m1 |> model.matrix() |> unique()
+# Matrix has 1 row per observation but we just want 1 per category level
+mat_m1 <- m1 |> 
+  model.matrix() |>
+  unique()
 mat_m1
 ```
 
@@ -147,7 +155,7 @@ $$
 \mathbf{\hat y} = \mathbf{X}\boldsymbol{\beta}
 $$
 
-Think of this equation as a contract for a contrast coding scheme.
+Think of this equation as a contract for a contrast coding scheme:
 Multiplying the contrast matrix by the model coefficients should give us
 the means of the category levels.
 
@@ -175,8 +183,8 @@ coding. In this scheme:
   - The intercept is the mean of the levels means
   - Parameters estimate the difference between adjacent levels
   - but I have to reverse how the levels are ordered in the underlying
-    `factor()` so that the differences are positive, comparing each
-    layer with the one *below* it. (LayerB minus LayerC should be positive).
+    `r auto("factor()")` so that the differences are positive, comparing each
+    layer with the one *below* it. (`LayerB - LayerC` should be positive).
 
 We apply this coding by creating a new factor and setting the
 [`contrast()`](https://rdrr.io/r/stats/contrasts.html). R lets us set
@@ -200,10 +208,11 @@ m2 <- lm(C14 ~ 1 + LayerAlt, table1)
 coef(m2)
 ```
 
-We can compute the mean of means and the layer differences by hand to
-confirm that the model parameters are computing what we expect.
+We can compute the mean of layer means and the layer differences by hand
+to confirm that the model parameters are computing what we expect.
 
 ```{r}
+# Make a list so we can write out the diffs easily
 layer_means <- table1 |> 
   split(~ Layer) |> 
   lapply(function(x) mean(x$C14))
@@ -221,8 +230,8 @@ data.frame(
 )
 ```
 
-Back to our contrast coding contract, we see that the contrast matrix matrix-multiplied by
-the model coefficients gives us the level means.
+Back to our contrast coding contract, we see that the contrast matrix
+matrix-multiplied by the model coefficients gives us the level means.
 
 ```{r}
 mat_m2 <- unique(model.matrix(m2))
@@ -235,8 +244,8 @@ aggregate(C14 ~ Layer, table1, mean)
 
 It's so clean and simple. We still get the level means and the
 parameters estimate specific comparisons of interest to us. So, how are
-the categorical variables and their differences coded in the model's contrast
-matrix?
+the categorical variables and their differences coded in the model's
+contrast matrix?
 
 ```{r}
 mat_m2
@@ -248,23 +257,30 @@ Wait... what? 😕
 ## The Comparison Matrix
 
 When I first started drafting this post, I made it to this point and
-noped out for a few days. My curiosity did win out, eventually, and I
-hit the books (remembered [this
+noped out for a few days. My curiosity did win out eventually, and I hit
+the books (remembered [this
 tweet](https://twitter.com/CookieSci/status/1562221740230676481) and
 [this handout](https://twitter.com/bolkerb/status/1565077056169312257),
 watched [this video](https://www.youtube.com/watch?v=yLgPpmXVVbs), read
 [this
 paper](https://www.sciencedirect.com/science/article/pii/S0749596X19300695),
-read section 9.1.2 in *Applied Regression Analysis & Generalized Linear
-Models*). Now, for the rest of the post.
+and read section 9.1.2 in *Applied Regression Analysis & Generalized
+Linear Models*). Now, for the rest of the post.
 
-The best formal, citable source for what I describe here is [Schad and colleagues (2020)](https://www.sciencedirect.com/science/article/pii/S0749596X19300695), but what they call a "hypothesis matrix", I'm calling a *comparison matrix*. I do this for two reasons: 1) to get away from hypothesis testing mindset (see Figure 1) and 2) because we are using the hypothesis matrix to apply a constraint among parameter values (remember that?).
+The best formal, citable source for what I describe here is [Schad and
+colleagues
+(2020)](https://www.sciencedirect.com/science/article/pii/S0749596X19300695),
+but what they call a "hypothesis matrix", I'm calling a *comparison
+matrix*. I do this for two reasons: 1) to get away from hypothesis
+testing mindset (see Figure 1) and 2) because we are using the
+hypothesis matrix to apply a constraint among parameter values (remember
+that?).
 
-{% include figure image_path="/assets/images/2023-07-bayes-sign.jpeg" alt="In this house, we beleive: Bayes is good, estimate with uncertainty is better than hypothesis testing, math is hard, sampling is easy, Bayesian estimation wtih informative priors is indistinguishable from data falsifications, and it kicks ass." caption="Figure 1. The sign in my yard." %}{: style="max-width: 50%; display: block; margin: 2em auto;"}
+{% include figure image_path="/assets/images/2023-07-bayes-sign.jpeg" alt="In this house, we beleive: Bayes is good, estimate with uncertainty is better than hypothesis testing, math is hard, sampling is easy, Bayesian estimation wtih informative priors is indistinguishable from data falsifications, and it kicks ass." caption="Figure 1. The sign in my yard." %}{: style="max-width: 66%; display: block; margin: 2em auto;"}
 
-In this approach, we define the model parameters **_β_** by multiplying the
-levels means **_μ_** by the comparison matrix **C**, which activates or weights
-different level means.
+In this approach, we define the model parameters ***β*** by
+matrix-multiplying the the comparison matrix **C** (which activates or
+weights different level means) and the levels means ***μ***.
 
 $$
 \mathbf{C}\boldsymbol{\mu} = \boldsymbol{\beta} \\
@@ -318,7 +334,7 @@ $$
 $$
 
 The first row in **C** sets the Layer B as the reference value for the
-dummy coding. The second row turns both Layer B and Layer C on, but
+dummy coding. The second row turns on both Layer B and Layer C, but
 Layer B is negatively weighted. Thus, the corresponding model
 coefficient is the difference between Layers C and B.
 
@@ -354,7 +370,8 @@ $$
 
 
 Now, here is the magic part 🔮. Multiplying both sides by the inverse of
-the comparison matrix will set up the design matrix for the linear model:
+the comparison matrix will set up a design matrix for the linear model
+which follows the contract for the contrast matrices I described above:
 
 $$
 \mathbf{C}\boldsymbol{\mu} = \boldsymbol{\beta} \\
@@ -363,7 +380,7 @@ $$
 \mathbf{\hat y} = \mathbf{X}\boldsymbol{\beta} \\
 $$
 
-So, we can invert our comparison matrix to get the model's contrast matrix:
+So, we can invert[^invert] our comparison matrix to get the model's contrast matrix:
 
 ```{r}
 comparisons <- c(
@@ -394,6 +411,10 @@ mat_m2
 solve(mat_m2)
 ```
 
+As I said earlier, there are all kinds of contrast coding schemes which
+allow us to define the model parameters in terms of specific
+comparisons, and this post only mentions two such schemes (dummy coding
+and a reversed version of successive differences coding).
 
 
 ## Finally, in Layer I of this post, the brms model
@@ -433,7 +454,7 @@ m3 <- brm(
   backend = "cmdstanr",
   cores = 4, 
   # caching
-  file = "2023-07-03", 
+  file = "_caches/2023-07-03", 
   file_refit = "on_change"
 )
 ```
@@ -479,6 +500,16 @@ constraint, ruled out the posterior post-processing approach.
 [ucla-cc]: https://stats.oarc.ucla.edu/spss/faq/coding-systems-for-categorical-variables-in-regression-analysis/ "https://stats.oarc.ucla.edu/spss/faq/coding-systems-for-categorical-variables-in-regression-analysis/"
 
 [debruine-cc]: https://debruine.github.io/faux/articles/contrasts.html
+
+
+[^invert]: I use `r auto("solve()")` here for the inversion, but [Schad and 
+    colleagues 
+    (2020)](https://www.sciencedirect.com/science/article/pii/S0749596X19300695) 
+    use the generalized inverse `r auto("MASS::ginv()")` or 
+    [`matlib::Ginv()`](https://cran.r-project.org/web/packages/matlib/vignettes/ginv.html). 
+    `solve()` only works on square matrices, but the generalized inverse 
+    works on non-square matrices. 
+
 
 
 ```{r, include = FALSE}

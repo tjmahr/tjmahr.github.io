@@ -17,10 +17,11 @@ header:
 
 Mattan S. Ben-Shachar wrote an [excellent tutorial][msb-blog-post]
 about how to impose ordering constraints in Bayesian regression models.
-In that post, the data comes from archaeology
-([Buck, 2017](https://arxiv.org/abs/1704.07141)). We have samples from
-`Layer`s in a site, and for each sample, we have a `C14` radiocarbon
-date measurement and its associated measurement `error`.
+In that post, the data comes from archaeology (inspired by
+[Buck, 2017](https://arxiv.org/abs/1704.07141) but not an exact copy).
+We have samples from different layers (`Layer`) in a site, and for each
+sample, we have a `C14` radiocarbon date measurement and its associated
+measurement `error`.
 
 
 ```r
@@ -75,11 +76,12 @@ the ordering constraint.</li></ol>
 
 ## Big idea of contrast coding
 
-When our model includes categorical variables, we need some way to code those
-variables in our model (that is, use numbers to represent the category levels). 
-Our choice of coding scheme will change the meaning of the model parameters, 
-allowing us to perform different comparisons (test different statistical hypotheses) about the means of the 
-category levels. Let's spell that out again, because it is the big idea of the 
+When our model includes categorical variables, we need some way to code
+those variables in our model (that is, use numbers to represent the
+category levels). Our choice of coding scheme will change the meaning of
+the model parameters, allowing us to perform different comparisons (test
+different statistical hypotheses) about the means of the category
+levels. Let's spell that out again, because it is the big idea of the
 contrast coding:
 
 ```
@@ -88,13 +90,15 @@ different contrast coding schemes <->
     different comparisons / hypotheses
 ```
 
+(Isn't that an eye-popping graphic?)
+
 The toolbox of contrast coding schemes is deep but also confusing.
 Whenever I step away from R's default contrast coding, I usually have
-these pages open to help me: [this tutorial][ucla-cc], Lisa
-DeBruine's [comparison article][debruine-cc], and the menu of
-[contrast schemes in
+these pages open to help me: [some tutorial on a UCLA
+page][ucla-cc], Lisa DeBruine's [comparison
+article][debruine-cc], and the menu of [contrast schemes in
 emmeans](https://rdrr.io/pkg/emmeans/man/emmc-functions.html). So, let's 
-start with R's default contrast coding scheme.
+review the basics by looking at R's default contrast coding scheme.
 
 
 ## The default: dummy coding
@@ -108,8 +112,7 @@ using "treatment" or "dummy" coding. In this scheme,
     reference level
 
 
-Let's fit a simple linear model and 
-work through the parameter meanings:
+Let's fit a simple linear model and work through the parameter meanings:
 
 
 ```r
@@ -119,16 +122,19 @@ coef(m1)
 #>  -5670.6667   -137.3333   -223.6667   -438.3333   -628.3333
 ```
 
-So here, the `(Intercept)` is the mean of the reference level, and the
+Here, the `(Intercept)` is the mean of the reference level, and the
 reference level is the level of the categorical variable not listed in
 the other parameter names (`LayerB`). Each of the other parameters is a
 difference from that reference level. Layer C's mean is `(Intercept)` +
-`LayerC`. The model matrix shows how these categorical variables are
-coded in the model's design/contrast matrix:
+`LayerC`. The [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html) shows how these
+categorical variables are coded in the model's design/contrast matrix:
 
 
 ```r
-mat_m1 <- m1 |> model.matrix() |> unique()
+# Matrix has 1 row per observation but we just want 1 per category level
+mat_m1 <- m1 |> 
+  model.matrix() |>
+  unique()
 mat_m1
 #>    (Intercept) LayerC LayerE LayerG LayerI
 #> 1            1      0      0      0      0
@@ -150,7 +156,7 @@ $$
 \mathbf{\hat y} = \mathbf{X}\boldsymbol{\beta}
 $$
 
-Think of this equation as a contract for a contrast coding scheme.
+Think of this equation as a contract for a contrast coding scheme:
 Multiplying the contrast matrix by the model coefficients should give us
 the means of the category levels.
 
@@ -198,8 +204,8 @@ coding. In this scheme:
   - The intercept is the mean of the levels means
   - Parameters estimate the difference between adjacent levels
   - but I have to reverse how the levels are ordered in the underlying
-    `factor()` so that the differences are positive, comparing each
-    layer with the one *below* it. (LayerB minus LayerC should be positive).
+    [`factor()`](https://rdrr.io/r/base/factor.html) so that the differences are positive, comparing each
+    layer with the one *below* it. (`LayerB - LayerC` should be positive).
 
 We apply this coding by creating a new factor and setting the
 [`contrast()`](https://rdrr.io/r/stats/contrasts.html). R lets us set
@@ -227,11 +233,12 @@ coef(m2)
 #> -5956.20000   190.00000   214.66667    86.33333   137.33333
 ```
 
-We can compute the mean of means and the layer differences by hand to
-confirm that the model parameters are computing what we expect.
+We can compute the mean of layer means and the layer differences by hand
+to confirm that the model parameters are computing what we expect.
 
 
 ```r
+# Make a list so we can write out the diffs easily
 layer_means <- table1 |> 
   split(~ Layer) |> 
   lapply(function(x) mean(x$C14))
@@ -261,8 +268,8 @@ data.frame(
 #> LayerAltB-C   137.33333   137.33333
 ```
 
-Back to our contrast coding contract, we see that the contrast matrix matrix-multiplied by
-the model coefficients gives us the level means.
+Back to our contrast coding contract, we see that the contrast matrix
+matrix-multiplied by the model coefficients gives us the level means.
 
 
 ```r
@@ -288,8 +295,8 @@ aggregate(C14 ~ Layer, table1, mean)
 
 It's so clean and simple. We still get the level means and the
 parameters estimate specific comparisons of interest to us. So, how are
-the categorical variables and their differences coded in the model's contrast
-matrix?
+the categorical variables and their differences coded in the model's
+contrast matrix?
 
 
 ```r
@@ -308,23 +315,30 @@ Wait... what? 😕
 ## The Comparison Matrix
 
 When I first started drafting this post, I made it to this point and
-noped out for a few days. My curiosity did win out, eventually, and I
-hit the books (remembered [this
+noped out for a few days. My curiosity did win out eventually, and I hit
+the books (remembered [this
 tweet](https://twitter.com/CookieSci/status/1562221740230676481) and
 [this handout](https://twitter.com/bolkerb/status/1565077056169312257),
 watched [this video](https://www.youtube.com/watch?v=yLgPpmXVVbs), read
 [this
 paper](https://www.sciencedirect.com/science/article/pii/S0749596X19300695),
-read section 9.1.2 in *Applied Regression Analysis & Generalized Linear
-Models*). Now, for the rest of the post.
+and read section 9.1.2 in *Applied Regression Analysis & Generalized
+Linear Models*). Now, for the rest of the post.
 
-The best formal, citable source for what I describe here is [Schad and colleagues (2020)](https://www.sciencedirect.com/science/article/pii/S0749596X19300695), but what they call a "hypothesis matrix", I'm calling a *comparison matrix*. I do this for two reasons: 1) to get away from hypothesis testing mindset (see Figure 1) and 2) because we are using the hypothesis matrix to apply a constraint among parameter values (remember that?).
+The best formal, citable source for what I describe here is [Schad and
+colleagues
+(2020)](https://www.sciencedirect.com/science/article/pii/S0749596X19300695),
+but what they call a "hypothesis matrix", I'm calling a *comparison
+matrix*. I do this for two reasons: 1) to get away from hypothesis
+testing mindset (see Figure 1) and 2) because we are using the
+hypothesis matrix to apply a constraint among parameter values (remember
+that?).
 
-{% include figure image_path="/assets/images/2023-07-bayes-sign.jpeg" alt="In this house, we beleive: Bayes is good, estimate with uncertainty is better than hypothesis testing, math is hard, sampling is easy, Bayesian estimation wtih informative priors is indistinguishable from data falsifications, and it kicks ass." caption="Figure 1. The sign in my yard." %}{: style="max-width: 50%; display: block; margin: 2em auto;"}
+{% include figure image_path="/assets/images/2023-07-bayes-sign.jpeg" alt="In this house, we beleive: Bayes is good, estimate with uncertainty is better than hypothesis testing, math is hard, sampling is easy, Bayesian estimation wtih informative priors is indistinguishable from data falsifications, and it kicks ass." caption="Figure 1. The sign in my yard." %}{: style="max-width: 66%; display: block; margin: 2em auto;"}
 
-In this approach, we define the model parameters **_β_** by multiplying the
-levels means **_μ_** by the comparison matrix **C**, which activates or weights
-different level means.
+In this approach, we define the model parameters ***β*** by
+matrix-multiplying the the comparison matrix **C** (which activates or
+weights different level means) and the levels means ***μ***.
 
 $$
 \mathbf{C}\boldsymbol{\mu} = \boldsymbol{\beta} \\
@@ -378,7 +392,7 @@ $$
 $$
 
 The first row in **C** sets the Layer B as the reference value for the
-dummy coding. The second row turns both Layer B and Layer C on, but
+dummy coding. The second row turns on both Layer B and Layer C, but
 Layer B is negatively weighted. Thus, the corresponding model
 coefficient is the difference between Layers C and B.
 
@@ -414,7 +428,8 @@ $$
 
 
 Now, here is the magic part 🔮. Multiplying both sides by the inverse of
-the comparison matrix will set up the design matrix for the linear model:
+the comparison matrix will set up a design matrix for the linear model
+which follows the contract for the contrast matrices I described above:
 
 $$
 \mathbf{C}\boldsymbol{\mu} = \boldsymbol{\beta} \\
@@ -423,7 +438,7 @@ $$
 \mathbf{\hat y} = \mathbf{X}\boldsymbol{\beta} \\
 $$
 
-So, we can invert our comparison matrix to get the model's contrast matrix:
+So, we can invert[^invert] our comparison matrix to get the model's contrast matrix:
 
 
 ```r
@@ -492,6 +507,10 @@ solve(mat_m2)
 #> LayerAltB-C 1.0 -1.0  0.0  0.0  0.0
 ```
 
+As I said earlier, there are all kinds of contrast coding schemes which
+allow us to define the model parameters in terms of specific
+comparisons, and this post only mentions two such schemes (dummy coding
+and a reversed version of successive differences coding).
 
 
 ## Finally, in Layer I of this post, the brms model
@@ -549,7 +568,7 @@ m3 <- brm(
   backend = "cmdstanr",
   cores = 4, 
   # caching
-  file = "2023-07-03", 
+  file = "_caches/2023-07-03", 
   file_refit = "on_change"
 )
 ```
@@ -631,13 +650,23 @@ constraint, ruled out the posterior post-processing approach.
 [debruine-cc]: https://debruine.github.io/faux/articles/contrasts.html
 
 
+[^invert]: I use [`solve()`](https://rdrr.io/r/base/solve.html) here for the inversion, but [Schad and 
+    colleagues 
+    (2020)](https://www.sciencedirect.com/science/article/pii/S0749596X19300695) 
+    use the generalized inverse [`MASS::ginv()`](https://rdrr.io/pkg/MASS/man/ginv.html) or 
+    [`matlib::Ginv()`](https://cran.r-project.org/web/packages/matlib/vignettes/ginv.html). 
+    `solve()` only works on square matrices, but the generalized inverse 
+    works on non-square matrices. 
+
+
+
 
 
 
 
 ***
 
-*Last knitted on 2023-07-03. [Source code on
+*Last knitted on 2023-07-05. [Source code on
 GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2023-07-03-bayesian-ordering-constraint.Rmd).*[^si] 
 
 [^si]: 
@@ -654,7 +683,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2023-07-03-bay
     #>  collate         English_United States.utf8
     #>  ctype           English_United States.utf8
     #>  tz              America/Chicago
-    #>  date            2023-07-03
+    #>  date            2023-07-05
     #>  pandoc          NA
     #>  stan (rstan)    2.26.1
     #>  stan (cmdstanr) 2.32.0
@@ -668,6 +697,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2023-07-03-bay
     #>    bridgesampling   1.1-2   2021-04-16 [1] CRAN (R 4.3.0)
     #>    brms           * 2.19.0  2023-03-14 [1] CRAN (R 4.3.0)
     #>    Brobdingnag      1.2-9   2022-10-19 [1] CRAN (R 4.3.0)
+    #>    cachem           1.0.8   2023-05-01 [1] CRAN (R 4.3.0)
     #>    callr            3.7.3   2022-11-02 [1] CRAN (R 4.3.0)
     #>    checkmate        2.2.0   2023-04-27 [1] CRAN (R 4.3.0)
     #>    cli              3.6.1   2023-03-23 [1] CRAN (R 4.3.0)
@@ -679,8 +709,9 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2023-07-03-bay
     #>    crayon           1.5.2   2022-09-29 [1] CRAN (R 4.3.0)
     #>    crosstalk        1.2.0   2021-11-04 [1] CRAN (R 4.3.0)
     #>    curl             5.0.1   2023-06-07 [1] CRAN (R 4.3.0)
-    #>    digest           0.6.31  2022-12-11 [1] CRAN (R 4.3.0)
+    #>    digest           0.6.32  2023-06-26 [1] CRAN (R 4.3.1)
     #>    distributional   0.3.2   2023-03-22 [1] CRAN (R 4.3.0)
+    #>    downlit          0.4.3   2023-06-29 [1] CRAN (R 4.3.0)
     #>    dplyr          * 1.1.2   2023-04-20 [1] CRAN (R 4.3.0)
     #>    DT               0.28    2023-05-18 [1] CRAN (R 4.3.0)
     #>    dygraphs         1.1.1.6 2018-07-11 [1] CRAN (R 4.3.0)
@@ -705,9 +736,9 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2023-07-03-bay
     #>    htmltools        0.5.5   2023-03-23 [1] CRAN (R 4.3.0)
     #>    htmlwidgets      1.6.2   2023-03-17 [1] CRAN (R 4.3.0)
     #>    httpuv           1.6.11  2023-05-11 [1] CRAN (R 4.3.0)
-    #>    igraph           1.4.3   2023-05-22 [1] CRAN (R 4.3.0)
+    #>    igraph           1.5.0   2023-06-16 [1] CRAN (R 4.3.1)
     #>    inline           0.3.19  2021-05-31 [1] CRAN (R 4.3.0)
-    #>    jsonlite         1.8.5   2023-06-05 [1] CRAN (R 4.3.0)
+    #>    jsonlite         1.8.5   2023-06-05 [1] CRAN (R 4.3.1)
     #>    knitr          * 1.43    2023-05-25 [1] CRAN (R 4.3.0)
     #>    labeling         0.4.2   2020-10-20 [1] CRAN (R 4.3.0)
     #>    later            1.3.1   2023-05-02 [1] CRAN (R 4.3.0)
@@ -720,18 +751,19 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2023-07-03-bay
     #>    MASS           * 7.3-60  2023-05-04 [1] CRAN (R 4.3.0)
     #>    Matrix           1.5-4   2023-04-04 [2] CRAN (R 4.3.0)
     #>    matrixStats      1.0.0   2023-06-02 [1] CRAN (R 4.3.0)
+    #>    memoise          2.0.1   2021-11-26 [1] CRAN (R 4.3.0)
     #>    mime             0.12    2021-09-28 [1] CRAN (R 4.3.0)
     #>    miniUI           0.1.1.1 2018-05-18 [1] CRAN (R 4.3.0)
     #>    munsell          0.5.0   2018-06-12 [1] CRAN (R 4.3.0)
-    #>    mvtnorm          1.2-1   2023-06-04 [1] CRAN (R 4.3.0)
+    #>    mvtnorm          1.2-2   2023-06-08 [1] CRAN (R 4.3.1)
     #>    nlme             3.1-162 2023-01-31 [2] CRAN (R 4.3.0)
     #>    pillar           1.9.0   2023-03-22 [1] CRAN (R 4.3.0)
-    #>    pkgbuild         1.4.0   2022-11-27 [1] CRAN (R 4.3.0)
+    #>    pkgbuild         1.4.2   2023-06-26 [1] CRAN (R 4.3.1)
     #>    pkgconfig        2.0.3   2019-09-22 [1] CRAN (R 4.3.0)
     #>    plyr             1.8.8   2022-11-11 [1] CRAN (R 4.3.0)
     #>    posterior        1.4.1   2023-03-14 [1] CRAN (R 4.3.0)
     #>    prettyunits      1.1.1   2020-01-24 [1] CRAN (R 4.3.0)
-    #>    processx         3.8.1   2023-04-18 [1] CRAN (R 4.3.0)
+    #>    processx         3.8.1   2023-04-18 [1] CRAN (R 4.3.1)
     #>    promises         1.2.0.1 2021-02-11 [1] CRAN (R 4.3.0)
     #>    ps               1.7.5   2023-04-18 [1] CRAN (R 4.3.0)
     #>    purrr          * 1.0.1   2023-01-10 [1] CRAN (R 4.3.0)
@@ -752,7 +784,7 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2023-07-03-bay
     #>    shinyjs          2.1.0   2021-12-23 [1] CRAN (R 4.3.0)
     #>    shinystan        2.6.0   2022-03-03 [1] CRAN (R 4.3.0)
     #>    shinythemes      1.2.0   2021-01-25 [1] CRAN (R 4.3.0)
-    #>    StanHeaders      2.26.26 2023-05-30 [1] CRAN (R 4.3.0)
+    #>    StanHeaders      2.26.27 2023-06-14 [1] CRAN (R 4.3.1)
     #>    stringi          1.7.12  2023-01-11 [1] CRAN (R 4.3.0)
     #>    stringr        * 1.5.0   2022-12-02 [1] CRAN (R 4.3.0)
     #>    systemfonts      1.0.4   2022-02-11 [1] CRAN (R 4.3.0)
@@ -766,8 +798,8 @@ GitHub](https://github.com/tjmahr/tjmahr.github.io/blob/master/_R/2023-07-03-bay
     #>    timechange       0.2.0   2023-01-11 [1] CRAN (R 4.3.0)
     #>    tzdb             0.4.0   2023-05-12 [1] CRAN (R 4.3.0)
     #>    utf8             1.2.3   2023-01-31 [1] CRAN (R 4.3.0)
-    #>    V8               4.3.0   2023-04-08 [1] CRAN (R 4.3.0)
-    #>    vctrs            0.6.2   2023-04-19 [1] CRAN (R 4.3.0)
+    #>    V8               4.3.0   2023-04-08 [1] CRAN (R 4.3.1)
+    #>    vctrs            0.6.3   2023-06-14 [1] CRAN (R 4.3.1)
     #>    withr            2.5.0   2022-03-03 [1] CRAN (R 4.3.0)
     #>    xfun             0.39    2023-04-20 [1] CRAN (R 4.3.0)
     #>    xtable           1.8-4   2019-04-21 [1] CRAN (R 4.3.0)
