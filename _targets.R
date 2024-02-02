@@ -21,6 +21,10 @@ library(knitr)
 #   remotes::install_github("tjmahr/solarizeddocx")
 # }
 
+targets::tar_option_set(
+  controller = crew::crew_controller_local(workers = 4)
+)
+
 list_rmds <- function(dir) {
   list.files(dir, full.names = TRUE, pattern = ".Rmd$")
 }

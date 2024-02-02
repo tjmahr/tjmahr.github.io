@@ -25,9 +25,65 @@ abbreviations:
     Language Disorders, Madison, WI.
   - &where_dmcn Developmental Medicine & Child Neurology
   - &where_jslhr Journal of Speech, Language, and Hearing Research
+  - &where_ajslp American Journal of Speech-Language Pathology
+  - &where_clp Clinical Linguistics & Phonetics
 
 
 publications:
+
+  -
+    authors:
+      - *tjm
+      - *kch
+    when:
+      year: 2023
+    title: >
+      Lexical Predictors of Intelligibility in Young Children's Speech
+    where:
+      journal: *where_jslhr
+      volume: 66
+      pages: 3013--3025
+    doi: 10.1044/2022_JSLHR-22-00294
+    bonus:
+      text: 🔓&nbsp;Open Access.
+
+  -
+    authors:
+      - *jus
+      - *tjm
+      - *pjr
+      - *kch
+    when:
+      year: 2023
+    title: >
+      Intelligibility in Context Scale: Growth Curves for Typically Developing
+      English-Speaking Children Between Ages 2;6 and 9;11
+    where:
+      journal: *where_ajslp
+      volume: 32
+      pages: 2021--2039
+    doi: 10.1044/2023_AJSLP-22-00392
+    bonus:
+      text: 🔓&nbsp;Open Access.
+
+  -
+    authors:
+      - *kch
+      - *tjm
+      - *jus
+      - *pjr
+    when:
+      year: 2023
+    title: >
+      Developmental Cut-Points for Atypical Speech Intelligibility in
+      Children With Cerebral Palsy
+    where:
+      journal: *where_jslhr
+      volume: 66
+      pages: 3089--3099
+    doi: 10.1044/2023_AJSLP-22-00392
+    bonus:
+      text: 🔓&nbsp;Open Access.
 
   -
     authors:
@@ -43,17 +99,27 @@ publications:
       children with cerebral palsy
     where:
       journal: *where_dmcn
-      # volume: todo - epub ahead of print
-      # pages: todo - epub ahead of print
+      volume: 64
+      pages: 1096--1105
     doi: 10.1111/dmcn.15198
     bonus:
       text: 🔓&nbsp;Open Access.
 
-
-
-
-
-
+  -
+    authors:
+      - *as
+      - *tjm
+      - *kch
+    when:
+      year: 2022
+    title: >
+      Perceptual measurement of articulatory goodness in young children:
+      Relationships with age, speech sound acquisition, and intelligibility
+    where:
+      journal: *where_clp
+      volume: 37
+      pages: 1141--1156
+    doi: 10.1080/02699206.2022.2150893
 
 
   -
