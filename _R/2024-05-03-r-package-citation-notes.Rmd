@@ -1,0 +1,237 @@
+---
+title: "Notes on Citing R and R Packages"
+excerpt: Who, what, where, when and which
+tags:
+  - r
+  - brms
+  - stan
+share: true
+header:
+  overlay_image: "assets/images/2024-05-parked-cars.jpg"
+  image_description: "Parked car also receive citations"
+  overlay_filter: rgba(10, 10, 10, 0.5)
+  caption: "Photo credit: [**Hamza ERBAY**](https://unsplash.com/photos/black-and-white-concrete-building-eyKWqgAuZlU)"
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+library(tidyverse)
+auto <- function(f) {
+  sprintf("[`%s`](%s)", f, downlit::autolink_url(f))
+}
+```
+
+
+Our group has started using a new knowledge base system, so I have been
+writing up and revisiting some of my documentation. Here I am going to
+share a guide I wrote about citing R packages in academic writing.
+
+## Which software to cite
+
+Let's make a distinction here between *reporting* (or summarizing) an
+analysis and *reproducing* (or carrying out) an analysis. 
+
+Our main
+manuscript document is for *reporting*. We want to report which tools
+and which versions of those tools we used to get our statistical
+results. We don't need to include every computational detail. We will
+save that level of detail for a supplemental document that shows the
+exact modeling code and `r auto("sessioninfo::session_info()")` for *reproducing*
+our results. Moreover, journals will sometimes limit the number of
+references in a manuscript and a full R analysis might draw on 15
+packages, so we in general cannot cite everything that helped us get our
+results. So, we can think more generally about **citation priorities**.
+
+For an analysis carried out in R, we need to cite and version the following:
+
+  - R (the programming language / analysis environment).
+  - Third party packages that carried out the analyses. 
+    - For example, nlme, lme4, ordinal, rms, brms.
+  - If a package calls on another language or analysis tool, cite that tool as
+    well. 
+    - For example, brms and rstanarm fit models using the Stan programming language, so we need to cite and version Stan as well.
+  - Packages that performed additional computation on analysis results. 
+    - For example, emmeans to get marginal means from a fitted model.
+  - Packages that visualized analysis results automatically. 
+      For example, [see](https://easystats.github.io/see/) or [interactions](https://interactions.jacob-long.com/).
+
+The following items would have the lowest priority for citations:
+
+  - RStudio: It's just an interface to the language. (Ideally, an
+    analysis could be run without touching RStudio.)
+  - The built-in stats package.
+  - knitr/quarto/rmarkdown: These performed R computations for us and
+    stored the results in a document.
+  - Siloed off parts of a main package. 
+    - For example, the gamlss package
+      fits GAMLSS models but the distributions for model families are
+      stored in the package gamlss.dist. gamlss needs gamlss.dist to work,
+      but gamlss is the main important thing to cite.
+  - Data storage formats.
+
+If space and the publication venue permit, we can also cite and version the key
+R packages that manipulated or visualized the data such as tidyverse, ggplot2,
+broom, tidybayes/ggdist, etc. Be generous. We do want to credit the tools we
+used to get our results after all!
+
+
+
+## Where to get citation information
+
+Creators of scientific software will often tell users how to cite their
+software. Scientific software tools often have an associated article
+that announces the software and describes how to use it, so authors will
+ask users to cite that publication so they can obtain academic credit
+for their software work.
+
+For R and R packages, the `r auto("citation()")` function will tell
+users how to cite their software. lme4 is one of those packages that
+directs users to a publication.
+
+```{r, echo = TRUE}
+citation("lme4")
+```
+
+Notice in the BibTeX entry at the bottom how `{lme4}` is put in braces.
+These braces tell LaTeX not to change the capitalization of that word
+when printing the title. Some journals or formats have different
+preferences for how to capitalize titles, but as a general rule of
+thumb, software titles need to be printed verbatim, or as they would be used
+by the user. (`library(Lme4)` will not load the lme4 package). When
+creating bibliography entries, take care to follow the capitalization so
+that the software name is accurate. Take care also to differentiate
+between statistical methods and software names: "We fit GAMLSS models
+with the gamlss package".
+
+For CRAN packages, the output of `citation()` is also provided online in
+HTML. The CRAN package description page (e.g.,
+[lme4](https://cran.r-project.org/web/packages/lme4/)) includes a
+*Citation* entry which generates a formatted version of the citation
+information (e.g., [lme4 citation
+info](https://cran.r-project.org/web/packages/lme4/citation.html)).
+
+When the software doesn't have a publication, R will generate a citation
+for you. The ordinal package is one such example.
+
+```{r, echo = TRUE}
+citation("ordinal")
+```
+The underscores `_` in the title indicate that the title would be
+italicized when the citation is [viewed on
+CRAN](https://cran.r-project.org/web/packages/ordinal/citation.html). 
+
+
+## How to cite and version R and R packages
+
+As a rule of thumb, any citation of any resource should answer these
+questions:
+
+  - Who (authors)
+  - What (title and sometimes format)
+  - When (year)
+  - Where (journal, URL, book, DOI)
+
+Then for software, we can add the following:
+
+  - Which (version)
+
+The `citation()` will answer these questions for you. 
+
+There are a couple of other functions to know when it comes to package versions.
+`r auto("utils::packageVersion()")` provides the package version as a string:
+
+```{r}
+utils::packageVersion("lme4")
+utils::packageVersion("ordinal")
+```
+
+For the current R version, a bunch of built-in functions can tell you
+everything you need to know. I can never remember which of these
+functions I want (it's `r auto("getRversion()")`), so I will sometimes use
+`utils::packageVersion("base")` to get a simple version number.
+
+```{r}
+R.version.string
+R.version
+getRversion()
+
+utils::packageVersion("base")
+```
+
+For Stan, depending on the backend used, the software version is available via:
+
+```{r}
+# rstanarm and default brms
+rstan::stan_version()
+
+# non-default for brms
+cmdstanr::cmdstan_version()
+```
+
+
+## Examples
+
+A simple example of R, a modeling R package and a helper R package:
+
+> Analyses were carried out the R programming language (vers. 4.2.0, R Core
+> Team, 2021). Mixed models were estimated using the lme4 package
+> (vers. 1.1.28, Bates et al., 2015). We estimated marginal means and
+> contrasts using the emmeans package (vers. 1.7.2, Lenth, 2021).
+
+Below is the actual RMarkdown content, so that version numbers and
+citations are inlined automatically. (We're omitting details on creating
+.bib files or using pandoc's `@` citations.)
+
+````md
+```{r}`r ''`
+v_lme4 <- packageVersion("lme4")
+v_r <- packageVersion("base")
+v_emmeans <- packageVersion("emmeans")
+```
+
+Analyses were carried out the R programming language [vers. `r knitr::inline_expr("v_r")`,
+@rstats]. Mixed models were estimated using the lme4 package
+[vers. `r knitr::inline_expr("v_lme4")`, @lme4]. We estimated marginal means and contrasts
+using the emmeans package [vers. `r knitr::inline_expr("v_emmeans")`, @emmeans].
+````
+
+Here is a more involved example involving an additional language and an R
+package that interfaces to that language:
+
+> We estimated the models using Stan (vers. 2.27.0, Carpenter et al., 2017) via
+> the brms package (vers. 2.16.1, Bürkner, 2017) and tidybayes package
+> (vers. 3.0.4, Kay, 2021) in R (vers. 4.3.0, R Core Team, 2021).
+
+
+Behind the scenes, I had written the following RMarkdown:
+
+````md
+```{r}`r ''`
+model <- targets::tar_read(model_random_slope)
+v_stan <- model$version$cmdstan
+v_brms <- model$version$brms
+v_tidybayes <- packageVersion("tidybayes")
+v_r <- getRversion()
+```
+
+We estimated the models using Stan [vers. `r knitr::inline_expr("v_stan")`, @stan] via the
+brms package [vers. `r knitr::inline_expr("v_brms")`, @brms-jss] and tidybayes package
+[vers. `r knitr::inline_expr("v_tidybayes")`, @R-tidybayes] in R [vers. `r knitr::inline_expr("v_r")`, @r-base].
+````
+
+Notice that I am reading in a cached model object (`targets::tar_read()`) and
+reading the software versions from that object. This arrangement avoids problems
+where models are fitted with one version of a package but
+`utils::packageVersion()` returns a different, more recent package version. brms
+stored these versions automatically for me. In general, when I cache a model
+like this, I store the package version in the model object.
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, child = "_R/_footer.Rmd"}
+```
