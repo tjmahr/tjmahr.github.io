@@ -37,7 +37,7 @@ references in a manuscript and a full R analysis might draw on 15
 packages, so we in general cannot cite everything that helped us get our
 results. So, we can think more generally about **citation priorities**.
 
-For an analysis carried out in R, we need to cite and version the following:
+For an analysis carried out in R, we *need to cite and version*:
 
   - R (the programming language / analysis environment).
   - Third party packages that carried out the analyses. 
@@ -50,7 +50,7 @@ For an analysis carried out in R, we need to cite and version the following:
   - Packages that visualized analysis results automatically. 
       For example, [see](https://easystats.github.io/see/) or [interactions](https://interactions.jacob-long.com/).
 
-The following items would have the lowest priority for citations:
+The following items would have the *lowest priority* for citations:
 
   - RStudio: It's just an interface to the language. (Ideally, an
     analysis could be run without touching RStudio.)
