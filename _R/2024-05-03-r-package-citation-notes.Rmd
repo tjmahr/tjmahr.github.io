@@ -203,8 +203,8 @@ using the emmeans package [vers. `r knitr::inline_expr("v_emmeans")`, @emmeans]
 ````
 
 This aspect of the code is invisible, but I use [nonbreaking
-spaces](https://en.wikipedia.org/wiki/Non-breaking_space) (HTML
-`@nbsp;`) after `vers.` so that the `vers.` and the version number stay
+spaces ` `](https://en.wikipedia.org/wiki/Non-breaking_space) (HTML
+`&nbsp;`) after `vers.` so that the `vers.` and the version number stay
 on the same line.
 
 Here is a more involved example involving an additional language and an R
