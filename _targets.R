@@ -3,6 +3,12 @@ library(tarchetypes)
 library(stringr)
 library(knitr)
 
+if (FALSE) {
+  # required by the page footers
+  library(sessioninfo)
+  library(git2r)
+}
+
 # dont_forget_these_packages <- c(
 #   "ggmcmc", "ellipse", "ggrepel", "pryr", "lobstr", "conflicted",
 #   "reticulate", "cowplot", "gamair", "microbenchmark", "polypoly",
