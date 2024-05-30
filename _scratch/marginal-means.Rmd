@@ -1,0 +1,28 @@
+---
+title: "Untitled"
+author: "Tristan Mahr"
+date: "2024-05-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+library(tidyverse)
+d <- rtdists::speed_acc |> 
+  tibble::as_tibble() |> 
+  mutate(
+    correct = as.character(response) == as.character(stim_cat),
+    correct = as.numeric(correct),
+  )
+d$stim_cat
+d$response
+d
+ggplot(d) + aes(x = id, y = correct, color = condition) + stat_summary() + facet_wrap(~stim_cat)
+
+```
+
