@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
+
+
 ```{r}
 library(tidyverse)
 d <- rtdists::speed_acc |> 
@@ -18,11 +20,219 @@ d <- rtdists::speed_acc |>
   mutate(
     correct = as.character(response) == as.character(stim_cat),
     correct = as.numeric(correct),
+    freq = frequency |> 
+      as.character() |> 
+      stringr::str_replace("nw_", "")
   )
+d
+a <- d |> 
+  filter(!censor) |> 
+  group_by(id, condition, stim_cat, frequency) |> 
+  summarise(
+    n_correct = sum(correct),
+    n_trials = n()
+  ) |> 
+  ungroup()
+
+library(lme4)
+m <- glmer(
+  cbind(n_correct, n_trials - n_correct) ~ condition + (condition | id),
+  family = binomial(),
+  data = a
+)
+summary(m)
+ggplot(a) + 
+  aes(x = condition, y = n_correct / n_trials) + 
+  # geom_point() +
+  # geom_line(aes(group = id)) +
+  stat_summary(aes(group = id)) +
+  stat_summary(aes(group = id), geom = "line")
+
+lattice::dotplot(ranef(m))
+
+d |> 
+  distinct(stim_cat, frequency)
+d |> 
+  distinct(stim, stim_cat, frequency)
+
 d$stim_cat
 d$response
 d
 ggplot(d) + aes(x = id, y = correct, color = condition) + stat_summary() + facet_wrap(~stim_cat)
 
 ```
+
+In this lexical decision experiment, participants were given a string of
+letters onscreen and had to indicate whether string was a word or
+nonword. Half the time the string was a word and half the time the string was a nonword.
+
+```{r}
+d |> 
+  count(stim_cat)
+```
+
+Participants had 20 blocks of trials. In the blocks, they were instructed to aim for 
+accuracy or speed.
+
+```{r}
+d |> 
+  count(condition, stim_cat)
+```
+
+
+The real words varied in frequency (high, low and very low), and the
+nonwords were created by taking real words and randomly replacing the
+free vowels (i.e., any vowel except for U in QU) with other vowels.
+
+```{r}
+d |> 
+  count(condition, stim_cat, freq)
+```
+
+So, everything is well balanced.
+
+
+Let's compute a marginal condition effect on real words.
+
+```{r}
+aa <- a |> 
+  filter(stim_cat == "word")
+
+aa_data <- aa
+f <- bf(
+  n_correct | trials(n_trials) ~ condition + (condition | id), 
+  family = binomial()
+)
+f
+p <- c(
+  set_prior("normal(0, 2)", class = "Intercept"),
+  set_prior("normal(0, 1)", class = "b"),
+  set_prior("normal(0, 1)", class = "sd"),
+  set_prior("lkj(2)", class = "cor")
+  
+)
+validate_prior(p, f, data = aa_data)
+
+m <- brm(f, aa_data, prior = p, backend = "cmdstanr", file = "model_condition")
+summary(m)
+conditional_effects(m)
+
+
+ggplot(aa_data) + 
+  aes(x = condition, y = n_correct / n_trials) +
+  geom_line(aes(group = id), stat = "summary")
+summary(m)
+```
+
+
+
+```{r}
+d |> 
+  filter(condition == "accuracy") |> 
+  ggplot() + 
+  aes(x = freq, y = correct) + 
+  stat_summary(aes(color = stim_cat, group = id:stim_cat), geom = "line", position = position_jitter(width = .1, height = 0))
+```
+
+
+```{r}
+a <- d |> 
+  filter(!censor) |> 
+  group_by(id, condition, stim_cat, frequency, freq) |> 
+  summarise(
+    n_correct = sum(correct),
+    n_trials = n()
+  ) |> 
+  ungroup()
+library(lme4)
+p <- glmer(
+  cbind(n_correct, n_trials - n_correct) ~ freq  + (freq | id),
+  family = binomial(),
+  data = a |> filter(condition == "accuracy", stim_cat == "word")
+)
+summary(p)
+```
+
+```{r}
+library(brms)
+cmdstanr::check_cmdstan_toolchain()
+
+data <- a |> filter(condition == "accuracy", stim_cat == "word") |> 
+  mutate(freq = ordered(freq, c("high", "low", "very_low")))
+f <- bf(
+  n_correct | trials(n_trials) ~ mo(freq) + (mo(freq) | id), 
+  family = binomial()
+)
+f
+p <- c(
+  set_prior("normal(0, 2)", class = "Intercept"),
+  set_prior("normal(0, 1)", class = "b"),
+  set_prior("normal(0, 1)", class = "sd"),
+  set_prior("lkj(2)", class = "cor")
+  
+)
+validate_prior(p, f, data = data)
+
+m <- brm(f, data, prior = p, backend = "cmdstanr")
+summary(m)
+conditional_effects(m)
+```
+
+Instead, here's the recipe,  using rvar.
+
+```{r}
+library(posterior)
+
+m$basis
+?mo
+fixef(m)
+m
+new_participant <- data |> 
+  distinct(freq) |> 
+  mutate(id = "fake", n_trials = 1, n_correct = 0) 
+
+
+posterior_summary(m, variable = "simo_mofreq1")
+
+
+posterior_epred(m, new_participant, re_formula = NA) |> rvar()
+
+r <- as_draws_rvars(m, c("b_Intercept", "simo_mofreq1", "bsp_mofreq"))
+
+# intercept (high frequency)
+brms::inv_logit_scaled(r$b_Intercept)
+
+# low frequency
+brms::inv_logit_scaled(
+  r$b_Intercept + 
+    2 * r$bsp_mofreq * r$simo_mofreq1[1]
+)
+
+# very low frequency
+brms::inv_logit_scaled(
+  r$b_Intercept + 
+    2 * r$bsp_mofreq * r$simo_mofreq1[1] +
+    2 * r$bsp_mofreq * r$simo_mofreq1[2]
+)
+# 2 is the number of cut points (or the number of levels minus 1)
+
+
+
+rvar(posterior_epred(
+  m, 
+  newdata = new_participant, 
+  re_formula = NA
+))
+
+coef(m, pars = "mofreq1")
+str(coef(m))
+posterior_epred(m, new_participant, resp = "mofreq1", re_formula = NA)
+fixef()
+m
+coef(m)
+VarCorr(m, summary = FALSE, )[["id"]][["cov"]] |> rvar()
+rvar()
+```
+
+
 
