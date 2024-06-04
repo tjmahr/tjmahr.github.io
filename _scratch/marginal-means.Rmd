@@ -30,7 +30,8 @@ a <- d |>
   group_by(id, condition, stim_cat, frequency) |> 
   summarise(
     n_correct = sum(correct),
-    n_trials = n()
+    n_trials = n(),
+    n_incorrect = sum(!correct)
   ) |> 
   ungroup()
 
@@ -62,23 +63,23 @@ ggplot(d) + aes(x = id, y = correct, color = condition) + stat_summary() + facet
 
 ```
 
-In this lexical decision experiment, participants were given a string of
-letters onscreen and had to indicate whether string was a word or
-nonword. Half the time the string was a word and half the time the string was a nonword.
+In this *lexical decision* experiment, participants were given a string
+of letters onscreen and had to indicate whether string was a word or a
+nonword. Half the time the string was a word and half the time the
+string was a nonword.
 
 ```{r}
 d |> 
   count(stim_cat)
 ```
 
-Participants had 20 blocks of trials. In the blocks, they were instructed to aim for 
-accuracy or speed.
+Participants completed 20 blocks of trials. In each block, they were
+instructed to aim for accuracy or speed.
 
 ```{r}
 d |> 
   count(condition, stim_cat)
 ```
-
 
 The real words varied in frequency (high, low and very low), and the
 nonwords were created by taking real words and randomly replacing the
@@ -89,31 +90,302 @@ d |>
   count(condition, stim_cat, freq)
 ```
 
-So, everything is well balanced.
+Everything is neatly balanced.
 
 
-Let's compute a marginal condition effect on real words.
+## Easy cases: logitnorm
+
+
+
+Let's compute the average accuracy for real words on the *speed* 🏃‍♀️ trials.
+
+
+$$
+P_i = \operatorname{inv-logit}(b_0 + \alpha_{i})
+$$
+
+
+```{r}
+data_real_speed <- a |> 
+  filter(stim_cat == "word", condition == "speed")
+
+model_real_speed <- glmer(
+  cbind(n_correct, n_incorrect) ~ 1 + (1 | id),
+  family = binomial(),
+  data = data_real_speed
+)
+summary(model_real_speed)
+```
+
+
+The fixed effects here describe a *statistically average* or
+*statistically typical* participant. We need to emphasize the word
+*statistically* here because this value only makes sense in the context
+of this data and this model. The fixed effects predictions here are
+conditional, or subject-specific, predictions. They happen to be the
+prediction for a participant whose $\alpha_i = 0$.
+
+To convert from a conditional prediction to a marginal one, we can
+simulate new participants by drawing them from a normal distribution.
+
+```{r}
+inv_logit <- brms::inv_logit_scaled
+
+sigma <- VarCorr(model_real_speed) |> getElement("id") |> attr("stddev")
+
+new_alphas <- rnorm(1000, 0, sigma)
+
+
+means_real_speed <- list()
+
+means_real_speed$typical <- fixef(model_real_speed) |> 
+  inv_logit() |> 
+  unname()
+
+means_real_speed$marginal_rnorm <- 
+  (fixef(model_real_speed) + new_alphas) |> 
+  inv_logit() |> 
+  mean()
+```
+
+
+The logitnorm R package can do this calculation using numerical
+integration (as opposed to simulating new participants):
+
+```{r}
+means_real_speed$marginal_logitnorm <- model_real_speed |> 
+  fixef() |> 
+  logitnorm::momentsLogitnorm(mu = _, sigma = sigma) |> 
+  getElement("mean")
+```
+
+Another kind of mean we might want is the average conditional mean:
+
+```{r}
+means_real_speed$avg_conditional <- model_real_speed |> 
+  coef() |> 
+  getElement("id") |> 
+  as.matrix() |> 
+  inv_logit() |> 
+  mean()
+```
+
+```{r}
+means_real_speed
+```
+
+
+Let's move on to a random-slope model.
+
+
+```{r}
+data_real <- a |> 
+  filter(stim_cat == "word")
+
+model_real <- glmer(
+  cbind(n_correct, n_incorrect) ~ condition + (condition | id),
+  family = binomial(),
+  data = data_real
+)
+summary(model_real)
+```
+
+Here, the random effects are correlated, so to simulate new participants, we 
+need to sample from the multivariate normal distribution. logitnorm cannot help 
+us at this point.
+
+
+```{r}
+m <- matrix(c(1, 0, 1, 1), nrow = 2)
+
+sd <- VarCorr(model_real) |> getElement("id") |> attr("stddev")
+cor <- VarCorr(model_real) |> getElement("id") |> attr("correlation")
+
+sim <- faux::rnorm_multi(
+  n = 1000,
+  mu = fixef(model_real),
+  sd = sd,
+  r = cor,
+  as.matrix = TRUE
+)
+means2 <- list()
+
+means2$marginal_rnorm <- inv_logit(sim %*% m) |> 
+  colMeans() |> setNames(c("accuracy", "speed"))
+
+# sim[,2] <- sim[,1] + sim[,2]
+
+means2$typical <- inv_logit(fixef(model_real) %*% m) |> 
+  as.vector() |> 
+  setNames(c("accuracy", "speed"))
+
+```
+
+Again, with the average conditional mean.
+
+```{r}
+subj <- coef(model_real) |> getElement("id") |> as.matrix()
+
+means2$avg_conditional <- inv_logit(subj %*% m) |> 
+  colMeans() |> 
+  setNames(c("accuracy", "speed"))
+```
+
+
+```{r}
+means2
+```
+
+## Bayesian models
+
+The above examples were manageable and straightforward. But what about in a 
+Bayesian model where instead of a single correlation matrix we have a whole 
+posterior distribution of them (or rather, 4000 draws from the posterior distribution)?
+
+The rvar (random variable) datatype from the posterior package can help us 
+tremendously here because it lets you treat the abstract over draws, in a way. This is hard to explain.
+
+```{r}
+
+library(brms)
+f <- bf(
+  n_correct | trials(n_trials) ~ condition + (condition | id), 
+  family = binomial()
+)
+p <- c(
+  set_prior("normal(0, 2)", class = "Intercept"),
+  set_prior("normal(0, 1)", class = "b"),
+  set_prior("normal(0, 1)", class = "sd"),
+  set_prior("lkj(2)", class = "cor")
+)
+validate_prior(p, f, data = data_real)
+
+
+bayes_real <- brm(
+  f, 
+  data_real, 
+  prior = p, 
+  backend = "cmdstanr", 
+  file = "model_real"
+)
+```
+
+
+Let's do the fixed effects conditional means first. By default,
+`fixef()` summarize the posterior distribution of the fixed effects for
+us.
+
+```{r}
+library(posterior)
+set_colnames <- `colnames<-`
+
+mean_bayes <- list()
+
+fixef(bayes_real)
+
+bayes_fixef <- bayes_real |> 
+  fixef(summary = FALSE) |> 
+  rvar(dim = 2)
+bayes_fixef
+
+mean_bayes$typical <- inv_logit(bayes_fixef %**% m) |> 
+  # matrix multiplications gives 1 x 2 matrix rvar so 
+  # reset two be a length-two vector rvar
+  rvar(dim = 2) |>  
+  setNames(c("accuracy", "speed")) 
+mean_bayes
+```
+
+`bayes_fixef` is a two-variable rvar on 4000 draws. We would normally
+treat it as a 4000 x 2 matrix (draws x variables) but as an rvar, we get
+to mostly treat it like the 2-element vector from earlier.
+
+One twist here is that rvar uses `%**%` for matrix multiplication
+instead of `%*%`.
+
+
+Now, for the next step up in difficulty, let's take the average
+conditional mean. As in the lme4 case, `coef()` will return
+subject-specific parameters and we can matrix-multiply them by the
+simple design matrix to get the fitted values for each condition.
+
+```{r}
+coef_rvar <- bayes_real |> 
+  coef(summary = FALSE) |> 
+  getElement("id") |> 
+  rvar()
+
+bayes_ss <- inv_logit(coef_rvar %**% m)
+
+colnames(bayes_ss) <- c("accuracy", "speed")
+bayes_ss
+
+bayes_ss
+```
+
+At this point, we have 4000 x 17 x 2 condition means and we want 4000
+x 2 condition means by averaging over the 17 participants in each draw. 
+```{r}
+mean_bayes$avg_conditional <- bayes_ss |> 
+  rvar_apply(.margin = 2, rvar_mean)
+
+mean_bayes
+
+
+```
+
+The code is completely analogous to what we would write in for a regular matrix.
+
+```{r}
+# mean <- matrix |> apply(margin = 2, mean)
+```
+
+
+Finally, we can tell rvar to just do it's thing.
+
+```{r}
+# m <- matrix(c(1, 0, 1, 1), nrow = 2)
+bayes_fixef
+
+bayes_sd <- bayes_real |> 
+  VarCorr(summary = FALSE) |> 
+  purrr::pluck("id", "sd") |> 
+  rvar()
+
+bayes_cor <- bayes_real |> 
+  VarCorr(summary = FALSE) |> 
+  purrr::pluck("id", "cor") |> 
+  rvar()
+
+sim <- rdo(
+  faux::rnorm_multi(
+    n = 1000,
+    mu = bayes_fixef,
+    sd = bayes_sd,
+    r = bayes_cor,
+    as.matrix = TRUE
+  )
+)
+head(sim)
+```
+
+
+```{r}
+mean_bayes$marginal <- inv_logit(sim %**% m) |> rvar_apply(2, rvar_mean)
+mean_bayes
+```
+
+
+
+
 
 ```{r}
 aa <- a |> 
   filter(stim_cat == "word")
 
 aa_data <- aa
-f <- bf(
-  n_correct | trials(n_trials) ~ condition + (condition | id), 
-  family = binomial()
-)
-f
-p <- c(
-  set_prior("normal(0, 2)", class = "Intercept"),
-  set_prior("normal(0, 1)", class = "b"),
-  set_prior("normal(0, 1)", class = "sd"),
-  set_prior("lkj(2)", class = "cor")
-  
-)
-validate_prior(p, f, data = aa_data)
 
-m <- brm(f, aa_data, prior = p, backend = "cmdstanr", file = "model_condition")
+m <-
 summary(m)
 conditional_effects(m)
 
