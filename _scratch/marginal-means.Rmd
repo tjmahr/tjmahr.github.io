@@ -13,6 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
+
+
+
 ```{r}
 library(tidyverse)
 d <- rtdists::speed_acc |> 
@@ -64,7 +67,7 @@ ggplot(d) + aes(x = id, y = correct, color = condition) + stat_summary() + facet
 ```
 
 In this *lexical decision* experiment, participants were given a string
-of letters onscreen and had to indicate whether string was a word or a
+of letters onscreen and had to indicate whether the string was a word or a
 nonword. Half the time the string was a word and half the time the
 string was a nonword.
 
@@ -73,7 +76,7 @@ d |>
   count(stim_cat)
 ```
 
-Participants completed 20 blocks of trials. In each block, they were
+Seventeen participants each completed 20 blocks of trials. In each block, they were
 instructed to aim for accuracy or speed.
 
 ```{r}
@@ -92,8 +95,32 @@ d |>
 
 Everything is neatly balanced.
 
+## Terminology
 
-## Easy cases: logitnorm
+Each participant has their personal probability of correctly choosing word or nonword. This probability is the **conditional mean** or **subject-specific mean**. The word *conditional* is there to remind that there is a conditional probability or expectation at play.
+
+$$
+\textrm{P}(\text{correct}~ |~ \text{participant}_i) \\
+\textrm{E}(\text{correct}~|~ \text{participant}_i, n~\text{trials})
+$$
+
+But if we remove that conditional part:
+
+$$
+\textrm{P}(\text{correct}) \\
+\textrm{E}(\text{correct}~|~ n~\text{trials})
+$$
+
+we have a **marginal mean** or **population mean** or **population-averaged mean**.
+
+We know from Bayes' theorem that that 
+
+
+Let's hammer out the terminology right away. There is a population of 
+participants, and they each have their own probability of correctly choosing *word* or *nonword*. 
+
+
+## Easy case: logitnorm
 
 
 
@@ -148,7 +175,6 @@ means_real_speed$marginal_rnorm <-
   mean()
 ```
 
-
 The logitnorm R package can do this calculation using numerical
 integration (as opposed to simulating new participants):
 
@@ -158,6 +184,16 @@ means_real_speed$marginal_logitnorm <- model_real_speed |>
   logitnorm::momentsLogitnorm(mu = _, sigma = sigma) |> 
   getElement("mean")
 ```
+
+In my research for this post, I found the following approximation:
+
+```{r}
+var_logistic <- ((pi ^ 2) / 3) * (15 / 16)
+b_pa <- fixef(model_real_speed) / sqrt(((sigma ^ 2) + var_logistic) / var_logistic)
+means_real_speed$marginal_approx <- unname(inv_logit(b_pa))
+```
+
+
 
 Another kind of mean we might want is the average conditional mean:
 
