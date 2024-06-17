@@ -69,7 +69,7 @@ ggplot(d) + aes(x = id, y = correct, color = condition) + stat_summary() + facet
 In this *lexical decision* experiment, participants were given a string
 of letters onscreen and had to indicate whether the string was a word or a
 nonword. Half the time the string was a word and half the time the
-string was a nonword.
+string was a nonword, as recorded in the `stimcat` variable.
 
 ```{r}
 d |> 
@@ -77,14 +77,14 @@ d |>
 ```
 
 Seventeen participants each completed 20 blocks of trials. In each block, they were
-instructed to aim for accuracy or speed.
+instructed to aim for *accuracy* or *speed* (`condition`).
 
 ```{r}
 d |> 
   count(condition, stim_cat)
 ```
 
-The real words varied in frequency (high, low and very low), and the
+The real words varied in frequency (`freq`: high, low and very low), and the
 nonwords were created by taking real words and randomly replacing the
 free vowels (i.e., any vowel except for U in QU) with other vowels.
 
@@ -93,43 +93,117 @@ d |>
   count(condition, stim_cat, freq)
 ```
 
-Everything is neatly balanced.
+So, everything is neatly balanced by design but some bad trials had to be
+discarded.
+
+
+## The baseline model
+
+Let's consider the average accuracy for real words on the *speed* 🏃‍♀️ trials. We fit a mixed effects logistic regression model. 
+
+The observed data is the number of successes $y_i$ in $n_i$ trials for each participant $i$. We want to estimate $p_i$, the probability of success for each participant.
+
+$$
+\begin{align*}
+y_i &= \operatorname{Binomial}(n_i~\text{trials}, p_i) & \\
+p_i &= \operatorname{inv\_logit}(\eta_i) & \\
+\eta_i &= b_0 + \alpha_{i} & \\
+\alpha_{i} &\sim \operatorname{Normal}(0, \sigma) &\\
+i &: \text{participant index} &\\
+y &: \text{observed number of successes} &\\
+p &: \text{probability of success} &\\
+\eta &: \text{linear model on the logit scale}\\
+b_0 &: \text{intercept, logit of success for typical participant} &\\
+\alpha_i &: \text{participant's adjustment from the typical value} &\\
+\alpha_i &: \text{participant's adjustment from the typical value} &\\
+\end{align*}
+$$
+
+
 
 ## Terminology
 
-Each participant has their personal probability of correctly choosing word or nonword. This probability is the **conditional mean** or **subject-specific mean**. The word *conditional* is there to remind that there is a conditional probability or expectation at play.
+Each participant has their personal probability of correctly choosing word or 
+nonword. This probability is the **conditional mean** or 
+**subject-specific mean**. The word *conditional* is there to remind that 
+there is a conditional probability or expectation at play.
 
 $$
-\textrm{P}(\text{correct}~ |~ \text{participant}_i) \\
-\textrm{E}(\text{correct}~|~ \text{participant}_i, n~\text{trials})
+\operatorname{Pr}(\text{correct} \mid \text{participant}_i) \\
+\operatorname{E}(\text{correct} \mid \text{participant}_i, n~\text{trials})
 $$
 
-But if we remove that conditional part:
+But if we remove that conditional part, we have a **marginal mean** or
+**population mean** or **population-averaged mean**:
 
 $$
-\textrm{P}(\text{correct}) \\
-\textrm{E}(\text{correct}~|~ n~\text{trials})
+\operatorname{E}{Pr}(\text{correct}) \\
+\operatorname{E}(\text{correct} \mid n~\text{trials})
 $$
 
-we have a **marginal mean** or **population mean** or **population-averaged mean**.
+And we can remove that conditional part by averaging  (or marginalizing) over all of the participants. See the [law of total expectation](https://en.wikipedia.org/wiki/Law_of_total_expectation#Informal_proof) with $\operatorname{E}(X) = \operatorname{E}(\operatorname{E}(X \mid Y))$ or the [definition of a marginal probability](https://en.wikipedia.org/wiki/Marginal_distribution). The purpose of this post is demonstrate various ways to achieve this marginalization.
 
-We know from Bayes' theorem that that 
+
+
+
 
 
 Let's hammer out the terminology right away. There is a population of 
 participants, and they each have their own probability of correctly choosing *word* or *nonword*. 
 
 
+```{r}
+
+tibble(
+  x = qnorm(ppoints(100), 2, 1),
+  y = plogis(x),
+  x_m = mean(x),
+  y_m = mean(y),
+) |> 
+  ggplot() + geom_point(aes(x = x, y = y)) +
+  geom_vline(aes(xintercept = x_m)) +
+  geom_hline(aes(yintercept = y_m)) +
+  geom_density(aes(x = x, y = after_stat(scaled) / 5)) + 
+  geom_density(aes(y = y, x = after_stat(scaled) - 1), orientation = "y")
+  
+
+logitnorm_mean <- wisclabmisc::logitnorm_mean
+means <- ppoints(200)
+logits <- qlogis(means)
+sd <- .5
+
+p <- expand.grid(means = means, sd = c(.1, .25, .5, .75, 1, 1.5, 2)) |> 
+  mutate(
+    logits = qlogis(means), 
+    y = logitnorm_mean(logits, sd)
+  )
+ggplot(p) + aes(x = means, y = y) + geom_line(aes(group = sd, color = sd))
+tibble(
+  x = means,
+  y = logitnorm_mean(logits, sd)
+) 
+
+
+# |> 
+#   ggplot() + geom_line(aes(x,y)) + geom_abline()
+
+
+ggplot() + 
+  stat_function(
+    fun = logitnorm::dlogitnorm, 
+    args = list(mu = 0, sigma = 5)
+  )
+
+logitnorm::dlogitnorm()
+
+
+ggplot()
+```
+
+
 ## Easy case: logitnorm
 
 
-
-Let's compute the average accuracy for real words on the *speed* 🏃‍♀️ trials.
-
-
-$$
-P_i = \operatorname{inv-logit}(b_0 + \alpha_{i})
-$$
 
 
 ```{r}
@@ -192,6 +266,17 @@ var_logistic <- ((pi ^ 2) / 3) * (15 / 16)
 b_pa <- fixef(model_real_speed) / sqrt(((sigma ^ 2) + var_logistic) / var_logistic)
 means_real_speed$marginal_approx <- unname(inv_logit(b_pa))
 ```
+
+[Demidenko (2004, 2013)](https://www.eugened.org/mixed-models) also provides this approximation:
+
+```{r}
+adjustment <- (sigma ^ 2) / 1.7 ^ 2
+adjustment <- 1 / sqrt(1 + adjustment)
+b_pa <- fixef(model_real_speed) * adjustment
+means_real_speed$marginal_approx_2 <- unname(inv_logit(b_pa))
+```
+
+
 
 
 
