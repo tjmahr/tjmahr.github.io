@@ -11,9 +11,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
+In this post, we go into the weeds. I describe a breakthrough I had in
+how to compute marginal means from Bayesian mixed effects models with
+correlated varying effects (that is, random slopes). 
 
-
-
+The main takeaways for this post are that a transformed fixed effects
+estimate is not the same as the population-average mean for logistic
+regression models and we need to marginalize over random effects to get
+that population-average mean.
 
 
 ```{r}
@@ -66,42 +71,115 @@ ggplot(d) + aes(x = id, y = correct, color = condition) + stat_summary() + facet
 
 ```
 
-In this *lexical decision* experiment, participants were given a string
-of letters onscreen and had to indicate whether the string was a word or a
-nonword. Half the time the string was a word and half the time the
-string was a nonword, as recorded in the `stimcat` variable.
+
+## Data: A repeated measures experiment with non-normal data
+
+I'll be using the `rtdists::speed_acc` dataset (Wagenmakers, Ratcliff, Gomez & McKoon, [2008](https://pmc.ncbi.nlm.nih.gov/articles/PMC2330283/); Heathcote & Love, [2012](https://pmc.ncbi.nlm.nih.gov/articles/PMC3425963/)).
 
 ```{r}
-d |> 
+library(tidyverse)
+data_lexdec <- rtdists::speed_acc |> 
+  tibble::as_tibble() |> 
+  filter(!censor) |> 
+  mutate(
+    correct = as.character(response) == as.character(stim_cat),
+    correct = as.numeric(correct),
+    freq = frequency |> 
+      as.character() |> 
+      stringr::str_replace("nw_", "")
+  ) |> 
+  select(id, block, condition, stim, stim_cat, response, correct, freq)
+```
+
+In this *lexical decision* experiment, participants were given a string
+of letters onscreen and had to indicate whether the string was a word or
+a nonword. (Try [an online
+demo](https://lexicaldec.cognition.run/?demo=true) of a lexical decision
+experiment to get a flavor of the task.) Half the time the string was a
+word and half the time the string was a nonword, as recorded in the
+`stimcat` variable. 
+
+```{r}
+data_lexdec |> 
   count(stim_cat)
 ```
 
-Seventeen participants each completed 20 blocks of trials. In each block, they were
-instructed to aim for *accuracy* or *speed* (`condition`).
+> Participants were instructed to press the ‘/’ key with
+their right index finger when they believed the presented
+letter string to be an English word and to press the ‘z’
+key with their left index finger when they did not believe
+the presented letter string to be an English word. In the
+accuracy blocks, each of which was preceded by the message "Try to respond accurately", the feedback message
+"ERROR" was presented [...] after every erroneous response. In the speed blocks, each of which was
+preceded by the message "Try to respond fast", the feed-
+back message ‘‘TOO SLOW’’ was presented [...]
+after every trial for which the response latency exceeded
+750 ms. In both the accuracy blocks and the speed
+blocks, anticipatory responding was discouraged by
+the 800 ms presentation of the feedback message
+‘‘TOO FAST’’ after every trial for which the response
+latency was shorter than 200 ms. The response–stimulus
+interval was 150 ms.
+
+Seventeen participants each completed 20 blocks of trials. In each
+block, they were instructed to aim for *accuracy* or *speed*
+(`condition`). If they were inaccurate on *accuracy* trials, they got an
+ERROR message, and if they took too long on speed trials, they got a TOO
+SLOW message.
 
 ```{r}
-d |> 
+data_lexdec |> 
   count(condition, stim_cat)
 ```
 
-The real words varied in frequency (`freq`: high, low and very low), and the
-nonwords were created by taking real words and randomly replacing the
-free vowels (i.e., any vowel except for U in QU) with other vowels.
+The real words varied in frequency (`freq`: high, low and very low), and
+the nonwords were created by taking real words and randomly replacing
+the vowels with other vowels (except for the U in QU). We can talk about
+"high frequency nonwords" if the source of the nonword was a high
+frequency real word.
 
 ```{r}
-d |> 
+data_lexdec |> 
   count(condition, stim_cat, freq)
 ```
 
-So, everything is neatly balanced by design but some bad trials had to be
-discarded.
+Thus, everything is neatly balanced by design but some bad trials had to be
+discarded so we don't have exactly balanced *n*s.
+
+Given this design, we can imagine some important questions things we might 
+want to explore:
+
+- Are nonwords easier than real words?
+- Are low frequency words harder than high frequency words? 
+- Do speed and accuracy compete with each other?
 
 
-## The baseline model
+## Starting simple: Accuracy on real words for speed trials
 
-Let's consider the average accuracy for real words on the *speed* 🏃‍♀️ trials. We fit a mixed effects logistic regression model. 
+Let's consider the average accuracy for real words on the *speed* 🏃‍♀️
+trials. 
 
-The observed data is the number of successes $y_i$ in $n_i$ trials for each participant $i$. We want to estimate $p_i$, the probability of success for each participant.
+```{r}
+data_by_condition <- data_lexdec |> 
+  group_by(id, condition, stim_cat) |> 
+  summarise(
+    n_correct = sum(correct),
+    n_trials = n(),
+    n_incorrect = sum(!correct)
+  ) |> 
+  ungroup() 
+
+data_real_speed <- data_by_condition |> 
+  filter(condition == "speed", stim_cat == "word")
+
+data_real_speed
+```
+
+We will fit a mixed effects logistic regression model for this dataset.
+Formally, the observed data is the number of successes $y_i$ in $n_i$
+trials for each participant $i$. We want to estimate $p_i$, the
+probability of success for each participant. Spelled out formally, we
+have:
 
 $$
 \begin{align*}
@@ -115,41 +193,92 @@ p &: \text{probability of success} &\\
 \eta &: \text{linear model on the logit scale}\\
 b_0 &: \text{intercept, logit of success for typical participant} &\\
 \alpha_i &: \text{participant's adjustment from the typical value} &\\
-\alpha_i &: \text{participant's adjustment from the typical value} &\\
+\sigma &: \text{between-participant variability} &\\
 \end{align*}
 $$
 
-
-
-## Terminology
-
 Each participant has their personal probability of correctly choosing word or 
-nonword. This probability is the **conditional mean** or 
-**subject-specific mean**. The word *conditional* is there to remind that 
-there is a conditional probability or expectation at play.
+nonword, $p_i$. This probability is the **conditional mean** or 
+**subject-specific mean**. The word *conditional* is there to remind us that 
+there is a conditional probability or conditional expectation at play.
 
 $$
 \operatorname{Pr}(\text{correct} \mid \text{participant}_i) \\
 \operatorname{E}(\text{correct} \mid \text{participant}_i, n~\text{trials})
 $$
 
+
 But if we remove that conditional part, we have a **marginal mean** or
 **population mean** or **population-averaged mean**:
 
 $$
-\operatorname{E}{Pr}(\text{correct}) \\
+\operatorname{Pr}(\text{correct}) \\
 \operatorname{E}(\text{correct} \mid n~\text{trials})
 $$
 
-And we can remove that conditional part by averaging  (or marginalizing) over all of the participants. See the [law of total expectation](https://en.wikipedia.org/wiki/Law_of_total_expectation#Informal_proof) with $\operatorname{E}(X) = \operatorname{E}(\operatorname{E}(X \mid Y))$ or the [definition of a marginal probability](https://en.wikipedia.org/wiki/Marginal_distribution). The purpose of this post is demonstrate various ways to achieve this marginalization.
+And we can remove that conditional part by averaging (or marginalizing) over all of the participants. See the [law of total expectation](https://en.wikipedia.org/wiki/Law_of_total_expectation#Informal_proof) with $\operatorname{E}(X) = \operatorname{E}(\operatorname{E}(X \mid Y))$ or the [definition of a marginal probability](https://en.wikipedia.org/wiki/Marginal_distribution). **The purpose of this post is demonstrate various ways to achieve this marginalization.**
+
+
+Now, let's fit this model.
+
+```{r}
+model_real_speed <- glmer(
+  cbind(n_correct, n_incorrect) ~ 1 + (1 | id),
+  family = binomial(),
+  data = data_real_speed
+)
+summary(model_real_speed)
+```
+
+
+The intercept corresponds to $b_0$, the estimated accuracy for a "typical" participant, and I emphasize the word *typical* because this participant's estimate is actually a conditional estimate. It is the estimate accuracy for a participant whose $\alpha$ is 0.
+
+$$
+\begin{align*}
+p_i &= \operatorname{inv\_logit}(b_0 + \alpha_i)  & \\
+\alpha_\text{typical} &= 0 &\\
+p_\text{typical} &= \operatorname{inv\_logit}(b_0) & \\
+\end{align*}
+$$
+
+The accuracy estimates for the observed participants vary around this typical
+participant under a normal distribution on the logit scale. The SD of
+this normal distribution, $\sigma$ is given in the model's random
+effects summary.
+
+At this point, we can estimate a population-average or marginal accuracy. 
+
+```{r}
+logit_typical <- fixef(model_real_speed)["(Intercept)"] |> unname()
+# sigma(model_real_speed)
+logit_sigma <- model_real_speed |> 
+  VarCorr() |> 
+  getElement("id") |> 
+  attr("stddev") |> 
+  unname()
+
+logit_typical
+logit_sigma
+
+
+plogis(logit_typical)
+
+sim_participants <- rnorm(1000, logit_typical, logit_sigma)
+plogis(sim_participants) |> mean()
+```
 
 
 
 
 
 
-Let's hammer out the terminology right away. There is a population of 
-participants, and they each have their own probability of correctly choosing *word* or *nonword*. 
+
+
+
+
+
+<!-- Let's hammer out the terminology right away. There is a population of  -->
+<!-- participants, and they each have their own probability of correctly choosing *word* or *nonword*.  -->
 
 
 ```{r}
