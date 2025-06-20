@@ -201,6 +201,7 @@ $text-alignments: left, right, start, end, center, justify;
   @each $color, $icons in (
     $behance-color: ".fa-behance, .fa-behance-square",
     $bitbucket-color: ".fa-bitbucket",
+    $bluesky-color: ".fa-bluesky, .fa-bluesky-square",
     $dribbble-color: ".fa-dribbble, .fa-dribbble-square",
     $facebook-color: ".fa-facebook, .fa-facebook-square, .fa-facebook-f",
     $flickr-color: ".fa-flickr",

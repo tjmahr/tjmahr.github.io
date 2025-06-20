@@ -127,7 +127,7 @@ author:
   google_plus      :
   keybase          :
   instagram        :
-  lastfm           :
+  lastfm           : mahr
   linkedin         : tj-mahr-259aa612b
   pinterest        :
   soundcloud       :
@@ -141,11 +141,11 @@ author:
   youtube          :
   links:
     - label: "R Bloggers"
-      icon: "fab fa-r-project"
+      icon: "fab fa-fw fa-r-project"
       url: "https://www.r-bloggers.com/"
-#     - label: "Twitter"
-#       icon: "fab fa-fw fa-twitter-square"
-#       # url: "https://twitter.com/"
+    - label: "Bluesky"
+      icon: "fab fa-fw fa-bluesky"
+      url: "https://bsky.app/profile/tjmahr.com"
 #     - label: "Facebook"
 #       icon: "fab fa-fw fa-facebook-square"
 #       # url: "https://facebook.com/"
@@ -162,9 +162,9 @@ head_scripts:
 # Site Footer
 footer:
   links:
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/tjmahr"
+    - label: "Bluesky"
+      icon: "fab fa-fw fa-bluesky"
+      url: "https://bsky.app/profile/tjmahr.com"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/tjmahr"
