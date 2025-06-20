@@ -1,0 +1,31 @@
+---
+title: Centering variables and endogeniety in multilevel models (2025-06-20)
+excerpt: ''
+tags: 
+  - r
+  - mixed effects
+  - math
+share: true
+header:
+  overlay_image: "assets/images/2025-06-roadlines.jpg"
+  image_description: "Legs of a person standing in the center of a road"
+  overlay_filter: rgba(10, 10, 10, 0.5)
+  caption: "Photo credit: [**Luke van Zyl**](https://unsplash.com/photos/person-standing-on-concrete-road-Dq0N1y0YHC8)"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+```
+
+
+
+
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```
