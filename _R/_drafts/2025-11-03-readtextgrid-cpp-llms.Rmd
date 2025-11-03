@@ -1,0 +1,104 @@
+---
+title: Draft post (2025-11-03)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+# setwd("_R/_drafts")
+```
+
+```{r, eval = FALSE, include = FALSE}
+spectrogram_out <- "../data/mfa/library-tidyverse-library-brms.Spectrogram"
+
+f_create_spectrogram <- tjm.praat::wrap_praat_script(
+  script_code_to_run = tjm.praat::create_spectrogram,
+  returning = "last-argument"
+)
+
+data_spectrogram <- "../data/mfa/library-tidyverse-library-brms.wav" |> 
+  f_create_spectrogram(
+    spectrogram_out = spectrogram_out, 
+    max_frequency = 6000
+  ) 
+
+data_spectrogram |> 
+  tjm.praat::read_spectrogram() |> 
+  readr::write_csv("../data/mfa/library-tidyverse-library-brms.csv")
+```
+
+In this post, I announce the release of readtextgrid 0.2.0 and describe
+some adventures with AI-assisted coding that occurred along the way.
+
+***
+
+The following image is a screenshot of the acoustic analysis program
+Praat. 
+
+
+{% include figure image_path="/assets/images/2025-11-library-tidyverse.png" alt="Screenshot of a Praat editor window showing the amplitude wave form, spectrogram, and textgrid annotations." caption="Figure 1. Screenshot of a Praat editor window." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
+
+
+There are three main rows in the image.
+
+1.  Amplitude wave form
+2.  Spectrogram, showing how the intensity at frequencies changes over
+    time
+3.  Textgrid annotations, which contain annotations for the recording.
+
+This textgrid is the result of forced alignment, specifically by the
+Montreal Forced Aligner. I told the program I said "library tidy verse
+library b r m s", and it looked up the pronunciations of those words and
+used an acoustic model to lay down the time intervals of each word and
+each speech sound. The aligner produced a .TextGrid file, a file format
+used by Praat to store this kind of temporal annotation.
+
+These textgrids are the bread and butter of some of the research that we
+do. For example, our article on speaking/articulation rate in children
+involved over 30,000 single-sentence wav files and textgrid files. We
+used the alignment to determine the duration of time spent speaking, the
+number of vowels in each utterance and hence the speaking rate in
+syllables per second.
+
+Getting these textgrid files into R was kind of cumbersome, so I wrote and release readtextgrid, an R package with one simple function:
+
+```{r}
+library(readtextgrid)
+read_textgrid("../data/mfa-out/library-tidyverse-library-brms.TextGrid")
+```
+
+It returned a tidy tibble with one row per annotation. The filename was stored as a column name so that we could `lapply()` over a directory of files. Annotations were numbered so that you could `group_by(text, annotation_num)` so that repeated words could be handle separately. 
+
+
+<!-- I think it did a satisfactory job. I can see that the /S/ intervals have high frequency noise, that the second interval of "m" has a sudden dampening of energy (due to nasal airflow of /m/) -->
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+data_spectrogram <- readr::read_csv("../data/mfa/library-tidyverse-library-brms.csv")
+hist(data_spectrogram$db)
+data_spectrogram |> 
+  mutate(
+    db = ifelse(db < 15, 15, db)
+  ) |> 
+ggplot() + 
+  aes(x = time, y = frequency) +
+  geom_raster(aes(fill = db)) +
+  theme_minimal() +
+   scale_fill_gradient(low = "white", high = "black") +
+  labs(x = "time [s]", y = "frequency [Hz]", fill = "dB SPL")
+
+
+```
+
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```

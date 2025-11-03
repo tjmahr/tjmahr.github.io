@@ -1,0 +1,2 @@
+file,begin,end,speaker,overall_log_likelihood,speech_log_likelihood,phone_duration_deviation,snr
+library-tidyverse-library-brms,0.0,3.5960090702947847,mfa,-47.675244140625,-47.19233443520286,1.178550398595474,5.321318446714791
