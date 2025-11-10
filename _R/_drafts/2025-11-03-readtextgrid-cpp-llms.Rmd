@@ -8,7 +8,7 @@ tags: ''
 knitr::opts_chunk$set(
   echo = TRUE
 )
-# setwd("_R/_drafts")
+if (interactive()) setwd("_R/_drafts")
 ```
 
 ```{r, eval = FALSE, include = FALSE}
@@ -63,37 +63,140 @@ used the alignment to determine the duration of time spent speaking, the
 number of vowels in each utterance and hence the speaking rate in
 syllables per second.
 
-Getting these textgrid files into R was kind of cumbersome, so I wrote and release readtextgrid, an R package with one simple function:
-
+Getting these textgrid files into R was kind of cumbersome, so I wrote and
+released readtextgrid, an R package with one simple function:
 ```{r}
 library(readtextgrid)
-read_textgrid("../data/mfa-out/library-tidyverse-library-brms.TextGrid")
+
+path_tg <- "../data/mfa-out/library-tidyverse-library-brms.TextGrid" 
+data_tg <- read_textgrid(path_tg)
+
+data_tg
 ```
+The function returns a tidy tibble with one row per annotation. The filename is
+stored as a column name so that we can `lapply()` over a directory of files.
+Annotations are numbered so that you can `group_by(text, annotation_num)` so
+that repeated words, e.g., can be handled separately.
 
-It returned a tidy tibble with one row per annotation. The filename was stored as a column name so that we could `lapply()` over a directory of files. Annotations were numbered so that you could `group_by(text, annotation_num)` so that repeated words could be handle separately. 
 
+I released the first version of the package in 2021. This package,
+notably for me, contains the first hex badge I ever made.
+
+<!-- hex badge here -->
 
 <!-- I think it did a satisfactory job. I can see that the /S/ intervals have high frequency noise, that the second interval of "m" has a sudden dampening of energy (due to nasal airflow of /m/) -->
 
+With this textgrid in R, I could, say measure speaking rate:
+
+```{r}
+data_tg |> 
+  filter(tier_name == "phones", text != "") |> 
+  summarise(
+    speaking_time = sum(xmax - xmin),
+    # vowels have numbers to indicate degree of stress
+    num_vowels = sum(str_detect(text, "\\d"))
+  ) |> 
+  mutate(
+    syllables_per_sec = num_vowels / speaking_time 
+  )
+```
+
+Or annotate a spectrogram:
 
 ```{r}
 library(tidyverse)
 library(ggplot2)
 data_spectrogram <- readr::read_csv("../data/mfa/library-tidyverse-library-brms.csv")
-hist(data_spectrogram$db)
+
 data_spectrogram |> 
   mutate(
+    # save more of the color variation for dbs above 15
     db = ifelse(db < 15, 15, db)
   ) |> 
-ggplot() + 
+  ggplot() + 
   aes(x = time, y = frequency) +
   geom_raster(aes(fill = db)) +
+  geom_text(
+    aes(label = text, x = (xmin + xmax) / 2),
+    data = data_tg |> filter(tier_name == "words"),
+    y = 6500,
+    vjust = 0
+  )  +
+  geom_text(
+    aes(label = text, x = (xmin + xmax) / 2),
+    data = data_tg |> filter(tier_name == "phones"),
+    y = 6100,
+    vjust = 0,
+    size = 2
+  )  +
+  ylim(c(NA, 6600)) +
   theme_minimal() +
-   scale_fill_gradient(low = "white", high = "black") +
+  scale_fill_gradient(low = "white", high = "black") +
   labs(x = "time [s]", y = "frequency [Hz]", fill = "dB SPL")
-
-
 ```
+
+
+## The original parser and the problem
+
+Here is what the contents of the .TextGrid file look like:
+
+```{r}
+path_tg |> 
+  readLines() |> 
+  head(26) |> 
+  c("[... TRUNCATED ... ]") |> 
+  writeLines()
+```
+
+The first 7 lines provide some metadata about the time range of the
+audio and the number of tiers (`size = 2`). It then writes outs each
+tier (`item [n]` lines) by first giving the `class`, `name`, time
+duration and number of marks or intervals. Each mark or interval is
+numerated with time values `xmin`, `xmax` and `text` values.
+
+Because nearly everything here follows `key = value` syntax and because
+sections are split from each other very neatly with `item [n]:` or
+`interval [n]:` lines, I was able to write a simple parser using regular
+expressions. 
+
+But this easy approach came with limitations. First, the TextGrid spec was much more flexible. For example, Praat also provides much less verbose "short" format textgrids. The file in our case would look like that:
+
+```{r}
+path_tg_short <- "../data/mfa-out/library-tidyverse-library-brms-short.TextGrid"
+path_tg_short |> 
+  readLines() |> 
+  head(26) |> 
+  c("[... TRUNCATED ... ]") |> 
+  writeLines()
+```
+
+Here it's just a stream of time and text values. Everything is in the
+same order, but the annotations are gone. All of the helpful labels from
+above are actually comments that get ignored. Everything that isn't a 
+number or a string in double-quotes (or a `<flag>`) is a comment.
+
+The file format also supports line-level comments with `!`. For instance, as a 
+compromise between verbosity and human-readability, we could imagine write out 
+the data in a more tabular organization:
+
+```{r}
+path_tg_custom <- "../data/mfa-out/library-tidyverse-library-brms-custom.TextGrid"
+path_tg_custom |> 
+  readLines() |> 
+  head(26) |> 
+  c("[... TRUNCATED ... ]") |> 
+  writeLines()
+```
+
+And this would be a valid `.TextGrid` file.
+
+My original regular-expression based parser could only handle the verbose 
+long-format textgrids. This was never a problem for me until I tried a new 
+forced aligner tool that defaulted to saving the textgrids in the short format. 
+Now readtextgrid could not handle the problem.
+
+
+Another person in phonetics software arena submitted a pull request to do a proper parser. One problem is that the .TextGrid format is underdocumented. This page yes does tell us what information and should be a file but it doesn't tell us explicitly what makes up a number. (For example, hexadecimal scientific notation counts but `.5` does not .)
 
 
 
