@@ -12,6 +12,7 @@ if (interactive()) setwd("_R/_drafts")
 ```
 
 ```{r, eval = FALSE, include = FALSE}
+# Run-once code to produce the spectrogram from the wav file
 spectrogram_out <- "../data/mfa/library-tidyverse-library-brms.Spectrogram"
 
 f_create_spectrogram <- tjm.praat::wrap_praat_script(
@@ -152,14 +153,18 @@ The first 7 lines provide some metadata about the time range of the
 audio and the number of tiers (`size = 2`). It then writes outs each
 tier (`item [n]` lines) by first giving the `class`, `name`, time
 duration and number of marks or intervals. Each mark or interval is
-numerated with time values `xmin`, `xmax` and `text` values.
+enumerated with time values `xmin`, `xmax` and `text` values.
 
-Because nearly everything here follows `key = value` syntax and because
-sections are split from each other very neatly with `item [n]:` or
-`interval [n]:` lines, I was able to write a simple parser using regular
-expressions. 
+Because nearly everything here follows a `key = value` syntax and
+because sections are split from each other very neatly with `item [n]:`
+or `interval [n]:` lines, I was able to write a simple parser using
+regular expressions: Split the file into `item [n]` sections, split
+those into `interval [n]` sections, and extract key-value pairs.
 
-But this easy approach came with limitations. First, the TextGrid spec was much more flexible. For example, Praat also provides much less verbose "short" format textgrids. The file in our case would look like that:
+But this easy approach came with limitations. First, the TextGrid
+specification was much more flexible. For example, Praat also provides
+much less verbose "short" format textgrids. The file in our case would
+just be a stream of time and text annotations:
 
 ```{r}
 path_tg_short <- "../data/mfa-out/library-tidyverse-library-brms-short.TextGrid"
@@ -170,14 +175,14 @@ path_tg_short |>
   writeLines()
 ```
 
-Here it's just a stream of time and text values. Everything is in the
+Everything is in the
 same order, but the annotations are gone. All of the helpful labels from
-above are actually comments that get ignored. Everything that isn't a 
+above are actually *comments* that get ignored. Everything that isn't a 
 number or a string in double-quotes (or a `<flag>`) is a comment.
 
 The file format also supports line-level comments with `!`. For instance, as a 
-compromise between verbosity and human-readability, we could imagine write out 
-the data in a more tabular organization:
+compromise between verbosity and human-readability, we could imagine writing out 
+the data in a more tabular organization, with lines of `! column names`:
 
 ```{r}
 path_tg_custom <- "../data/mfa-out/library-tidyverse-library-brms-custom.TextGrid"
@@ -188,15 +193,249 @@ path_tg_custom |>
   writeLines()
 ```
 
-And this would be a valid `.TextGrid` file.
+And this would be a valid `.TextGrid` file. 
 
-My original regular-expression based parser could only handle the verbose 
-long-format textgrids. This was never a problem for me until I tried a new 
-forced aligner tool that defaulted to saving the textgrids in the short format. 
-Now readtextgrid could not handle the problem.
+But my original regular-expression based parser could only handle the verbose
+long-format textgrids. I knew this. I put this an issue in 2020. And this
+compatibility oversight was never a problem for me until I tried a new phonetics
+tool that defaulted to saving the textgrids in the short format. Now
+readtextgrid could not handle the problem.
 
 
 Another person in phonetics software arena submitted a pull request to do a proper parser. One problem is that the .TextGrid format is underdocumented. This page yes does tell us what information and should be a file but it doesn't tell us explicitly what makes up a number. (For example, hexadecimal scientific notation counts but `.5` does not .)
+
+
+```{asis}
+<blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:4t2ziwnnescprzorvmrfduey/app.bsky.feed.post/3ltdjbaktss2s" data-bluesky-cid="bafyreihipumdkez3ifgsyt3eqbgelzuzljvllfwj4lbnfju55vvoxqc5gu" data-bluesky-embed-color-mode="system"><p lang="en">the thing about (the current) chatgpt is that it writes like a fucking idiot with excellent grammar</p>&mdash; sarah jeong (<a href="https://bsky.app/profile/did:plc:4t2ziwnnescprzorvmrfduey?ref_src=embed">@sarahjeong.bsky.social</a>) <a href="https://bsky.app/profile/did:plc:4t2ziwnnescprzorvmrfduey/post/3ltdjbaktss2s?ref_src=embed">July 6, 2025 at 7:20 PM</a></blockquote>
+```
+
+
+
+
+Now, let's talk about LLMs. There's a lot I could say about them. As a language
+scientist, I'll start here: They know *syntax*. They know which words go
+together and can generate very plausible sequences of words. They do not know
+*semantics*. They don't have any firsthand knowledge or experience about what
+they say. They can't introspect about that knowledge or experience to see
+whether things "make sense". They [don't
+care](https://www.andrewheiss.com/ai/#text) about the truth or falsity of
+statements. They just make plausible sequences of words. 
+
+Now, it turns out that if you learn how to make sequences of words from an
+Internet-sized corpus of text, then a lot of the plausible sequences you make
+will turn out to be true. If you read 10,000 cookbooks, you could probably
+provide a very classic recipe for scrambled eggs. But because you don't know
+about sarcasm or can't draw on your own experience of trying to not ingest
+chemicals, you might suggest putting glue on a pizza. {}
+
+So, as we use an LLM, we need to ask ourselves how much we care about the truth
+or care about knowing or understanding things. That may sound like a glib or
+weird statement: Shouldn't we always care about the truth? Well, sometimes we
+don't. We just want some syntax; we want boilerplate to fill out. For example, I ask "write some unit
+tests for a function `round_to(xs, unit)` that rounds a vector of values to an
+arbitrary unit" and receive:
+
+```{r, eval = FALSE}
+test_that("round_to() rounds to nearest multiple of unit", {
+  expect_equal(round_to(5, 2), 6)
+  expect_equal(round_to(4.9, 2), 4)
+  expect_equal(round_to(5.1, 2), 6)
+  expect_equal(round_to(c(1, 2, 3, 4), 2), c(2, 2, 4, 4))
+})
+```
+
+These tests are not useful *until* I plug in the correct values for the expected 
+output.
+
+In other cases, we don't quite care about truth or comprehension because we can
+get external corroboration. When I ask ChatGPT for an obfuscated R script to
+make Pac Man in ggplot2, I can run the code to see if it works without trying to
+decipher its syntax:
+
+```{r, error=TRUE}
+library(ggplot2)
+ggplot()+
+geom_polygon(aes(x,y),
+data=within(data.frame(t(sapply(seq(a<-pi/9,2*pi-a,l<-4e2),
+function(t)c(cos(t),sin(t))))),
+{rbind(.,0,0,cos(a),sin(a))->df;x=df[,1];y=df[,2]}),
+fill="#FF0",col=1)+
+annotate("point",x=.35,y=.5,size=3)+
+annotate("point",x=c(1.4,2,2.6),y=0,size=3)+
+coord_equal(xlim=c(-1.2,3),ylim=c(-1.2,1.2))+
+theme_void()
+```
+
+[Well that sucks.](https://www.youtube.com/watch?v=NxSj2T2vx7M)
+
+When we abandon caring about truth or understanding things, and just rely on
+external corroboration, we are in the realm of "vibe" coding. I like this term
+because of its insouciant honesty: *Truth? Comprehension? We're just going off
+the vibes.* It would be a great help if we used the word more liberally. A
+Youtube video called "A vibe history of NES videogames"? No thanks.
+
+
+The two principles I am trying to develop in this mini-position statement is that LLM assistance are
+
+- LLMs know text distributions very well. Use them to generate syntax. 
+- LLMs don't understand anything. It's all bullshit and vibes. 
+
+
+```{asis}
+<blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:v6qwaqo24zfrq5fj7ceibxqk/app.bsky.feed.post/3lp42tel3lk2e" data-bluesky-cid="bafyreigsxov4rjblnirmd7samors5k6ygw63lfrenx35g5iwczrs6eawxi" data-bluesky-embed-color-mode="system"><p lang="en">re AI, a PhD student mentioned sheepishly that they used chatgpt for advice on coding up an unusual element in javascript. Almost apologized
+
+I&#x27;m like no no no you&#x27;re a psych PhD, not CS, this is exactly what LLMs are for! Doing a so-so job at things you just need done &amp; don&#x27;t care about learning!</p>&mdash; samuel mehr (<a href="https://bsky.app/profile/did:plc:v6qwaqo24zfrq5fj7ceibxqk?ref_src=embed">@mehr.nz</a>) <a href="https://bsky.app/profile/did:plc:v6qwaqo24zfrq5fj7ceibxqk/post/3lp42tel3lk2e?ref_src=embed">May 13, 2025 at 10:32 PM</a></blockquote>
+```
+
+
+## AI in this case
+
+I was benchmarking the code and trying to improve it and found that it was 
+the new parser was slower than the legacy, regular expression based system. 
+
+```{r}
+path_tg_lines <- readLines(path_tg)
+
+bench::mark(
+  legacy = readtextgrid:::legacy_read_textgrid_lines(path_tg_lines),
+  new_parser = readtextgrid:::r_read_textgrid_lines(path_tg_lines)
+)
+```
+
+I asked ChatGPT for ways to make it faster. For example, one version of the loop
+collected characters in a vector and then `paste0()`-ed them together. ChatGPT
+suggested instead because we are iterating over character indices, use
+`substring()` to extract tokens from the text. That worked, and was faster,
+until it failed a unit test on a character wearing diacritic on it. After a few
+rounds of trying to improve the loop, I asked quite bluntly: "How can we move
+the tokenize loop into Rcpp or cpp11 with the viewest [*sic*] headaches
+possible".
+
+What I liked here is how clear the translation was. In R, part of the loop is to
+peek ahead to the next character to see it `"` is an escaped quote `""` or the
+end of a string. Here is the R version:
+
+```{r}
+# ... in the character processing loop
+
+    # Start or close string mode if we see "
+    if (c_starts_string) {
+      # Check for "" escapes
+      peek_c <- all_char[i + 1]
+      if (peek_c == "\"" & in_string) {
+        in_escaped_quote <- TRUE
+      } else {
+        in_string <- !in_string
+      }
+    }
+
+# ...
+```
+
+And here is the C++ version:
+
+```{c++, eval = FALSE}
+// ... helper functions
+
+  // Is this a UTF-8 continuation byte? (10xxxxxx)
+  auto is_cont = [](unsigned char b)->bool {
+    // Are the first two bits 10?
+    return (b & 0xC0) == 0x80;
+  };
+
+// ... in the character processing loop ...
+
+    if (b == 0x22) { // '"'
+      // peek ahead to see if we have a double "" escapement
+      size_t j = i + 1;
+      // We need the next character, not just the next byte, so we skip
+      // continuation characters.
+      while (j < nbytes && is_cont(static_cast<unsigned char>(src[j]))) ++j;
+      // Use `0x00` dummy character if we are at then end of the string
+      unsigned char nextb = (j < nbytes) ? static_cast<unsigned char>(src[j]) : 0x00;
+
+      if (in_string && nextb == 0x22) {
+        esc_next = true;    // consume next '"' once
+      } else {
+        in_string = !in_string;
+      }
+    }
+
+// ...
+```
+
+There is a logical correspondence between the lines that I wrote myself in R 
+and the lines that the LLM provided for C++. Yes, the 
+C++ version works at the level of bytes instead of characters.
+
+```{r}
+"é" |> nchar(type = "chars")
+"é" |> nchar(type = "bytes")
+```
+
+But the C++ code make sense to me. It looks *plausible*, right? Still, I
+asked the LMM a ton of questions: what does `auto` do, what is `size_t`
+doing\`, and so on.
+
+This translation strikes me as an easy win for R developers right now:
+"I have my version that works right now, but I think it can go faster.
+Help me convert this to C++."
+
+***
+
+In Praat, numbers use `.` for the decimal point. It's quite un-French.
+
+
+
+
+
+
+
+
+
+
+
+
+[^abadox]: I am still immensely annoyed about a YouTube video that tried to 
+  tell me Abadox was a "controversial" NES game. Get out of here. Nobody 
+  talked about that game. Go ahead. Show me a newspaper clipping or something.
+  
+
+
+
+
+[^death]: When you don't know the value of life or death, you can encourage people to do dangerous things. 
+
+
+
+
+
+
+I asked ChatGPT for help 
+making a shopping list for a small woodworking project and it offered a cutting plan for the lumber. It messed up the math with a plan that involved cutting off 74 inches of wood from a 6-foot piece of lumber.
+
+
+So, an LLM 
+
+
+When we use an LLM, we have to ask ourselves how much we care about making sense. 
+
+
+But if you memorize a 
+million cookbooks, you'll be able to generate a lot of recipes.
+
+
+
+
+
+
+
+
+
+
+I hate getting
+a chat or an email that sounds like AI. I hate hearing a YouTube video about 
+music or videogame history that just straight up fabricates
 
 
 
