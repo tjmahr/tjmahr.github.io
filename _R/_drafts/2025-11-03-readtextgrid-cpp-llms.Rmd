@@ -32,40 +32,47 @@ data_spectrogram |>
 ```
 
 In this post, I announce the release of readtextgrid 0.2.0 and describe
-some adventures with AI-assisted coding that occurred along the way.
+some experience with AI-assisted coding that occurred along the way.
 
 ***
 
-The following image is a screenshot of the acoustic analysis program
-Praat. 
+The following image is a screenshot of a "textgrid" the acoustic analysis
+program Praat.
 
 
 {% include figure image_path="/assets/images/2025-11-library-tidyverse.png" alt="Screenshot of a Praat editor window showing the amplitude wave form, spectrogram, and textgrid annotations." caption="Figure 1. Screenshot of a Praat editor window." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
 
 
-There are three main rows in the image.
+There are three main subwindows in the image:
 
 1.  Amplitude wave form
-2.  Spectrogram, showing how the intensity at frequencies changes over
-    time
-3.  Textgrid annotations, which contain annotations for the recording.
+2.  Spectrogram, showing how the intensity (*color*) at frequencies (*y*) changes over
+    time (*x*)
+3.  Textgrid of text annotations for the recording
 
 This textgrid is the result of forced alignment, specifically by the
-Montreal Forced Aligner. I told the program I said "library tidy verse
+[Montreal Forced Aligner][mfa]. I told the program I said "library tidy verse
 library b r m s", and it looked up the pronunciations of those words and
 used an acoustic model to lay down the time intervals of each word and
 each speech sound. The aligner produced a .TextGrid file, a file format
 used by Praat to store this kind of temporal annotation.
 
+[mfa]: https://montreal-forced-aligner.readthedocs.io/en/latest/ "Montreal Forced Aligner homepage"
+
 These textgrids are the bread and butter of some of the research that we
-do. For example, our article on speaking/articulation rate in children
-involved over 30,000 single-sentence wav files and textgrid files. We
-used the alignment to determine the duration of time spent speaking, the
+do. For example, [our article][wf2] on speaking/articulation rate in children
+involved over 30,000 single-sentence .wav files and .TextGrid files. We
+used the alignments to determine the duration of time spent speaking, the
 number of vowels in each utterance and hence the speaking rate in
 syllables per second.
 
-Getting these textgrid files into R was kind of cumbersome, so I wrote and
-released readtextgrid, an R package with one simple function:
+[wf2]: https://pubs.asha.org/doi/10.1044/2021_JSLHR-21-00206 "Speech Development Between 30 and 119 Months in Typical Children II: Articulation Rate Growth Curves"
+
+Getting these textgrid files into R was cumbersome, so I wrote and
+released [readtextgrid][rtg-cran], an R package with one simple function:
+
+[rtg-cran]: https://cran.r-project.org/package=readtextgrid "readtextgrid on CRAN"
+
 ```{r}
 library(readtextgrid)
 
@@ -74,20 +81,18 @@ data_tg <- read_textgrid(path_tg)
 
 data_tg
 ```
+
+This dataframe only
+design is opionionated. There is no route from a dataframe back to a .TextGrid
+fi.e.
+
 The function returns a tidy tibble with one row per annotation. The filename is
 stored as a column name so that we can `lapply()` over a directory of files.
-Annotations are numbered so that you can `group_by(text, annotation_num)` so
-that repeated words, e.g., can be handled separately.
+Annotations are numbered so that we can `group_by(text, annotation_num)` so
+that repeated words, e.g., can be handled separately. 
 
 
-I released the first version of the package in 2021. This package,
-notably for me, contains the first hex badge I ever made.
-
-<!-- hex badge here -->
-
-<!-- I think it did a satisfactory job. I can see that the /S/ intervals have high frequency noise, that the second interval of "m" has a sudden dampening of energy (due to nasal airflow of /m/) -->
-
-With this textgrid in R, I could, say measure speaking rate:
+With this textgrid in R, I could measure speaking rate, for example:
 
 ```{r}
 data_tg |> 
@@ -107,11 +112,12 @@ Or annotate a spectrogram:
 ```{r}
 library(tidyverse)
 library(ggplot2)
-data_spectrogram <- readr::read_csv("../data/mfa/library-tidyverse-library-brms.csv")
+path_spectrogram <- "../data/mfa/library-tidyverse-library-brms.csv"
+data_spectrogram <- readr::read_csv(path_spectrogram)
 
 data_spectrogram |> 
   mutate(
-    # save more of the color variation for dbs above 15
+    # save more of the color variation for intensities above 15 dbs
     db = ifelse(db < 15, 15, db)
   ) |> 
   ggplot() + 
@@ -137,9 +143,26 @@ data_spectrogram |>
 ```
 
 
+
+
+
+
+
+
+
+
+I released the first version of the package in 2021. This package,
+notably for me, contains the first hex badge I ever made.
+
+<!-- hex badge here -->
+
+<!-- I think it did a satisfactory job. I can see that the /S/ intervals have high frequency noise, that the second interval of "m" has a sudden dampening of energy (due to nasal airflow of /m/) -->
+
+
 ## The original parser and the problem
 
-Here is what the contents of the .TextGrid file look like:
+Here is what the contents of the .TextGrid file look like. It's not the whole
+file but enought to give a sense of the structure:
 
 ```{r}
 path_tg |> 
@@ -157,8 +180,8 @@ enumerated with time values `xmin`, `xmax` and `text` values.
 
 Because nearly everything here follows a `key = value` syntax and
 because sections are split from each other very neatly with `item [n]:`
-or `interval [n]:` lines, I was able to write a simple parser using
-regular expressions: Split the file into `item [n]` sections, split
+or `interval [n]:` lines, I was able to write **a simple parser using
+regular expressions**: Split the file into `item [n]` sections, split
 those into `interval [n]` sections, and extract key-value pairs.
 
 But this easy approach came with limitations. First, the TextGrid
@@ -180,29 +203,74 @@ same order, but the annotations are gone. All of the helpful labels from
 above are actually *comments* that get ignored. Everything that isn't a 
 number or a string in double-quotes (or a `<flag>`) is a comment.
 
-The file format also supports line-level comments with `!`. For instance, as a 
-compromise between verbosity and human-readability, we could imagine writing out 
-the data in a more tabular organization, with lines of `! column names`:
+There are also other quirks (`"` escapement, `!` comments, deviations between
+the Praat description of the format and the behavior of `praat.exe`). I have
+them documented as a kind of [unofficial specification][unofficial-spec] as an article on
+the package website.
 
-```{r}
-path_tg_custom <- "../data/mfa-out/library-tidyverse-library-brms-custom.TextGrid"
-path_tg_custom |> 
-  readLines() |> 
-  head(26) |> 
-  c("[... TRUNCATED ... ]") |> 
-  writeLines()
-```
-
-And this would be a valid `.TextGrid` file. 
+[unofficial-spec]: https://www.tjmahr.com/readtextgrid/articles/textgrid-specification.html "Textgrid Specification article"
 
 But my original regular-expression based parser could only handle the verbose
-long-format textgrids. I knew this. I put this an issue in 2020. And this
+long-format textgrids. I knew this. I put this [a GitHub issue in 2020][rtg-issue-4]. And this
 compatibility oversight was never a problem for me until I tried a new phonetics
 tool that defaulted to saving the textgrids in the short format. Now
 readtextgrid could not handle the problem.
 
+[rtg-issue-4]: https://github.com/tjmahr/readtextgrid/issues/4 "ugh support textgrid grammar #4"
 
-Another person in phonetics software arena submitted a pull request to do a proper parser. One problem is that the .TextGrid format is underdocumented. This page yes does tell us what information and should be a file but it doesn't tell us explicitly what makes up a number. (For example, hexadecimal scientific notation counts but `.5` does not .)
+## The R-based tokenizer
+
+[Josef Fruehwald][jf-1], a linguist with [lots of acoustics/phonetics software][jf-2], submitted a pull request to do a proper parser that I eventually rewrote to handle various edge cases and undocumented behavior in the .TextGrid specification. I made an [adversarial .TextGrid file][hard-file] 😈 that could still be opened by `praat.exe` but was meant to be difficult to parse.
+This was a fun development loop: Make the file harder, update the parser to handle the new feature, repeat.
+
+[hard-file]: https://github.com/tjmahr/readtextgrid/blob/ed971e48ab3ea33e3efe0ba59f45ae3e41d07a32/tests/testthat/test-data/hard-to-parse.TextGrid "hard-to-parse.TextGrid on GitHub"
+[jf-1]: https://jofrhwld.github.io/ "Josef Fruehwald's homepage"
+[jf-2]: https://jofrhwld.github.io/software/ "Josef Fruehwald's software page"
+
+Because the essential data in the file data are just string tokens and number
+tokens, I needed to make a [tokenizer][wiki-lexer]: A piece of software that reads
+in characters, groups them into tokens, and figures out what kind of data the
+token represents. The initial R-based version of the tokenizer did the following: 
+
+  - Read the file character by character
+  - Gather the characters for the current token and keep them when they
+    form a valid string or number.
+  - Shift between three states (`in_string`, `in_strong_comment` (`!
+    comments`), `in_escaped_quote`). 
+
+[wiki-lexer]: https://en.wikipedia.org/wiki/Lexical_analysis "Wikipedia page on Lexical Analysis"
+
+These three states determine how we interpret spaces, newlines, and `"`
+characters. For example, a newline ends a `! comment` but a newline can appear
+in a string so it doesn't end a string. Moreover, in a comment, `"` is ignored, but in a
+string, it might be the end of the string or an escaped string (doubled
+double-quotes are `"` characters: the string`"""a"""` has the text `"a"`.
+
+The new R character-by-character-based parser worked 🎉. It had conquered
+the adversarial example file. But there was another problem. It was slower than
+the original regular-expression-based parser.
+
+```{r}
+path_tg_lines <- readLines(path_tg)
+
+bench::mark(
+  legacy = readtextgrid:::legacy_read_textgrid_lines(path_tg_lines),
+  new_r_parser = readtextgrid:::r_read_textgrid_lines(path_tg_lines)
+)
+```
+
+
+## Pivot to LLMs
+
+
+
+
+
+
+
+
+
+
 
 
 ```{asis}
@@ -215,7 +283,7 @@ Another person in phonetics software arena submitted a pull request to do a prop
 Now, let's talk about LLMs. There's a lot I could say about them. As a language
 scientist, I'll start here: They know *syntax*. They know which words go
 together and can generate very plausible sequences of words. They do not know
-*semantics*. They don't have any firsthand knowledge or experience about what
+*semantics* however. They don't have any firsthand knowledge or experience about what
 they say. They can't introspect about that knowledge or experience to see
 whether things "make sense". They [don't
 care](https://www.andrewheiss.com/ai/#text) about the truth or falsity of
@@ -290,17 +358,6 @@ I&#x27;m like no no no you&#x27;re a psych PhD, not CS, this is exactly what LLM
 
 ## AI in this case
 
-I was benchmarking the code and trying to improve it and found that it was 
-the new parser was slower than the legacy, regular expression based system. 
-
-```{r}
-path_tg_lines <- readLines(path_tg)
-
-bench::mark(
-  legacy = readtextgrid:::legacy_read_textgrid_lines(path_tg_lines),
-  new_parser = readtextgrid:::r_read_textgrid_lines(path_tg_lines)
-)
-```
 
 I asked ChatGPT for ways to make it faster. For example, one version of the loop
 collected characters in a vector and then `paste0()`-ed them together. ChatGPT
