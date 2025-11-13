@@ -2,6 +2,7 @@
 title: Draft post (2025-11-03)
 excerpt: ''
 tags: ''
+toc: true
 ---
 
 ```{r setup, include = FALSE}
@@ -33,31 +34,39 @@ data_spectrogram |>
   readr::write_csv("_R/data/mfa/library-tidyverse-library-brms.csv")
 ```
 
-In this post, I announce the release of readtextgrid 0.2.0 and describe
-some experience with AI-assisted coding that occurred along the way.
+In this post, I announce the release of
+[readtextgrid 0.2.0][rtg-cran] R package, describe the problem that
+the package solves, and share some thoughts on AI-assisted programming.
 
-***
+## Textgrids are way to annotate audio data
 
-The following image is a screenshot of a "textgrid" the acoustic analysis
-program Praat.
+[Praat](https://www.fon.hum.uva.nl/praat/) is a program for speech and 
+acoustic analysis that has been around for over 30 years. It includes a 
+scripting language for manipulating and analyzing data and for automating
+annotation workflows. Users can annotating intervals or points of time 
+in a sound file using **textgrid** object. Here is a screenshot of a
+textgrid in Praat:
+
+{% include figure image_path="/assets/images/2025-11-library-tidyverse.png" alt="Screenshot of a Praat editor window showing the amplitude wave form, spectrogram, and textgrid annotations. The audio file is of me saying *library tidyverse library brms*." caption="Screenshot of a Praat editor window." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
 
 
-{% include figure image_path="/assets/images/2025-11-library-tidyverse.png" alt="Screenshot of a Praat editor window showing the amplitude wave form, spectrogram, and textgrid annotations." caption="Screenshot of a Praat editor window." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
+There are three rows in the image, all three of them sharing the same
+*x* axis (time).
 
-
-There are three main subwindows in the image:
-
-1.  Amplitude wave form
+1.  Amplitude wave form, showing intensity over time
 2.  Spectrogram, showing how the intensity (*color*) at frequencies (*y*) changes over
-    time (*x*)
+    time (*x*). Red dots mark estimated formants (resonances) in the speech signal. 
 3.  Textgrid of text annotations for the recording
 
-This textgrid is the result of forced alignment, specifically by the
-[Montreal Forced Aligner][mfa]. I told the program I said "library tidy verse
-library b r m s", and it looked up the pronunciations of those words and
-used an acoustic model to lay down the time intervals of each word and
-each speech sound. The aligner produced a .TextGrid file, a file format
-used by Praat to store this kind of temporal annotation.
+A user can edit the textgrid by adding or adjusting boundaries and
+adding annotations, and Praat will save this data to a .TextGrid file. 
+
+Other programs can produce .TextGrid files: The textgrid pictured here
+is the result of forced alignment, specifically by the [Montreal Forced
+Aligner][mfa]. I told the program I said "library tidy verse library
+b r m s", and it looked up the pronunciations of those words and used an
+acoustic model to lay down the time intervals of each word and each
+speech sound. The aligner produced a .TextGrid file for this alignment. 
 
 [mfa]: https://montreal-forced-aligner.readthedocs.io/en/latest/ "Montreal Forced Aligner homepage"
 
@@ -70,8 +79,9 @@ syllables per second.
 
 [wf2]: https://pubs.asha.org/doi/10.1044/2021_JSLHR-21-00206 "Speech Development Between 30 and 119 Months in Typical Children II: Articulation Rate Growth Curves"
 
-Getting these textgrid files into R was cumbersome, so I wrote and
-released [readtextgrid][rtg-cran], an R package with one simple function:
+Reading these .TextGrid files into R was cumbersome, so I wrote and
+released [readtextgrid][rtg-cran], an R package built around one 
+simple function:
 
 [rtg-cran]: https://cran.r-project.org/package=readtextgrid "readtextgrid on CRAN"
 
@@ -85,17 +95,12 @@ data_tg <- read_textgrid(path_tg)
 data_tg
 ```
 
-This dataframe only
-design is opionionated. There is no route from a dataframe back to a .TextGrid
-fi.e.
-
 The function returns a tidy tibble with one row per annotation. The filename is
 stored as a column name so that we can `lapply()` over a directory of files.
-Annotations are numbered so that we can `group_by(text, annotation_num)` so
-that repeated words, e.g., can be handled separately. 
+Annotations are numbered so that we can `group_by(text, annotation_num)` and 
+have repeated words handled separately. 
 
-
-With this textgrid in R, I could measure speaking rate, for example:
+With this textgrid in R, I can measure speaking rate, for example:
 
 ```{r}
 data_tg |> 
@@ -161,13 +166,8 @@ data_spectrogram |>
   guides(fill = "none")
 ```
 
-
-
-
-
-
-
-
+This package does not have `write_textgrid()` function. I prefer to use 
+Praat's own scripting language for modifying textgrids.
 
 
 I released the first version of the package in 2021. This package,
@@ -303,7 +303,7 @@ Now, let's talk about large language models (LLMs). There's a lot I
 could say about them. As a language scientist, I'll start here: They
 know *syntax*. They know which words go together and can generate very
 plausible sequences of words. They do not know *semantics* however. They
-don't have any firsthand knowledge or experience about what these
+don't have any firsthand knowledge or experience about what those
 sequences express. They can't introspect about that knowledge or
 experience to see whether things "make sense".[^fn-reasoning] They
 [don't care][bullshit] about the truth or falsity of statements.
@@ -359,7 +359,7 @@ output.[^fn-tradition]
 
 In other cases, we don't quite care about truth or comprehension because we can
 get external corroboration. When I ask ChatGPT for an obfuscated R script to
-make Pac Man in ggplot2, I can run the code to see if it works without trying to
+make Pac-Man in ggplot2, I can run the code to see if it works without trying to
 decipher its syntax:
 
 ```{r, error=TRUE}
@@ -378,11 +378,13 @@ theme_void()
 
 [Well that sucks.](https://www.youtube.com/watch?v=NxSj2T2vx7M)
 
-When we abandon caring about truth or understanding things, and just rely on
-external corroboration, we are in the realm of [vibe coding](https://en.wikipedia.org/wiki/Vibe_coding). I like this term
-because of its insouciant honesty: *Truth? Comprehension? We're just going off
-the vibes.* It would be a great help if we used the word more liberally. A
-Youtube video called "A vibe history of NES videogames"? No thanks.[^fn-abadox]
+When we abandon caring about truth or understanding things and just rely
+on external corroboration, we are in the realm of [vibe
+coding](https://en.wikipedia.org/wiki/Vibe_coding). I like this term
+because of its insouciant honesty: *Truth? Comprehension? We're just
+going off the vibes.* It would be a great help if we used the word more
+liberally. A YouTube video called "A vibe history of NES videogames"? No
+thanks.[^fn-abadox]
 
 [^abadox]: I am still immensely annoyed about a YouTube video that tried to 
   tell me Abadox was a "controversial" NES game. Get out of here. Nobody 
@@ -397,21 +399,21 @@ extra carefully because a smooth-talking robot is trying to pull a fast
 one on me. I don't use LLMs for writing except for proofreading or
 requests for nitpicking. I have an instruction in ChatGPT that says not
 to revise anything I write unless it sneaks in Magic: The Gathering card
-names into the output. (It generally ignores that rule of mine of mine,
+names into the output. (It generally ignores that rule of mine,
 giving me joyless unsolicited edits.)
 
-So, the principles I am trying to develop in this mini-position
-statement is that LLM assistance are
+In this mini-position statement on LMM assistance, the two principles I am 
+trying to develop are:
 
 - LLMs know text distributions very well. Use them to generate starter syntax. 
 - LLMs don't understand anything. It's all bullshit and vibes. 
 
 So we need to be mindful of this limitation and skeptical of the output.
-We should audit the results and make sure we comprehend it, or admit
+We should audit the results and make sure we comprehend them, or admit
 upfront that this code is running on vibes. 
 
-Sam Mehr has a stance I also quite like. LLMs are fine for code we don't feel
-bothered to learn:
+Sam Mehr has a stance I also quite like. LLMs are fine for code we don't
+feel bothered to learn:
 
 ```{asis}
 <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:v6qwaqo24zfrq5fj7ceibxqk/app.bsky.feed.post/3lp42tel3lk2e" data-bluesky-cid="bafyreigsxov4rjblnirmd7samors5k6ygw63lfrenx35g5iwczrs6eawxi" data-bluesky-embed-color-mode="system"><p lang="en">re AI, a PhD student mentioned sheepishly that they used chatgpt for advice on coding up an unusual element in javascript. Almost apologized
@@ -427,8 +429,8 @@ bash script to unzip all .zip files in a directory. Time was, we would
 find something from Stack Overflow to adapt for that problem. Now, we
 ask ChatGPT for the code, look it over quick, test it and move on. That
 seems fine. A metacognitive awareness about what is worth 
-learning and what problems are worth solving the hard way seems very useful 
-for an LLM user. 
+learning and what problems are worth solving the hard way is very 
+useful for an LLM user. 
 
 
 ## AI in this case
