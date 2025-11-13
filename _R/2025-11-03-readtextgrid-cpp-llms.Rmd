@@ -8,19 +8,21 @@ tags: ''
 knitr::opts_chunk$set(
   echo = TRUE
 )
-if (interactive()) setwd("_R/_drafts")
+library(tidyverse)
+library(readtextgrid)
+
 ```
 
 ```{r, eval = FALSE, include = FALSE}
 # Run-once code to produce the spectrogram from the wav file
-spectrogram_out <- "../data/mfa/library-tidyverse-library-brms.Spectrogram"
+spectrogram_out <- "_R/data/mfa/library-tidyverse-library-brms.Spectrogram"
 
 f_create_spectrogram <- tjm.praat::wrap_praat_script(
   script_code_to_run = tjm.praat::create_spectrogram,
   returning = "last-argument"
 )
 
-data_spectrogram <- "../data/mfa/library-tidyverse-library-brms.wav" |> 
+data_spectrogram <- "_R/data/mfa/library-tidyverse-library-brms.wav" |> 
   f_create_spectrogram(
     spectrogram_out = spectrogram_out, 
     max_frequency = 6000
@@ -28,7 +30,7 @@ data_spectrogram <- "../data/mfa/library-tidyverse-library-brms.wav" |>
 
 data_spectrogram |> 
   tjm.praat::read_spectrogram() |> 
-  readr::write_csv("../data/mfa/library-tidyverse-library-brms.csv")
+  readr::write_csv("_R/data/mfa/library-tidyverse-library-brms.csv")
 ```
 
 In this post, I announce the release of readtextgrid 0.2.0 and describe
@@ -40,7 +42,7 @@ The following image is a screenshot of a "textgrid" the acoustic analysis
 program Praat.
 
 
-{% include figure image_path="/assets/images/2025-11-library-tidyverse.png" alt="Screenshot of a Praat editor window showing the amplitude wave form, spectrogram, and textgrid annotations." caption="Figure 1. Screenshot of a Praat editor window." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
+{% include figure image_path="/assets/images/2025-11-library-tidyverse.png" alt="Screenshot of a Praat editor window showing the amplitude wave form, spectrogram, and textgrid annotations." caption="Screenshot of a Praat editor window." %}{: style="max-width: 100%; display: block; margin: 2em auto;"}
 
 
 There are three main subwindows in the image:
@@ -74,9 +76,10 @@ released [readtextgrid][rtg-cran], an R package with one simple function:
 [rtg-cran]: https://cran.r-project.org/package=readtextgrid "readtextgrid on CRAN"
 
 ```{r}
+library(tidyverse)
 library(readtextgrid)
 
-path_tg <- "../data/mfa-out/library-tidyverse-library-brms.TextGrid" 
+path_tg <- "_R/data/mfa-out/library-tidyverse-library-brms.TextGrid" 
 data_tg <- read_textgrid(path_tg)
 
 data_tg
@@ -112,7 +115,7 @@ Or annotate a spectrogram:
 ```{r}
 library(tidyverse)
 library(ggplot2)
-path_spectrogram <- "../data/mfa/library-tidyverse-library-brms.csv"
+path_spectrogram <- "_R/data/mfa/library-tidyverse-library-brms.csv"
 data_spectrogram <- readr::read_csv(path_spectrogram)
 
 data_spectrogram |> 
@@ -140,6 +143,22 @@ data_spectrogram |>
   theme_minimal() +
   scale_fill_gradient(low = "white", high = "black") +
   labs(x = "time [s]", y = "frequency [Hz]", fill = "dB SPL")
+```
+
+```{r, eval = FALSE}
+data_spectrogram |> 
+  mutate(
+    # save more of the color variation for intensities above 15 dbs
+    db = ifelse(db < 15, 15, db)
+  ) |> 
+  ggplot() +
+  aes(x = time, y = frequency) +
+  geom_raster(aes(fill = db)) +
+  ylim(c(NA, 6600)) +
+  theme_minimal() +
+  scale_fill_viridis_c(option = "C") + 
+  theme_void() +
+  guides(fill = "none")
 ```
 
 
@@ -190,7 +209,7 @@ much less verbose "short" format textgrids. The file in our case would
 just be a stream of time and text annotations:
 
 ```{r}
-path_tg_short <- "../data/mfa-out/library-tidyverse-library-brms-short.TextGrid"
+path_tg_short <- "_R/data/mfa-out/library-tidyverse-library-brms-short.TextGrid"
 path_tg_short |> 
   readLines() |> 
   head(26) |> 
@@ -251,11 +270,11 @@ the adversarial example file. But there was another problem. It was slower than
 the original regular-expression-based parser.
 
 ```{r}
-path_tg_lines <- readLines(path_tg)
+tg_lines <- readLines(path_tg)
 
 bench::mark(
-  legacy = readtextgrid:::legacy_read_textgrid_lines(path_tg_lines),
-  new_r_parser = readtextgrid:::r_read_textgrid_lines(path_tg_lines)
+  legacy = readtextgrid:::legacy_read_textgrid_lines(tg_lines),
+  new_r = readtextgrid:::r_read_textgrid_lines(tg_lines)
 )
 ```
 
@@ -280,28 +299,43 @@ bench::mark(
 
 
 
-Now, let's talk about LLMs. There's a lot I could say about them. As a language
-scientist, I'll start here: They know *syntax*. They know which words go
-together and can generate very plausible sequences of words. They do not know
-*semantics* however. They don't have any firsthand knowledge or experience about what
-they say. They can't introspect about that knowledge or experience to see
-whether things "make sense". They [don't
-care](https://www.andrewheiss.com/ai/#text) about the truth or falsity of
-statements. They just make plausible sequences of words. 
+Now, let's talk about large language models (LLMs). There's a lot I
+could say about them. As a language scientist, I'll start here: They
+know *syntax*. They know which words go together and can generate very
+plausible sequences of words. They do not know *semantics* however. They
+don't have any firsthand knowledge or experience about what these
+sequences express. They can't introspect about that knowledge or
+experience to see whether things "make sense".[^fn-reasoning] They
+[don't care][bullshit] about the truth or falsity of statements.
+They just make plausible sequences of words.
+
+[bullshit]: https://www.andrewheiss.com/ai/#text "Andrew Heiss's AI positiion statement"
+
+[^fn-reasoning]: There is something introspective about 
+    [reasoning models][llm-reasoning] which will break a prompt into steps and 
+    work through them. But still, I'm thinking about what the ground truth in 
+    this reasoning. The statistical regularities of word patterns?
+
+[llm-reasoning]: https://magazine.sebastianraschka.com/p/understanding-reasoning-llms "Understanding Reasoning LLMs"
 
 Now, it turns out that if you learn how to make sequences of words from an
 Internet-sized corpus of text, then a lot of the plausible sequences you make
 will turn out to be true. If you read 10,000 cookbooks, you could probably
 provide a very classic recipe for scrambled eggs. But because you don't know
 about sarcasm or can't draw on your own experience of trying to not ingest
-chemicals, you might suggest putting glue on a pizza. {}
+non-food chemicals, you might suggest putting [glue on a pizza][bbc-glue].
 
-So, as we use an LLM, we need to ask ourselves how much we care about the truth
-or care about knowing or understanding things. That may sound like a glib or
-weird statement: Shouldn't we always care about the truth? Well, sometimes we
-don't. We just want some syntax; we want boilerplate to fill out. For example, I ask "write some unit
-tests for a function `round_to(xs, unit)` that rounds a vector of values to an
-arbitrary unit" and receive:
+[bbc-glue]: https://www.bbc.com/news/articles/cd11gzejgz4o "Glue pizza and eat rocks: Google AI search errors go viral"
+
+So, as we use an LLM, we need to ask ourselves how much we care about
+the truth or care about knowing or understanding things. That may sound
+like a glib or weird statement: Shouldn't we always care about the
+truth? Well, sometimes we don't. We just want some syntax; we want
+[boilerplate or templates][usethis] to fill out. For example, I ask
+an LLM to "write some unit tests for a function `round_to(xs, unit)`
+that rounds a vector of values to an arbitrary unit" and receive:
+
+[usethis]: https://usethis.r-lib.org/ "usethis R package"
 
 ```{r, eval = FALSE}
 test_that("round_to() rounds to nearest multiple of unit", {
@@ -313,7 +347,15 @@ test_that("round_to() rounds to nearest multiple of unit", {
 ```
 
 These tests are not useful *until* I plug in the correct values for the expected 
-output.
+output.[^fn-tradition]
+
+[^fn-tradition]: I think there is a great "tradition"---not sure of the right 
+    word here---in learning programming and other tools where we start from a
+    starter template or maybe small sample project and we experimentally
+    tweak the code and iterate until it turns into the thing we want. It's
+    like [scaffolding](https://en.wikipedia.org/wiki/Lev_Vygotsky#Scaffolding)
+    but at a literal level: Code that sets a foundation for self-directed
+    learning.
 
 In other cases, we don't quite care about truth or comprehension because we can
 get external corroboration. When I ask ChatGPT for an obfuscated R script to
@@ -337,17 +379,39 @@ theme_void()
 [Well that sucks.](https://www.youtube.com/watch?v=NxSj2T2vx7M)
 
 When we abandon caring about truth or understanding things, and just rely on
-external corroboration, we are in the realm of "vibe" coding. I like this term
+external corroboration, we are in the realm of [vibe coding](https://en.wikipedia.org/wiki/Vibe_coding). I like this term
 because of its insouciant honesty: *Truth? Comprehension? We're just going off
 the vibes.* It would be a great help if we used the word more liberally. A
-Youtube video called "A vibe history of NES videogames"? No thanks.
+Youtube video called "A vibe history of NES videogames"? No thanks.[^fn-abadox]
 
+[^abadox]: I am still immensely annoyed about a YouTube video that tried to 
+  tell me Abadox was a "controversial" NES game. Get out of here. Nobody 
+  talked about that game. Show me a newspaper clipping or something.
 
-The two principles I am trying to develop in this mini-position statement is that LLM assistance are
+To be clear---I can't believe I need to make this disclaimer---we should
+always care about truth and accuracy when we write prose and publish it
+and put our name on it. Vibes are not scientific or scholarly. When I
+see emails or code documentation with immaculate formatting and perfect
+language, my bullshit sensor goes off and I worry that I need to read
+extra carefully because a smooth-talking robot is trying to pull a fast
+one on me. I don't use LLMs for writing except for proofreading or
+requests for nitpicking. I have an instruction in ChatGPT that says not
+to revise anything I write unless it sneaks in Magic: The Gathering card
+names into the output. (It generally ignores that rule of mine of mine,
+giving me joyless unsolicited edits.)
 
-- LLMs know text distributions very well. Use them to generate syntax. 
+So, the principles I am trying to develop in this mini-position
+statement is that LLM assistance are
+
+- LLMs know text distributions very well. Use them to generate starter syntax. 
 - LLMs don't understand anything. It's all bullshit and vibes. 
 
+So we need to be mindful of this limitation and skeptical of the output.
+We should audit the results and make sure we comprehend it, or admit
+upfront that this code is running on vibes. 
+
+Sam Mehr has a stance I also quite like. LLMs are fine for code we don't feel
+bothered to learn:
 
 ```{asis}
 <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:v6qwaqo24zfrq5fj7ceibxqk/app.bsky.feed.post/3lp42tel3lk2e" data-bluesky-cid="bafyreigsxov4rjblnirmd7samors5k6ygw63lfrenx35g5iwczrs6eawxi" data-bluesky-embed-color-mode="system"><p lang="en">re AI, a PhD student mentioned sheepishly that they used chatgpt for advice on coding up an unusual element in javascript. Almost apologized
@@ -355,22 +419,44 @@ The two principles I am trying to develop in this mini-position statement is tha
 I&#x27;m like no no no you&#x27;re a psych PhD, not CS, this is exactly what LLMs are for! Doing a so-so job at things you just need done &amp; don&#x27;t care about learning!</p>&mdash; samuel mehr (<a href="https://bsky.app/profile/did:plc:v6qwaqo24zfrq5fj7ceibxqk?ref_src=embed">@mehr.nz</a>) <a href="https://bsky.app/profile/did:plc:v6qwaqo24zfrq5fj7ceibxqk/post/3lp42tel3lk2e?ref_src=embed">May 13, 2025 at 10:32 PM</a></blockquote>
 ```
 
+I quite like programming and want to learn. I like to read the release
+notes, dig into the documentation and
+[experiment](https://bsky.app/profile/tjmahr.com/post/3m5hjc3ct6s26)
+with new modeling features. At the same time, sometimes I just want a
+bash script to unzip all .zip files in a directory. Time was, we would
+find something from Stack Overflow to adapt for that problem. Now, we
+ask ChatGPT for the code, look it over quick, test it and move on. That
+seems fine. A metacognitive awareness about what is worth 
+learning and what problems are worth solving the hard way seems very useful 
+for an LLM user. 
+
 
 ## AI in this case
 
+Because the old parser was outperforming the newer more robust parser, I
+asked ChatGPT for ways to make my textgrid parsing faster. For example,
+one version of the loop collected characters in a vector and then
+`paste0()`-ed them together. ChatGPT suggested that because we are
+iterating over character indices we instead use  
+`substring()` to extract tokens from the text. That worked, and it ran
+faster, until it failed a unit test on a character wearing diacritic on
+it. After a few rounds of trying to improve the loop, I asked quite
+bluntly: "How can we move the tokenize loop into Rcpp or cpp11 with the
+viewest [*sic*] headaches possible".
 
-I asked ChatGPT for ways to make it faster. For example, one version of the loop
-collected characters in a vector and then `paste0()`-ed them together. ChatGPT
-suggested instead because we are iterating over character indices, use
-`substring()` to extract tokens from the text. That worked, and was faster,
-until it failed a unit test on a character wearing diacritic on it. After a few
-rounds of trying to improve the loop, I asked quite bluntly: "How can we move
-the tokenize loop into Rcpp or cpp11 with the viewest [*sic*] headaches
-possible".
+And it provided some very legible cpp11 code. I had never used C++ with
+R before. To get started, I had to call on
+[usethis::use\_cpp11()](https://usethis.r-lib.org/reference/use_cpp11.html)
+to make the necessary boilerplate, and I had to troubleshoot the first
+couple versions of the function because of errors. The [cpp11
+documentation](https://cpp11.r-lib.org/articles/cpp11.html) is small in
+a good way. It has examples of converting R code into C++ equivalents,
+which is precisely the activity that I was up to.
 
-What I liked here is how clear the translation was. In R, part of the loop is to
-peek ahead to the next character to see it `"` is an escaped quote `""` or the
-end of a string. Here is the R version:
+What I liked about the ChatGPT output is how clear the translation was.
+In the R version, part of the character processing loop is to peek ahead
+to the next character to see whether `"` is an escaped quote `""` or the
+end of a string:
 
 ```{r}
 # ... in the character processing loop
@@ -389,10 +475,10 @@ end of a string. Here is the R version:
 # ...
 ```
 
-And here is the C++ version:
+And here is the C++ version of the peek ahead code:
 
 ```{c++, eval = FALSE}
-// ... helper functions
+// ... helper functions ...
 
   // Is this a UTF-8 continuation byte? (10xxxxxx)
   auto is_cont = [](unsigned char b)->bool {
@@ -423,7 +509,7 @@ And here is the C++ version:
 
 There is a logical correspondence between the lines that I wrote myself in R 
 and the lines that the LLM provided for C++. Yes, the 
-C++ version works at the level of bytes instead of characters.
+C++ version works at the level of bytes instead of characters:
 
 ```{r}
 "é" |> nchar(type = "chars")
@@ -431,16 +517,111 @@ C++ version works at the level of bytes instead of characters.
 ```
 
 But the C++ code make sense to me. It looks *plausible*, right? Still, I
-asked the LMM a ton of questions: what does `auto` do, what is `size_t`
-doing\`, and so on.
+asked the LMM a lot of follow-up questions: what does `auto` do, what is `size_t`
+doing, and so on. And I annotated the C++ code with comments for my
+own understanding.
+
+During my auditing, I went down a particular rabbithole to make sure I
+understood how Unicode bytes get packed into UTF-8 sequences. I learned
+how the character `é` for example has the codepoint (number) `U+00E9` in
+Unicode, so it falls in the range of codepoints that need to be split
+into two bytes. The [scheme for two-byte encoding][unicode-table] is 
+
+[unicode-table]: https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-3/#G27288 "Table 3-6. UTF-8 Bit Distribution"
+
+```
+character number               ->               character encoding
+codepoint -> 00000yyy yyxxxxxx -> 110yyyyy 10xxxxxx -> UTF-8 bytes
+00E9      -> 00000000 11101001 -> 11000011 10101001 -> c3 a9
+```
+
+Which we can check by hand:
+
+```{r}
+bitchar_to_raw <- function(xs) {
+  xs |> 
+    strsplit("") |> 
+    lapply(function(x) as.integer(x) |> rev() |> packBits()) |> 
+    unlist()
+}
+
+bitchar_to_raw(c("11000011", "10101001"))
+charToRaw("é")
+```
+
+In the UTF-8 scheme, bytes that start with `10` are only the second,
+third and fourth bytes in a character's encoding---that is, only the
+continuation bytes. Now, at this point, we can comprehend *why* the C++
+is checking for continuation characters and why the check for
+continuation characters involves checking the first two bits.
+
+This new C++ based tokenizer yielded a *massive* performance gain:
+
+```{r}
+bench::mark(
+  legacy = readtextgrid:::legacy_read_textgrid_lines(tg_lines),
+  new_r = readtextgrid:::r_read_textgrid_lines(tg_lines),
+  new_cpp = readtextgrid::read_textgrid_lines(tg_lines)
+)
+```
+
+That's an improvement of 10--15x! Now, I find myself wondering: What else
+could use a cpp11 speed boost?
+
+One downside of converting adopting cpp11 is that the package needs to compile 
+code. As a result, I can't just tell people to try the developer version of 
+the package with `remotes::install_github()`. CRAN compiles packages for users
+so end users don't face this issue when installing the official released 
+version of packages on CRAN.
+
+One workaround I adopted here relying on [R
+Universe](https://ropensci.org/r-universe/) which will provide compiled
+versions of packages hosted on GitHub. Then we change the installation
+instructions to:
+
+```{r, eval = FALSE}
+install.packages(
+  "readtextgrid", 
+  repos = c("https://tjmahr.r-universe.dev", "https://cloud.r-project.org")
+)
+```
+
+You might have seen this pattern elsewhere.
+[cmdstanr](https://mc-stan.org/cmdstanr/) skips CRAN entirely and only
+uses the R Universe.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- There were a couple of annoying moments along the way. I needed a way to convert -->
+<!-- the character tokens representing numbers into actual numeric values in -->
+<!-- R. ChatGPT suggested that I use R's own number conversion low-level -->
+<!-- function `R_strtod()`. (I had never considered that by stepping into the -->
+<!-- C++ level, R's own low-level functions are available to me and that -->
+<!-- seemed very attractive.) Ultimately, that function was too strict  -->
+<!-- compared to the behavior of Praat, if I recall correctly,  -->
+
+<!-- But ChatGPT told me that the function "Uses R’s -->
+<!-- numeric parser (respects current R locale and NA handling)." Which would -->
+<!-- be a problem because the textgrid format only respects the "C" locale for  -->
+<!-- numbers. I ended up using  -->
+
 
 This translation strikes me as an easy win for R developers right now:
 "I have my version that works right now, but I think it can go faster.
 Help me convert this to C++."
 
-***
-
-In Praat, numbers use `.` for the decimal point. It's quite un-French.
 
 
 
@@ -449,14 +630,6 @@ In Praat, numbers use `.` for the decimal point. It's quite un-French.
 
 
 
-
-
-
-
-[^abadox]: I am still immensely annoyed about a YouTube video that tried to 
-  tell me Abadox was a "controversial" NES game. Get out of here. Nobody 
-  talked about that game. Go ahead. Show me a newspaper clipping or something.
-  
 
 
 
@@ -468,31 +641,10 @@ In Praat, numbers use `.` for the decimal point. It's quite un-French.
 
 
 
-I asked ChatGPT for help 
-making a shopping list for a small woodworking project and it offered a cutting plan for the lumber. It messed up the math with a plan that involved cutting off 74 inches of wood from a 6-foot piece of lumber.
-
-
-So, an LLM 
-
-
-When we use an LLM, we have to ask ourselves how much we care about making sense. 
-
-
-But if you memorize a 
-million cookbooks, you'll be able to generate a lot of recipes.
-
-
-
-
-
-
-
-
-
-
-I hate getting
-a chat or an email that sounds like AI. I hate hearing a YouTube video about 
-music or videogame history that just straight up fabricates
+I asked ChatGPT for help making a shopping list for a small woodworking
+project and it offered a cutting plan for the lumber. Sure, why not? It
+messed up the math with a plan that involved cutting off 74 inches of
+wood from a 6-foot piece of lumber.
 
 
 
