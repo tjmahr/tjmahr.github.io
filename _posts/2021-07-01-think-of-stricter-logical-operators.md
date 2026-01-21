@@ -95,16 +95,12 @@ ttff || tftf
 
 {% capture notice-text %}
 **Update: R is stricter now about some behaviors I had documented in
-this post**. R 4.2.0 was released after this post was written. Two
-[changes in that
-version](https://cran.rstudio.com/bin/windows/base/NEWS.R-4.2.0.html)
-change the behavior in this post. Here are the bullet points from the
-release notes:
+this post**. Here are the bullet points:
 
   - Calling `&&` or `||` with either argument of length greater than one
-    now gives a warning (which it is intended will become an error).
+    now gives a warning in [R 4.2.0](https://cran.r-project.org/bin/windows/base/old/4.2.0/NEWS.R-4.2.0.html) and an error from [R 4.3.0](https://cran.r-project.org/bin/windows/base/old/4.3.0/NEWS.R-4.3.0.html) onwards.
 
-  - Calling `if()` or `while()` with a condition of length greater than
+  - Starting from R 4.2.0 onwards, calling `if()` or `while()` with a condition of length greater than
     one gives an error rather than a warning. Consequently, environment variable `_R_CHECK_LENGTH_1_CONDITION_` no longer has any effect. 
 
 These are good changes. They make it harder to do the wrong thing. But
