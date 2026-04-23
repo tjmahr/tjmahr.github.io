@@ -8,7 +8,11 @@ layout:
     <description>{{ site.description | xml_escape }}</description>
     <link>{{ site.url }}</link>
     <atom:link href="{{ site.url }}/{{ page.path }}" rel="self" type="application/rss+xml" />
-    {% for post in site.tags.r limit:10 %}
+    {% assign r_posts = site.posts
+      | where_exp: "post", "post.tags contains 'r'"
+      | sort: "date"
+      | reverse %}
+    {% for post in r_posts limit:10 %}
       <item>
         <title>{{ post.title | xml_escape }}</title>
         <description>{{ post.content | xml_escape }}</description>
