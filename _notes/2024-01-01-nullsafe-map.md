@@ -1,0 +1,46 @@
+---
+title: "A null-safe map() function"
+date: 2024-01-01
+tags: [r, functional programming]
+---
+
+I got sick of writing null-guard clauses like:
+
+
+``` r
+my_cool_function <- function(data, ...) {
+  if (is.null(data)) { 
+    return(NULL)
+  }
+  
+  #  rest of the function
+  nrow(data)
+}
+```
+
+So why can't I just make that a higher order function:
+
+
+``` r
+nullsafe_map <- function(x, f, ...) {
+  if (is.null(x)) NULL else f(x, ...)
+}
+
+mtcars |> 
+  nullsafe_map(my_cool_function) |> 
+  nullsafe_map(log)
+#> [1] 3.465736
+
+NULL |> 
+  nullsafe_map(my_cool_function) |> 
+  nullsafe_map(log)
+#> NULL
+```
+
+It feels like I reinvented something vaguely monad-y here, and [I posted
+the
+question](https://staging.bsky.app/profile/tjmahr.com/post/3kiq3hhlvis2m):
+"What have I reinvented here?" Tan suggested "`purrr::map_if()` with `.p
+= Negate(is.null)`?" which is cool because I had forgotten about
+`purrr::map_if()`.
+

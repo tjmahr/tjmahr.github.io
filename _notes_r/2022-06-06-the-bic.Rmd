@@ -1,0 +1,24 @@
+---
+title: "The BIC"
+date: 2022-06-06
+tags: [statistics, model-comparison, bic, aic]
+---
+
+I was wondering about the so-called Bayesian information criterion (BIC)
+today. What's the deal with it? Both the AIC and BIC have the form:
+
+$$\text{penalty}\times k\ \text{parameters} - 2\times \text{model log-likelihood}$$
+
+For the AIC, the penalty is 2, and for the BIC, the penalty is $\ln(n\
+\text{observations})$. If we note that `ln(20)` = 2.996 (the penalty
+for 20 observations), then the BIC penalty is always larger than the AIC
+penalty in practice.
+
+[See](https://www.jstor.org/stable/43495189) Aho, Derryberry, & Peterson
+(2014): The AIC prioritizes out-of-sample prediction (asymptotic
+efficiency). BIC is an approximation of a Bayesian hypothesis test (so,
+asymptotic consistency). They note that the BIC is ideal when "(1) only
+a few potential hypotheses are considered and (2) one of the hypotheses
+is (essentially) correct," and the AIC worldview is for when there are
+"(1) numerous hypotheses and (2) the conviction that all of them are to
+differing degrees wrong."

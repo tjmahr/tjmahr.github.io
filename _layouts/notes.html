@@ -1,0 +1,21 @@
+---
+layout: archive
+author_profile: true
+---
+
+{{ content }}
+
+{% assign notes = site.notes | sort: "date" | reverse %}
+
+{% capture written_year %}'None'{% endcapture %}
+{% for note in notes %}
+  {% capture year %}{{ note.date | date: '%Y' }}{% endcapture %}
+  {% if year != written_year %}
+    <h2 id="{{ year | slugify }}" class="archive__subtitle">{{ year }}</h2>
+    {% capture written_year %}{{ year }}{% endcapture %}
+  {% endif %}
+  <p>
+    <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
+    <small>{{ note.excerpt | strip_html | truncatewords: 15 }}</small>
+  </p>
+{% endfor %}

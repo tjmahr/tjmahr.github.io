@@ -212,7 +212,7 @@ exclude:
   - tjmahr.github.io.Rproj
   - .Rproj.user
   - "_R/*"
-  - "_targets/*"
+  - _targets/
   - notes.md
   - minimal-mistakes-jekyll.gemspec
   - serve.sh
@@ -329,6 +329,10 @@ tag_archive:
 #     tag: /tags/:name/
 #     category: /categories/:name/
 
+collections:
+  notes:
+    output: true
+    permalink: /notes/:name/
 
 # Defaults
 defaults:
@@ -339,6 +343,17 @@ defaults:
     values:
       layout: single
       author_profile: true
+      read_time: false
+      comments: true
+      share: false
+      related: false
+  # _notes
+  - scope:
+      path: ""
+      type: notes
+    values:
+      layout: single
+      author_profile: false
       read_time: false
       comments: true
       share: false

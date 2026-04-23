@@ -1,0 +1,41 @@
+---
+title: "Three meanings of weights in statistics"
+date: 2025-07-01
+tags: [statistics, weights, modeling]
+---
+
+
+There are three different meanings of "weights" in statistics
+[explains Thomas Lumley][tl-weights]: Precision/analytic weights,
+frequency weights, and sampling/probability/design/gross-up weights. The
+second type is a count for a response (like how we can condense 50 coin
+flips into a single binomial response), and the third type is
+reweighting to get a sample to match a larger population. The first type
+is the one we used in weighted empirical logit back in the day where we
+had to encode information about the precision of the observation. `x` and 
+`y` would be the counts of successes and failures:
+
+```{r, eval = FALSE}
+littlelisteners::empirical_logit
+#> function (x, y) 
+#> {
+#>     log((x + 0.5)/(y + 0.5))
+#> }
+#> <bytecode: 0x0000017342e30650>
+#> <environment: namespace:littlelisteners>
+
+littlelisteners::empirical_logit_weight
+#> function (x, y) {
+#>     var1 <- 1/(x + 0.5)
+#>     var2 <- 1/(y + 0.5)
+#>     var1 + var2
+#> }
+#> <bytecode: 0x0000017342e32ee8>
+```
+
+(In retrospect, I should have returned `1 / (var1 + var2)` from this
+function. I think the motivation at the time was that the `lmer()` code
+examples floating around used `weights = 1 / wt` so this function would not 
+have broken anything.)
+
+[tl-weights]: https://notstatschat.rbind.io/2020/08/04/weights-in-statistics/ "Weights in statistics"

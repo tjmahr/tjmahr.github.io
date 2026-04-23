@@ -1,0 +1,56 @@
+---
+title: "Selecting models from lists and running anova()"
+date: 2025-07-01
+tags: [r, programming, tidyselect, modeling]
+---
+
+I was making a notebook with a list of related models, like
+
+```{r}
+m <- list(
+  mpg_wt = lm(mpg ~ wt, mtcars),
+  mpg_disp = lm(mpg ~ disp, mtcars),
+  mpg_disp_wt = lm(mpg ~ disp + wt, mtcars),
+  mpg_disp_wt_int = lm(mpg ~ disp * wt, mtcars),
+  hp_wt = lm(hp ~ wt, mtcars),
+  hp_disp = lm(hp ~ disp, mtcars),
+  hp_disp_wt = lm(hp ~ disp + wt, mtcars),
+  hp_disp_wt_int = lm(hp ~ disp * wt, mtcars)
+)
+```
+
+I want to select a subset of models and `anova()` them, so I made a quick
+tidyselect function and an S3 method method of lists with `anova()`:
+
+```{r}
+library(tidyverse)
+
+list_select <- function(l, ...) {
+  pos <- tidyselect::eval_select(c(...), l)
+  rlang::set_names(l[pos], names(pos))
+}
+
+anova.list <- function(object) {
+  do.call(anova, unname(object))
+}
+
+m |> 
+  list_select(starts_with("mpg")) |> 
+  list_select(matches("disp")) |> 
+  anova()
+
+anova(m$mpg_disp, m$mpg_disp_wt, m$mpg_disp_wt_int)
+```
+
+`list_select()` is extremely basic. It's based on the examples in the
+`tidyselect::eval_select()` documentation. 
+
+For `list_select()`, the closest option available from purrr (the
+tidyverse package for working on lists) is `purrr::keep_at()`:
+
+```{r}
+m |> 
+  purrr::keep_at(function(x) startsWith(x, "mpg")) |> 
+  str(max.level = 1)
+```
+

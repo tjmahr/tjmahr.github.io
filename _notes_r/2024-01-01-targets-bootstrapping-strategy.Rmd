@@ -1,0 +1,100 @@
+---
+title: "Making targets handle large bootstrap workflows"
+date: 2024-01-01
+tags: [r, targets, pipelines, bootstrapping]
+---
+
+Here is a summary of how I got targets to handle a bunch of bootstrapping:
+
+  - transient memory
+  - not letting errors on one branch stop the whole pipeline
+  - `tarchetypes::tar_group_by()`
+  - `format = "fst_tbl"` or `format = "qs"`
+  - `tar_read(..., 1)`
+
+My bootstraps would instantly fill up my computer's memory during a
+build. So now I dump stuff out of memory with `"transient"`. (You can do
+this on a by-target level too.) I also keep running the build if one
+target/branch fails:
+
+```{r, eval = FALSE}
+tar_option_set(
+  error = "null",
+  memory = "transient"
+)
+```
+
+I also split a single target into smaller ones. I declare a global
+partition value like
+
+```{r}
+N_PARTITIONS <- 80
+```
+
+Then I used `tarchetypes::tar_group_by()` to tell targets to split a
+giant dataframe into groups that can be dynamically branched over. Here
+is some actual code in the `_targets.R` file. The first targets
+defines 2000 bootstrap replicates to be split into 80
+partitions/branches and the second fits the models on each
+partition/branch.
+
+```{r, eval = FALSE}
+  tar_group_by(
+    straps,
+    data_iwpm |>
+      filter(!is.na(mean_wpm)) |>
+      prepare_bootstrap_data() |>
+      bootstrap_by_slpg(
+        times = n_boot,
+        col_child_id = subject_id,
+        seed = 20220621
+      ) |>
+      mutate(partition = assign_partition_numbers(id, N_PARTITIONS)),
+    partition
+  ),
+  tar_target(
+    models_intelligibility,
+    fit_bootstrap_models(straps, "mean_intel", "intelligibility", 3, 2),
+    pattern = map(straps),
+    format = "qs"
+  ),
+# btw the targets here themselves are built serially bc fit_bootstrap_models()
+# and friends use furrr to fit the models in each branch in parallel
+```
+
+But to be honest, as I'm looking at this code, I'm realizing that this
+"making a giant thing and split into branches" could have been built as "make
+a small table of branch IDs and grow them within each branch". One analogy
+would be to read in a dozen files at once and split up the work so each
+file is processed separately versus take a dozen filenames and handle
+from each filename separately.
+
+I have to use `tarchetypes::tar_group_by()` instead of
+`tarchetypes::tar_group_count()` because I have multiple datasets that I
+am bootstrapping and they need to be kept together within a branch.
+Like, to split the following into two branches, I would want
+`bootstrap_number` 1 and 2 in one branch and 3 in a separate branch so
+that I can compare `a`, `b` and `c` within each bootstrap.
+
+```
+data_set,bootstrap_number
+a,1
+b,1
+c,1
+a,2
+b,2
+c,2
+a,3
+b,3
+c,3
+```
+
+For serializing the data, I used `format = "qs"` on models or lists of
+models and `format = "fst_tbl"` on plain, inoffensive data tables.
+
+I also started using `targets::tar_read(blah, n)` where `n` is some
+selection of branches like `1` or `c(1, 2, 4)`, to read a subset of the
+overall data. This speeds up interactive development by giving me a
+smaller subset of data to write code around without having to load
+gigantic objects into R. 
+

@@ -1,0 +1,85 @@
+---
+title: "Model condition number and kappa()"
+date: 2025-07-01
+tags: [r, regression, diagnostics, linear-algebra]
+---
+
+
+A colleague got the following warning when fitting a regression model in Python:
+
+> The condition number is large, 3.11e+03. This might indicate that
+> there are strong multicollinearity or other numerical problems.
+
+We can compute this [condition
+number](https://en.wikipedia.org/wiki/Condition_number) in R via
+`kappa()`
+
+```{r}
+m_mpg_disp_wt_int <- lm(mpg ~ disp * wt, mtcars)
+kappa(m_mpg_disp_wt_int, exact = TRUE)
+```
+
+This kappa score indicates *something* about sensitivity or stability in
+the model. "The condition number bounds how much the solution *z* of a
+system of equations *Az*=*c* can change, on a relative basis, when its
+components *A* and *c* are changed," says [whuber on
+CV](https://stats.stackexchange.com/a/168276/14825).
+
+R computes its default kappa from the ratio of the first and last
+singular values of the upper triangle of the model's QR matrix. (I read
+the [source
+code](https://github.com/wch/r-source/blob/637e502dbc868d39f0813a6a2a5ef0469fe8e73e/src/library/base/R/kappa.R#L97-L121).)
+
+```{r}
+zero_out_lower_tri <- function(m) { m[lower.tri(m)] <- 0; m }
+d <- m_mpg_disp_wt_int$qr$qr |> 
+  # there are 4 columns, so we are making a square
+  _[1:4, 1:4] |>
+  zero_out_lower_tri() |> 
+  svd() |> 
+  _$d
+
+d[1] / d[length(d)]
+```
+
+There is a lot of mathematical indirection here but the intuition I'm
+hanging onto is that if the [SVD is warping a "circle" into an
+"ellipse"](https://en.wikipedia.org/wiki/Singular_value_decomposition#Intuitive_interpretations),
+the ratio in kappa is the ratio of longest and shortest axes in that
+ellipse.
+
+
+We can reduce this condition number by (roughly) centering our predictors:
+
+```{r}
+mean(mtcars$disp)
+mtcars$disp_230 <- mtcars$disp - 230 
+
+mean(mtcars$wt)
+mtcars$wt_3 <- mtcars$wt - 3 
+
+m_mpg_disp_wt_int <- lm(mpg ~ disp_230 * wt_3, mtcars)
+kappa(m_mpg_disp_wt_int, exact = TRUE)
+```
+
+For simple non-lmem models, I prefer kind of rough centering to nice round numbers so that the
+intercept can be easily described, and the centering constants can be
+remembered. When more exact centering is needed, I do full on
+*z*-scores instead:
+
+```{r}
+mtcars$z_disp <- mtcars$disp |> scale() |> as.vector()
+mtcars$z_wt <- mtcars$wt |> scale() |> as.vector()
+
+m_mpg_disp_wt_int <- lm(mpg ~ z_disp * z_wt, mtcars)
+kappa(m_mpg_disp_wt_int, exact = TRUE)
+```
+
+As we can see, this transformation made a tremendous improvement in
+condition number.
+
+*Why doesn't R raise a warning?* There are probably lots of good reasons
+to not warn by default, because we are dealing with a diagnostic score
+and rules of thumb for interpreting it. That said, I was not able to
+find a clear answer from an R (or S) author about why R doesn't warn
+about the condition number or multicollinearity.

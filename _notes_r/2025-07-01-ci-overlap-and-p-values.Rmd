@@ -1,0 +1,152 @@
+---
+title: "Confidence interval overlap and p-values"
+date: 2025-07-01
+tags: [r, statistics, inference, visualization, simulation]
+---
+
+Two 95% confidence intervals can overlap and still have a statistically
+significant difference at *p* = .05. I want to refresh my memory on what
+*p*-values are implied by different degrees of overlap and simulate the
+rules of thumb myself.
+
+Cumming ([2008](https://doi.org/10.1002/sim.3471)) provides a summary of
+some visual rules of thumb. (This is the same author of 2014 [The New
+Statistics](https://doi.org/10.1177/0956797613504966) manifesto.) Here
+are the main points I wanted to recall:
+
+  - Two 95% intervals can overlap by a small amount at *p* = .01.
+  - Two 83.5% intervals will just touch at *p* = .05.
+  - Two 95% intervals can overlap up to half the length of an interval
+    whisker at *p* = .05.
+
+We simulate data sets that yield a target *p*-value.
+
+```{r}
+simulate_group_data_for_given_p_value <- function(
+    p_target, 
+    n_a = 40, 
+    n_b = NULL, 
+    sd_a = 1, 
+    sd_b = NULL, 
+    seed = NULL
+) {
+  if (!is.null(seed)) withr::local_seed(seed)
+  n_b <- n_b %||% n_a
+  sd_b <- sd_b %||% sd_a
+  data_a <- rnorm(n_a, 0, sd_a)
+  data_b <- rnorm(n_b, 0, sd_b)
+  
+  get_p_val <- function(diff) t.test(data_a, data_b + diff)[["p.value"]]
+  
+  target_diff <- uniroot(
+    f = function(x) get_p_val(x) - p_target,
+    interval = c(0, 5 * sd_a),
+    tol = p_target / 1000,
+    extendInt = "yes"
+  )
+  data.frame(
+    group = c(rep("a", n_a), rep("b", n_b)),
+    value = c(data_a, data_b + target_diff$root),
+    target_p_value = paste0("p = ", p_target)
+  )
+}
+```
+
+Test the data simulation functions.
+
+```{r}
+data1 <- simulate_group_data_for_given_p_value(.05, seed = 20250723)
+t.test(value ~ group, data1) |> 
+  broom::tidy() |> 
+  str()
+
+data2 <- simulate_group_data_for_given_p_value(.01, seed = 20250723)
+t.test(value ~ group, data2) |> 
+  broom::tidy() |> 
+  str()
+```
+
+Create a grid of CIs and plot them. `Hmisc::smean.cl.normal()` is used by 
+ggplot2 to compute the CI, and this function "the sample mean and
+lower and upper Gaussian confidence limits based on the
+*t*-distribution".
+
+```{r cis, fig.width = 6, fig.height = 3}
+library(tidyverse)
+mean_ci <- function(x, width) {
+  df <- ggplot2::mean_cl_normal(x, conf.int = width)
+  df[[".width"]] <- width
+  df
+}
+
+data <- bind_rows(
+  data1, 
+  data2,
+   simulate_group_data_for_given_p_value(.005, seed = 20250723)
+)
+
+cis <- data |> 
+  group_by(group, target_p_value) |> 
+  reframe(
+    ci = list(mean_ci(value, .95), mean_ci(value, .835))
+  ) |> 
+  tidyr::unnest(cols = ci)
+
+ggplot(cis) + 
+  aes(x = factor(.width), color = group) +
+  geom_pointrange(
+    aes(ymin = ymin, y = y, ymax = ymax),
+    position = position_dodge(width = .25)
+  ) + 
+  facet_wrap(~target_p_value) +
+  guides(color = "none") + 
+  scale_x_discrete(
+    "Confidence interval",
+    labels = function(x) scales::label_percent(.1)(as.numeric(x))
+  ) +
+  labs(y = NULL) +
+  theme_grey(base_size = 14)
+```
+
+I was also intrigued by the following remark:
+
+> Sall [28] described an ingenious variation of overlap: Around any
+> mean, draw a circle with radius equal to the margin of error of the 95
+> per cent CI. Sall showed that if two such circles overlap so that they
+> intersect at right angles, *p* = 0.05 for the comparison of the two
+> means.
+
+So, when *p* = .05, the tangents at the intersections are right angles??
+
+```{r circles, fig.width = 4, fig.height = 2.85, out.width = "66%"}
+data_circles <- data1 |> 
+  bind_rows( 
+    simulate_group_data_for_given_p_value(.10, seed = 20250723),
+    simulate_group_data_for_given_p_value(.20, seed = 20250723)  
+  ) |> 
+  group_by(group, target_p_value) |> 
+  reframe(
+    ci = mean_ci(value, .95)
+  ) |> 
+  tidyr::unnest(cols = ci) |> 
+  filter(.width == .95) |> 
+  mutate(
+    radius = (ymax - ymin) / 2
+  ) |> 
+  rowwise() |> 
+  mutate(
+    angle = list(seq(0, 2 * pi, length.out = 100))
+  ) |> 
+  ungroup() |> 
+  tidyr::unnest(cols = angle) |> 
+  mutate(
+    circle_x = cos(angle) * radius, 
+    circle_y = y + sin(angle) * radius
+  )
+
+ggplot(data_circles) +
+  geom_point(aes(x = 0, y = y)) +
+  geom_path(aes(group = y, x = circle_x, y = circle_y)) + 
+  facet_wrap(~target_p_value) +
+  coord_fixed()
+```

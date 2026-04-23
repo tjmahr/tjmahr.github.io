@@ -1,0 +1,28 @@
+---
+title: "targets + crew for parallel builds"
+date: 2024-01-01
+tags: [r, targets, parallel]
+---
+
+
+In targets, by default, targets are dispatched to be built one at a
+time, but we can use crew so that multiple workers can build targets in
+parallel. Here is the code to add to `_targets.R` to get 2 workers.
+
+```{r eval = FALSE}
+targets::tar_option_set(
+  controller = crew::crew_controller_local(workers = 2)
+)
+```
+
+And then you can view how much work each worker did. (I'm hard-coding
+the returns to show what happened with a full site build.)
+
+```{r, eval = FALSE}
+targets::tar_crew()
+#>   controller               worker seconds targets
+#>   <chr>                     <int>   <dbl>   <int>
+#> 1 8f28e966dd6adaf60895eb01      1    49.4      32
+#> 2 8f28e966dd6adaf60895eb01      2    25.1       9
+```
+

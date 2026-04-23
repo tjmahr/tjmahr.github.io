@@ -1,0 +1,53 @@
+---
+title: "A custom knitr engine for blockquotes"
+date: 2024-01-01
+tags: [r, knitr, literate-programming]
+---
+
+Here's how easy it is to create a knitr language engine:
+
+```{r}
+# create a custom language block that blockquotes its contents
+knitr::knit_engines$set("blockquote" = function(options) {
+  if (isFALSE(options$echo)) return()
+  
+  output <- paste0("> ", options$code, collapse = "\n")
+  
+  if (!is.null(options$source_url)) {
+    output <- sprintf("%s\n[[source]](%s)", output, options$source_url)
+  }
+  
+  output
+})
+```
+
+Writing a chunk like:
+
+````{verbatim}
+```{blockquote}
+#| source_url: https://tjmahr.com
+Look at this **markdown**!
+  
+Here is a nested blockquote:
+  
+  > Cool!
+
+Yes.
+```
+````
+
+Will yield the following output:
+
+```{blockquote}
+#| source_url: https://tjmahr.com
+Look at this **markdown**!
+  
+Here is a nested blockquote:
+  
+  > Cool!
+
+Yes.
+```
+
+I wanted to make this a hook function but couldn't figure it out.
+

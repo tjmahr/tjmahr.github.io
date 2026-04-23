@@ -4,6 +4,9 @@ main:
   - title: Posts
     url: /year-archive/
 
+  - title: Notes
+    url: /notes/
+
   - title: "About Me"
     url: /about.html
 

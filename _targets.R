@@ -91,8 +91,10 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
 
 paths_current_posts <- list_rmds("./_R") %>%
   stringr::str_subset("_footer.Rmd", negate = TRUE)
+
 paths_draft_posts <- list_rmds("./_R/_drafts")
 
+paths_current_notes <- list_rmds("./_notes_r")
 
 # Set target-specific options such as packages.
 tar_option_set(packages = "knitr", error = "continue")
@@ -133,6 +135,16 @@ drafts <- list2(
     make_post_name("draft_md")
 )
 
+notes <- list2(
+  post = paths_current_notes,
+  name = make_post_name(post, "note_rmd"),
+  sym_name = rlang::syms(basename(name)),
+  name_md = post %>%
+    basename() %>%
+    stringr::str_replace(".Rmd$", ".md") %>%
+    make_post_name("note_md")
+)
+
 targets_posts <- list(
   tar_target(footer, "_R/_footer.Rmd", format = "file"),
   tar_eval(tar_target(name, post, format = "file"), posts),
@@ -153,6 +165,29 @@ targets_posts <- list(
     deps = posts$name
   )
 )
+
+targets_notes <- list(
+  tar_eval(tar_target(name, post, format = "file"), notes),
+  tar_eval(
+    tar_target(
+      name_md,
+      {
+        list(footer) # name footer so that it appears in the graph
+        knit_post(sym_name, "_notes", "figs/notes", "_caches")
+      },
+      format = "file"
+    ),
+    notes
+  ),
+  targets::tar_target_raw(
+    "notes_rmds",
+    rlang::expr(c(!!! notes$sym_name)),
+    deps = notes$name
+  )
+)
+
+targets::tar_meta()
+
 
 targets_drafts <- list(
   # tar_target(footer, "_R/_footer.Rmd", format = "file"),
@@ -180,6 +215,7 @@ targets_drafts <- list(
 list(
   targets_posts,
   targets_drafts,
+  targets_notes,
   tar_target(
     spellcheck_exceptions,
     c(

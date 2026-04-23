@@ -1,0 +1,6 @@
+---
+title: "Windows Terminal settings for Miniconda"
+date: 2022-06-06
+tags: [windows, terminal, miniconda, tooling]
+---
+
