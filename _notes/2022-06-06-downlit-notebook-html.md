@@ -15,7 +15,8 @@ make sure that the following css file is included in the build process,
 so that links are underlined and the style defers to the default syntax
 highlighting coloring.
 
-```{css, eval = FALSE}
+
+``` css
 code a:any-link {
  color: inherit; /* use colour from syntax highlighting */
  text-decoration: underline;

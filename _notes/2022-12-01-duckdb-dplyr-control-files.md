@@ -1,0 +1,75 @@
+---
+title: "Using DuckDB with dplyr to query control files"
+date: 2022-12-01
+tags: [r, duckdb, dplyr, sql]
+---
+
+
+duckdb is awesome. I used it in a project to read in all of control
+files (tsv files) in a folder into a database with the following code.
+There is a lot to unpack here, but here are the main ideas:
+
+  - dplyr is used to generate the queries that sent to the database.
+  
+  - The functions that start with `regexp_` are duckdb functions, not R
+    functions, but that's not a problem because the code that will be
+    run is SQL code in the database.
+    
+  - Normally, `tbl()` is used to specify a table in a database, but
+    here, the database table is constructed from the tsv files using
+    `read_csv_auto()` with wildcard characters.
+    
+  - The code in `run_control_file_query()` produces a SQL query. The
+    line with `compute()` is the one that actually has the database
+    execute the query and store the results in a database table.
+
+
+``` r
+library(DBI)
+library(dplyr)
+con <- dbConnect(duckdb::duckdb(dbdir = "data-raw/data.duckdb"))
+
+# Generates a SQL query from all the control files in the
+# working directory
+run_control_file_query <- function() {
+  tbl(con, "read_csv_auto('*Control*File-*.txt', FILENAME = TRUE)") |>
+    # this all gets converted to SQL statements that will be executed by the
+    # database, so there is a mix of R functions and duckdb functions here.
+    select(
+      control_file = filename,
+      repeat_no = Repeat,
+      sentence = Sentence,
+      response = Response,
+      s_word = SWord,
+      m_word = MWord,
+      m_word_a = MWordA,
+      phonetic_sentence = `Phonetic Sentence`,
+      phonetic_response = `Phonetic Response`,
+      audio_file = File,
+    ) |>
+    mutate(
+      control_file_number = control_file |>
+        regexp_extract('\\d{7}\\d+'),
+      item = audio_file |>
+        toupper() |>
+        # fix files with a subscript letter (S7T10a)
+        regexp_replace("[ABCDE].WAV", ".WAV") |>
+        # fix files with an extra 0(WT010)
+        regexp_replace("0(\\d\\d).WAV", "\\1.WAV") |>
+        regexp_extract('(S|S\\d|W)(T)\\d\\d.WAV') |>
+        left(-4L),
+      tocs_type = ifelse(
+        substr(item, 1L, 1L) == "W",
+        "single-word",
+        "multiword"
+      )
+    )
+}
+
+# (Re-)Create a table from the first batch of files
+withr::with_dir("../files-to-import/2022-10-27-batch-1/", {
+  DBI::dbRemoveTable(con, "control_files")
+  run_control_file_query() |>
+    compute(name = "control_files", temporary = FALSE)
+})
+```

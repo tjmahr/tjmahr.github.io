@@ -52,7 +52,8 @@ Instead of the interactive setup, we can open the JSON settings file
 my settings. Here the `guid` field was created by Windows Terminal so we should
 use the one it provides for us.
 
-```{json}
+
+``` json
 {
   "commandline": "%windir%\\System32\\cmd.exe /K %USERPROFILE%\\miniconda3\\Scripts\\activate.bat",
   "guid": "{2679ff34-f6b9-5fcd-9b81-08b50df61bae}",

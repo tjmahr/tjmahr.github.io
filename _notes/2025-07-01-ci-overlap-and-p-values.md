@@ -1,5 +1,5 @@
 ---
-title: "Confidence interval overlap and <emph>p</emph>-values"
+title: "Confidence interval overlap and p-values"
 date: 2025-07-01
 tags: [r, statistics, inference, visualization, simulation]
 ---
