@@ -68,3 +68,83 @@ blockquote.twitter-tweet > p {
   font-style: normal;
 }
 
+
+
+/* ==========================================================================
+   downlit / chroma code blocks
+   ========================================================================== */
+
+pre.chroma {
+  position: relative;
+  margin-bottom: 1em;
+  padding: 1em;
+  overflow-x: auto;
+  background: $base00;
+  color: $base05;
+  font-family: $monospace;
+  font-size: $type-size-7;
+  line-height: 1.5;
+  border-radius: $border-radius;
+
+  [dir=rtl] & {
+    direction: ltr;
+    text-align: start;
+  }
+
+  code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+  }
+}
+
+/* downlit::classes_chroma() */
+.chroma {
+  .c {
+    /* COMMENT */
+    color: $base04;
+  }
+
+  .kc {
+    /* constant */
+    color: $base0e;
+  }
+
+  .m {
+    /* NUM_CONST */
+    color: $base09;
+  }
+
+  .s {
+    /* STR_CONST */
+    color: $base0b;
+  }
+
+  .kr {
+    /* special */
+    color: $base0e;
+  }
+
+  .o {
+    /* parens, infix */
+    color: $base05;
+  }
+
+  .nv {
+    /* SLOT, SYMBOL, SYMBOL_FORMALS */
+    color: $base05;
+  }
+
+  .nf {
+    /* NS_GET, NS_GET_INT, SYMBOL_FUNCTION_CALL, SYMBOL_PACKAGE */
+    color: $base0c;
+  }
+}
+
+pre.chroma a {
+  color: inherit; /* use colour from syntax highlighting */
+  text-decoration: underline;
+  text-decoration-color: #ccc;
+}

@@ -35,13 +35,15 @@ list_rmds <- function(dir) {
   list.files(dir, full.names = TRUE, pattern = ".Rmd$")
 }
 
-knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
+
+knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/", use_downlit = FALSE) {
   just_basename <- function(file_path) {
     tools::file_path_sans_ext(basename(file_path))
   }
   rmd_to_md <- function(file_path, dir_md = ".") {
     paste0(file.path(dir_md, just_basename(file_path)), ".md")
   }
+
 
   path_out <- rmd_to_md(path_in, dir_out)
   # this function is a modified version of an example here:
@@ -50,8 +52,29 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
   path_figs <-  file.path(dir_figs,  just_basename(path_in), "/")
   path_cache <- file.path(dir_cache, just_basename(path_in))
 
-  knit_it <- function(path_in, path_out, path_figs, path_cache, base_url) {
+  knit_it <- function(path_in, path_out, path_figs, path_cache, base_url, use_downlit = use_downlit) {
     library(knitr)
+    use_downlit_chunk_hook <- function() {
+      old_chunk_hook <- knitr::knit_hooks$get("chunk")
+
+      knitr::knit_hooks$set(chunk = function(x, options) {
+        # Let knitr first combine source + output as usual
+        md <- old_chunk_hook(x, options)
+        tmp_in <- tempfile(fileext = ".md")
+        tmp_out <- tempfile(fileext = ".md")
+
+        writeLines(md, tmp_in, useBytes = TRUE)
+
+        downlit::downlit_md_path(
+          in_path = tmp_in,
+          out_path = tmp_out,
+          format = "gfm"
+        )
+
+        paste(readLines(tmp_out, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+      })
+    }
+
     opts_knit$set(
       base.url = base_url,
       root.dir = here::here()
@@ -70,6 +93,7 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
       dev = "ragg_png"
     )
     render_markdown()
+    if (use_downlit) use_downlit_chunk_hook()
 
     knit(path_in, path_out, envir = new.env(), encoding = "UTF-8")
   }
@@ -82,7 +106,8 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/") {
       path_out = path_out,
       path_figs = path_figs,
       path_cache = path_cache,
-      base_url = base_url
+      base_url = base_url,
+      use_downlit = use_downlit
     )
   )
 
@@ -173,7 +198,7 @@ targets_notes <- list(
       name_md,
       {
         list(footer) # name footer so that it appears in the graph
-        knit_post(sym_name, "_notes", "figs/notes", "_caches")
+        knit_post(sym_name, "_notes", "figs/notes", "_caches", use_downlit = TRUE)
       },
       format = "file"
     ),

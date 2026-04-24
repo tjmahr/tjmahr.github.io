@@ -1,0 +1,215 @@
+---
+title: "Using downlit on knitr code chunks for Jekyll"
+date: 2026-04-24
+tags: [r, meta, knitr, downlit, jekyll, syntax-highlighting]
+---
+
+I wanted to use `downlit` to add package/function links to code blocks in
+my Jekyll site. downlit is an amazing feature that I have never seen used in 
+other languages, and it's the main thing drawing me towards quarto instead of 
+vintage RMarkdown.
+
+Currently, this site is built in 2 steps: 
+
+```
+.Rmd files ---knitr---> 
+    .md files ---jekyll---> 
+       .html files
+```
+
+The simple approach *should* be 3 steps, by using `downlit::downlit_md_path()`:
+
+```
+.Rmd files ---knitr---> 
+    .md files ---downlit---> 
+       autolinked .md files ---jekyll---> 
+       .html files
+```
+
+But this will not work cleanly because `downlit` inspects the structure
+of the .md file using Pandoc, and Pandoc strips away YAML front
+matter, which is bad because the YAML frontmatter is Jekyll metadata. I
+know about this problem because I wrote the GitHub issue for it five
+years ago 🤓 <https://github.com/r-lib/downlit/issues/123>.
+
+But you know who else sees the code blocks? knitr. I added **a knitr
+hook to run the chunk text through downlit**. In effect, I run downlit on 
+the markdown output that knitr has assembled for each knitr chunk.
+
+Below is my main knitting function. It's very verbose and hard-codes my
+default knitr settings because it's meant to run in a separate (clean) R
+session via callr. I added the `use_downlit_chunk_hook()` function to
+register the chunk hook, and this hook runs the knitr chunk through
+downlit.
+
+```{r}
+  knit_it <- function(path_in, path_out, path_figs, path_cache, base_url, use_downlit = use_downlit) {
+    library(knitr)
+
+    use_downlit_chunk_hook <- function() {
+      old_chunk_hook <- knitr::knit_hooks$get("chunk")
+      knitr::knit_hooks$set(chunk = function(x, options) {
+        md <- old_chunk_hook(x, options)
+        tmp_in <- tempfile(fileext = ".md")
+        tmp_out <- tempfile(fileext = ".md")
+        writeLines(md, tmp_in, useBytes = TRUE)
+
+        downlit::downlit_md_path(
+          in_path = tmp_in,
+          out_path = tmp_out,
+          format = "gfm"
+        )
+        paste(readLines(tmp_out, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+      })
+    }
+
+    opts_knit$set(
+      base.url = base_url,
+      root.dir = here::here()
+    )
+    opts_chunk$set(
+      fig.asp = 0.618,
+      fig.width = 6,
+      dpi = 300,
+      fig.align = "center",
+      out.width = "80%",
+      fig.path = path_figs,
+      cache.path = path_cache,
+      fig.cap = "center",
+      comment = "#>",
+      collapse = TRUE,
+      dev = "ragg_png"
+    )
+    render_markdown()
+    if (use_downlit) use_downlit_chunk_hook()
+
+    knit(path_in, path_out, envir = new.env(), encoding = "UTF-8")
+  }
+
+```
+
+Two limitations I have to admit here:
+
+  - Pandoc writes out the markdown file, so it needs to be a flavor of
+    markdown it understands. Jekyll-markdown features may not survive this 
+    transformation.
+  - Because knitr is doing the hooking, downlit only sees the code
+    blocks. Inline links for something like `dplyr::select()` are not
+    available because that code is not in a knitr code chunk.
+  - I don't have "clean" .md files. One nice thing about Markdown is that
+    you can read it as plaintext, and it's still legible.
+
+Right now, I am going to dogfood this pipeline on just the notes section of 
+my site because they were all written outside of Jekyll.
+
+After getting the hook working, I had to make autolinked code blocks
+look nice. downlit outputs HTML code blocks like:
+
+```html
+<pre class="chroma"><code>...</code></pre>
+```
+
+My site get its syntax highlighting from some Ruby libraries, so I need
+to put together some CSS rules for syntax highlighting that matched the
+current color set. I (w/ ChatGPT) added the following lines to my .scss
+file. These rules map downlit’s Chroma token classes onto the site’s
+existing Base16 color scheme used by Rouge:
+
+```scss
+/* ==========================================================================
+   downlit / chroma code blocks
+   ========================================================================== */
+
+pre.chroma {
+  position: relative;
+  margin-bottom: 1em;
+  padding: 1em;
+  overflow-x: auto;
+  background: $base00;
+  color: $base05;
+  font-family: $monospace;
+  font-size: $type-size-7;
+  line-height: 1.5;
+  border-radius: $border-radius;
+
+  [dir=rtl] & {
+    direction: ltr;
+    text-align: start;
+  }
+
+  code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+  }
+}
+
+/* downlit::classes_chroma() */
+.chroma {
+  .c {
+    /* COMMENT */
+    color: $base04;
+  }
+
+  .kc {
+    /* constant */
+    color: $base0e;
+  }
+
+  .m {
+    /* NUM_CONST */
+    color: $base09;
+  }
+
+  .s {
+    /* STR_CONST */
+    color: $base0b;
+  }
+
+  .kr {
+    /* special */
+    color: $base0e;
+  }
+
+  .o {
+    /* parens, infix */
+    color: $base05;
+  }
+
+  .nv {
+    /* SLOT, SYMBOL, SYMBOL_FORMALS */
+    color: $base05;
+  }
+
+  .nf {
+    /* NS_GET, NS_GET_INT, SYMBOL_FUNCTION_CALL, SYMBOL_PACKAGE */
+    color: $base0c;
+  }
+}
+
+pre.chroma a {
+  color: inherit; /* use colour from syntax highlighting */
+  text-decoration: underline;
+  text-decoration-color: #ccc;
+}
+```
+
+Here is a comparison of the syntax highlighting.
+
+```{r}
+# downlit
+data <- mtcars$mpg[1]
+x <- rnorm(100)
+name <- "test"
+```
+
+```r
+# rouge
+data <- mtcars$mpg[1]
+x <- rnorm(100)
+name <- "test"
+```
+
+
