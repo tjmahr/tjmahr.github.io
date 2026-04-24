@@ -17,7 +17,7 @@ authors retroactively updated the news into mention this change.[^crank]
 
 [^crank]: I hope I don't seem like a crank by mentioning these bugbears and GitHub issues in these notes.
 
-Anyway,to recover the old behavior (or at least inspect it), I pulled
+Anyway, to recover the old behavior (or at least inspect it), I pulled
 the `default_aes` from each geom in ggplot2 3.5.2. This output gives me
 a snapshot of the old aesthetics, so I can quickly drop in some `point`
 aesthetics for quick fixes of those plots.
@@ -64,27 +64,27 @@ aesthetics for quick fixes of those plots.
 <span><span class='c'>#&gt; ✔ Cached copy of utf8 1.2.6 (x86_64-w64-mingw32) is the latest build</span></span>
 <span><span class='c'>#&gt; ✔ Cached copy of viridisLite 0.4.3 (i386+x86_64-w64-mingw32) is the latest build</span></span>
 <span><span class='c'>#&gt; ✔ Cached copy of withr 3.0.2 (i386+x86_64-w64-mingw32) is the latest build</span></span>
-<span><span class='c'>#&gt; ✔ Installed ggplot2 3.5.2  (535ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed R6 2.6.1  (595ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed RColorBrewer 1.1-3  (680ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed farver 2.1.2  (666ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed labeling 0.4.3  (682ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed isoband 0.3.0  (875ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed gtable 0.3.6  (1s)</span></span>
-<span><span class='c'>#&gt; ✔ Installed glue 1.8.1  (1.2s)</span></span>
+<span><span class='c'>#&gt; ✔ Installed ggplot2 3.5.2  (533ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed R6 2.6.1  (622ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed RColorBrewer 1.1-3  (658ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed labeling 0.4.3  (607ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed glue 1.8.1  (772ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed farver 2.1.2  (925ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed isoband 0.3.0  (1s)</span></span>
+<span><span class='c'>#&gt; ✔ Installed gtable 0.3.6  (1.1s)</span></span>
+<span><span class='c'>#&gt; ✔ Installed cli 3.6.6  (1.3s)</span></span>
 <span><span class='c'>#&gt; ✔ Installed magrittr 2.0.5  (1.2s)</span></span>
 <span><span class='c'>#&gt; ✔ Installed lifecycle 1.0.5  (1.3s)</span></span>
-<span><span class='c'>#&gt; ✔ Installed cli 3.6.6  (1.4s)</span></span>
 <span><span class='c'>#&gt; ✔ Installed pillar 1.11.1  (1.3s)</span></span>
-<span><span class='c'>#&gt; ✔ Installed pkgconfig 2.0.3  (916ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed rlang 1.2.0  (898ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed scales 1.4.0  (940ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed utf8 1.2.6  (883ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed tibble 3.3.1  (956ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed vctrs 0.7.3  (851ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed viridisLite 0.4.3  (778ms)</span></span>
-<span><span class='c'>#&gt; ✔ Installed withr 3.0.2  (702ms)</span></span>
-<span><span class='c'>#&gt; ✔ 1 pkg + 24 deps: kept 1, added 20 [12.7s]</span></span>
+<span><span class='c'>#&gt; ✔ Installed pkgconfig 2.0.3  (898ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed rlang 1.2.0  (887ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed scales 1.4.0  (985ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed tibble 3.3.1  (944ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed utf8 1.2.6  (878ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed viridisLite 0.4.3  (799ms)</span></span>
+<span><span class='c'>#&gt; ✔ Installed vctrs 0.7.3  (1s)</span></span>
+<span><span class='c'>#&gt; ✔ Installed withr 3.0.2  (774ms)</span></span>
+<span><span class='c'>#&gt; ✔ 1 pkg + 24 deps: kept 1, added 20 [12.2s]</span></span>
 <span></span>
 <span><span class='nv'>self_name</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'>stats</span><span class='nf'>::</span><span class='nf'><a href='https://rdrr.io/r/stats/setNames.html'>setNames</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='nv'>x</span><span class='o'>)</span></span>
 <span></span>
