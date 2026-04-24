@@ -1,0 +1,42 @@
+---
+title: "ggplot2 geom default aesthetics (pre-4.0 behavior)"
+date: 2026-01-20
+tags: [r, ggplot2, visualization]
+---
+
+[ggplot2 4.0.0](https://tidyverse.org/blog/2025/09/ggplot2-4-0-0/)
+changed how geoms get their default aesthetics: many defaults are now
+looked up from the plot theme. This change broke some older plots of
+mine that relied on the previous hard-coded defaults. When finalizing
+plots, I would tweak point size by adjusting plot dimensions (small plot
+-\> bigger apparent points), but `theme_grey(base_size)` will change the
+size of points and not just text. Thus, a lot of my old plots looked
+wrong. I [think](https://github.com/tidyverse/ggplot2/issues/6795) it was an 
+undocumented breaking change in the package, and to their credit, the ggplot2 
+authors retroactively updated the news into mention this change.[^crank] 
+
+[^crank]: I hope I don't seem like a crank by mentioning these bugbears and GitHub issues in these notes.
+
+Anyway, to recover the old behavior (or at least inspect it), I pulled
+the `default_aes` from each geom in ggplot2 3.5.2. This output gives me
+a snapshot of the old aesthetics, so I can quickly drop in some `point`
+aesthetics for quick fixes of those plots.
+
+```{r}
+withr::local_temp_libpaths()
+pak::pkg_install("ggplot2@3.5.2")
+
+self_name <- function(x) stats::setNames(x, x)
+
+asNamespace("ggplot2") |> 
+  ls(pattern = "Geom.") |> 
+  self_name() |> 
+  lapply(get, envir = asNamespace("ggplot2")) |> 
+  lapply(function(obj) obj$default_aes) |> 
+  # make sure every result has the aes nice printing method
+  lapply(function(x) { 
+    class(x) <- "uneval"
+    x
+  })
+```
+

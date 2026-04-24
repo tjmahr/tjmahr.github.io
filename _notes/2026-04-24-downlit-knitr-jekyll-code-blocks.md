@@ -32,12 +32,15 @@ matter, which is bad because the YAML frontmatter is Jekyll metadata. I
 know about this problem because I wrote the GitHub issue for it five
 years ago 🤓 <https://github.com/r-lib/downlit/issues/123>.
 
-But you know who else sees the code blocks? knitr. I added a knitr
-hook to run the chunk text through downlit. Below is my main knitting
-function. It's very verbose and hard-codes my default knitr settings
-because it's meant to run in a separate (clean) R session via callr. I
-added the `use_downlit_chunk_hook()` function to register the chunk
-hook, and this hook runs the knitr chunk through downlit.
+But you know who else sees the code blocks? knitr. I added **a knitr
+hook to run the chunk text through downlit**. In effect, I run downlit on 
+the markdown output that knitr has assembled for each knitr chunk.
+
+Below is my main knitting function. It's very verbose and hard-codes my
+default knitr settings because it's meant to run in a separate (clean) R
+session via callr. I added the `use_downlit_chunk_hook()` function to
+register the chunk hook, and this hook runs the knitr chunk through
+downlit.
 
 <pre class='chroma'>
 <span>  <span class='nv'>knit_it</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>path_in</span>, <span class='nv'>path_out</span>, <span class='nv'>path_figs</span>, <span class='nv'>path_cache</span>, <span class='nv'>base_url</span>, <span class='nv'>use_downlit</span> <span class='o'>=</span> <span class='nv'>use_downlit</span><span class='o'>)</span> <span class='o'>{</span></span>
@@ -85,13 +88,17 @@ hook, and this hook runs the knitr chunk through downlit.
 
 Two limitations I have to admit here:
 
-  - Pandoc writes out markdown file, so it needs to be a flavor of
-    markdown it understands. If I use Jekyll-markdown features, they
-    might get mangled.
+  - Pandoc writes out the markdown file, so it needs to be a flavor of
+    markdown it understands. Jekyll-markdown features may not survive this 
+    transformation.
   - Because knitr is doing the hooking, downlit only sees the code
     blocks. Inline links for something like `dplyr::select()` are not
-    available.
+    available because that code is not in a knitr code chunk.
+  - I don't have "clean" .md files. One nice thing about Markdown is that
+    you can read it as plaintext, and it's still legible.
 
+Right now, I am going to dogfood this pipeline on just the notes section of 
+my site because they were all written outside of Jekyll.
 
 After getting the hook working, I had to make autolinked code blocks
 look nice. downlit outputs HTML code blocks like:
@@ -102,7 +109,9 @@ look nice. downlit outputs HTML code blocks like:
 
 My site get its syntax highlighting from some Ruby libraries, so I need
 to put together some CSS rules for syntax highlighting that matched the
-current color set. I (w/ ChatGPT) added the following lines to my .scss file:
+current color set. I (w/ ChatGPT) added the following lines to my .scss
+file. These rules map downlit’s Chroma token classes onto the site’s
+existing Base16 color scheme used by Rouge:
 
 ```scss
 /* ==========================================================================
