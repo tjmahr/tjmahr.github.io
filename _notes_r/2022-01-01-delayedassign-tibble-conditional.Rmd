@@ -1,0 +1,30 @@
+---
+title: "Conditionally returning tibbles with delayedAssign()"
+date: 2022-01-01
+tags: [r, programming, packages]
+---
+
+The [newsletter by
+rOpenSci](https://ropensci.org/blog/2022/01/21/ropensci-news-digest-january-2022/#to-quote-or-not-to-quote-non-existing-words-in-description)
+highlights this trick by the palmerpenguins package.
+
+```{r, eval = FALSE, echo = TRUE}
+delayedAssign("penguins", {
+  if (requireNamespace("tibble", quietly = TRUE)) {
+    tibble::as_tibble(readRDS("data/penguins.rds"))
+  } else {
+    readRDS("data/penguins.rds")
+  }
+})
+
+delayedAssign("penguins_raw", {
+  if (requireNamespace("tibble", quietly = TRUE)) {
+    tibble::as_tibble(readRDS("data/penguins_raw.rds"))
+  } else {
+    readRDS("data/penguins_raw.rds")
+  }
+})
+```
+
+This rOpenSci newsletter also detailed how to get new words past the
+package description spellchecker.

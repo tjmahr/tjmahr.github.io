@@ -167,7 +167,7 @@ I was also intrigued by the following remark:
 > intersect at right angles, *p* = 0.05 for the comparison of the two
 > means.
 
-So, when *p* = .05, the tangents at the intersections are right angles??
+So, when *p* = .05, the tangents at the intersections are right angles (?).
 
 
 ``` r

@@ -1,0 +1,68 @@
+---
+title: "Using closures to make 16 related functions"
+date: 2021-11-01
+tags: [r, programming, closures]
+---
+
+The [R Open Sci
+newsletter](https://ropensci.org/blog/2021/11/30/ropensci-news-digest-november-2021/#function-specific-and-package-specific-environments)
+linked to [a mailing list
+thread](https://www.mail-archive.com/r-package-devel@r-project.org/msg07413.html)
+about how to stash data inside of an R package.
+
+Duncan Murdoch suggests using a function factory to create closures that
+can access data in the parent environment.
+
+> Your `local()` call can create several functions and return them in a
+> list; then just those functions have access to the local variables.
+> For example,
+> 
+> ```r
+> createFns <- function() {
+> 
+>    .fooInfo <- NULL
+> 
+>    fn1 <- function (...) { ... }
+>    fn2 <- function (...) { ... }
+> 
+>    list(fn1 = fn1, fn2 = fn2)
+> }
+> 
+> fns <- createFns()
+> fn1 <- fns$fn1
+> fn2 <- fns$fn2
+> ```
+> 
+> Now `fn1` and `fn2` are functions that can see `.fooInfo`, and nobody
+> else can (without going through contortions).
+
+(I had to fix the code to create a real function factory.) 
+
+Then Martin Mächler replies to say yup, this is what we do in base R.
+
+> Note that the above approach has been how `nls()` has been
+> implemented for R ... a very long time ago {before R 1.0.0}
+> 
+> e.g. from  `example(nls)`:
+> 
+> ```{r}
+> DNase1 <- subset(DNase, Run == 1)
+> fm1 <- nls(density ~ SSlogis(log(conc), Asym, xmid, scal), DNase1)
+> str(fm1$m)
+> 
+> # so 16 functions, all sharing the *same* environment very
+> # efficiently and nicely
+> 
+> # this is *the* environment for the fitted model:
+> fmE <- environment(fm1$m[[1]])
+> ls.str(fmE)
+> ```
+> 
+> so the environment "contains" the functions themselves (but quite
+> a few more things) and for an environment that means it only
+> has pointers to the same function objects which are *also* in `fm1$m`.
+> 
+> **So, there has been a nice convincing and important example on
+> how to do this - inside R for more than two decennia.**
+
+Final emphasis was added by me. 

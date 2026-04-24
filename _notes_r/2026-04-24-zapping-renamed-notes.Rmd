@@ -1,0 +1,36 @@
+---
+title: "Zapping orphaned/outdated rendered notes"
+date: 2026-01-01
+tags: [meta, targets]
+---
+
+I write notes in RMarkdown and then use knitr to convert them to
+Jekyll-friendly markdown. The steps are orchestrated by the targets
+package so that the pages are only rendered on demand. But what if I
+rename a `.Rmd` that already had its `.md` buddy rendered? Then I would
+have an orphaned notes that should be removed.
+
+Here is a quick script to remove those orphaned files. I should probably put it
+in .Rprofile for this site.
+
+```{r, eval = TRUE}
+library(dplyr)
+
+if (interactive()) targets::tar_prune()
+
+data_current_target_paths <- targets::tar_meta(starts_with("note_")) |> 
+  select(name, format, path) |> 
+  mutate(
+    path = unlist(path) |> fs::path_norm()
+  )
+  
+data_current_target_paths
+
+data_current_paths <- list.files("_notes/") |> file.path("_notes", ..2 = _)
+
+# Excess paths
+data_current_paths |> 
+  setdiff(data_current_target_paths$path) |> 
+  file.remove()
+```
+

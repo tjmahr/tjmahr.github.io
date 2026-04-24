@@ -1,0 +1,56 @@
+---
+title: "A Gaussian KDE is a sum of little Gaussians"
+date: 2021-11-01
+tags: [statistics, density-estimation, visualization]
+---
+Today I learned [from
+here](https://support.numxl.com/hc/en-us/articles/216478703-Kernel-density-estimation-KDE-Plot)
+that the Gaussian KDE is the sum of a bunch of little Gaussian curves.
+Here look:
+
+```{r}
+#| gauss, fig.width = 6, fig.height = 2
+library(tidyverse)
+library(palmerpenguins)
+
+set.seed(20211122)
+d <- penguins %>% 
+  filter(!is.na(bill_length_mm)) %>% 
+  sample_n(size = 20)
+
+# grid of xs
+x <- seq(30, 63, length.out = 200)
+
+# compute density of xs using each observed value
+# as the mean.
+l <- lapply(
+  d$bill_length_mm,
+  function(m) {
+    data.frame(
+      x = x,
+      y = dnorm(x, mean = m, sd = bw.nrd0(d$bill_length_mm)) 
+    )
+  }
+) 
+dl <- bind_rows(l, .id = "obs")
+
+# plot them, their sum, and the default density curve
+ggplot(d) + 
+  aes(x = bill_length_mm) + 
+  geom_density(aes(color = "geom_density()"), size = 2, key_glyph = "path") +
+  geom_rug() +
+  geom_line(
+    aes(x = x, y = y / nrow(d), group = obs),
+    data = dl, alpha = .1
+  ) + 
+  stat_summary(
+    aes(x = x, y = y / nrow(d), color = "sum of pointwise densities"),
+    data = dl, 
+    # alpha = .1, 
+    geom = "line",
+    fun = "sum", 
+    # color = "orange"
+  ) +
+  scale_color_manual(values = c("black", "orange")) +
+  labs(color = NULL)
+```

@@ -1,0 +1,46 @@
+---
+title: "Added variable plots (partial regression plots)"
+date: 2019-05-14
+tags: [statistics, regression, visualization]
+---
+
+Here's what "added variable" plots are about.
+
+  - Let `m = y ~ x1 + ...` be the full regression model
+  - Let `m_y1 = y ~ ...` (all of the predictors except x1)
+  - Let `m_x1 = x1 ~ ...` (regress x1 on those same predictors)
+  - Let `m_partial = resid(m_y1) ~ resid(m_x1)`
+  - The plot of `resid(m_x1)` versus `resid(m_y1)` is the added variable plot.
+    It shows "X1 | others)" and "y | others"
+  - Residuals in the final `m_partial` model will be same as residuals from full
+    model `m`
+  - Coefficient of `x1` in final `m_partial` model will be same as coefficient
+    from full model `m`.
+
+AV plots by hand and by `car::avPlot()`
+
+```{r}
+#| av-plots, fig.width = 8, fig.height = 4, dpi = 300, out.width = "80%"
+par(mar = c(4, 4, 1, 1))
+
+m <- lm(mpg ~ wt + hp + am, mtcars)
+m_y1 <- lm(mpg ~ hp + am, mtcars)
+m_x1 <- lm(wt ~ hp + am, mtcars)
+m_partial <- lm(resid(m_y1) ~ resid(m_x1))
+
+library(patchwork)
+p1 <- wrap_elements(
+  full = ~ plot(resid(m_x1), resid(m_y1))
+) 
+p2 <- wrap_elements(
+  full = ~ car::avPlot(m, "wt")
+)
+
+p1 + p2
+all.equal(residuals(m_partial), residuals(m))
+
+coef(m)["wt"]
+coef(m_partial)[2]
+```
+
+What about interactions?
