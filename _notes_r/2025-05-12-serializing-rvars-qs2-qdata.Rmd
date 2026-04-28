@@ -1,0 +1,104 @@
+---
+title: "Serializing rvars with qs2's qdata"
+date: 2025-05-12
+tags: [r, posterior, rvar, tidybayes, serialization]
+---
+
+I was surprised by how large a tibble with `posterior::rvar()` columns became
+when saved with `qs2::qs_save()`. The issue seems to be attributes/pointers on
+the `rvar` objects. Removing the pointers by converting to a non-rvar format or 
+using `qs2::qd_save()` will result in smaller file sizes.
+
+***
+
+Let's make rvars of 1000 draws each for 100 rows x 2 columns of data.
+
+```{r}
+set.seed(20250512)
+
+f <- function(n) {
+  replicate(n = n, posterior::rvar(rnorm(1000))) |> 
+    do.call(what = c)
+}
+
+data <- tibble::tibble(
+  a = 1:100,
+  b = f(100),
+  c = f(100)
+)
+data
+```
+
+Let's save it with `save()` and `qs2::qs_save()`, which is meant to
+serialize the R object's data like `save()` does but in a faster and
+smarter way.
+
+```{r}
+t1 <- tempfile()
+save(data, file = t1)
+file.size(t1) |> scales::label_bytes()()
+
+t2 <- tempfile()
+qs2::qs_save(data, t2, nthreads = 8)
+file.size(t2) |> scales::label_bytes()()
+```
+
+If we unnest the data so that there is one row per draw, we get much
+better sizes.
+
+```{r}
+t3 <- tempfile()
+data_long <- tidybayes::unnest_rvars(data)
+data_long
+
+qs2::qs_save(data_long, t3, nthreads = 8)
+file.size(t3) |> scales::label_bytes()()
+```
+
+```{r}
+file.size(t2) / file.size(t3)
+```
+
+What is the bloat here? It is [cached
+data](https://github.com/r-lib/vctrs/issues/1411) about the rvars. Here
+is the data for one rvar:
+
+```{r}
+str(data$b |> unclass())
+```
+
+See the environment pointer?
+
+Let's zap the caches and try again.
+
+```{r}
+data2 <- data
+attr(data2$c, "cache") <- NULL
+attr(data2$b, "cache") <- NULL
+
+t4 <- tempfile()
+qs2::qs_save(data2, t4, nthreads = 8)
+file.size(t4) |> scales::label_bytes()()
+```
+
+That does reduce the size to near the unnested file size. qs2 provides
+the `qd_` functions for a [stricter kind of
+serialization](https://github.com/qsbase/qs2#the-qdata-format) that will
+replace pointers with `NULL`, so we don't have to mess with the guts of
+the rvars:
+
+```{r}
+t5 <- tempfile()
+qs2::qd_save(data, t5, nthreads = 8)
+file.size(t5) |> scales::label_bytes()()
+```
+
+Importantly, the data seems to come back fine:
+
+```{r}
+data3 <- qs2::qd_read(t5)
+data3
+
+data3$b == data2$b
+```
+
