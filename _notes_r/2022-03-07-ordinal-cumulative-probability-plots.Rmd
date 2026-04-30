@@ -1,0 +1,225 @@
+---
+title: "Visualizing ordinal model probabilities with ribbons"
+date: 2022-03-07
+tags: [r, ordinal, ggplot2, visualization]
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ordinal)
+```
+
+
+Here is a ggplot2 recipe for plotting cumulative
+probabilities from ordinal regression models.
+
+*** 
+
+We have `rating` scores of various wines (1--5 point scale), and during the
+production, temperature (`temp`) and skin `contact` were experimentally
+controlled.
+
+```{r}
+library(tidyverse)
+library(ordinal)
+wine <- as_tibble(wine)
+wine
+
+model <- clm(rating ~ temp * contact, data = wine)
+pred_grid <- wine |>
+  distinct(contact, temp)
+```
+
+`predict.clm(type = "cum.prob")` predictions provide two sets of
+cumulative probabilities P(rating) ≤ rating<sub>*k*</sub> and
+P(rating) \< rating<sub>*k*</sub>. The first set yields a probability
+of 1 for the highest rating, and the second set have probability 0 for
+the first rating.
+
+```{r}
+pred_grid |> 
+  predict(model, newdata = _, type = "cum.prob") 
+```
+
+Each rating's probability is the difference between these two sets of
+cumulative probabilities, so ultimately we will visualize them directly
+as a ribbon between the two cumulative probabilities.
+
+Get a long dataframe of probabilities.
+
+```{r}
+preds <- pred_grid |>
+  predict(model, newdata = _, type = "cum.prob") |>
+  lapply(as.data.frame) |>
+  bind_rows(.id = "prob_type") |>
+  cbind(pred_grid, x = _) |>
+  rename_with(stringr::str_remove, pattern = "x[.]") |> 
+  tidyr::pivot_longer(
+    cols = c(-prob_type, -temp, -contact),
+    names_to = "rating",
+    values_to = "prob"
+  ) |>
+  tidyr::pivot_wider(
+    names_from = prob_type,
+    values_from = prob
+  ) |>
+  rename(prob_lte = cprob1, prob_lt = cprob2)
+preds
+```
+
+The less-than probabilities (`prob_lt`) provide thresholds between
+rating levels.
+
+```{r thresholds}
+ggplot(preds) +
+  aes(x = temp) +
+  geom_line(
+    aes(group = rating, y = prob_lt),
+    # don't draw solid line at y = 0
+    data = function(x) filter(x, prob_lt != 0),
+    linetype = "dashed"
+  ) +
+  facet_wrap("contact")
+```
+
+Next, we might fill in the areas. `geom_ribbon()` only likes continuous
+*x* axes, so we note:
+
+```{r}
+preds$temp_num <- as.numeric(preds$temp)
+preds |> distinct(temp_num, temp)
+```
+
+Here the two columns of cumulative probabilities pay off because one
+provides the bottom of the ribbon and the other provides the top of the
+ribbon.
+
+```{r fill-area}
+ggplot(preds) +
+  aes(x = as.numeric(temp)) +
+  geom_ribbon(
+    aes(
+      fill = rating, ymin = prob_lt, ymax = prob_lte
+    )
+  ) +
+  geom_line(
+    aes(group = rating, y = prob_lt),
+    # don't draw solid line at y = 0
+    data = function(x) filter(x, prob_lt != 0),
+    linetype = "dashed"
+  ) +
+  facet_wrap("contact") +
+  scale_x_continuous(
+    breaks = 1:2, labels = c("cold", "warm"),
+    expand = expansion(mult = .25)
+  ) +
+  scale_color_viridis_d(option = "E", aesthetics = "fill")
+```
+
+
+```{r fill-label-areas}
+last_plot() +
+  stat_summary(
+    aes(
+      x = 1 + as.numeric(rating) / 5 - .05,
+      label = rating,
+      color = rating,
+      y = (prob_lte + prob_lt) / 2
+    ),
+    fun = median,
+    geom = "text"
+  ) +
+  scale_color_manual(
+    values = scales::viridis_pal(option = "E")(2)[c(2,2,2,1,1)]
+  ) +
+  guides(color = "none", fill = "none") +
+  labs(x = "temperature", y = "cumulative probability")
+```
+
+### Bayesian version
+
+I once prepared a Bayesian version of the idea. Here is that recipe:
+
+```{r}
+b_model <- brms::brm(
+  rating ~ temp * contact, 
+  data = wine,
+  family = brms::cumulative(), 
+  backend = "cmdstanr",
+  chains = 1, 
+  file = "_caches/2022-03-07-ordinal"
+)
+```
+
+Predictions comes as `.category` probabilities, so we sum them to
+compute two cumulative probabilities. But we also compute posterior
+medians to get the thresholds.
+
+```{r}
+data_rvars <- pred_grid |> 
+  tidybayes::add_epred_draws(b_model) |> 
+  tidybayes::nest_rvars() |> 
+  group_by(contact, temp, .row) |> 
+  mutate(
+    prob_lte = cumsum(.epred),
+    # subtracting 1 from 1 to make a 0 rvar
+    prob_lt = c(prob_lte[5] - 1, prob_lte[1:4])
+  )
+
+data_boundaries <- data_rvars |>
+  group_by(contact, temp, .category) |>
+  ggdist::median_qi(prob_lte, prob_lt)
+```
+
+Here is the trick. Hint at the uncertainty by overlaying 100 ribbons:
+
+```{r}
+data_draws_100 <- data_rvars |> 
+  tidybayes::unnest_rvars() |>
+  filter(.draw <= 100)
+  
+# create 100 geom_area() layers
+layers <- data_draws_100 |>
+  split(~ .draw) |>
+  lapply(function(x) {
+    geom_ribbon(
+      aes(fill = .category, ymin = prob_lt, ymax = prob_lte),
+      alpha = .01,
+      data = x
+    )
+  })
+
+ggplot(data_draws_100) +
+  aes(x = as.numeric(temp)) +
+  layers +
+  geom_line(
+    aes(y = prob_lte, group = .category),
+    data = data_boundaries |> filter(.category != 5),
+    linetype = "dashed"
+  ) +
+  stat_summary(
+    aes(
+      x = 1 + as.numeric(.category) / 5 - .05,
+      label = .category,
+      color = .category,
+      y = (prob_lte + prob_lt) / 2
+    ),
+    data = data_boundaries,
+    fun = median,
+    geom = "text"
+  ) +
+  facet_wrap("contact") +
+  scale_x_continuous(
+    breaks = 1:2, labels = c("cold", "warm"),
+    expand = expansion(mult = .25)
+  ) +
+  scale_color_viridis_d(option = "E", aesthetics = "fill") +
+  scale_color_manual(
+    values = scales::viridis_pal(option = "E")(2)[c(2,2,2,1,1)]
+  ) +
+  guides(color = "none", fill = "none") +
+  labs(x = "temperature", y = "cumulative probability") 
+
+```
+
+
