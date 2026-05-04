@@ -112,11 +112,13 @@ We could also **assemble and store the plot immediately**:
 <p class="caption">Forcing early evaluation by converting plots to grobs also yields correct panels.</p>
 </div>
 
-`ggplotGrob()` converts the plot into a **graphical objects** ("grob")
+`ggplotGrob()` converts the plot into a **graphical object** ("grob")
 table to be drawn into by... whatever comes next in the plotting
 pipeline. (I never have to work past this point.) patchwork can handle
 these, but `wrap_ggplot_grob()` does some more work on grob tables that
 come from ggplot2.
+
+***
 
 This is a subtle problem. I asked ChatGPT to proofread this note and it offered 
 a nonsolution:
