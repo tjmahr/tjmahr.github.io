@@ -1,0 +1,538 @@
+---
+title: Scraping pronunciations from Wiktionary (2026-08-13)
+excerpt: ''
+tags: ''
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+```
+
+Some very frequent English words have so-called *strong* and *weak* forms. The strong form is the citation form of the word, or how one might say the word all by itself, or when mentioning the word in a phrase like "the word ____". The weak form is how speakers tend to actually say the word in connected speech. For example, *and*.
+
+- strong: The word "and" (*rhymes with "hand"*)
+- weak: Mom and dad. ([n] *practically only an /n/ sound*) 
+- hence: rock 'n' roll
+
+
+
+Searching for "English weak forms" on a search engine brings up mostly materials related to learning English as a second-language language. 
+
+Roach (0000) provides a list of 38 such words, which we can list out below:
+
+```{r}
+c(
+  "the", "a", "an",
+  "and", "but", 
+  "that",
+  "than",
+  "his", "her", "your", 
+  "she", "he", "we", "you",
+  "him", "her", "them", "us",
+  "at", "for", "from", "of", "to", "as", 
+  "some", "there",
+  "can", "could", "have", "has", "had", 
+  "shall", "should", "must",
+  "do", "does",
+  "am", "are", "was", "were"
+)
+```
+
+
+A lot of these are going to be vowel reductions (your -> [jer] 'yr').
+
+Roach() writes from the perspective of British English, so some of the /h/-initial weak forms of (*his* -> [Iz]).
+
+
+
+
+Does this list seem complete? *because* seems absent.
+
+
+https://www.scribd.com/doc/43388253/Pronunciations-in-connected-speech-A-Survey-of-Weak-Forms-in-a-Spoken-Corpus-of-American-English
+https://www.scribd.com/document/25041468/%E9%9F%B3%E5%A3%B0%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%82%92%E7%94%A8%E3%81%84%E3%81%9F%E8%8B%B1%E8%AA%9E%E5%BC%B1%E5%BD%A2%E3%83%AA%E3%82%B9%E3%83%88%E3%81%AE%E6%94%B9%E8%A8%82-Revising-the-list-of-weak-forms-in-English-using-a-spoken-corpus#fullscreen=1?access_key=key-14qctczl5mqnjkbiksuw
+
+
+I decided instead to ask Wiktionary. It will helpfully mark some entries with "weak form".
+
+```{r}
+
+```
+
+
+First, I downloaded Wiktionary from this page. The raw file data is ~23 gigabyte .jsonl file withe line per wiktionary entry and each entry is a single json object. This file will be too large to handle with R, clearly, so let's first trim the file down to see. The JSON structure of an entry is documented here on [this page](https://kaikki.org/dictionary/errors/mapping/index.html). And we can see that at a minimum, what we want are the following key from each object:
+
+
+We use the `jq` program for working on the data. As a Windows user with RTools installed, I found the easiest way to get up and running with jq was to install it in the RTools terminal with pacman:
+
+```
+# upgrade packages
+pacman -Syu
+# install jq
+pacman -S jq
+```
+
+But check the jq site for other installation guidance.
+
+To iterate on the dictionary, I first created a 10-entry mini-dictionary
+for demonstrating jq queries and 100,000-entry larger sub-dictionary.
+
+```{r}
+shell("head -n 1 raw-wiktextract-data.jsonl > test000001.jsonl")
+shell("head -n 10 raw-wiktextract-data.jsonl > test000010.jsonl")
+shell("head -n 100000 raw-wiktextract-data.jsonl > test100000.jsonl")
+files <- list(
+  test000001 = "test000001.jsonl",
+  test000010 = "test000010.jsonl",
+  test100000 = "test100000.jsonl",
+  full_corpus = "raw-wiktextract-data.jsonl",
+  # this is the name of a file we will create later
+  target_corpus = "english-wiktionary-pronunciations.jsonl"
+)
+```
+
+The jq tutorial provides a lot of demos. We can see the names of the top-level records in each entry:
+
+```{r}
+shell('jq -c ". | keys" test000001.jsonl')
+```
+
+```{r}
+query <- ". | keys"
+command <- glue::glue('jq -c "{query}" {files$test000001}')
+command
+shell(command)
+```
+
+
+And here is how we would get the language, word and part of speech for
+each entry, for just the English words in the file:
+
+```{r}
+query <- "select(.lang == \"English\") | {word, lang, pos}"
+command <- glue::glue('jq -c {shQuote(query)} {files$test000010}')
+command
+shell(command)
+```
+
+I am using glue here to help separate out parts of the command and make
+things more reusable. But I have to also do some extra fussiness with
+`shQuote()` to make sure that things are properly quoted for the shell
+on Windows machine.
+
+
+What we ultimately want are the pronunciations for each entry. The structure of the pronunciation page is encoded in a funny way where there is a record for each bullet in the pronunciation section. Sometimes that bullet is just an audio sample or a link to the word's rhymes. To get all of the pertinent bullets in an entry, I think we need to select the follow fields:
+
+
+```{r}
+query <- 'select(.lang == \"English\") | {word, lang, pos, sounds: [.sounds[]? | {note, enpr, tags, ipa, audio, homophone, rhymes}]}'
+
+
+file
+command <- glue::glue('jq -c {shQuote(query)} {files$test000001} | jq {shQuote(".")}')
+command
+shell(command)
+
+
+
+
+
+```
+
+for demo
+
+
+```{r}
+
+
+query <- 'select(.lang == \"English\") | 
+  {
+    word, lang, pos, sounds: [
+      .sounds[]? | {note, enpr, tags, ipa, audio, homophone, rhymes}
+    ]
+  }'
+a <- tempfile(fileext = ".jq")
+writeLines(query, a)
+readLines(a)
+
+strr
+command <- glue::glue('jq -c -f {a} {file} | jq {shQuote(".")}')
+command
+shell(command)
+
+
+
+command <- glue::glue('jq -c {shQuote(query)} {file} | head -n 1 | jq {shQuote(".")}')
+```
+
+If we apply this command, we can filter out a lot of the noise from the original json data.
+
+```{r}
+query <- 'select(.lang == \"English\") | {word, lang, pos, sounds: [.sounds[]? | {note, enpr, tags, ipa, audio, homophone, rhymes}]}'
+
+command <- glue::glue('jq -c {shQuote(query)} {file} > test25-small.jsonl')
+command
+shell(command)
+
+scales::label_bytes()(file.size("test000010.jsonl"))
+scales::label_bytes()(file.size("test25-small.jsonl"))
+file.size("test25-small.jsonl") / file.size("test000010.jsonl") 
+```
+
+
+```{r}
+query <- 'select(.lang == \"English\") | {word, lang, pos, sounds: [.sounds[]? | {note, enpr, tags, ipa, audio, homophone, rhymes}]}'
+
+file_big <- "raw-wiktextract-data.jsonl"
+command <- glue::glue('jq -c {shQuote(query)} {file_big} > english-sounds.jsonl')
+command
+shell(command)
+```
+
+
+```{r}
+make_jq_command <- function(input_file, query, pretty_print = FALSE, output_file = NULL) {
+  a <- tempfile(fileext = "jq")
+  writeLines(query, a)
+  flag_pp <- if (pretty_print) "" else "-c"
+  ending_pipe <- if (is.null(output_file)) "" else glue::glue("> {output_file}")
+  command <- glue::glue('jq {flag_pp} -f {a} {input_file} {ending_pipe}')
+  command
+}
+```
+
+
+```{r}
+query <- "select(.lang == \"English\") | 
+  {
+    word, lang, pos, sounds: [
+      .sounds[]? | {note, enpr, tags, ipa, audio, homophone, rhymes}
+    ]
+  } | 
+  select(.sounds | length > 0)"
+
+shell(make_jq_command(files$test100000, query, output_file = "out100000.jsonl"))
+list.files()
+
+file.size("out100000.jsonl") |> scales::label_bytes()()
+file.size("test100000.jsonl") |> scales::label_bytes()()
+file.size("out100000.jsonl") / file.size("test100000.jsonl") 
+```
+
+
+This command takes a while to run...
+
+```{r, eval = FALSE}
+shell(make_jq_command(files$full_corpus, query, output_file = files$target_corpus))
+list.files()
+```
+
+
+
+
+```{r}
+file.size(files$target_corpus) |>  scales::label_bytes()()
+file.size(files$target_corpus) / file.size(files$full_corpus) 
+
+```
+
+Now we have something that we can read into memory.
+
+Because each line of the file is a separate JSON object for an entry, we
+call `jsonlite::fromJSON()` on each line separately. jsonlite will helpfully
+read the sounds entry into a dataframe.
+
+```{r}
+lines <- files$target_corpus |> 
+  readr::read_lines()
+
+library(dplyr)  
+data <- lines |>  
+  head(10000) |> 
+  lapply(jsonlite::fromJSON) |> 
+  lapply(function(x) {
+    r <- x$sounds
+    r$word <- x$word
+    r$pos <- x$pos
+    r$lang <- x$lang
+    r <- lapply(r, as.character)
+    r <- tibble::as_tibble(r)
+    r$sounds_line_id <- seq_len(nrow(r))
+    r
+  }) |> 
+  purrr::list_rbind(names_to = "entry_id") |> 
+  mutate(
+    tags = tags |> lapply(paste0, collapse = ", ")
+  ) |> 
+  select(lang, entry_id, word, pos, sounds_line_id, everything())
+data
+
+
+jsonlite::read_json()
+
+```
+
+For speed, however, we can skip R and have duckdb ingest the file for us. This 
+approach was my original strategy until I decided to work with the full corpus.
+
+```{r}
+library(dbplyr)
+
+db <- DBI::dbConnect(duckdb::duckdb())
+DBI::dbExecute(db, "INSTALL json")
+
+query <- sql("
+  WITH sounds_long AS (
+    SELECT
+      word,
+      lang,
+      pos,
+      unnest(sounds) AS sound,
+      generate_subscripts(sounds, 1) as index
+    FROM 'english-wiktionary-pronunciations.jsonl'
+  )
+
+  SELECT
+    word,
+    lang,
+    pos,
+    index,
+    sound.note,
+    sound.enpr,
+    array_to_string(sound.tags, ', ') AS tags,
+    sound.ipa,
+    sound.audio,
+    sound.homophone,
+    sound.rhymes
+  FROM sounds_long
+")
+
+tbl_words <- tbl(db, query) 
+tbl_words
+```
+
+
+```{r}
+tbl_words |> 
+  filter(word == "for")
+```
+
+
+Now, we can query for words that are described as "weak forms":
+
+```{r}
+tbl_words |> 
+  filter(stringr::str_detect(note, "weak form"))
+```
+
+That has a lot of redundant info, so we can group by 
+
+```{r}
+tbl_words |> 
+  group_by(word, lang, pos) |> 
+  filter(any(stringr::str_detect(note, "weak form"), na.rm = TRUE)) |> 
+  ungroup() |> 
+  distinct(word) |> 
+  arrange(word) |> 
+  collect() |> 
+  print(n = Inf)
+```
+
+
+That really did not help up find very many new weak forms to consider. But, 
+with this resource in hand, we can also look for other strange pronunciation
+notes. 
+
+```{r}
+tbl_words |> 
+  filter(stringr::str_detect(note, "before")) |> 
+  distinct(word, note, ipa) |> 
+  arrange(word)
+```
+
+```{r}
+tbl_words |> 
+  filter(stringr::str_detect(note, "after")) |> 
+  distinct(word, note, ipa) |> 
+  arrange(word) |> 
+  print(n = 100)
+```
+
+Let's filter out the ones that have to do with a narrow dialect issue:
+
+```{r}
+tbl_words |> 
+  filter(stringr::str_detect(note, "before")) |> 
+  filter(!stringr::str_detect(note, "æ-raising")) |> 
+  distinct(word, note, ipa) |> 
+  arrange(word) |> 
+print(n = Inf)
+```
+
+Maybe there is something in tne tags that can help us.
+
+```{r}
+tbl_words |> 
+  group_by(word, pos) |> 
+  filter(
+    any(stringr::str_detect(tags, "unstressed")),
+    any(stringr::str_detect(tags, "stressed"))
+  ) |> 
+  ungroup()
+```
+
+This seems like a good lead. 
+
+```{r}
+tbl_words |> 
+  group_by(word, pos) |> 
+  filter(
+    any(stringr::str_detect(tags, "unstressed")),
+    any(stringr::str_detect(tags, "stressed"))
+  ) |> 
+  ungroup() |> 
+  distinct(word) |> 
+  arrange(word) |> 
+  collect() |>
+  pull(word)
+```
+
+
+This result is definitely much noisier but it catches some of the Roach items we didn't have above.
+
+I also want to draw attention to the items *Saint* and *sir*. Those words were 
+also part of another of list of weak forms by Rudolph (1998). I don't have access to this book, but I found 
+a Japanese slide deck that lists off weak forms from Rudolph (1998).
+
+```{r}
+extra_words <- c(
+  "a", "an", "the",
+  "be", "been","am", "are",
+  "is", "was", "were",
+  "had", "has", "have",
+  "did", "do", "does",
+  "can", "could", "may", "must", "shall", "should", "will", "would",
+  "at", "by", "for", "from", "in", "of", "on", "per", "to", "up", "with", 
+  "and", "but", "nor", "or", "so", "as", "if", "than", "till", 
+  "what", "when", "who", "whom", "whose", "that", 
+  "he", "her", "him", "his", "it", "me", "my", "she", 
+  "their", "them", "they", "us", "we", "you", "your", 
+  "one", "any", "no", "some", "such", "this", 
+  "sure", "just", "not", "then", "there", 
+  "come", "get", "go", "said", "says", "sit", "thank", 
+  "ma'am", "Saint", "sir", "time", "times", "well"
+)
+```
+
+
+### Fun times
+
+Just for fun time. What words start with /sf/ besides *sphinx* and *sphere* (and derived words)?
+
+```{r}
+tbl_words |> 
+  filter(stringr::str_detect(ipa, "/[ˌˈ.]?sf")) |> 
+  distinct(word, pos) |> 
+  group_by(word) |> 
+  mutate(pos = str_flatten(pos, collapse = ", ")) |> 
+  ungroup() |> 
+  distinct() |> 
+  print(n = Inf)
+```
+
+Is /pw/ (as in *Puerto Rico*) in very many words?
+
+```{r}
+tbl_words |> 
+  filter(stringr::str_detect(ipa, "/[ˌˈ.]?pw")) |> 
+  distinct(word, pos) |> 
+  group_by(word) |> 
+  mutate(pos = str_flatten(pos, collapse = ", ")) |> 
+  ungroup() |> 
+  distinct() |> 
+  arrange(word) |> 
+  print(n = Inf)
+```
+
+I need to turn in my Statistics Card for not thinking of *poisson*.
+
+One less exotic consonant cluster is /Sr/ (*shrink*):
+
+```{r}
+tbl_words |> 
+  filter(stringr::str_detect(ipa, "/[ˌˈ.]?ʃɹ")) |> 
+  distinct(word, pos) |> 
+  group_by(word) |> 
+  mutate(pos = str_flatten(pos, collapse = ", ")) |> 
+  ungroup() |> 
+  distinct() |> 
+  print(n = Inf)
+```
+
+Okay what clusters start words?
+
+```{r}
+tbl_words |> 
+  filter(!is.na(ipa)) |> 
+  filter(!stringr::str_detect(ipa, "-")) |> 
+  mutate(
+    start = ipa |> 
+      stringr::str_remove_all("[\\[/.ˈˌ]") |> 
+      stringr::str_sub(1, 2)
+  ) |> 
+  distinct(word, start) |> 
+  count(start) |> 
+  filter(n != 1) |> 
+  arrange(n) 
+
+tbl_words |> 
+  filter(!is.na(ipa)) |> 
+  filter(!stringr::str_detect(ipa, "-")) |> 
+  mutate(
+    start = ipa |> 
+      stringr::str_remove_all("[\\[/.ˈˌ]") |> 
+      stringr::str_sub(1, 2)
+  ) |> 
+  filter(start == "kt")
+
+
+filter(startsstringr::str_detect(ipa, "/[ˌˈ.]?ʃɹ")) |> 
+  distinct(word, pos) |> 
+  group_by(word) |> 
+  mutate(pos = str_flatten(pos, collapse = ", ")) |> 
+  ungroup() |> 
+  distinct() |> 
+  print(n = Inf)
+```
+
+
+
+
+
+```{r}
+tbl_words |>
+  filter(word == "Saint") |> 
+  print(n = Inf)
+
+tbl_words |>
+  filter(word == "most") |> 
+  print(n = Inf)
+```
+
+
+
+This is de
+
+
+```{bash}
+cat "F:/wiktionary/test-100.jsonl" | jq 'select(.lang == "English") | {word, lang, pos}'
+```
+
+
+```{r, include = FALSE}
+.parent_doc <- knitr::current_input()
+```
+```{r, change_to_child_when_done = "_footer.Rmd"}
+```
