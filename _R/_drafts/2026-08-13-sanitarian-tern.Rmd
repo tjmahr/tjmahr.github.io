@@ -10,20 +10,34 @@ knitr::opts_chunk$set(
 )
 ```
 
-Some very frequent English words have so-called *strong* and *weak* forms. The strong form is the citation form of the word, or how one might say the word all by itself, or when mentioning the word in a phrase like "the word ____". The weak form is how speakers tend to actually say the word in connected speech. For example, *and*.
+Some frequent English words have so-called *strong* and *weak* forms. The strong
+form is the "citation form" of the word, or how one might say the word all by
+itself or in a phrase like "the word \_\_\_\_". The weak form is how speakers
+tend to actually say the word in connected speech, and this spoken form is
+indeed weaker: consonants may be deleted and vowels reduced to a more neutral
+/ə/ vowel.
+
+For example, *and*.
 
 - strong: The word "and" (*rhymes with "hand"*)
 - weak: Mom and dad. ([n] *practically only an /n/ sound*) 
-- hence: rock 'n' roll
 
+And *for*:
 
+- strong: I wrote a "for" loop (*sounds like "fore"*)
+- weak: It was a free-for-all ([fɚ] *"fer"*) 
+- weak: F'real, f'real. (*I think that's how you would read "fr fr"*) 
 
-Searching for "English weak forms" on a search engine brings up mostly materials related to learning English as a second-language language. 
+Searching for "English weak forms" on a search engine brings up mostly materials
+related to learning English as a second-language language, because fully
+articulating a word that is normally reduced sounds unnatural.
 
-Roach (0000) provides a list of 38 such words, which we can list out below:
+## Existing lists of strong/weak forms
+
+Roach (2009) provides a list of 40 words with weak forms:
 
 ```{r}
-c(
+wf_roach <- c(
   "the", "a", "an",
   "and", "but", 
   "that",
@@ -40,46 +54,127 @@ c(
 )
 ```
 
-
-A lot of these are going to be vowel reductions (your -> [jer] 'yr').
-
-Roach() writes from the perspective of British English, so some of the /h/-initial weak forms of (*his* -> [Iz]).
-
-
+Roach (2009) writes from the perspective of British English, so some of the
+/h/-initial weak forms are [/h/
+deletions](https://theonion.com/lovable-cockney-charms-neighbors-1819563965/)
+(*his* -\> [ɪz]), but we'll just take the list at face value.
 
 
-Does this list seem complete? *because* seems absent.
 
 
-https://www.scribd.com/doc/43388253/Pronunciations-in-connected-speech-A-Survey-of-Weak-Forms-in-a-Spoken-Corpus-of-American-English
-https://www.scribd.com/document/25041468/%E9%9F%B3%E5%A3%B0%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%82%92%E7%94%A8%E3%81%84%E3%81%9F%E8%8B%B1%E8%AA%9E%E5%BC%B1%E5%BD%A2%E3%83%AA%E3%82%B9%E3%83%88%E3%81%AE%E6%94%B9%E8%A8%82-Revising-the-list-of-weak-forms-in-English-using-a-spoken-corpus#fullscreen=1?access_key=key-14qctczl5mqnjkbiksuw
 
 
-I decided instead to ask Wiktionary. It will helpfully mark some entries with "weak form".
 
-```{r}
-
-```
+<!-- Moreover, a lot of these are going to be vowel reductions (*your* -> [jer] [*yr*](https://www.youtube.com/watch?v=q_wroK6bY7Y)),  -->
 
 
-First, I downloaded Wiktionary from this page. The raw file data is ~23 gigabyte .jsonl file withe line per wiktionary entry and each entry is a single json object. This file will be too large to handle with R, clearly, so let's first trim the file down to see. The JSON structure of an entry is documented here on [this page](https://kaikki.org/dictionary/errors/mapping/index.html). And we can see that at a minimum, what we want are the following key from each object:
 
+Roach (2009) gives apparent rules for when to use strong versus weak forms. For
+example,
 
-We use the `jq` program for working on the data. As a Windows user with RTools installed, I found the easiest way to get up and running with jq was to install it in the RTools terminal with pacman:
+  - A demonstrative/place *there* is strong: *There went my keys*
+  - An existential or dummy-ish *there* is more likely to be weak: *There must
+    be something wrong.*
 
-```
-# upgrade packages
-pacman -Syu
-# install jq
-pacman -S jq
-```
+One important thing to keep in mind, therefore, is that the strong/weak
+variation is going to depend on surrounded words or sentence position. I'm going
+to ignore all those niceties, because I just want to make a list of words with
+weak forms.
 
-But check the jq site for other installation guidance.
-
-To iterate on the dictionary, I first created a 10-entry mini-dictionary
-for demonstrating jq queries and 100,000-entry larger sub-dictionary.
+Obendorfer (1998) provides another list of words with weak forms. I don't have
+access to this book, but I found [a presentation by
+Makino](https://www.scribd.com/doc/43388253/Pronunciations-in-connected-speech-A-Survey-of-Weak-Forms-in-a-Spoken-Corpus-of-American-English)
+that starts from the Obendorfer list and proposes a few additions.
 
 ```{r}
+wf_obendorfer <- c(
+  "a", "an", "the",
+  "be", "been","am", "are",
+  "is", "was", "were",
+  "had", "has", "have",
+  "did", "do", "does",
+  "can", "could", "may", "must", "shall", "should", "will", "would",
+  "at", "by", "for", "from", "in", "of", "on", "per", "to", "up", "with", 
+  "and", "but", "nor", "or", "so", "as", "if", "than", "till", 
+  "what", "when", "who", "whom", "whose", "that", 
+  "he", "her", "him", "his", "it", "me", "my", "she", 
+  "their", "them", "they", "us", "we", "you", "your", 
+  "one", "any", "no", "some", "such", "this", 
+  "sure", "just", "not", "then", "there", 
+  "come", "get", "go", "said", "says", "sit", "thank", 
+  "ma'am", "Saint", "sir", "time", "times", "well"
+)
+wf_makino_additions <- c(
+  "where", "gets", "our", "most", "which"
+) 
+```
+
+Here's a question: Does these lists seem complete? I think about words like
+*because* or *about* which have classic reduced forms ("cuz"/"cos" and "'bout")
+and have to wonder. Maybe, *because* and *about* are typologically a different
+category of word: words that can be weakened but don't sound unnatural in their
+full form. 
+
+## Looking for weak forms in Wiktionary
+
+To identify any gaps, I decided to consult Wiktionary which marks pronunciations
+for some weak forms. For example, the [entry for
+*for*](https://en.wiktionary.org/wiki/for) has separate pronunciations for the
+strong form and for the weak form:
+
+> - (*strong form*) enPR: fôr
+>   - (*Received Pronunciation*) IPA: /fɔː/
+>     - Audio (*UK*, *stressed form*): [*player*]
+>   - (*General American*, *Canada*) IPA: /fɔɹ/
+>     - Audio (*General American*, *stressed form*): [*player*]
+>   - (*Australia*, *New Zealand*) IPA: /foː/
+>     - Audio (*Australia*, *stressed form*):	[*player*]
+>   - (*Scotland*) IPA: /fɔɾ/
+> - (*weak form*) enPR: fər
+>   - (*Received Pronunciation*, *Australia*) IPA: /fə/
+>     - Audio (*UK*, *unstressed form*): [*player*]
+>   - (*General American*, *Canada*) IPA: /fɚ/
+>     - Audio (*California*, *unstressed form*); "wait for me": [*player*]
+>   - (*New Zealand*) IPA: /fɘ/
+> - Rhymes: -ɔː(ɹ)
+> - Homophones: faugh (*non-rhotic*), faw (*non-rhotic*), fore, four (horse–hoarse *merger*), Thor (th-*fronting*)
+
+There is no helpful index of words with separate strong or weak forms, so I decided to check for more.
+
+
+### Preprocessing the JSON corpus
+
+First, we download Wiktionary from [kaikki.org](https://kaikki.org/dictionary/rawdata.html). The raw file data is ~23 gigabyte .jsonl file with one line per Wiktionary entry where each entry is a single json object. This file will be too large to handle with R, clearly, so let's first trim the file down to see. The generic JSON structure of an entry is documented here on [this page](https://kaikki.org/dictionary/errors/mapping/index.html). And we can see that at a minimum, what we want are the data for the following keys from each entry:
+
+
+[^1]: It is possible to get a pared-down version of the English Wiktionary (1/7th the size of the original), but the authors warn that this file is deprecated, so we proceed without using it.
+
+
+```
+{
+  "lang",
+  "word",
+  "pos",
+  "sounds": {
+    "note", "enpr", "tags", "ipa", "audio", "homophone", "rhymes"
+  }
+}
+```
+
+
+
+We are going to use command-line tools to preprocess the .jsonl file. These have
+the advantage of operating line-by-line meaning that we never have to process
+read a whole file into memory. But for the sake of demonstration, I am going to 
+use R's `shell()` function to call these tools. 
+
+To iterate on the dictionary, I first created mini-dictionaries for testing and
+demo-ing jq queries, and these samples had 1, 10, or 100,000 entries in them.
+
+Note that `> [file]` means to dump the output of the prior step into this file:
+
+```{r}
+setwd("F:/wiktionary/")
 shell("head -n 1 raw-wiktextract-data.jsonl > test000001.jsonl")
 shell("head -n 10 raw-wiktextract-data.jsonl > test000010.jsonl")
 shell("head -n 100000 raw-wiktextract-data.jsonl > test100000.jsonl")
@@ -93,22 +188,40 @@ files <- list(
 )
 ```
 
+We use the [`jq` program](https://jqlang.org/) for working on the data.
+
+[^2]: As a Windows user with RTools installed, I found the easiest way to get up and running with jq was to install it in the RTools terminal with pacman:
+
+```
+# upgrade packages
+pacman -Syu
+# install jq
+pacman -S jq
+```
+
+But check the jq site for other installation guidance.
+
+
 The jq tutorial provides a lot of demos. We can see the names of the top-level records in each entry:
 
 ```{r}
+# -c means "compact" or print objects to just one line of text
 shell('jq -c ". | keys" test000001.jsonl')
 ```
 
+From now on, I'm going to use `glue::glue()` to assemble queries into the
+template `jq -c "QUERY" FILE`. I am also going to use `shQuote()` to make sure
+that things are properly quoted for the shell on a Windows machine:
+
 ```{r}
 query <- ". | keys"
-command <- glue::glue('jq -c "{query}" {files$test000001}')
+command <- glue::glue('jq -c {shQuote(query)} {files$test000001}')
 command
 shell(command)
 ```
 
-
-And here is how we would get the language, word and part of speech for
-each entry, for just the English words in the file:
+Here is how we would get the language, word and part of speech for
+each entry, but for just the English words in the file:
 
 ```{r}
 query <- "select(.lang == \"English\") | {word, lang, pos}"
@@ -117,16 +230,41 @@ command
 shell(command)
 ```
 
-I am using glue here to help separate out parts of the command and make
-things more reusable. But I have to also do some extra fussiness with
-`shQuote()` to make sure that things are properly quoted for the shell
-on Windows machine.
+What we ultimately want are the pronunciations for each entry. The structure of the pronunciation page is encoded in a funny way where there is a record for each bullet in the pronunciation section. Sometimes that bullet is just an audio sample or a link to the word's rhymes, as shown earlier with the *for* entry quoted above.
 
 
-What we ultimately want are the pronunciations for each entry. The structure of the pronunciation page is encoded in a funny way where there is a record for each bullet in the pronunciation section. Sometimes that bullet is just an audio sample or a link to the word's rhymes. To get all of the pertinent bullets in an entry, I think we need to select the follow fields:
+For the sake of readability, I am going to write a wrapper function that
+writes/reads the `jq` query to/from a temporary file. This indirection allows me
+to write the queries in a more legible format and it avoids any `shQuote()`
+issues.
+
+```{r}
+make_jq_command <- function(input_file, query, pretty_print = FALSE, output_file = NULL) {
+  a <- tempfile(fileext = "jq")
+  writeLines(query, a)
+  flag_pp <- if (pretty_print) "" else "-c"
+  ending_pipe <- if (is.null(output_file)) "" else glue::glue("> {output_file}")
+  command <- glue::glue('jq {flag_pp} -f {a} {input_file} {ending_pipe}')
+  command
+}
+```
+
+Here is how we would get the data for the word *for* that I showed earlier:
 
 
 ```{r}
+query <- "select(.lang == \"English\" and .word == \"for\" and .pos == \"prep\") | 
+  {
+    word, lang, pos, sounds: [
+      .sounds[]? | {note, enpr, tags, ipa, audio, homophone, rhymes}
+    ]
+  } | 
+  select(.sounds | length > 0)"
+
+shell(make_jq_command(files$test100000, query, pretty_print = TRUE))
+list.files()
+
+
 query <- 'select(.lang == \"English\") | {word, lang, pos, sounds: [.sounds[]? | {note, enpr, tags, ipa, audio, homophone, rhymes}]}'
 
 
@@ -134,10 +272,6 @@ file
 command <- glue::glue('jq -c {shQuote(query)} {files$test000001} | jq {shQuote(".")}')
 command
 shell(command)
-
-
-
-
 
 ```
 
@@ -192,16 +326,7 @@ shell(command)
 ```
 
 
-```{r}
-make_jq_command <- function(input_file, query, pretty_print = FALSE, output_file = NULL) {
-  a <- tempfile(fileext = "jq")
-  writeLines(query, a)
-  flag_pp <- if (pretty_print) "" else "-c"
-  ending_pipe <- if (is.null(output_file)) "" else glue::glue("> {output_file}")
-  command <- glue::glue('jq {flag_pp} -f {a} {input_file} {ending_pipe}')
-  command
-}
-```
+
 
 
 ```{r}
@@ -403,28 +528,12 @@ tbl_words |>
 This result is definitely much noisier but it catches some of the Roach items we didn't have above.
 
 I also want to draw attention to the items *Saint* and *sir*. Those words were 
-also part of another of list of weak forms by Rudolph (1998). I don't have access to this book, but I found 
-a Japanese slide deck that lists off weak forms from Rudolph (1998).
+also part of another of list of weak forms by Rudolph (1998). 
 
-```{r}
-extra_words <- c(
-  "a", "an", "the",
-  "be", "been","am", "are",
-  "is", "was", "were",
-  "had", "has", "have",
-  "did", "do", "does",
-  "can", "could", "may", "must", "shall", "should", "will", "would",
-  "at", "by", "for", "from", "in", "of", "on", "per", "to", "up", "with", 
-  "and", "but", "nor", "or", "so", "as", "if", "than", "till", 
-  "what", "when", "who", "whom", "whose", "that", 
-  "he", "her", "him", "his", "it", "me", "my", "she", 
-  "their", "them", "they", "us", "we", "you", "your", 
-  "one", "any", "no", "some", "such", "this", 
-  "sure", "just", "not", "then", "there", 
-  "come", "get", "go", "said", "says", "sit", "thank", 
-  "ma'am", "Saint", "sir", "time", "times", "well"
-)
-```
+
+
+
+
 
 
 ### Fun times
