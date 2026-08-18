@@ -8,6 +8,11 @@ tags: ''
 knitr::opts_chunk$set(
   echo = TRUE
 )
+# Find the mirror (computer-sensitive)
+locations <- c("F:/wiktionary/", "E:/wiktionary/")
+stopifnot(any(dir.exists(locations)))
+location <- Find(dir.exists, locations)
+setwd(location)
 ```
 
 Some frequent English words have so-called *strong* and *weak* forms. The strong
@@ -139,16 +144,31 @@ strong form and for the weak form:
 > - Rhymes: -ɔː(ɹ)
 > - Homophones: faugh (*non-rhotic*), faw (*non-rhotic*), fore, four (horse–hoarse *merger*), Thor (th-*fronting*)
 
+
+
 There is no helpful index of words with separate strong or weak forms, so I decided to check for more.
 
 
 ### Preprocessing the JSON corpus
 
-First, we download Wiktionary from [kaikki.org](https://kaikki.org/dictionary/rawdata.html). The raw file data is ~23 gigabyte .jsonl file with one line per Wiktionary entry where each entry is a single json object. This file will be too large to handle with R, clearly, so let's first trim the file down to see. The generic JSON structure of an entry is documented here on [this page](https://kaikki.org/dictionary/errors/mapping/index.html). And we can see that at a minimum, what we want are the data for the following keys from each entry:
-
+First, we download Wiktionary from
+[kaikki.org](https://kaikki.org/dictionary/rawdata.html). The raw file
+data is 23-gigabyte [.jsonl file](https://jsonlines.org/) with one line
+per Wiktionary entry where each entry is a single json object.
 
 [^1]: It is possible to get a pared-down version of the English Wiktionary (1/7th the size of the original), but the authors warn that this file is deprecated, so we proceed without using it.
 
+
+
+This file will be too large to handle with R, clearly, so let's first
+trim the file down into a manageable size. We can discard non-English
+words and discard definitions, etymologies, examples, etc. from the
+entries. What we want are the language, word, part of speech, and the
+pronunciation data shown in the bullets above. The generic JSON
+structure of an entry is [documented on this
+page](https://kaikki.org/dictionary/errors/mapping/index.html). And we
+can see that at a minimum, what we want are the data for the following
+keys from each entry:
 
 ```
 {
@@ -163,18 +183,21 @@ First, we download Wiktionary from [kaikki.org](https://kaikki.org/dictionary/ra
 
 
 
-We are going to use command-line tools to preprocess the .jsonl file. These have
-the advantage of operating line-by-line meaning that we never have to process
-read a whole file into memory. But for the sake of demonstration, I am going to 
-use R's `shell()` function to call these tools. 
+We are going to use the [command
+line](https://swcarpentry.github.io/shell-novice/aio.html) to preprocess the
+.jsonl file. Command-line tools have the advantage of operating line-by-line,
+meaning that we never have to read a whole file into memory. For the sake of
+reproducibility and demonstration, I am going to use R's `shell()` function to
+routing text to and from the command line.
 
-To iterate on the dictionary, I first created mini-dictionaries for testing and
-demo-ing jq queries, and these samples had 1, 10, or 100,000 entries in them.
+
+To help me experiment and iterate on processing the Wiktionary output, I first
+created mini-dictionaries for testing and demo-ing jq queries, and these samples
+had 1, 10, or 100,000 entries in them.
 
 Note that `> [file]` means to dump the output of the prior step into this file:
 
 ```{r}
-setwd("F:/wiktionary/")
 shell("head -n 1 raw-wiktextract-data.jsonl > test000001.jsonl")
 shell("head -n 10 raw-wiktextract-data.jsonl > test000010.jsonl")
 shell("head -n 100000 raw-wiktextract-data.jsonl > test100000.jsonl")
@@ -188,7 +211,7 @@ files <- list(
 )
 ```
 
-We use the [`jq` program](https://jqlang.org/) for working on the data.
+We use the [`jq` program](https://jqlang.org/) for querying and manipulating the JSON data.
 
 [^2]: As a Windows user with RTools installed, I found the easiest way to get up and running with jq was to install it in the RTools terminal with pacman:
 
@@ -202,11 +225,13 @@ pacman -S jq
 But check the jq site for other installation guidance.
 
 
+jq has a nice querying language that I think will feel natural to dplyr users.
+
 The jq tutorial provides a lot of demos. We can see the names of the top-level records in each entry:
 
 ```{r}
 # -c means "compact" or print objects to just one line of text
-shell('jq -c ". | keys" test000001.jsonl')
+shell('jq ". | keys" test000001.jsonl')
 ```
 
 From now on, I'm going to use `glue::glue()` to assemble queries into the
