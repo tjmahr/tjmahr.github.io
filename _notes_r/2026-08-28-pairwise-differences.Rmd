@@ -1,0 +1,207 @@
+---
+title: "Computing and filtering pairwise differences in R and duckdb"
+date: 2026-08-28
+tags: [r, dplyr, duckdb]
+---
+
+```{r, include = FALSE}
+library(dplyr)
+```
+
+We have listeners transcribe children's speech, and to filter out
+potentially unreliable listeners, we will select the first 2 listeners
+that are within 10 percentage points (.10 on proportion units) of each
+other.
+
+```{r}
+library(dplyr)
+withr::local_seed(20260828)
+
+data <- tibble::tibble(
+  id = 1:20,
+  mu = rnorm(20) |> plogis(),
+  phi = round(rgamma(20, shape = 40)),
+  a = floor(mu * phi),
+  b = phi - a,
+  y = Map(rbeta, 4, a, b)
+) |> 
+  tidyr::unnest(y) |> 
+  group_by(id) |> 
+  mutate(listener_num = seq_along(y)) |> 
+  ungroup() |> 
+  select(id, listener_num, y)
+data
+```
+
+Let's work through the problem for a single vector of observations.
+`outer()` will populate an outer product matrix from each combination of
+values from two vectors. Here is a visualization of how elements from
+vectors are paired off:
+
+```{r}
+x1 <- letters[1:5]
+x2 <- 1:5
+outer(x1, x2, FUN = paste0)
+```
+
+For pairwise differences, here are the steps in a very base R style:
+
+- Compute pairwise differences into matrix
+- Keep just the lower triangle of the matrix
+- Get the row and column indices of pairs that meet the criteria
+- Find the first such pair
+
+Row and column indices correspond to data collection order (row 1 and
+column 1 are listener 1). So, the *first such pair* is the first one with the
+smallest maximum row/column index. For example, if pairs 1-4 and 2-3
+both satisfy the criteria, 2-3 has to be first because 4 would not have
+been collected yet by the time 2-3 satisfied the criteria.
+
+```{r}
+limit <- .1
+xs <- data |> filter(id == 1) |> pull(y)
+xs
+
+diffs <- outer(xs, xs, FUN = "-")
+diffs
+
+pairs <- which(abs(diffs) <= limit, arr.ind = TRUE)
+# Keep the lower triangle of the matrix
+pairs <- pairs[pairs[, "col"] < pairs[, "row"], 1:2, drop = FALSE]
+pairs
+
+# Bc we have a lower triangle matrix, row index > col index, 
+# so keep smallest row index
+row_pair <- which.min(pairs[, "row"])
+pairs[row_pair, ]
+
+pair <- pairs[row_pair, , drop = TRUE] |> unname()
+pair
+```
+
+Wrapping these steps into a function, we get:
+
+```{r}
+find_first_consistent_pair <- function(xs, limit = .1) {
+  diffs <- outer(xs, xs, FUN = "-")
+  pairs <- which(abs(diffs) <= limit, arr.ind = TRUE)
+  # Keep the lower triangle of the matrix
+  pairs <- pairs[pairs[, "col"] < pairs[, "row"], 1:2, drop = FALSE]
+  
+  if (nrow(pairs) == 0) return(c(NA_integer_, NA_integer_))
+  
+  row_pair <- which.min(pairs[, "row"])
+  pair <- pairs[row_pair, , drop = TRUE] |> unname()
+  pair
+}
+
+data_with_pairs <- data |> 
+  group_by(id) |> 
+  mutate(
+    in_pair = listener_num %in% find_first_consistent_pair(y)
+  ) |> 
+  ungroup()
+data_with_pairs
+```
+
+(Aside: I know I have couple of other base R approaches sitting around
+my computer. I can't remember where I stashed them though. The point of
+this note, in fact, is to put this bit of code somewhere more permanent than
+a random R file on my machine.)
+
+### Database version
+
+In production, I have these intelligibility values computed from a duckdb 
+database so I would like to make this computation using R code that can be 
+converted to the duckdb dialect of SQL. 
+
+First, let's spin up a duckdb database.
+
+```{r}
+db <- withr::local_db_connection(DBI::dbConnect(duckdb::duckdb()))
+dplyr::copy_to(db, data, "data")
+tbl(db, "data")
+```
+
+To do the outer product type of pairing, we do a self-join on the
+tables, but we can tweak the joining criteria to keep just the
+lower-triangle of pairs. I create a `self_left_join()` function for 
+friendly `|>` piping. 
+
+```{r}
+self_left_join <- function(x, ...) left_join(x, x, ...)
+group_vars <- rlang::syms(c("id"))
+
+tbl_pairs <- tbl(db, "data") |> 
+  self_left_join(
+    join_by(
+      # want A:B comparison. ordering removes redundant A:A and B:A comparisons
+      !!! group_vars, x$listener_num < y$listener_num,
+    ),
+    suffix = c("_left", "_right")
+  )
+tbl_pairs
+```
+
+Because `listener_num_left < listener_num_right` as a result of the table join, 
+the *first such pair* is the first one with the smallest `listener_num_right`:
+
+```{r}
+limit <- .1
+
+tbl_selected_pairs <- tbl_pairs |> 
+  group_by(!!! group_vars) |>
+  mutate(diffs = abs(y_left - y_right)) |>
+  filter(diffs <= limit) |> 
+  filter(listener_num_right == min(listener_num_right, na.rm = TRUE)) |> 
+  filter(listener_num_left == min(listener_num_left, na.rm = TRUE)) |> 
+  select(
+    !!! group_vars, listener_num_left, listener_num_right
+  ) 
+tbl_selected_pairs
+```
+
+The data are in a wide format right now, so we need to pivot them into a
+longer shape. I am going to use duckdb's own functions (written in all
+caps) to accomplish this task:
+
+```{r}
+tbl_pairs_to_keep <- tbl_selected_pairs |> 
+  mutate(
+    # unpivoting by nesting and unnesting values
+    listener_num = LIST_VALUE(listener_num_left, listener_num_right) |>
+      UNNEST()
+  ) |>
+  ungroup() |>
+  select(!!! group_vars, listener_num)
+tbl_pairs_to_keep
+```
+
+Finally, we can filter down to the desired listener ids.
+
+```{r}
+tbl_keep <- tbl(db, "data") |> 
+  inner_join(tbl_pairs_to_keep, by = join_by(id, listener_num))
+tbl_keep
+```
+
+Each `tbl_` here is a SQL query until we finally `collect()` the data
+into R, so we can marvel at the SQL we generated:
+
+```{r}
+dplyr::show_query(tbl_keep)
+```
+
+Finally, we can check that the two versions agree:
+
+```{r}
+a <- data_with_pairs |> 
+  filter(in_pair) |> 
+  select(1, 2, 3) |> 
+  arrange(id, listener_num)
+b <- tbl_keep |> collect() |> arrange(id, listener_num)
+
+all(a == b)
+```
+
+

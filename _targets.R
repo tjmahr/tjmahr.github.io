@@ -20,6 +20,7 @@ if (FALSE) {
 # missing <- setdiff(dont_forget_these_packages, installed.packages()[, 1])
 # if (length(missing)) {
 #   install.packages(missing)
+#   install.packages("remotes")
 #   remotes::install_github("hadley/emo")
 #   remotes::install_github("tjmahr/iccbot")
 #   remotes::install_github("gadenbuie/grkstyle")
