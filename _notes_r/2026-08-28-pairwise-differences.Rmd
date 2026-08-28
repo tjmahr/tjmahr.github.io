@@ -10,7 +10,7 @@ library(dplyr)
 
 We have listeners transcribe children's speech, and to filter out
 potentially unreliable listeners, we will select the first 2 listeners
-that are within 10 percentage points (.10 on proportion units) of each
+that are within 10 percentage points (.10 proportion units) of each
 other.
 
 ```{r}

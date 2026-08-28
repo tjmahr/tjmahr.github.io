@@ -8,7 +8,7 @@ tags: [r, dplyr, duckdb]
 
 We have listeners transcribe children's speech, and to filter out
 potentially unreliable listeners, we will select the first 2 listeners
-that are within 10 percentage points (.10 on proportion units) of each
+that are within 10 percentage points (.10 proportion units) of each
 other.
 
 <pre class='chroma'>
@@ -241,26 +241,26 @@ the *first such pair* is the first one with the smallest `listener_num_right`:
 <span><span class='c'>#&gt; # Groups:   id</span></span>
 <span><span class='c'>#&gt;       id listener_num_left listener_num_right</span></span>
 <span><span class='c'>#&gt;    &lt;int&gt;             &lt;int&gt;              &lt;int&gt;</span></span>
-<span><span class='c'>#&gt;  1     1                 1                  2</span></span>
-<span><span class='c'>#&gt;  2     7                 1                  3</span></span>
-<span><span class='c'>#&gt;  3    11                 2                  3</span></span>
-<span><span class='c'>#&gt;  4    16                 1                  2</span></span>
-<span><span class='c'>#&gt;  5     3                 1                  2</span></span>
-<span><span class='c'>#&gt;  6     6                 1                  3</span></span>
-<span><span class='c'>#&gt;  7    12                 1                  2</span></span>
-<span><span class='c'>#&gt;  8    20                 1                  3</span></span>
-<span><span class='c'>#&gt;  9     8                 1                  2</span></span>
-<span><span class='c'>#&gt; 10    13                 1                  2</span></span>
-<span><span class='c'>#&gt; 11    19                 1                  2</span></span>
-<span><span class='c'>#&gt; 12     4                 1                  2</span></span>
-<span><span class='c'>#&gt; 13    10                 1                  3</span></span>
-<span><span class='c'>#&gt; 14    18                 1                  2</span></span>
-<span><span class='c'>#&gt; 15    15                 2                  3</span></span>
-<span><span class='c'>#&gt; 16     5                 1                  2</span></span>
-<span><span class='c'>#&gt; 17     9                 2                  3</span></span>
-<span><span class='c'>#&gt; 18    14                 1                  2</span></span>
-<span><span class='c'>#&gt; 19    17                 1                  3</span></span>
-<span><span class='c'>#&gt; 20     2                 1                  2</span></span></pre>
+<span><span class='c'>#&gt;  1    15                 2                  3</span></span>
+<span><span class='c'>#&gt;  2    11                 2                  3</span></span>
+<span><span class='c'>#&gt;  3    16                 1                  2</span></span>
+<span><span class='c'>#&gt;  4    10                 1                  3</span></span>
+<span><span class='c'>#&gt;  5    18                 1                  2</span></span>
+<span><span class='c'>#&gt;  6     1                 1                  2</span></span>
+<span><span class='c'>#&gt;  7     3                 1                  2</span></span>
+<span><span class='c'>#&gt;  8     6                 1                  3</span></span>
+<span><span class='c'>#&gt;  9     2                 1                  2</span></span>
+<span><span class='c'>#&gt; 10     4                 1                  2</span></span>
+<span><span class='c'>#&gt; 11    12                 1                  2</span></span>
+<span><span class='c'>#&gt; 12    20                 1                  3</span></span>
+<span><span class='c'>#&gt; 13     8                 1                  2</span></span>
+<span><span class='c'>#&gt; 14    13                 1                  2</span></span>
+<span><span class='c'>#&gt; 15    19                 1                  2</span></span>
+<span><span class='c'>#&gt; 16     7                 1                  3</span></span>
+<span><span class='c'>#&gt; 17     5                 1                  2</span></span>
+<span><span class='c'>#&gt; 18     9                 2                  3</span></span>
+<span><span class='c'>#&gt; 19    14                 1                  2</span></span>
+<span><span class='c'>#&gt; 20    17                 1                  3</span></span></pre>
 
 The data are in a wide format right now, so we need to pivot them into a
 longer shape. I am going to use duckdb's own functions (written in all
@@ -280,12 +280,12 @@ caps) to accomplish this task:
 <span><span class='c'>#&gt; # Database: DuckDB 1.5.5 [Tristan@Windows 10 x64:R 4.6.0/:memory:]</span></span>
 <span><span class='c'>#&gt;       id listener_num</span></span>
 <span><span class='c'>#&gt;    &lt;int&gt;        &lt;int&gt;</span></span>
-<span><span class='c'>#&gt;  1     8            1</span></span>
-<span><span class='c'>#&gt;  2     8            2</span></span>
-<span><span class='c'>#&gt;  3    13            1</span></span>
-<span><span class='c'>#&gt;  4    13            2</span></span>
-<span><span class='c'>#&gt;  5    19            1</span></span>
-<span><span class='c'>#&gt;  6    19            2</span></span>
+<span><span class='c'>#&gt;  1     4            1</span></span>
+<span><span class='c'>#&gt;  2     4            2</span></span>
+<span><span class='c'>#&gt;  3    12            1</span></span>
+<span><span class='c'>#&gt;  4    12            2</span></span>
+<span><span class='c'>#&gt;  5    20            1</span></span>
+<span><span class='c'>#&gt;  6    20            3</span></span>
 <span><span class='c'>#&gt;  7    10            1</span></span>
 <span><span class='c'>#&gt;  8    10            3</span></span>
 <span><span class='c'>#&gt;  9    18            1</span></span>
