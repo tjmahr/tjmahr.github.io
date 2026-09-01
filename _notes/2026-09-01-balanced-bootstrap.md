@@ -1,6 +1,6 @@
 ---
-title: "The balanced cluster bootstrap and its implementation in rsample"
-date: 2026-08-28
+title: "The balanced cluster bootstrap and implementing it with rsample"
+date: 2026-09-01
 tags: [r, rsample, bootstrapping]
 ---
 
@@ -34,16 +34,16 @@ for combining resampled IDs to their parent dataset in an
 <span><span class='c'>#&gt; # A tibble: 11 × 3</span></span>
 <span><span class='c'>#&gt;    splits_id         id          data_splits       </span></span>
 <span><span class='c'>#&gt;    &lt;list&gt;            &lt;chr&gt;       &lt;list&gt;            </span></span>
-<span><span class='c'>#&gt;  1 &lt;split [294/122]&gt; Bootstrap01 &lt;split [1919/797]&gt;</span></span>
-<span><span class='c'>#&gt;  2 &lt;split [294/101]&gt; Bootstrap02 &lt;split [1947/640]&gt;</span></span>
-<span><span class='c'>#&gt;  3 &lt;split [294/108]&gt; Bootstrap03 &lt;split [1896/709]&gt;</span></span>
-<span><span class='c'>#&gt;  4 &lt;split [294/112]&gt; Bootstrap04 &lt;split [1861/740]&gt;</span></span>
-<span><span class='c'>#&gt;  5 &lt;split [294/106]&gt; Bootstrap05 &lt;split [1971/655]&gt;</span></span>
-<span><span class='c'>#&gt;  6 &lt;split [294/113]&gt; Bootstrap06 &lt;split [1925/728]&gt;</span></span>
-<span><span class='c'>#&gt;  7 &lt;split [294/111]&gt; Bootstrap07 &lt;split [1896/726]&gt;</span></span>
-<span><span class='c'>#&gt;  8 &lt;split [294/113]&gt; Bootstrap08 &lt;split [1948/715]&gt;</span></span>
-<span><span class='c'>#&gt;  9 &lt;split [294/110]&gt; Bootstrap09 &lt;split [1885/734]&gt;</span></span>
-<span><span class='c'>#&gt; 10 &lt;split [294/105]&gt; Bootstrap10 &lt;split [1899/678]&gt;</span></span>
+<span><span class='c'>#&gt;  1 &lt;split [294/107]&gt; Bootstrap01 &lt;split [1896/693]&gt;</span></span>
+<span><span class='c'>#&gt;  2 &lt;split [294/109]&gt; Bootstrap02 &lt;split [1877/719]&gt;</span></span>
+<span><span class='c'>#&gt;  3 &lt;split [294/116]&gt; Bootstrap03 &lt;split [1892/761]&gt;</span></span>
+<span><span class='c'>#&gt;  4 &lt;split [294/103]&gt; Bootstrap04 &lt;split [1884/677]&gt;</span></span>
+<span><span class='c'>#&gt;  5 &lt;split [294/115]&gt; Bootstrap05 &lt;split [1891/750]&gt;</span></span>
+<span><span class='c'>#&gt;  6 &lt;split [294/109]&gt; Bootstrap06 &lt;split [1897/709]&gt;</span></span>
+<span><span class='c'>#&gt;  7 &lt;split [294/102]&gt; Bootstrap07 &lt;split [1924/647]&gt;</span></span>
+<span><span class='c'>#&gt;  8 &lt;split [294/101]&gt; Bootstrap08 &lt;split [1918/657]&gt;</span></span>
+<span><span class='c'>#&gt;  9 &lt;split [294/111]&gt; Bootstrap09 &lt;split [1939/705]&gt;</span></span>
+<span><span class='c'>#&gt; 10 &lt;split [294/110]&gt; Bootstrap10 &lt;split [1906/719]&gt;</span></span>
 <span><span class='c'>#&gt; 11 &lt;split [294/294]&gt; Apparent    &lt;split [1908/294]&gt;</span></span></pre>
 
 But I was intrigued by this neat "balanced bootstrap" approach described
@@ -91,20 +91,20 @@ shuffle, split, and recombine:
 <span></span>
 <span><span class='nv'>assignment</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='m'>2</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
-<span><span class='c'>#&gt;  $ :'data.frame':    1942 obs. of  6 variables:</span></span>
+<span><span class='c'>#&gt;  $ :'data.frame':    1924 obs. of  6 variables:</span></span>
+<span><span class='c'>#&gt;   ..$ patientID : Factor w/ 294 levels "1","2","3","4",..: 8 8 8 8 8 8 8 8 8 8 ...</span></span>
+<span><span class='c'>#&gt;   ..$ cluster_id: int [1:1924] 155 155 155 155 155 155 155 189 189 189 ...</span></span>
+<span><span class='c'>#&gt;   ..$ outcome   : Factor w/ 2 levels "none or mild",..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span><span class='c'>#&gt;   ..$ treatment : Factor w/ 2 levels "itraconazole",..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span><span class='c'>#&gt;   ..$ time      : num [1:1924] 12 6 9 1 0 2 3 12 6 9 ...</span></span>
+<span><span class='c'>#&gt;   ..$ visit     : int [1:1924] 7 5 6 2 1 3 4 7 5 6 ...</span></span>
+<span><span class='c'>#&gt;  $ :'data.frame':    1905 obs. of  6 variables:</span></span>
 <span><span class='c'>#&gt;   ..$ patientID : Factor w/ 294 levels "1","2","3","4",..: 1 1 1 1 1 1 1 78 78 78 ...</span></span>
-<span><span class='c'>#&gt;   ..$ cluster_id: int [1:1942] 3 3 3 3 3 3 3 137 137 137 ...</span></span>
-<span><span class='c'>#&gt;   ..$ outcome   : Factor w/ 2 levels "none or mild",..: 1 1 2 1 2 2 1 1 1 1 ...</span></span>
+<span><span class='c'>#&gt;   ..$ cluster_id: int [1:1905] 182 182 182 182 182 182 182 141 141 141 ...</span></span>
+<span><span class='c'>#&gt;   ..$ outcome   : Factor w/ 2 levels "none or mild",..: 1 2 2 1 1 2 1 1 1 1 ...</span></span>
 <span><span class='c'>#&gt;   ..$ treatment : Factor w/ 2 levels "itraconazole",..: 2 2 2 2 2 2 2 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;   ..$ time      : num [1:1942] 13.07 7.54 3.54 10.04 0 ...</span></span>
-<span><span class='c'>#&gt;   ..$ visit     : int [1:1942] 7 5 3 6 1 2 4 4 1 5 ...</span></span>
-<span><span class='c'>#&gt;  $ :'data.frame':    1886 obs. of  6 variables:</span></span>
-<span><span class='c'>#&gt;   ..$ patientID : Factor w/ 294 levels "1","2","3","4",..: 1 1 1 1 1 1 1 78 78 78 ...</span></span>
-<span><span class='c'>#&gt;   ..$ cluster_id: int [1:1886] 39 39 39 39 39 39 39 38 38 38 ...</span></span>
-<span><span class='c'>#&gt;   ..$ outcome   : Factor w/ 2 levels "none or mild",..: 2 2 1 1 1 2 1 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;   ..$ treatment : Factor w/ 2 levels "itraconazole",..: 2 2 2 2 2 2 2 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;   ..$ time      : num [1:1886] 0.857 0 4.536 7.536 13.071 ...</span></span>
-<span><span class='c'>#&gt;   ..$ visit     : int [1:1886] 2 1 4 5 7 3 6 7 4 1 ...</span></span></pre>
+<span><span class='c'>#&gt;   ..$ time      : num [1:1905] 4.54 0 3.54 13.07 10.04 ...</span></span>
+<span><span class='c'>#&gt;   ..$ visit     : int [1:1905] 4 1 3 7 6 2 5 2 7 6 ...</span></span></pre>
 
 I've included a `cluster_id` column in the resulting straps, because
 here's an important question: If Patient 10 shows up twice in a strap,
@@ -239,15 +239,15 @@ a couple of bells and whistles:
 <span><span class='c'>#&gt;    splits            id         </span></span>
 <span><span class='c'>#&gt;    &lt;list&gt;            &lt;chr&gt;      </span></span>
 <span><span class='c'>#&gt;  1 &lt;split [294/101]&gt; Bootstrap01</span></span>
-<span><span class='c'>#&gt;  2 &lt;split [294/110]&gt; Bootstrap02</span></span>
+<span><span class='c'>#&gt;  2 &lt;split [294/103]&gt; Bootstrap02</span></span>
 <span><span class='c'>#&gt;  3 &lt;split [294/105]&gt; Bootstrap03</span></span>
-<span><span class='c'>#&gt;  4 &lt;split [294/98]&gt;  Bootstrap04</span></span>
-<span><span class='c'>#&gt;  5 &lt;split [294/100]&gt; Bootstrap05</span></span>
-<span><span class='c'>#&gt;  6 &lt;split [294/90]&gt;  Bootstrap06</span></span>
+<span><span class='c'>#&gt;  4 &lt;split [294/106]&gt; Bootstrap04</span></span>
+<span><span class='c'>#&gt;  5 &lt;split [294/97]&gt;  Bootstrap05</span></span>
+<span><span class='c'>#&gt;  6 &lt;split [294/98]&gt;  Bootstrap06</span></span>
 <span><span class='c'>#&gt;  7 &lt;split [294/104]&gt; Bootstrap07</span></span>
-<span><span class='c'>#&gt;  8 &lt;split [294/107]&gt; Bootstrap08</span></span>
-<span><span class='c'>#&gt;  9 &lt;split [294/109]&gt; Bootstrap09</span></span>
-<span><span class='c'>#&gt; 10 &lt;split [294/95]&gt;  Bootstrap10</span></span>
+<span><span class='c'>#&gt;  8 &lt;split [294/108]&gt; Bootstrap08</span></span>
+<span><span class='c'>#&gt;  9 &lt;split [294/102]&gt; Bootstrap09</span></span>
+<span><span class='c'>#&gt; 10 &lt;split [294/100]&gt; Bootstrap10</span></span>
 <span><span class='c'>#&gt; 11 &lt;split [294/0]&gt;   Apparent</span></span></pre>
 
 Time for the clever part, I think. We override the `analysis()` and `assessment()`
@@ -291,16 +291,16 @@ methods and have them perform the table join for us:
 <span><span class='c'>#&gt; # A tibble: 11 × 4</span></span>
 <span><span class='c'>#&gt;    splits            id          data_analysis    data_assessment</span></span>
 <span><span class='c'>#&gt;    &lt;list&gt;            &lt;chr&gt;       &lt;list&gt;           &lt;list&gt;         </span></span>
-<span><span class='c'>#&gt;  1 &lt;split [294/92]&gt;  Bootstrap01 &lt;df [1,924 × 6]&gt; &lt;df [591 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  2 &lt;split [294/106]&gt; Bootstrap02 &lt;df [1,921 × 6]&gt; &lt;df [683 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  3 &lt;split [294/106]&gt; Bootstrap03 &lt;df [1,937 × 6]&gt; &lt;df [672 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  4 &lt;split [294/118]&gt; Bootstrap04 &lt;df [1,858 × 6]&gt; &lt;df [781 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  5 &lt;split [294/105]&gt; Bootstrap05 &lt;df [1,882 × 6]&gt; &lt;df [692 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  6 &lt;split [294/117]&gt; Bootstrap06 &lt;df [1,919 × 6]&gt; &lt;df [768 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  7 &lt;split [294/106]&gt; Bootstrap07 &lt;df [1,910 × 6]&gt; &lt;df [679 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  8 &lt;split [294/104]&gt; Bootstrap08 &lt;df [1,936 × 6]&gt; &lt;df [658 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  9 &lt;split [294/104]&gt; Bootstrap09 &lt;df [1,902 × 6]&gt; &lt;df [678 × 6]&gt; </span></span>
-<span><span class='c'>#&gt; 10 &lt;split [294/96]&gt;  Bootstrap10 &lt;df [1,891 × 6]&gt; &lt;df [636 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  1 &lt;split [294/110]&gt; Bootstrap01 &lt;df [1,927 × 6]&gt; &lt;df [713 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  2 &lt;split [294/109]&gt; Bootstrap02 &lt;df [1,912 × 6]&gt; &lt;df [707 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  3 &lt;split [294/102]&gt; Bootstrap03 &lt;df [1,869 × 6]&gt; &lt;df [677 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  4 &lt;split [294/111]&gt; Bootstrap04 &lt;df [1,946 × 6]&gt; &lt;df [705 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  5 &lt;split [294/113]&gt; Bootstrap05 &lt;df [1,910 × 6]&gt; &lt;df [736 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  6 &lt;split [294/104]&gt; Bootstrap06 &lt;df [1,927 × 6]&gt; &lt;df [666 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  7 &lt;split [294/92]&gt;  Bootstrap07 &lt;df [1,892 × 6]&gt; &lt;df [594 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  8 &lt;split [294/105]&gt; Bootstrap08 &lt;df [1,888 × 6]&gt; &lt;df [685 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  9 &lt;split [294/102]&gt; Bootstrap09 &lt;df [1,893 × 6]&gt; &lt;df [682 × 6]&gt; </span></span>
+<span><span class='c'>#&gt; 10 &lt;split [294/104]&gt; Bootstrap10 &lt;df [1,916 × 6]&gt; &lt;df [671 × 6]&gt; </span></span>
 <span><span class='c'>#&gt; 11 &lt;split [294/0]&gt;   Apparent    &lt;df [1,908 × 6]&gt; &lt;df [0 × 6]&gt;</span></span></pre>
 
 Due to some weird interaction of my blogging knitr setup and S3 method

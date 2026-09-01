@@ -1,6 +1,6 @@
 ---
-title: "The balanced cluster bootstrap and its implementation in rsample"
-date: 2026-08-28
+title: "The balanced cluster bootstrap and implementing it with rsample"
+date: 2026-09-01
 tags: [r, rsample, bootstrapping]
 ---
 
