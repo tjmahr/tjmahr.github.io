@@ -212,9 +212,6 @@ targets_notes <- list(
   )
 )
 
-targets::tar_meta()
-
-
 targets_drafts <- list(
   # tar_target(footer, "_R/_footer.Rmd", format = "file"),
   tar_eval(tar_target(name, post, format = "file"), drafts),

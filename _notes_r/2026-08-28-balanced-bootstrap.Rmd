@@ -1,0 +1,250 @@
+---
+title: "The balanced cluster bootstrap and its implementation in rsample"
+date: 2026-08-28
+tags: [r, rsample, bootstrapping]
+---
+
+```{r, include = FALSE}
+library(dplyr)
+```
+
+We want to resample repeated measures data at the cluster level, not at
+the individual observation level. In the past, I have just resampled the
+cluster IDs with replacement and then joined the original data to the
+resampled IDs. In fact, I once wrote a helper function
+[`wisclabmisc::join_to_split()`](https://wisclab.github.io/wisclabmisc/reference/join_to_split.html)
+for combining resampled IDs to their parent dataset in an
+[rsample](https://rsample.tidymodels.org/index.html)-based workflow.
+
+```{r}
+library(dplyr)
+d <- lme4::toenail
+data_ids <- unique(d[, "patientID", drop = FALSE])
+
+data_ids |> 
+  rsample::bootstraps(times = 10, apparent = TRUE) |>
+  rename(splits_id = splits) |> 
+  # Attach data to resampled ids
+  mutate(
+    data_splits = splits_id |> purrr::map(
+      wisclabmisc::join_to_split,
+      d,
+      by = "patientID",
+      validate = TRUE
+    )
+  )
+```
+
+But I was intrigued by this neat "balanced bootstrap" approach described
+by [Deen and de Rooij
+(2020)](https://doi.org/10.3758/s13428-019-01252-y):
+
+> The balanced bootstrap can be used to ensure that every individual
+> appears exactly *B* times in the bootstrap samples, in contrast to
+> randomly drawing bootstrap samples from the parent sample. Davison and
+> Hinkley (1997) show that the balanced bootstrap results in an
+> efficiency gain.
+> 
+> For unbalanced longitudinal data, where some subjects have more
+> measurements than others, the balanced bootstrap ensures that the
+> average size of the bootstrap samples equals the (subject) sample size
+> *N*. In the balanced bootstrap, rather than simply drawing at random,
+> a matrix is made with *B* copies of the numbers *1* to *N*. This
+> matrix is vectorized, randomly shuffled, and turned back into a matrix
+> of size *N* × *B* (Gleason, 1988). Each of the columns of this latter
+> matrix gives the indices of a single bootstrap sample.
+
+
+The procedure for populating bootstrap replicates (what I call "straps")
+with cluster IDs is straightforward, even in base R. Enumerate, repeat,
+shuffle, split, and recombine:
+
+```{r}
+d <- lme4::toenail
+data_ids <- unique(d[, "patientID", drop = FALSE])
+n_ids <- nrow(data_ids)
+b <- 10
+
+assignment <- seq_len(n_ids) |>
+  # Repeat and shuffle cluster indices
+  rep(b) |> 
+  sample() |> 
+  # Divide the indices into each strap
+  split(rep(seq_len(b), each = n_ids)) |> 
+  unname() |>
+  lapply(function(x) { 
+    x <- data_ids[x, , drop = FALSE] 
+    x[["cluster_id"]] <- seq_len(n_ids)
+    merge(x, d)
+  })
+
+assignment |> head(2) |> str()
+```
+
+I've included a `cluster_id` column in the resulting straps, because
+here's an important question: If Patient 10 shows up twice in a strap,
+do we have Patient 10's rows repeated twice? Or do we just so happen to
+have two separate patients have the same observations? Let's save that
+for another day.
+
+### An rsample version of the balanced cluster bootstrap
+
+I'll port the above procedure to rsample. Part of the sales pitch for 
+rsample is that a dataframe of resample assignments is lightweight, 
+memory-wise:
+
+```{r}
+library(rsample)
+bootstraps(d, times = 10) |> lobstr::obj_size()
+
+# There is NOT a 10x increase in object size
+bootstraps(d, times = 100) |> lobstr::obj_size()
+```
+
+Each row here is a few vectors of row indices along with a shallow copy of the
+original data. The actual memory cost isn't incurred until the resampled data is
+"materialized":
+
+```{r}
+data_example <- bootstraps(d, times = 100)
+data_example |> lobstr::obj_size()
+
+# build and store the actual resampled copies of the data
+data_example$data <- data_example$splits |> lapply(analysis)
+data_example |> lobstr::obj_size()
+```
+
+An rsample "split" object is a dataframe plus two vectors of row indices
+indicating which data that are kept (*analysis*) and which are withheld
+(*assessment*):
+
+```{r}
+split <- make_splits(
+  list(analysis = 1:10, assessment = 11:20), 
+  data = d[1:20, ]
+)
+split
+
+# data plus two vectors
+str(split)
+```
+
+The `analysis()` and `assessment()` methods are what actually generate 
+the resulting replicates:
+
+```{r}
+analysis(split)
+```
+
+My idea for implementing a balanced cluster bootstrap would be to do the
+balanced bootstrapping manually as above but also stash the full parent
+data inside of each split object. Here is a version of the function with
+a couple of bells and whistles:
+
+```{r}
+balanced_cluster_bootstraps <- function(data, cluster_vars, times, apparent) {
+  # Helper for naming the straps
+  zero_pad <- function(xs, prefix = "", width = 0) {
+    # use widest element if bigger than `width`
+    width <- max(c(nchar(xs), width))
+    sprintf(paste0(prefix, "%0", width, "d"), xs)    
+  }
+
+  cols <- tidyselect::eval_select(rlang::enquo(cluster_vars), data) 
+  data_ids <- unique(data[, cols, drop = FALSE])
+  n_ids <- nrow(data_ids)
+  ids <- seq_len(n_ids)
+  
+  assignments <- ids |>
+    rep(times) |> 
+    sample() |> 
+    split(rep(seq_len(times), each = n_ids)) |> 
+    unname()
+  
+  labels <- zero_pad(seq_len(times), prefix = "Bootstrap")
+  
+  if (apparent) {
+    assignments <- c(assignments, list(ids))
+    labels <- c(labels, "Apparent")
+  }  
+  
+  splits <- assignments |> 
+    lapply(function(xs) {
+      l <- rsample::make_splits(
+        list(analysis = xs, assessment = setdiff(ids, xs)), 
+        data = data_ids,
+        class = "cluster_id_sample"
+      )
+      l$data_parent <- data
+      l
+    })
+  
+  rsample::new_rset(
+    splits = splits,
+    id = labels,
+    subclass = c("balanced_cluster_bootstrap", "rset")
+  ) 
+}
+
+balanced_cluster_bootstraps(d, patientID, 10, apparent = TRUE)
+```
+
+Time for the clever part, I think. We override the `analysis()` and `assessment()`
+methods and have them perform the table join for us:
+
+```{r}
+analysis.cluster_id_sample <- function(
+    x, 
+    data_parent = NULL, 
+    name = "cluster_id", 
+    ...
+) {
+  data <- as.data.frame(x, data = "analysis")
+  join_names <- names(data)
+  data[[name]] <- seq_len(nrow(data))
+  if (is.null(data_parent)) {
+    data_parent <- x$data_parent
+  }
+  merge(data, data_parent, by = join_names)
+}
+
+assessment.cluster_id_sample <- function(
+    x, 
+    data_parent = NULL, 
+    name = "cluster_id", 
+    ...
+) {
+  data <- as.data.frame(x, data = "assessment")
+  join_names <- names(data)
+  data[[name]] <- seq_len(nrow(data))
+  if (is.null(data_parent)) {
+    data_parent <- x$data_parent
+  }
+  merge(data, data_parent, by = join_names)
+}
+
+data_a <- balanced_cluster_bootstraps(d, patientID, 10, TRUE)
+data_a[["data_analysis"]] <- lapply(data_a$splits, function(x) analysis(x))
+data_a[["data_assessment"]] <- lapply(data_a$splits, function(x) assessment(x))
+data_a
+```
+
+Due to some weird interaction of my blogging knitr setup and S3 method
+look-up, I had to write `lapply(..., function(x) analysis(x))` above instead
+of `lapply(..., analysis)`, but I assure you the latter version works
+interactively in R.
+
+Finally, let's do a quick check for cluster balance:
+
+```{r}
+data_a_unnested <- data_a |> 
+  dplyr::select(-data_assessment) |> 
+  dplyr::filter(id != "Apparent") |> 
+  tidyr::unnest(cols = data_analysis)
+
+data_a_unnested |> 
+  dplyr::distinct(id, patientID, cluster_id) |> 
+  nrow()
+
+length(unique(d$patientID)) * 10
+```
