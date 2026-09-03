@@ -96,7 +96,7 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/", use
     render_markdown()
     if (use_downlit) use_downlit_chunk_hook()
 
-    knit(path_in, path_out, envir = new.env(), encoding = "UTF-8")
+    knit(path_in, path_out, envir = globalenv(), encoding = "UTF-8")
   }
 
   # knit in a clean session

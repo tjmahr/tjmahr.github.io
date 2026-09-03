@@ -18,6 +18,7 @@ for combining resampled IDs to their parent dataset in an
 
 ```{r}
 library(dplyr)
+set.seed(20260903)
 d <- lme4::toenail
 data_ids <- unique(d[, "patientID", drop = FALSE])
 
@@ -90,7 +91,7 @@ for another day.
 ### An rsample version of the balanced cluster bootstrap
 
 I'll port the above procedure to rsample. Part of the sales pitch for 
-rsample is that a dataframe of resample assignments is lightweight, 
+rsample is that its dataframe for resample assignments is lightweight, 
 memory-wise:
 
 ```{r}
@@ -102,8 +103,8 @@ bootstraps(d, times = 100) |> lobstr::obj_size()
 ```
 
 Each row here is a few vectors of row indices along with a shallow copy of the
-original data. The actual memory cost isn't incurred until the resampled data is
-"materialized":
+original data. The actual memory cost we would expect for resampling isn't 
+incurred until the resampled data is "materialized":
 
 ```{r}
 data_example <- bootstraps(d, times = 100)
@@ -115,7 +116,7 @@ data_example |> lobstr::obj_size()
 ```
 
 An rsample "split" object is a dataframe plus two vectors of row indices
-indicating which data that are kept (*analysis*) and which are withheld
+indicating which data are kept (*analysis*) and which are withheld
 (*assessment*):
 
 ```{r}
@@ -224,15 +225,10 @@ assessment.cluster_id_sample <- function(
 }
 
 data_a <- balanced_cluster_bootstraps(d, patientID, 10, TRUE)
-data_a[["data_analysis"]] <- lapply(data_a$splits, function(x) analysis(x))
-data_a[["data_assessment"]] <- lapply(data_a$splits, function(x) assessment(x))
+data_a[["data_analysis"]] <- lapply(data_a$splits, analysis)
+data_a[["data_assessment"]] <- lapply(data_a$splits, assessment)
 data_a
 ```
-
-Due to some weird interaction of my blogging knitr setup and S3 method
-look-up, I had to write `lapply(..., function(x) analysis(x))` above instead
-of `lapply(..., analysis)`, but I assure you the latter version works
-interactively in R.
 
 Finally, let's do a quick check for cluster balance:
 
@@ -242,9 +238,23 @@ data_a_unnested <- data_a |>
   dplyr::filter(id != "Apparent") |> 
   tidyr::unnest(cols = data_analysis)
 
+# Number of strap:cluster_ids combinations =? 
+# number of unique clusters times number of straps
 data_a_unnested |> 
   dplyr::distinct(id, patientID, cluster_id) |> 
   nrow()
 
 length(unique(d$patientID)) * 10
+
+# Each patientID is replicated 10 times
+counts_patient_ids <- data_a_unnested |> 
+  dplyr::distinct(id, patientID, cluster_id) |> 
+  dplyr::count(patientID) 
+all(counts_patient_ids$n == 10)
+
+# Each strap has the same number of clusters as original sample
+count_replicate_ids <- data_a_unnested |> 
+  dplyr::distinct(id, cluster_id) |> 
+  dplyr::count(id)
+all(count_replicate_ids$n == length(unique(d$patientID)))
 ```

@@ -16,6 +16,7 @@ for combining resampled IDs to their parent dataset in an
 
 <pre class='chroma'>
 <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='o'>(</span><span class='m'>20260903</span><span class='o'>)</span></span>
 <span><span class='nv'>d</span> <span class='o'>&lt;-</span> <span class='nf'>lme4</span><span class='nf'>::</span><span class='nv'><a href='https://rdrr.io/pkg/lme4/man/toenail.html'>toenail</a></span></span>
 <span><span class='nv'>data_ids</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='o'>(</span><span class='nv'>d</span><span class='o'>[</span>, <span class='s'>"patientID"</span>, drop <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>]</span><span class='o'>)</span></span>
 <span></span>
@@ -34,16 +35,16 @@ for combining resampled IDs to their parent dataset in an
 <span><span class='c'>#&gt; # A tibble: 11 × 3</span></span>
 <span><span class='c'>#&gt;    splits_id         id          data_splits       </span></span>
 <span><span class='c'>#&gt;    &lt;list&gt;            &lt;chr&gt;       &lt;list&gt;            </span></span>
-<span><span class='c'>#&gt;  1 &lt;split [294/107]&gt; Bootstrap01 &lt;split [1896/693]&gt;</span></span>
-<span><span class='c'>#&gt;  2 &lt;split [294/109]&gt; Bootstrap02 &lt;split [1877/719]&gt;</span></span>
-<span><span class='c'>#&gt;  3 &lt;split [294/116]&gt; Bootstrap03 &lt;split [1892/761]&gt;</span></span>
-<span><span class='c'>#&gt;  4 &lt;split [294/103]&gt; Bootstrap04 &lt;split [1884/677]&gt;</span></span>
-<span><span class='c'>#&gt;  5 &lt;split [294/115]&gt; Bootstrap05 &lt;split [1891/750]&gt;</span></span>
-<span><span class='c'>#&gt;  6 &lt;split [294/109]&gt; Bootstrap06 &lt;split [1897/709]&gt;</span></span>
-<span><span class='c'>#&gt;  7 &lt;split [294/102]&gt; Bootstrap07 &lt;split [1924/647]&gt;</span></span>
-<span><span class='c'>#&gt;  8 &lt;split [294/101]&gt; Bootstrap08 &lt;split [1918/657]&gt;</span></span>
-<span><span class='c'>#&gt;  9 &lt;split [294/111]&gt; Bootstrap09 &lt;split [1939/705]&gt;</span></span>
-<span><span class='c'>#&gt; 10 &lt;split [294/110]&gt; Bootstrap10 &lt;split [1906/719]&gt;</span></span>
+<span><span class='c'>#&gt;  1 &lt;split [294/107]&gt; Bootstrap01 &lt;split [1900/702]&gt;</span></span>
+<span><span class='c'>#&gt;  2 &lt;split [294/112]&gt; Bootstrap02 &lt;split [1924/722]&gt;</span></span>
+<span><span class='c'>#&gt;  3 &lt;split [294/109]&gt; Bootstrap03 &lt;split [1900/717]&gt;</span></span>
+<span><span class='c'>#&gt;  4 &lt;split [294/107]&gt; Bootstrap04 &lt;split [1922/696]&gt;</span></span>
+<span><span class='c'>#&gt;  5 &lt;split [294/116]&gt; Bootstrap05 &lt;split [1900/762]&gt;</span></span>
+<span><span class='c'>#&gt;  6 &lt;split [294/105]&gt; Bootstrap06 &lt;split [1947/669]&gt;</span></span>
+<span><span class='c'>#&gt;  7 &lt;split [294/104]&gt; Bootstrap07 &lt;split [1893/684]&gt;</span></span>
+<span><span class='c'>#&gt;  8 &lt;split [294/107]&gt; Bootstrap08 &lt;split [1923/694]&gt;</span></span>
+<span><span class='c'>#&gt;  9 &lt;split [294/99]&gt;  Bootstrap09 &lt;split [1906/641]&gt;</span></span>
+<span><span class='c'>#&gt; 10 &lt;split [294/113]&gt; Bootstrap10 &lt;split [1927/726]&gt;</span></span>
 <span><span class='c'>#&gt; 11 &lt;split [294/294]&gt; Apparent    &lt;split [1908/294]&gt;</span></span></pre>
 
 But I was intrigued by this neat "balanced bootstrap" approach described
@@ -91,20 +92,20 @@ shuffle, split, and recombine:
 <span></span>
 <span><span class='nv'>assignment</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='m'>2</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 2</span></span>
-<span><span class='c'>#&gt;  $ :'data.frame':    1924 obs. of  6 variables:</span></span>
-<span><span class='c'>#&gt;   ..$ patientID : Factor w/ 294 levels "1","2","3","4",..: 8 8 8 8 8 8 8 8 8 8 ...</span></span>
-<span><span class='c'>#&gt;   ..$ cluster_id: int [1:1924] 155 155 155 155 155 155 155 189 189 189 ...</span></span>
+<span><span class='c'>#&gt;  $ :'data.frame':    1896 obs. of  6 variables:</span></span>
+<span><span class='c'>#&gt;   ..$ patientID : Factor w/ 294 levels "1","2","3","4",..: 8 8 8 8 8 8 8 78 78 78 ...</span></span>
+<span><span class='c'>#&gt;   ..$ cluster_id: int [1:1896] 263 263 263 263 263 263 263 288 288 288 ...</span></span>
 <span><span class='c'>#&gt;   ..$ outcome   : Factor w/ 2 levels "none or mild",..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
 <span><span class='c'>#&gt;   ..$ treatment : Factor w/ 2 levels "itraconazole",..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;   ..$ time      : num [1:1924] 12 6 9 1 0 2 3 12 6 9 ...</span></span>
-<span><span class='c'>#&gt;   ..$ visit     : int [1:1924] 7 5 6 2 1 3 4 7 5 6 ...</span></span>
-<span><span class='c'>#&gt;  $ :'data.frame':    1905 obs. of  6 variables:</span></span>
-<span><span class='c'>#&gt;   ..$ patientID : Factor w/ 294 levels "1","2","3","4",..: 1 1 1 1 1 1 1 78 78 78 ...</span></span>
-<span><span class='c'>#&gt;   ..$ cluster_id: int [1:1905] 182 182 182 182 182 182 182 141 141 141 ...</span></span>
-<span><span class='c'>#&gt;   ..$ outcome   : Factor w/ 2 levels "none or mild",..: 1 2 2 1 1 2 1 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;   ..$ treatment : Factor w/ 2 levels "itraconazole",..: 2 2 2 2 2 2 2 1 1 1 ...</span></span>
-<span><span class='c'>#&gt;   ..$ time      : num [1:1905] 4.54 0 3.54 13.07 10.04 ...</span></span>
-<span><span class='c'>#&gt;   ..$ visit     : int [1:1905] 4 1 3 7 6 2 5 2 7 6 ...</span></span></pre>
+<span><span class='c'>#&gt;   ..$ time      : num [1:1896] 1 9 0 6 2 ...</span></span>
+<span><span class='c'>#&gt;   ..$ visit     : int [1:1896] 2 6 1 5 3 7 4 5 4 6 ...</span></span>
+<span><span class='c'>#&gt;  $ :'data.frame':    1928 obs. of  6 variables:</span></span>
+<span><span class='c'>#&gt;   ..$ patientID : Factor w/ 294 levels "1","2","3","4",..: 8 8 8 8 8 8 8 78 78 78 ...</span></span>
+<span><span class='c'>#&gt;   ..$ cluster_id: int [1:1928] 92 92 92 92 92 92 92 62 62 62 ...</span></span>
+<span><span class='c'>#&gt;   ..$ outcome   : Factor w/ 2 levels "none or mild",..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span><span class='c'>#&gt;   ..$ treatment : Factor w/ 2 levels "itraconazole",..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span><span class='c'>#&gt;   ..$ time      : num [1:1928] 6 1 2 12 3 ...</span></span>
+<span><span class='c'>#&gt;   ..$ visit     : int [1:1928] 5 2 3 7 4 6 1 6 2 1 ...</span></span></pre>
 
 I've included a `cluster_id` column in the resulting straps, because
 here's an important question: If Patient 10 shows up twice in a strap,
@@ -115,7 +116,7 @@ for another day.
 ### An rsample version of the balanced cluster bootstrap
 
 I'll port the above procedure to rsample. Part of the sales pitch for 
-rsample is that a dataframe of resample assignments is lightweight, 
+rsample is that its dataframe for resample assignments is lightweight, 
 memory-wise:
 
 <pre class='chroma'>
@@ -128,8 +129,8 @@ memory-wise:
 <span><span class='c'>#&gt; 912.42 kB</span></span></pre>
 
 Each row here is a few vectors of row indices along with a shallow copy of the
-original data. The actual memory cost isn't incurred until the resampled data is
-"materialized":
+original data. The actual memory cost we would expect for resampling isn't 
+incurred until the resampled data is "materialized":
 
 <pre class='chroma'>
 <span><span class='nv'>data_example</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/bootstraps.html'>bootstraps</a></span><span class='o'>(</span><span class='nv'>d</span>, times <span class='o'>=</span> <span class='m'>100</span><span class='o'>)</span></span>
@@ -142,7 +143,7 @@ original data. The actual memory cost isn't incurred until the resampled data is
 <span><span class='c'>#&gt; 5.58 MB</span></span></pre>
 
 An rsample "split" object is a dataframe plus two vectors of row indices
-indicating which data that are kept (*analysis*) and which are withheld
+indicating which data are kept (*analysis*) and which are withheld
 (*assessment*):
 
 <pre class='chroma'>
@@ -238,16 +239,16 @@ a couple of bells and whistles:
 <span><span class='c'>#&gt; # A tibble: 11 × 2</span></span>
 <span><span class='c'>#&gt;    splits            id         </span></span>
 <span><span class='c'>#&gt;    &lt;list&gt;            &lt;chr&gt;      </span></span>
-<span><span class='c'>#&gt;  1 &lt;split [294/101]&gt; Bootstrap01</span></span>
-<span><span class='c'>#&gt;  2 &lt;split [294/103]&gt; Bootstrap02</span></span>
+<span><span class='c'>#&gt;  1 &lt;split [294/108]&gt; Bootstrap01</span></span>
+<span><span class='c'>#&gt;  2 &lt;split [294/99]&gt;  Bootstrap02</span></span>
 <span><span class='c'>#&gt;  3 &lt;split [294/105]&gt; Bootstrap03</span></span>
-<span><span class='c'>#&gt;  4 &lt;split [294/106]&gt; Bootstrap04</span></span>
-<span><span class='c'>#&gt;  5 &lt;split [294/97]&gt;  Bootstrap05</span></span>
-<span><span class='c'>#&gt;  6 &lt;split [294/98]&gt;  Bootstrap06</span></span>
-<span><span class='c'>#&gt;  7 &lt;split [294/104]&gt; Bootstrap07</span></span>
-<span><span class='c'>#&gt;  8 &lt;split [294/108]&gt; Bootstrap08</span></span>
-<span><span class='c'>#&gt;  9 &lt;split [294/102]&gt; Bootstrap09</span></span>
-<span><span class='c'>#&gt; 10 &lt;split [294/100]&gt; Bootstrap10</span></span>
+<span><span class='c'>#&gt;  4 &lt;split [294/105]&gt; Bootstrap04</span></span>
+<span><span class='c'>#&gt;  5 &lt;split [294/107]&gt; Bootstrap05</span></span>
+<span><span class='c'>#&gt;  6 &lt;split [294/112]&gt; Bootstrap06</span></span>
+<span><span class='c'>#&gt;  7 &lt;split [294/112]&gt; Bootstrap07</span></span>
+<span><span class='c'>#&gt;  8 &lt;split [294/102]&gt; Bootstrap08</span></span>
+<span><span class='c'>#&gt;  9 &lt;split [294/106]&gt; Bootstrap09</span></span>
+<span><span class='c'>#&gt; 10 &lt;split [294/111]&gt; Bootstrap10</span></span>
 <span><span class='c'>#&gt; 11 &lt;split [294/0]&gt;   Apparent</span></span></pre>
 
 Time for the clever part, I think. We override the `analysis()` and `assessment()`
@@ -285,28 +286,23 @@ methods and have them perform the table join for us:
 <span><span class='o'>}</span></span>
 <span></span>
 <span><span class='nv'>data_a</span> <span class='o'>&lt;-</span> <span class='nf'>balanced_cluster_bootstraps</span><span class='o'>(</span><span class='nv'>d</span>, <span class='nv'>patientID</span>, <span class='m'>10</span>, <span class='kc'>TRUE</span><span class='o'>)</span></span>
-<span><span class='nv'>data_a</span><span class='o'>[[</span><span class='s'>"data_analysis"</span><span class='o'>]</span><span class='o'>]</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='o'>(</span><span class='nv'>data_a</span><span class='o'>$</span><span class='nv'>splits</span>, <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>analysis</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='nv'>data_a</span><span class='o'>[[</span><span class='s'>"data_assessment"</span><span class='o'>]</span><span class='o'>]</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='o'>(</span><span class='nv'>data_a</span><span class='o'>$</span><span class='nv'>splits</span>, <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'><a href='https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html'>assessment</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='nv'>data_a</span><span class='o'>[[</span><span class='s'>"data_analysis"</span><span class='o'>]</span><span class='o'>]</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='o'>(</span><span class='nv'>data_a</span><span class='o'>$</span><span class='nv'>splits</span>, <span class='nv'>analysis</span><span class='o'>)</span></span>
+<span><span class='nv'>data_a</span><span class='o'>[[</span><span class='s'>"data_assessment"</span><span class='o'>]</span><span class='o'>]</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='o'>(</span><span class='nv'>data_a</span><span class='o'>$</span><span class='nv'>splits</span>, <span class='nv'>assessment</span><span class='o'>)</span></span>
 <span><span class='nv'>data_a</span></span>
 <span><span class='c'>#&gt; # A tibble: 11 × 4</span></span>
 <span><span class='c'>#&gt;    splits            id          data_analysis    data_assessment</span></span>
 <span><span class='c'>#&gt;    &lt;list&gt;            &lt;chr&gt;       &lt;list&gt;           &lt;list&gt;         </span></span>
-<span><span class='c'>#&gt;  1 &lt;split [294/110]&gt; Bootstrap01 &lt;df [1,927 × 6]&gt; &lt;df [713 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  2 &lt;split [294/109]&gt; Bootstrap02 &lt;df [1,912 × 6]&gt; &lt;df [707 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  3 &lt;split [294/102]&gt; Bootstrap03 &lt;df [1,869 × 6]&gt; &lt;df [677 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  4 &lt;split [294/111]&gt; Bootstrap04 &lt;df [1,946 × 6]&gt; &lt;df [705 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  5 &lt;split [294/113]&gt; Bootstrap05 &lt;df [1,910 × 6]&gt; &lt;df [736 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  6 &lt;split [294/104]&gt; Bootstrap06 &lt;df [1,927 × 6]&gt; &lt;df [666 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  7 &lt;split [294/92]&gt;  Bootstrap07 &lt;df [1,892 × 6]&gt; &lt;df [594 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  8 &lt;split [294/105]&gt; Bootstrap08 &lt;df [1,888 × 6]&gt; &lt;df [685 × 6]&gt; </span></span>
-<span><span class='c'>#&gt;  9 &lt;split [294/102]&gt; Bootstrap09 &lt;df [1,893 × 6]&gt; &lt;df [682 × 6]&gt; </span></span>
-<span><span class='c'>#&gt; 10 &lt;split [294/104]&gt; Bootstrap10 &lt;df [1,916 × 6]&gt; &lt;df [671 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  1 &lt;split [294/100]&gt; Bootstrap01 &lt;df [1,918 × 6]&gt; &lt;df [647 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  2 &lt;split [294/92]&gt;  Bootstrap02 &lt;df [1,951 × 6]&gt; &lt;df [576 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  3 &lt;split [294/103]&gt; Bootstrap03 &lt;df [1,923 × 6]&gt; &lt;df [673 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  4 &lt;split [294/105]&gt; Bootstrap04 &lt;df [1,925 × 6]&gt; &lt;df [669 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  5 &lt;split [294/104]&gt; Bootstrap05 &lt;df [1,919 × 6]&gt; &lt;df [663 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  6 &lt;split [294/101]&gt; Bootstrap06 &lt;df [1,866 × 6]&gt; &lt;df [676 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  7 &lt;split [294/109]&gt; Bootstrap07 &lt;df [1,884 × 6]&gt; &lt;df [716 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  8 &lt;split [294/104]&gt; Bootstrap08 &lt;df [1,884 × 6]&gt; &lt;df [677 × 6]&gt; </span></span>
+<span><span class='c'>#&gt;  9 &lt;split [294/105]&gt; Bootstrap09 &lt;df [1,919 × 6]&gt; &lt;df [666 × 6]&gt; </span></span>
+<span><span class='c'>#&gt; 10 &lt;split [294/103]&gt; Bootstrap10 &lt;df [1,891 × 6]&gt; &lt;df [670 × 6]&gt; </span></span>
 <span><span class='c'>#&gt; 11 &lt;split [294/0]&gt;   Apparent    &lt;df [1,908 × 6]&gt; &lt;df [0 × 6]&gt;</span></span></pre>
-
-Due to some weird interaction of my blogging knitr setup and S3 method
-look-up, I had to write `lapply(..., function(x) analysis(x))` above instead
-of `lapply(..., analysis)`, but I assure you the latter version works
-interactively in R.
 
 Finally, let's do a quick check for cluster balance:
 
@@ -316,10 +312,26 @@ Finally, let's do a quick check for cluster balance:
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>id</span> <span class='o'>!=</span> <span class='s'>"Apparent"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>tidyr</span><span class='nf'>::</span><span class='nf'><a href='https://tidyr.tidyverse.org/reference/unnest.html'>unnest</a></span><span class='o'>(</span>cols <span class='o'>=</span> <span class='nv'>data_analysis</span><span class='o'>)</span></span>
 <span></span>
+<span><span class='c'># Number of strap:cluster_ids combinations =? </span></span>
+<span><span class='c'># number of unique clusters times number of straps</span></span>
 <span><span class='nv'>data_a_unnested</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/distinct.html'>distinct</a></span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>patientID</span>, <span class='nv'>cluster_id</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] 2940</span></span>
 <span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='o'>(</span><span class='nv'>d</span><span class='o'>$</span><span class='nv'>patientID</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>*</span> <span class='m'>10</span></span>
-<span><span class='c'>#&gt; [1] 2940</span></span></pre>
+<span><span class='c'>#&gt; [1] 2940</span></span>
+<span></span>
+<span><span class='c'># Each patientID is replicated 10 times</span></span>
+<span><span class='nv'>counts_patient_ids</span> <span class='o'>&lt;-</span> <span class='nv'>data_a_unnested</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/distinct.html'>distinct</a></span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>patientID</span>, <span class='nv'>cluster_id</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/count.html'>count</a></span><span class='o'>(</span><span class='nv'>patientID</span><span class='o'>)</span> </span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/all.html'>all</a></span><span class='o'>(</span><span class='nv'>counts_patient_ids</span><span class='o'>$</span><span class='nv'>n</span> <span class='o'>==</span> <span class='m'>10</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] TRUE</span></span>
+<span></span>
+<span><span class='c'># Each strap has the same number of clusters as original sample</span></span>
+<span><span class='nv'>count_replicate_ids</span> <span class='o'>&lt;-</span> <span class='nv'>data_a_unnested</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/distinct.html'>distinct</a></span><span class='o'>(</span><span class='nv'>id</span>, <span class='nv'>cluster_id</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/count.html'>count</a></span><span class='o'>(</span><span class='nv'>id</span><span class='o'>)</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/base/all.html'>all</a></span><span class='o'>(</span><span class='nv'>count_replicate_ids</span><span class='o'>$</span><span class='nv'>n</span> <span class='o'>==</span> <span class='nf'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='o'>(</span><span class='nv'>d</span><span class='o'>$</span><span class='nv'>patientID</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; [1] TRUE</span></span></pre>
