@@ -66,13 +66,17 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/", use
 
         writeLines(md, tmp_in, useBytes = TRUE)
 
-        downlit::downlit_md_path(
-          in_path = tmp_in,
-          out_path = tmp_out,
-          format = "gfm"
+        downlit::downlit_md_path(in_path = tmp_in, out_path = tmp_out, format = "gfm")
+
+        md_downlit <- paste(
+          readLines(tmp_out, warn = FALSE, encoding = "UTF-8"),
+          collapse = "\n"
         )
 
-        paste(readLines(tmp_out, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+        paste0(
+          "<!--\n", md, "\n-->\n",
+          md_downlit
+        )
       })
     }
 
