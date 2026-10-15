@@ -1,0 +1,203 @@
+---
+title: "Quick hack to parse brms priors print-out"
+date: 2026-09-22
+tags: [r, brms, readr]
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(dplyr)
+library(brms)
+```
+
+At the time of writing, the `print()` function for a brms prior specification  
+does some row-filling to make things more verbose and explicit. But these 
+details are not available as a dataframe for the user to manipulate or wrangle.
+[Weirdness about the prior dataframe has been reported on GitHub](https://github.com/paul-buerkner/brms/issues/1761).
+This note describes a quick data-cleaning workaround. 
+
+Let's make a small model.
+
+```{r}
+library(brms)
+
+fivenum(Orange$circumference)
+fivenum(Orange$age)
+
+f <- bf(circumference ~ s(age, k = 4) + (1 | Tree))
+
+p_user <- c(
+  set_prior("normal(0, 100)", class = "sd"),
+  set_prior("exponential(.1)", class = "sigma")
+)
+prior_user <- validate_prior(p_user, f, data = Orange)
+prior_default <- get_prior(f, data = Orange)
+```
+
+Note how the default prior print-out includes `(flat)` in the description:
+
+```{r}
+print(prior_default)
+```
+
+If we try to use this prior object as a data.frame, the prior column has 
+blanks in it instead:
+
+```{r}
+as.data.frame(prior_default)
+```
+
+Here are print-outs with a `"user"` `source`d prior:
+
+```{r}
+prior_user
+
+as.data.frame(prior_user)
+```
+
+It seems like `print()` adjusts the `prior` and `source` columns so that there
+are no blank values, either by using `"(flat)"` or by inheriting a missing prior
+from the generic prior used for a parameter `class`. Visually, this inheritance
+looks like the `prior` is carried down from a preceding row and the `source`
+column gets the value `"(vectorized)"`.
+
+The `as.data.frame()` version seems to have the bare minimum information
+about the priors, just the non-flat distributions provided to the model.
+
+### The Easy Workaround
+
+If we inspect the `print()` method of the priors, we see a call to
+`prepare_print_prior()`:
+
+```{r}
+brms:::print.brmsprior
+```
+
+This function does return a dataframe with filled rows that is suitable for 
+wrangling:
+
+
+```{r}
+library(tidyverse)
+
+brms:::prepare_print_prior(prior_user) |> 
+  as.data.frame() 
+
+# For example:
+brms:::prepare_print_prior(prior_user) |> 
+  as.data.frame() |> 
+  filter(source != "(vectorized)")
+```
+
+### The Harder Workaround
+
+We do not want to rely on private functions from the brms package. Private 
+functions belong to the package, so they can break or change. So, let's try to
+get the same sort of dataframe from just the `print()` results. The trick will be to 
+treat the print-out as a fixed-width formatted data file. Instead of using a 
+character to separate columns in a row, a fixed-width format gives each column a 
+fixed character width. Parsing the columns is then a matter of breaking the row at 
+different character positions.
+
+If we look at the print output as data, we notice that each column is a chunk 
+of leading space followed by a chunk of characters.
+
+```{r}
+l <- capture.output(print(prior_user, width = 10000))
+l[1]
+
+first_row <- l[1] |> 
+  stringr::str_extract_all("\\s+\\w+") |> 
+  unlist()
+
+first_row |> 
+  # show one per line
+  print(width = 10)
+
+col_names <- first_row |> stringr::str_trim()
+
+widths <- nchar(first_row)
+names(widths) <- col_names
+widths
+```
+
+We can tell `readr::read_fwf()` to parse the print results using these 
+character counts as widths:
+
+```{r}
+df <- readr::read_fwf(
+  I(l), 
+  readr::fwf_widths(widths), 
+  skip = 1, 
+  show_col_types = FALSE
+)
+
+df
+```
+
+Two things to note:
+
+1.  This approach treats the first row (column names) as data, so we
+    skip that first line.
+
+2.  readr inferred column types, so that the blank cells from above were
+    converted to `NA`s. 
+
+Let's try this instead:
+
+```{r}
+df <- readr::read_fwf(
+  I(l), 
+  readr::fwf_widths(widths), 
+  skip = 1, 
+  show_col_types = FALSE, 
+  col_types = readr::cols(.default = readr::col_character()), 
+  na = character()
+)
+colnames(df) <- names(widths)
+df
+```
+
+Putting this together into a single function:
+
+```{r}
+get_formatted_priors <- function(prior) {
+  .prior_spec <- as.character(substitute(prior))
+  
+  l <- capture.output(print(prior, width = 10000))
+  first_row <- l[1] |> 
+    stringr::str_extract_all("\\s+\\w+") |> 
+    unlist()
+  col_names <- stringr::str_trim(first_row)
+  widths <- nchar(first_row)
+  names(widths) <- col_names
+
+  df <- readr::read_fwf(
+    I(l), 
+    readr::fwf_widths(widths), 
+    skip = 1, 
+    show_col_types = FALSE, 
+    col_types = readr::cols(.default = readr::col_character()), 
+    na = character()
+  )
+  
+  colnames(df) <- names(widths)
+  df$.prior_spec <- .prior_spec
+  df[c(".prior_spec", names(widths))]
+}
+```
+
+Now we can, e.g., bundle up different sets of priors:
+
+```{r}
+bind_rows(
+  prior_default |> get_formatted_priors(),
+  prior_user |> get_formatted_priors()
+) |> 
+  filter(source != "(vectorized)") |> 
+  select(where(function(x) any(x != "")))
+```
+
+This approach, it should be noted, is brittle. If brms ever changes how it 
+prints out priors---for example, using a `tibble()` or abbreviating long 
+column entries---then the above workaround breaks.
