@@ -10,9 +10,10 @@ library(tarchetypes)
 library(brms)
 ```
 
-This note is a quick test for how to set up a function that fits a brms model
-in a targets workflow. Specifically, should my function for fitting a brms model 
-return a model or a path to saved model? That is,
+This note started as a quick test for how to set up a function that fits
+a brms model in a targets workflow. Specifically, should my function for
+fitting a brms model return a model or a path to saved model? That is,
+which of these two approaches should we use?
 
 ```{r}
 f_ret_model <- function(...) {
@@ -25,12 +26,28 @@ f_ret_file <- function(...) {
 }
 ```
 
-We definitely want to leverage the `file` argument because it caches 
-the model so that it will only refit if the model's formula, data, 
-priors, or generated Stan code change. But should I use inside of a 
+We definitely want to leverage the `file` argument because it caches the
+model, and when paired with `file_refit = "on_change"`, it will only
+refit if the model's formula, data, priors, or generated Stan code
+change. But my question today is what should we use inside of a
 [targets](https://books.ropensci.org/targets/) workflow?
 
-## Setting up a temporary targets project
+**Eventual conclusion of this post**. The latter return-a-path approach
+can save space if we are willing to throw in extra `readRDS()` calls,
+but surprisingly, we can also save space by reading the model from the
+file immediately after fitting:
+
+```{r}
+f_ret_whatever <- function(...) {
+  m <- brm(..., file = "model", file_refit = "on_change")
+  m <- readRDS(m$file)
+  # [... any extra post processing ...]
+  # [... now choose whether to return the model or the filepath ...]
+}
+```
+
+
+## Comparing three approaches in a targets pipeline
 
 First, because this notebook and website is rendered using a targets
 pipeline, I am going to set up a temporary directory to serve as the
@@ -47,9 +64,11 @@ setwd(dir)
 knitr::opts_knit$set(root.dir = dir)
 
 # I don't want to accidentally mangle my website's targets files,
-# so I'm adding an extra underscore
-targets::tar_config_set(script = "__targets.R")
-targets::tar_config_set(store = "__targets")
+# so I'm adding an extra bit to the name. I will write `_targets.R` 
+# and `_targets/` in the prose below to not confuse anyone with
+# nonstandard names.
+targets::tar_config_set(script = "_temp_targets.R")
+targets::tar_config_set(store = "__temp_targets")
 ```
 
 Next, I am going to create a `_targets.R` file that will fit the same
@@ -60,10 +79,14 @@ model three times, but the models will try different things:
   - `model_3`: returns the model's .rds file and targets reads in the
     .rds file
 
+(If you see me peppering in `targets::` namespaces haphazardly, it's
+just force of habit.)
+
 ```{r}
+# tar_script 
 tar_script({
   library(targets)
-  library(brms)
+  suppressPackageStartupMessages(library(brms))
   dir.create("models", showWarnings = FALSE)
   dir.create("stan", showWarnings = FALSE)
   # Avoids recompilations
@@ -112,13 +135,31 @@ tar_script({
 }, ask = FALSE)
 ```
 
-Now, we fit the models:
+Btw, `tar_assign()` is some syntactic sugar that 
+lets us more-normal looking R code. Here is a comparison:
+
+```r
+# normal syntax
+tar_target(name, command)
+
+# what you can write inside of tar_assign()
+name <- tar_target(command)
+
+# then you can do cool stuff like
+name <- some_earlier_target |> 
+  some_function() |> 
+  some_other_function() |> 
+  tar_target()
+```
+
+
+Now, we fit the models. 
 
 ```{r}
 targets::tar_make()
 ```
 
-Confirm that they don't refit when nothing changes:
+Confirm that they don't refit when nothing changes. (`✔ skipped pipeline`.)
 
 ```{r}
 targets::tar_make()
@@ -145,12 +186,25 @@ class(model_3)
 creates a `[name]_file` for the result of the `command` and creates
 `[name]` target for the result of `read`:
 
-```{r, fig.width=6, fig.height = 3, fig.caption = "dependency graph for this targets project", fig.alt= "dependency graph for this targets project"}
+```{r, fig.width=6, fig.height = 3, fig.cap = "dependency graph for this targets project", fig.alt= "dependency graph for this targets project"}
 targets::tar_visnetwork()
 ```
 
-Because targets never does read in the contents of `model_2` as R data,
-it has no storage footprint:
+`model_1` and `model_3` each have two files. One is written by brms into
+`models/`:
+
+```{r}
+fs::path("models") |> 
+  fs::dir_ls() |> 
+  fs::file_info() |> 
+  dplyr::select(path, size)
+```
+
+Another set of files is written by targets into the targets object
+folder. We expect these files here because part of targets job is manage
+and cache objects in our workflow. But, because targets never does read
+in the contents of `model_2` as R data, it has no storage footprint
+inside of the targets objects folder:
 
 ```{r}
 targets::tar_path_store() |> 
@@ -160,28 +214,30 @@ targets::tar_path_store() |>
   dplyr::select(path, size)
 ```
 
-So, the `model_2` approach means that there is no duplicated storage of
+Thus, the `model_2` approach means that there is no duplicated storage of
 models between `_targets/objects/` and `models/`.
 
 
-### At this point, I went down a terrible rabbit-hole
+## At this point, I went down a terrible rabbit-hole
 
-*Pop quiz*: In the filesize printout, why is `model_1` twice as big as
-`model_3`?
+*Pop quiz*: In the file size printout of the targets objects folder, why
+is `model_1` twice as big as `model_3`?
 
 Here is a hint. `lobstr::obj_size()` measures the size of an R object, 
-including environments referenced by the object:
+including R environments referenced by the object. brms models are lists of 
+different bundles of data (`formula`, `prior`, `data`, etc.). Look at the 
+sizes of each bit of data:
 
 ```{r}
 targets::tar_load(model_1)
-targets::tar_load(model_2)
+targets::tar_load(model_3)
 sizes_1 <- model_1 |> lapply(lobstr::obj_size) |> unlist()
 sizes_3 <- model_3 |> lapply(lobstr::obj_size) |> unlist()
-sizes_3 - sizes_1
+sizes_1 - sizes_3
 ```
 
-That's where within the model structure the sizes differ. What extra
-thing is in those parts of the model?
+That's where within the model structures that the object sizes differ.
+What extra thing is in those parts of the model's underlying data?
 
 Here is another hint:
 
@@ -200,8 +256,8 @@ m <- function() {
 lobstr::obj_size(m())
 ```
 
-That's how the model's context surrounding context can influence the size of 
-the model. What's going on?
+A model's surrounding environment can influence the size of the model. 
+What's going on?
 
 Here is yet another hint:
 
@@ -210,28 +266,32 @@ model_1$formula$formula |> environment() |> ls()
 model_3$formula$formula |> environment() |> ls()
 ```
 
-That's the precise difference in the context. But how did that self-reference 
-happen?
+Formulas remember the environment where they were defined, so we can see that 
+the precise difference in each formula's environment. But why are there is 
+an extra thing in the environment of the `model_1` formula?
 
-Here is a final hint:
+Here is a final hint. The two files, representing the same model, have
+different file sizes:
 
 ```{r}
 tar_path_target("model_1") |> file.size()
 model_1$file |> file.size()
 ```
 
-The formulas in the model are R formula objects which means that they
-contain a reference to their surrounding environment. That is a
-*reference*, as opposed to a copy of the environment. If we ask the
-model for the environment, we see the environment as it is *right now*,
-including any changes after the fitting of the model. That's why
-`BIG_DATA` in the second hint can make the model's `lobstr::obj_size()`
-increase. 
+### Two file writes at different times
+
+To put all the hints together: The formulas in the model are R formula
+objects which means that they contain a reference to their surrounding
+environment. That is a *reference*, as opposed to a copy of the
+environment. If we ask the model for the environment, we see the
+environment as it is *right now*, including any changes after the
+fitting of the model. That's why `BIG_DATA` in the second hint can make
+the model's `lobstr::obj_size()` increase. 
 
 In `f1()`, this sequence happens:
 
-1.  The model is fit and saved to the `models/` file, and return by
-    `brm()`.
+1.  The model is fit and saved to the `models/` file, and the model
+    object is returned by `brm()`.
 2.  The model object is assigned to `fit1`. `fit1` is now part of the
     environment, so that if we asked the model's formula for the
     environment, we would see `fit1`.
@@ -239,31 +299,56 @@ In `f1()`, this sequence happens:
     the updated environment.
 
 This behavior means that we should not assign the model inside `f1()` if
-possible. Now I'm starting to worry about much memory I've wasted by mostly 
-following pattern 1 (storing models in both `models` and `_targets/objects` and 
-not being careful about assignments).
+possible. At this point, I'm worrying about much memory I've wasted by
+mostly following pattern 1 (storing models in both `models` and
+`_targets/objects` and not being careful about assignments).
 
 One might ask if the formula's environment references the fitted model,
 then doesn't that "inner" model's formula also have its own model, ad
 infinitum? Yes, but it's just a loop. The environment captured by the
-out model's formula and the inner model's formula are the same.
+outer model's formula and the inner model's formula are the same.
 
 ```{r}
 targets::tar_load(model_1)
-outer_e <- model_1$formula$formula |> 
-  environment() 
+outer_e <- environment(model_1$formula$formula) 
 inner_model <- outer_e$fit1
-
-inner_e <- inner_model$formula$formula |> 
-  environment() 
+inner_e <-  environment(inner_model$formula$formula) 
 outer_e
 inner_e
 ```
+
+Here is a diagram:
+
+```
+model_1 (outer model)
+  ├── $prior
+  ├── $backend
+  ├── $fit
+  ├── ...
+  └── $formula$formula
+        └── attr(".Environment")             (outer_e)
+                    │
+                    v
+<environment: 0x000001782db490e0> <───────┐
+  ├── data                                │
+  ├── file                                │  
+  ├── p                                   │
+  └── fit1 (inner model)                  │
+        ├── $prior                        │
+        ├── $backend                      │
+        ├── $fit                          │
+        ├── ...                           │
+        └── $formula$formula              │
+              └── attr(".Environment") ───┘  (inner_e)
+```
+
+
 
 So, what is being duplicated? Let's surgically remove the referenced
 model from the formula environment and compare file sizes:
 
 ```{r}
+# Make a fresh copy. This is like calling saveRDS(readRDS())
 model_1_copy <- unserialize(serialize(model_1, NULL))
 
 # Remove "fit1" in the formula's environment 
@@ -278,16 +363,16 @@ file.size("models/model-1-resave.rds")
 file.size("models/model-1-clean.rds")
 ```
 
-Maybe it's the posterior draws in the inner model? Let's only remove those and 
-see what happens.
+Maybe it's the posterior draws in the inner model that are to blame for
+the extra space? Let's only remove those and see what happens.
 
 ```{r}
 model_1_copy2 <- unserialize(serialize(model_1, NULL))
 
 # Ablate the `$fit` part of the inner model
-e <- model_1_copy2$formula$formula |> 
-  environment()
-with(e, fit1$fit <- NULL)
+
+e <- environment(model_1_copy2$formula$formula)
+e$fit1$fit <- NULL
 is.null(e$fit1$fit)
 ```
 
@@ -315,7 +400,7 @@ file.size("models/model-1-clean2.rds")
 ```
 
 
-### Some nonstandard evaluation to make it easy to tweak the targets scripts
+## Setting up for more targets experiments
 
 This note is now off the rails. We're in the rabbithole. I want to 
 mess with this environment stuff some more. 
@@ -328,7 +413,7 @@ and makes sure the same code is reused across demos.
 ```{r}
 s_setup <- quote({
   library(targets)
-  library(brms)
+  suppressPackageStartupMessages(library(brms))
   dir.create("models", showWarnings = FALSE)
   dir.create("stan", showWarnings = FALSE)
   options(cmdstanr_write_stan_file_dir = normalizePath("stan"))
@@ -390,7 +475,9 @@ write_tar_script(s_setup, s_function, s_subfunctions, s_targets)
 targets::tar_make()
 ```
 
-Let's make a superficial change to the pipeline by 1) cleaning up the
+### Superficial code changes do nothing
+
+Let's make a trivial change to the pipeline by 1) cleaning up the
 `fit1 <-` assignment and 2) including the `.sd` value in the function
 arguments in the targets commands. These change affects the targets'
 commands so they need to be remade but it does not change the brms
@@ -436,7 +523,7 @@ Okay, as expected, `model_3_file` had to be remade, but not `model_3`
 because the underlying file did not change.
 
 And removing the assignment from the model fitting function reduced the
-file-size of the `_targets` version of the model:
+file size of the `_targets` version of the model:
 
 ```{r}
 targets::tar_path_store() |> 
@@ -446,7 +533,10 @@ targets::tar_path_store() |>
   dplyr::select(path, size)
 ```
 
-Let's actually change the prior, forcing a refit, and see what happens:
+### Changing the prior forces a refit
+
+Let's actually change the prior, forcing a model refit by brms, and see
+what happens:
 
 ```{r}
 s_targets3 <- quote({
@@ -465,8 +555,8 @@ write_tar_script(s_setup, s_function2, s_subfunctions, s_targets3)
 targets::tar_make()
 ```
 
-As expected, all three models had to refit. Yes, I feel like inventing
-an intransitive *refit*.
+As expected, all three models had to refit. (I feel like inventing
+an intransitive *refit*.)
 
 ```{r}
 targets::tar_load(model_1)
@@ -479,7 +569,7 @@ prior_summary(readRDS(model_2))[1, 1]
 prior_summary(model_3)[1, 1]
 ```
 
-### Adding LOO scores
+## Experiments with LOO scores
 
 brms will store derived model data such as LOO scores inside of the
 `brmsfit` (model) object, and if the model has an associated file, that
@@ -487,8 +577,15 @@ file will be updated with the derived model data. Thus, we might run into a
 case where an assignment creates something in the model's environment that 
 inflates the model size. 
 
-**Adding LOO scores to an already fitted model**. We add an assignment to the 
-function and use `add_criterion()` on the model:
+
+### Adding LOO scores to an already fitted model. 
+
+Suppose we fit our models but decide to tweak the model-fitting
+functions so that they also compute LOO scores for the model. We make
+this tweak by adding an assignment to the function and use
+`add_criterion()` on the model. The models have already been fitted so 
+brms will load the model file, add the LOO scores, and save the updated object
+to the model file path.
 
 ```{r}
 s_function3 <- quote({
@@ -507,7 +604,7 @@ s_function3 <- quote({
       silent = 2,
       chains = 1
     )
-    add_criterion(m, "loo")
+    suppressWarnings(add_criterion(m, "loo"))
   }
 })
 
@@ -515,7 +612,7 @@ write_tar_script(s_setup, s_function3, s_subfunctions, s_targets3)
 targets::tar_make()
 ```
 
-We can see the loo scores inside of the model object:
+We can see the LOO scores inside of the model object:
 
 ```{r}
 targets::tar_load(model_1)
@@ -541,8 +638,9 @@ model_1$formula$formula |> environment() |> ls()
 model_3$formula$formula |> environment() |> ls()
 ```
 
-**Adding LOO scores to a forced refit**. But let's force the models to
-refit and have their LOO scores computed.
+### Adding LOO scores to a forced refit
+
+But let's force the models to refit and have their LOO scores computed.
 
 ```{r}
 # roll back to default priors
@@ -550,7 +648,7 @@ write_tar_script(s_setup, s_function3, s_subfunctions, s_targets2)
 targets::tar_make()
 ```
 
-We can see the changed prior and the loo scores inside of the model object:
+We can see the changed prior and the LOO scores inside of the model object.
 
 ```{r}
 targets::tar_load(model_1)
@@ -558,7 +656,7 @@ prior_summary(model_1)[1, 1]
 class(model_1$criteria$loo)
 ```
 
-The file sizes look suspicious:
+But the file sizes look suspicious.
 
 ```{r}
 targets::tar_path_store() |> 
@@ -568,7 +666,8 @@ targets::tar_path_store() |>
   dplyr::select(path, size)
 ```
 
-Here we can see the larger environments affecting all of the models:
+Here we can see the larger environments affecting all of the models, even
+`model_2`:
 
 ```{r}
 targets::tar_load(model_1)
@@ -580,25 +679,13 @@ model_2$formula$formula |> environment() |> ls()
 model_3$formula$formula |> environment() |> ls()
 ```
 
-This is utterly strange, but here is what is going on. Think about two  
-environments:
+This is utterly strange.
 
-  - the environment where model-fitting happens (referenced in
-    `model$formula$formula`)
-  - the environment where `add_criterion()` happens.
+### Use a pipe to skip an intermediate assignment
 
-When the model has already been fitted and cached and the LOO criterion
-needs to be computed, these two environments are different. They
-essentially happen in different R sessions.
-
-When the model needs to refit and the LOO criterion needs to be
-computed, these two environments are the same. When the model with the
-added LOO scores is saved, the reference to the model-fitting
-environment is still active so the extra (self) copy sneaks in.
-
-**Force refit and use a pipe to skip an intermediate assignment**. Let's
-rewrite the model-fitting call and LOO-computation call into piped
-function form. We'll change the priors again to force a refit.
+As a quick fix, let's rewrite the model-fitting call and LOO-computation
+call into piped function form. We'll change the priors again to force a
+refit.
 
 ```{r}
 s_function4 <- quote({
@@ -638,16 +725,36 @@ targets::tar_path_store() |>
 
 Add another point on the scoreboard for the pipe-programming style.
 
+### Explicitly bypass the model fitting environment
 
-**Explicitly isolate the model fitting environment**. I have a hunch
-that if I call `brm()` twice the second `brm()` will load the saved
-model, and when it unserializes (loads) the formula's saved environment,
-it will create a new environment object that can't be contaminated by
-new data in the model-fitting environment.
+I have a hunch that if I call `brm()` twice the second `brm()` will load
+the saved model, and when it unserializes (loads) the formula's saved
+environment, it will create a new environment object that can't be
+contaminated by new data in the model-fitting environment.
 
-To clarify things, I am also going to print out environment addresses
-too. I've lost track of things, so I am going to force a refit by
-changing the code and deleting the models.
+Here is my mental model for what it is going on: Think about three  
+environments:
+
+  1. the environment where `brm()` and the actual model-fitting happens 
+  2. the environment that is created when we load a saved model from a file.
+  3. the environment where `add_criterion()` happens.
+
+When we write out the .rds file during model fitting, the contents of
+(1) are saved, and when we load in the model file, (2) is created.
+Although (1) and (2) are meant to represent the same environments (in
+terms of objects and data), they are different environment objects. 
+
+When we load in a model file, environment (2) is created and the
+LOO-score environment (3) cannot affect it. When we fit a model and
+compute LOO scores in the same go, (1) and (3) are the same environment.
+When the model with the added LOO scores is saved, the reference to the
+model-fitting environment (1) by the formula is still active so the
+extra (self) model copy sneaks in.
+
+Calling `brm()` twice therefore should force the creation of (2). To clarify
+things, I am also going to print out environment addresses too. I've
+lost track of things, so I am going to force a refit by changing the
+code and deleting the models.
 
 ```{r}
 s_function5 <- quote({
@@ -686,7 +793,7 @@ s_function5 <- quote({
       "Formula after reading cached model: ", 
       m$formula$formula |> environment() |> format()
     )
-    m <- add_criterion(m, "loo")
+    m <- suppressWarnings(add_criterion(m, "loo"))
     message(
       "Formula after add_criterion(): ", 
       m$formula$formula |> environment() |> format()
@@ -717,6 +824,9 @@ targets::tar_load(model_1)
 model_1$formula$formula |> environment() |> ls()
 ```
 
+
+#### Environment address from do-it-once versions
+
 For completeness, let's look at the environments from a do-it-once version:
 
 ```{r}
@@ -741,7 +851,7 @@ s_function6 <- quote({
       "Formula after fitting: ", 
       m$formula$formula |> environment() |> format()
     )
-    m <- add_criterion(m, "loo")
+    m <- suppressWarnings(add_criterion(m, "loo"))
     message(
       "Formula after add_criterion(): ", 
       m$formula$formula |> environment() |> format()
@@ -760,9 +870,10 @@ The environments are all the same!
 That is why adding the criterion's embloats the models. The do-it-twice version
 creates a new environment when it loads the model's saved formula environment.
 
-**A clean version of the do-it-twice trick**. It looks pretty odd to fit the 
-same model twice. We can just read in the saved model with 
-`m <- readRDS(m$file)` instead for the same effect:
+### A clean version of the do-it-twice trick
+
+It looks pretty odd to fit the same model twice. We can just read in the
+saved model with `m <- readRDS(m$file)` instead for the same effect:
 
 ```{r}
 s_function7 <- quote({
@@ -791,7 +902,7 @@ s_function7 <- quote({
       "Formula after reading cached model: ", 
       m$formula$formula |> environment() |> format()
     )
-    m <- add_criterion(m, "loo", )
+    m <- suppressWarnings(add_criterion(m, "loo"))
     message(
       "Formula after add_criterion(): ", 
       m$formula$formula |> environment() |> format()
@@ -816,7 +927,7 @@ targets::tar_path_store() |>
 ```
 
 
-### Observations
+## Observations
 
 The problem of environments inflating model sizes is a known one. The
 [butcher R package](https://butcher.tidymodels.org/), for example, will
@@ -825,15 +936,15 @@ its self-referential head into these experiments. I just wanted to
 experiment to see if its possible to work with just one file per model in 
 a targets workflow. (It is, using the model-2 style).
 
-I've been coding in the model-1 style for years. brms caches it so that
-the model is only refit when the formula, priors or data changes, and
+I've been coding in the model-1 style for years. brms caches models so
+that a model is only refit when the formula, priors or data changes, and
 targets has its own copy of the model in it data store. I'm now inclined
 to use the model-3 style because it hands targets the `.rds` file
 created by brms and avoids at least one unexpected environment/size
-issue. But it was truly a baffling result that the newly-fitted-model
-plus assignment plus LOO-score case led to an inflated file size, and
-the model-3 style could not avoid that issue. Immediately loading the saved
-model file seemed to help this problem.
+issue. But that's a small difference. It was truly a baffling result
+that the newly-fitted-model plus assignment plus LOO-score case led to
+an inflated file size, and the model-3 style could not avoid that issue.
+Immediately loading the saved model file solved this problem.
 
 I recently completed a project that had some impressively large model objects. 
 I am going to paste in the R results from inspecting one of them:

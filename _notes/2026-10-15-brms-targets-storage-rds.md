@@ -6,9 +6,10 @@ tags: [r, brms, readr]
 
 
 
-This note is a quick test for how to set up a function that fits a brms model
-in a targets workflow. Specifically, should my function for fitting a brms model 
-return a model or a path to saved model? That is,
+This note started as a quick test for how to set up a function that fits
+a brms model in a targets workflow. Specifically, should my function for
+fitting a brms model return a model or a path to saved model? That is,
+which of these two approaches should we use?
 
 <!--
 
@@ -33,12 +34,38 @@ f_ret_file <- function(...) {
 <span>  <span class='nv'>m</span><span class='o'>$</span><span class='nv'>file</span></span>
 <span><span class='o'>}</span></span></pre>
 
-We definitely want to leverage the `file` argument because it caches 
-the model so that it will only refit if the model's formula, data, 
-priors, or generated Stan code change. But should I use inside of a 
+We definitely want to leverage the `file` argument because it caches the
+model, and when paired with `file_refit = "on_change"`, it will only
+refit if the model's formula, data, priors, or generated Stan code
+change. But my question today is what should we use inside of a
 [targets](https://books.ropensci.org/targets/) workflow?
 
-## Setting up a temporary targets project
+**Eventual conclusion of this post**. The latter return-a-path approach
+can save space if we are willing to throw in extra `readRDS()` calls,
+but surprisingly, we can also save space by reading the model from the
+file immediately after fitting:
+
+<!--
+
+``` r
+f_ret_whatever <- function(...) {
+  m <- brm(..., file = "model", file_refit = "on_change")
+  m <- readRDS(m$file)
+  # [... any extra post processing ...]
+  # [... now choose whether to return the model or the filepath ...]
+}
+```
+-->
+<pre class='chroma'>
+<span><span class='nv'>f_ret_whatever</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
+<span>  <span class='nv'>m</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://paulbuerkner.com/brms/reference/brm.html'>brm</a></span><span class='o'>(</span><span class='nv'>...</span>, file <span class='o'>=</span> <span class='s'>"model"</span>, file_refit <span class='o'>=</span> <span class='s'>"on_change"</span><span class='o'>)</span></span>
+<span>  <span class='nv'>m</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/readRDS.html'>readRDS</a></span><span class='o'>(</span><span class='nv'>m</span><span class='o'>$</span><span class='nv'>file</span><span class='o'>)</span></span>
+<span>  <span class='c'># [... any extra post processing ...]</span></span>
+<span>  <span class='c'># [... now choose whether to return the model or the filepath ...]</span></span>
+<span><span class='o'>}</span></span></pre>
+
+
+## Comparing three approaches in a targets pipeline
 
 First, because this notebook and website is rendered using a targets
 pipeline, I am going to set up a temporary directory to serve as the
@@ -57,9 +84,11 @@ setwd(dir)
 knitr::opts_knit$set(root.dir = dir)
 
 # I don't want to accidentally mangle my website's targets files,
-# so I'm adding an extra underscore
-targets::tar_config_set(script = "__targets.R")
-targets::tar_config_set(store = "__targets")
+# so I'm adding an extra bit to the name. I will write `_targets.R` 
+# and `_targets/` in the prose below to not confuse anyone with
+# nonstandard names.
+targets::tar_config_set(script = "_temp_targets.R")
+targets::tar_config_set(store = "__temp_targets")
 ```
 -->
 <pre class='chroma'>
@@ -73,9 +102,11 @@ targets::tar_config_set(store = "__targets")
 <span><span class='nf'>knitr</span><span class='nf'>::</span><span class='nv'><a href='https://rdrr.io/pkg/knitr/man/opts_knit.html'>opts_knit</a></span><span class='o'>$</span><span class='nf'>set</span><span class='o'>(</span>root.dir <span class='o'>=</span> <span class='nv'>dir</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='c'># I don't want to accidentally mangle my website's targets files,</span></span>
-<span><span class='c'># so I'm adding an extra underscore</span></span>
-<span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_config_set.html'>tar_config_set</a></span><span class='o'>(</span>script <span class='o'>=</span> <span class='s'>"__targets.R"</span><span class='o'>)</span></span>
-<span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_config_set.html'>tar_config_set</a></span><span class='o'>(</span>store <span class='o'>=</span> <span class='s'>"__targets"</span><span class='o'>)</span></span></pre>
+<span><span class='c'># so I'm adding an extra bit to the name. I will write `_targets.R` </span></span>
+<span><span class='c'># and `_targets/` in the prose below to not confuse anyone with</span></span>
+<span><span class='c'># nonstandard names.</span></span>
+<span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_config_set.html'>tar_config_set</a></span><span class='o'>(</span>script <span class='o'>=</span> <span class='s'>"_temp_targets.R"</span><span class='o'>)</span></span>
+<span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_config_set.html'>tar_config_set</a></span><span class='o'>(</span>store <span class='o'>=</span> <span class='s'>"__temp_targets"</span><span class='o'>)</span></span></pre>
 
 Next, I am going to create a `_targets.R` file that will fit the same
 model three times, but the models will try different things:
@@ -85,12 +116,16 @@ model three times, but the models will try different things:
   - `model_3`: returns the model's .rds file and targets reads in the
     .rds file
 
+(If you see me peppering in `targets::` namespaces haphazardly, it's
+just force of habit.)
+
 <!--
 
 ``` r
+# tar_script 
 tar_script({
   library(targets)
-  library(brms)
+  suppressPackageStartupMessages(library(brms))
   dir.create("models", showWarnings = FALSE)
   dir.create("stan", showWarnings = FALSE)
   # Avoids recompilations
@@ -140,9 +175,10 @@ tar_script({
 ```
 -->
 <pre class='chroma'>
+<span><span class='c'># tar_script </span></span>
 <span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_script.html'>tar_script</a></span><span class='o'>(</span><span class='o'>{</span></span>
 <span>  <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://docs.ropensci.org/targets/'>targets</a></span><span class='o'>)</span></span>
-<span>  <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/paul-buerkner/brms'>brms</a></span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='o'>(</span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/paul-buerkner/brms'>brms</a></span><span class='o'>)</span><span class='o'>)</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/files2.html'>dir.create</a></span><span class='o'>(</span><span class='s'>"models"</span>, showWarnings <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/files2.html'>dir.create</a></span><span class='o'>(</span><span class='s'>"stan"</span>, showWarnings <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 <span>  <span class='c'># Avoids recompilations</span></span>
@@ -190,101 +226,75 @@ tar_script({
 <span>  <span class='o'>}</span><span class='o'>)</span></span>
 <span><span class='o'>}</span>, ask <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span></pre>
 
-Now, we fit the models:
+Btw, `tar_assign()` is some syntactic sugar that 
+lets us more-normal looking R code. Here is a comparison:
+
+```r
+# normal syntax
+tar_target(name, command)
+
+# what you can write inside of tar_assign()
+name <- tar_target(command)
+
+# then you can do cool stuff like
+name <- some_earlier_target |> 
+  some_function() |> 
+  some_other_function() |> 
+  tar_target()
+```
+
+
+Now, we fit the models. 
 
 <!--
 
 ``` r
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + data dispatched
 #> ✔ data completed [0ms, 2.68 kB]
 #> + model_3_file dispatched
-#> ✔ model_3_file completed [54.6s, 561.05 kB]
+#> ✔ model_3_file completed [32.4s, 561.04 kB]
 #> + model_1 dispatched
 #> ✔ model_1 completed [9.4s, 1.09 MB]
 #> + model_2 dispatched
-#> ✔ model_2 completed [10.8s, 552.96 kB]
+#> ✔ model_2 completed [10.7s, 552.96 kB]
 #> + model_3 dispatched
-#> ✔ model_3 completed [0ms, 561.07 kB]
-#> ✔ ended pipeline [1m 15.1s, 5 completed, 0 skipped]
+#> ✔ model_3 completed [15ms, 561.06 kB]
+#> ✔ ended pipeline [52.9s, 5 completed, 0 skipped]
 #> Warning message:
 #> package 'Rcpp' was built under R version 4.6.1 
 ```
 -->
 <pre class='chroma'>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + data dispatched</span></span>
 <span><span class='c'>#&gt; ✔ data completed [0ms, 2.68 kB]</span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [54.6s, 561.05 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [32.4s, 561.04 kB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
 <span><span class='c'>#&gt; ✔ model_1 completed [9.4s, 1.09 MB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_2 completed [10.8s, 552.96 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_2 completed [10.7s, 552.96 kB]</span></span>
 <span><span class='c'>#&gt; + model_3 dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_3 completed [0ms, 561.07 kB]</span></span>
-<span><span class='c'>#&gt; ✔ ended pipeline [1m 15.1s, 5 completed, 0 skipped]</span></span>
+<span><span class='c'>#&gt; ✔ model_3 completed [15ms, 561.06 kB]</span></span>
+<span><span class='c'>#&gt; ✔ ended pipeline [52.9s, 5 completed, 0 skipped]</span></span>
 <span><span class='c'>#&gt; Warning message:</span></span>
 <span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
-Confirm that they don't refit when nothing changes:
+Confirm that they don't refit when nothing changes. (`✔ skipped pipeline`.)
 
 <!--
 
 ``` r
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
-#> ✔ skipped pipeline [93ms, 5 skipped]
+#> ✔ skipped pipeline [109ms, 5 skipped]
 #> Warning message:
 #> package 'Rcpp' was built under R version 4.6.1 
 ```
 -->
 <pre class='chroma'>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; ✔ skipped pipeline [93ms, 5 skipped]</span></span>
+<span><span class='c'>#&gt; ✔ skipped pipeline [109ms, 5 skipped]</span></span>
 <span><span class='c'>#&gt; Warning message:</span></span>
 <span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
@@ -334,49 +344,60 @@ creates a `[name]_file` for the result of the `command` and creates
 
 ``` r
 targets::tar_visnetwork()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> Warning message:
 #> package 'Rcpp' was built under R version 4.6.1 
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/figs/notes/2026-10-15-brms-targets-storage-rds/unnamed-chunk-8-1.png" alt="dependency graph for this targets project" width="80%" />
-<p class="caption">center</p>
+<img src="/figs/notes/2026-10-15-brms-targets-storage-rds/unnamed-chunk-9-1.png" alt="dependency graph for this targets project" width="80%" />
+<p class="caption">dependency graph for this targets project</p>
 </div>
 -->
 <pre class='chroma'>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_visnetwork.html'>tar_visnetwork</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; Warning message:</span></span>
 <span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
 <div class="figure" style="text-align: center">
-<img src="/figs/notes/2026-10-15-brms-targets-storage-rds/unnamed-chunk-8-1.png" alt="dependency graph for this targets project" width="80%" />
-<p class="caption">center</p>
+<img src="/figs/notes/2026-10-15-brms-targets-storage-rds/unnamed-chunk-9-1.png" alt="dependency graph for this targets project" width="80%" />
+<p class="caption">dependency graph for this targets project</p>
 </div>
 
-Because targets never does read in the contents of `model_2` as R data,
-it has no storage footprint:
+`model_1` and `model_3` each have two files. One is written by brms into
+`models/`:
+
+<!--
+
+``` r
+fs::path("models") |> 
+  fs::dir_ls() |> 
+  fs::file_info() |> 
+  dplyr::select(path, size)
+#> # A tibble: 3 × 2
+#>   path                    size
+#>   <fs::path>       <fs::bytes>
+#> 1 models/test1.rds        539K
+#> 2 models/test2.rds        540K
+#> 3 models/test3.rds        548K
+```
+-->
+<pre class='chroma'>
+<span><span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/path.html'>path</a></span><span class='o'>(</span><span class='s'>"models"</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/dir_ls.html'>dir_ls</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_info</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
+<span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>path</span>, <span class='nv'>size</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; # A tibble: 3 × 2</span></span>
+<span><span class='c'>#&gt;   path                    size</span></span>
+<span><span class='c'>#&gt;   &lt;fs::path&gt;       &lt;fs::bytes&gt;</span></span>
+<span><span class='c'>#&gt; 1 models/test1.rds        539K</span></span>
+<span><span class='c'>#&gt; 2 models/test2.rds        540K</span></span>
+<span><span class='c'>#&gt; 3 models/test3.rds        548K</span></span></pre>
+
+Another set of files is written by targets into the targets object
+folder. We expect these files here because part of targets job is manage
+and cache objects in our workflow. But, because targets never does read
+in the contents of `model_2` as R data, it has no storage footprint
+inside of the targets objects folder:
 
 <!--
 
@@ -387,11 +408,11 @@ targets::tar_path_store() |>
   fs::file_info() |> 
   dplyr::select(path, size)
 #> # A tibble: 3 × 2
-#>   path                             size
-#>   <fs::path>                <fs::bytes>
-#> 1 __targets/objects/data          2.62K
-#> 2 __targets/objects/model_1       1.04M
-#> 3 __targets/objects/model_3     547.92K
+#>   path                                  size
+#>   <fs::path>                     <fs::bytes>
+#> 1 __temp_targets/objects/data          2.62K
+#> 2 __temp_targets/objects/model_1       1.04M
+#> 3 __temp_targets/objects/model_3     547.91K
 ```
 -->
 <pre class='chroma'>
@@ -401,55 +422,57 @@ targets::tar_path_store() |>
 <span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_info</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>path</span>, <span class='nv'>size</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; # A tibble: 3 × 2</span></span>
-<span><span class='c'>#&gt;   path                             size</span></span>
-<span><span class='c'>#&gt;   &lt;fs::path&gt;                &lt;fs::bytes&gt;</span></span>
-<span><span class='c'>#&gt; 1 __targets/objects/data          2.62K</span></span>
-<span><span class='c'>#&gt; 2 __targets/objects/model_1       1.04M</span></span>
-<span><span class='c'>#&gt; 3 __targets/objects/model_3     547.92K</span></span></pre>
+<span><span class='c'>#&gt;   path                                  size</span></span>
+<span><span class='c'>#&gt;   &lt;fs::path&gt;                     &lt;fs::bytes&gt;</span></span>
+<span><span class='c'>#&gt; 1 __temp_targets/objects/data          2.62K</span></span>
+<span><span class='c'>#&gt; 2 __temp_targets/objects/model_1       1.04M</span></span>
+<span><span class='c'>#&gt; 3 __temp_targets/objects/model_3     547.91K</span></span></pre>
 
-So, the `model_2` approach means that there is no duplicated storage of
+Thus, the `model_2` approach means that there is no duplicated storage of
 models between `_targets/objects/` and `models/`.
 
 
-### At this point, I went down a terrible rabbit-hole
+## At this point, I went down a terrible rabbit-hole
 
-*Pop quiz*: In the filesize printout, why is `model_1` twice as big as
-`model_3`?
+*Pop quiz*: In the file size printout of the targets objects folder, why
+is `model_1` twice as big as `model_3`?
 
 Here is a hint. `lobstr::obj_size()` measures the size of an R object, 
-including environments referenced by the object:
+including R environments referenced by the object. brms models are lists of 
+different bundles of data (`formula`, `prior`, `data`, etc.). Look at the 
+sizes of each bit of data:
 
 <!--
 
 ``` r
 targets::tar_load(model_1)
-targets::tar_load(model_2)
+targets::tar_load(model_3)
 sizes_1 <- model_1 |> lapply(lobstr::obj_size) |> unlist()
 sizes_3 <- model_3 |> lapply(lobstr::obj_size) |> unlist()
-sizes_3 - sizes_1
+sizes_1 - sizes_3
 #>   formula      data     prior     data2  stanvars     model save_pars algorithm 
-#>  -1119784  -1132736         0         0         0         0         0         0 
+#>   1119784   1132736         0         0         0         0         0         0 
 #>   backend   threads    opencl stan_args       fit     basis  criteria      file 
-#>         0         0         0         0     86544         0         0         0 
+#>         0         0         0         0    -86544         0         0         0 
 #>   version    family   autocor     ranef cov_ranef stan_funs data.name 
-#>         0         0         0  -1115512         0         0         0
+#>         0         0         0   1115512         0         0         0
 ```
 -->
 <pre class='chroma'>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_load.html'>tar_load</a></span><span class='o'>(</span><span class='nv'>model_1</span><span class='o'>)</span></span>
-<span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_load.html'>tar_load</a></span><span class='o'>(</span><span class='nv'>model_2</span><span class='o'>)</span></span>
+<span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_load.html'>tar_load</a></span><span class='o'>(</span><span class='nv'>model_3</span><span class='o'>)</span></span>
 <span><span class='nv'>sizes_1</span> <span class='o'>&lt;-</span> <span class='nv'>model_1</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='o'>(</span><span class='nf'>lobstr</span><span class='nf'>::</span><span class='nv'><a href='https://lobstr.r-lib.org/reference/obj_size.html'>obj_size</a></span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='nv'>sizes_3</span> <span class='o'>&lt;-</span> <span class='nv'>model_3</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='o'>(</span><span class='nf'>lobstr</span><span class='nf'>::</span><span class='nv'><a href='https://lobstr.r-lib.org/reference/obj_size.html'>obj_size</a></span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='nv'>sizes_3</span> <span class='o'>-</span> <span class='nv'>sizes_1</span></span>
+<span><span class='nv'>sizes_1</span> <span class='o'>-</span> <span class='nv'>sizes_3</span></span>
 <span><span class='c'>#&gt;   formula      data     prior     data2  stanvars     model save_pars algorithm </span></span>
-<span><span class='c'>#&gt;  -1119784  -1132736         0         0         0         0         0         0 </span></span>
+<span><span class='c'>#&gt;   1119784   1132736         0         0         0         0         0         0 </span></span>
 <span><span class='c'>#&gt;   backend   threads    opencl stan_args       fit     basis  criteria      file </span></span>
-<span><span class='c'>#&gt;         0         0         0         0     86544         0         0         0 </span></span>
+<span><span class='c'>#&gt;         0         0         0         0    -86544         0         0         0 </span></span>
 <span><span class='c'>#&gt;   version    family   autocor     ranef cov_ranef stan_funs data.name </span></span>
-<span><span class='c'>#&gt;         0         0         0  -1115512         0         0         0</span></span></pre>
+<span><span class='c'>#&gt;         0         0         0   1115512         0         0         0</span></span></pre>
 
-That's where within the model structure the sizes differ. What extra
-thing is in those parts of the model?
+That's where within the model structures that the object sizes differ.
+What extra thing is in those parts of the model's underlying data?
 
 Here is another hint:
 
@@ -488,8 +511,8 @@ lobstr::obj_size(m())
 <span><span class='nf'>lobstr</span><span class='nf'>::</span><span class='nf'><a href='https://lobstr.r-lib.org/reference/obj_size.html'>obj_size</a></span><span class='o'>(</span><span class='nf'>m</span><span class='o'>(</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; 8.01 MB</span></span></pre>
 
-That's how the model's context surrounding context can influence the size of 
-the model. What's going on?
+A model's surrounding environment can influence the size of the model. 
+What's going on?
 
 Here is yet another hint:
 
@@ -508,38 +531,42 @@ model_3$formula$formula |> environment() |> ls()
 <span><span class='nv'>model_3</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/ls.html'>ls</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "data" "file" "p"</span></span></pre>
 
-That's the precise difference in the context. But how did that self-reference 
-happen?
+Formulas remember the environment where they were defined, so we can see that 
+the precise difference in each formula's environment. But why are there is 
+an extra thing in the environment of the `model_1` formula?
 
-Here is a final hint:
+Here is a final hint. The two files, representing the same model, have
+different file sizes:
 
 <!--
 
 ``` r
 tar_path_target("model_1") |> file.size()
-#> [1] 1087307
+#> [1] 1087303
 model_1$file |> file.size()
-#> [1] 552379
+#> [1] 552378
 ```
 -->
 <pre class='chroma'>
 <span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_path_target.html'>tar_path_target</a></span><span class='o'>(</span><span class='s'>"model_1"</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 1087307</span></span>
+<span><span class='c'>#&gt; [1] 1087303</span></span>
 <span><span class='nv'>model_1</span><span class='o'>$</span><span class='nv'>file</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 552379</span></span></pre>
+<span><span class='c'>#&gt; [1] 552378</span></span></pre>
 
-The formulas in the model are R formula objects which means that they
-contain a reference to their surrounding environment. That is a
-*reference*, as opposed to a copy of the environment. If we ask the
-model for the environment, we see the environment as it is *right now*,
-including any changes after the fitting of the model. That's why
-`BIG_DATA` in the second hint can make the model's `lobstr::obj_size()`
-increase. 
+### Two file writes at different times
+
+To put all the hints together: The formulas in the model are R formula
+objects which means that they contain a reference to their surrounding
+environment. That is a *reference*, as opposed to a copy of the
+environment. If we ask the model for the environment, we see the
+environment as it is *right now*, including any changes after the
+fitting of the model. That's why `BIG_DATA` in the second hint can make
+the model's `lobstr::obj_size()` increase. 
 
 In `f1()`, this sequence happens:
 
-1.  The model is fit and saved to the `models/` file, and return by
-    `brm()`.
+1.  The model is fit and saved to the `models/` file, and the model
+    object is returned by `brm()`.
 2.  The model object is assigned to `fit1`. `fit1` is now part of the
     environment, so that if we asked the model's formula for the
     environment, we would see `fit1`.
@@ -547,43 +574,64 @@ In `f1()`, this sequence happens:
     the updated environment.
 
 This behavior means that we should not assign the model inside `f1()` if
-possible. Now I'm starting to worry about much memory I've wasted by mostly 
-following pattern 1 (storing models in both `models` and `_targets/objects` and 
-not being careful about assignments).
+possible. At this point, I'm worrying about much memory I've wasted by
+mostly following pattern 1 (storing models in both `models` and
+`_targets/objects` and not being careful about assignments).
 
 One might ask if the formula's environment references the fitted model,
 then doesn't that "inner" model's formula also have its own model, ad
 infinitum? Yes, but it's just a loop. The environment captured by the
-out model's formula and the inner model's formula are the same.
+outer model's formula and the inner model's formula are the same.
 
 <!--
 
 ``` r
 targets::tar_load(model_1)
-outer_e <- model_1$formula$formula |> 
-  environment() 
+outer_e <- environment(model_1$formula$formula) 
 inner_model <- outer_e$fit1
-
-inner_e <- inner_model$formula$formula |> 
-  environment() 
+inner_e <-  environment(inner_model$formula$formula) 
 outer_e
-#> <environment: 0x0000020349d919e0>
+#> <environment: 0x0000023aa08278b0>
 inner_e
-#> <environment: 0x0000020349d919e0>
+#> <environment: 0x0000023aa08278b0>
 ```
 -->
 <pre class='chroma'>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_load.html'>tar_load</a></span><span class='o'>(</span><span class='nv'>model_1</span><span class='o'>)</span></span>
-<span><span class='nv'>outer_e</span> <span class='o'>&lt;-</span> <span class='nv'>model_1</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> </span>
+<span><span class='nv'>outer_e</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='nv'>model_1</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>)</span> </span>
 <span><span class='nv'>inner_model</span> <span class='o'>&lt;-</span> <span class='nv'>outer_e</span><span class='o'>$</span><span class='nv'>fit1</span></span>
-<span></span>
-<span><span class='nv'>inner_e</span> <span class='o'>&lt;-</span> <span class='nv'>inner_model</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> </span>
+<span><span class='nv'>inner_e</span> <span class='o'>&lt;-</span>  <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='nv'>inner_model</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>)</span> </span>
 <span><span class='nv'>outer_e</span></span>
-<span><span class='c'>#&gt; &lt;environment: 0x0000020349d919e0&gt;</span></span>
+<span><span class='c'>#&gt; &lt;environment: 0x0000023aa08278b0&gt;</span></span>
 <span><span class='nv'>inner_e</span></span>
-<span><span class='c'>#&gt; &lt;environment: 0x0000020349d919e0&gt;</span></span></pre>
+<span><span class='c'>#&gt; &lt;environment: 0x0000023aa08278b0&gt;</span></span></pre>
+
+Here is a diagram:
+
+```
+model_1 (outer model)
+  ├── $prior
+  ├── $backend
+  ├── $fit
+  ├── ...
+  └── $formula$formula
+        └── attr(".Environment")             (outer_e)
+                    │
+                    v
+<environment: 0x000001782db490e0> <───────┐
+  ├── data                                │
+  ├── file                                │  
+  ├── p                                   │
+  └── fit1 (inner model)                  │
+        ├── $prior                        │
+        ├── $backend                      │
+        ├── $fit                          │
+        ├── ...                           │
+        └── $formula$formula              │
+              └── attr(".Environment") ───┘  (inner_e)
+```
+
+
 
 So, what is being duplicated? Let's surgically remove the referenced
 model from the formula environment and compare file sizes:
@@ -591,6 +639,7 @@ model from the formula environment and compare file sizes:
 <!--
 
 ``` r
+# Make a fresh copy. This is like calling saveRDS(readRDS())
 model_1_copy <- unserialize(serialize(model_1, NULL))
 
 # Remove "fit1" in the formula's environment 
@@ -604,10 +653,11 @@ saveRDS(model_1_copy, "models/model-1-clean.rds")
 file.size("models/model-1-resave.rds")
 #> [1] 1087315
 file.size("models/model-1-clean.rds")
-#> [1] 552392
+#> [1] 552391
 ```
 -->
 <pre class='chroma'>
+<span><span class='c'># Make a fresh copy. This is like calling saveRDS(readRDS())</span></span>
 <span><span class='nv'>model_1_copy</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/serialize.html'>unserialize</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/serialize.html'>serialize</a></span><span class='o'>(</span><span class='nv'>model_1</span>, <span class='kc'>NULL</span><span class='o'>)</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='c'># Remove "fit1" in the formula's environment </span></span>
@@ -621,10 +671,10 @@ file.size("models/model-1-clean.rds")
 <span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='s'>"models/model-1-resave.rds"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] 1087315</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='s'>"models/model-1-clean.rds"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 552392</span></span></pre>
+<span><span class='c'>#&gt; [1] 552391</span></span></pre>
 
-Maybe it's the posterior draws in the inner model? Let's only remove those and 
-see what happens.
+Maybe it's the posterior draws in the inner model that are to blame for
+the extra space? Let's only remove those and see what happens.
 
 <!--
 
@@ -632,9 +682,9 @@ see what happens.
 model_1_copy2 <- unserialize(serialize(model_1, NULL))
 
 # Ablate the `$fit` part of the inner model
-e <- model_1_copy2$formula$formula |> 
-  environment()
-with(e, fit1$fit <- NULL)
+
+e <- environment(model_1_copy2$formula$formula)
+e$fit1$fit <- NULL
 is.null(e$fit1$fit)
 #> [1] TRUE
 ```
@@ -643,9 +693,9 @@ is.null(e$fit1$fit)
 <span><span class='nv'>model_1_copy2</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/serialize.html'>unserialize</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/serialize.html'>serialize</a></span><span class='o'>(</span><span class='nv'>model_1</span>, <span class='kc'>NULL</span><span class='o'>)</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='c'># Ablate the `$fit` part of the inner model</span></span>
-<span><span class='nv'>e</span> <span class='o'>&lt;-</span> <span class='nv'>model_1_copy2</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/base/with.html'>with</a></span><span class='o'>(</span><span class='nv'>e</span>, <span class='nv'>fit1</span><span class='o'>$</span><span class='nv'>fit</span> <span class='o'>&lt;-</span> <span class='kc'>NULL</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>e</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='nv'>model_1_copy2</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>)</span></span>
+<span><span class='nv'>e</span><span class='o'>$</span><span class='nv'>fit1</span><span class='o'>$</span><span class='nv'>fit</span> <span class='o'>&lt;-</span> <span class='kc'>NULL</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span><span class='o'>(</span><span class='nv'>e</span><span class='o'>$</span><span class='nv'>fit1</span><span class='o'>$</span><span class='nv'>fit</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] TRUE</span></span></pre>
 
@@ -740,9 +790,9 @@ saveRDS(model_1_copy2, "models/model-1-clean2.rds")
 file.size("models/model-1-resave.rds")
 #> [1] 1087315
 file.size("models/model-1-clean.rds")
-#> [1] 552392
+#> [1] 552391
 file.size("models/model-1-clean2.rds")
-#> [1] 555383
+#> [1] 555381
 ```
 -->
 <pre class='chroma'>
@@ -751,12 +801,12 @@ file.size("models/model-1-clean2.rds")
 <span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='s'>"models/model-1-resave.rds"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] 1087315</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='s'>"models/model-1-clean.rds"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 552392</span></span>
+<span><span class='c'>#&gt; [1] 552391</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/base/file.info.html'>file.size</a></span><span class='o'>(</span><span class='s'>"models/model-1-clean2.rds"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 555383</span></span></pre>
+<span><span class='c'>#&gt; [1] 555381</span></span></pre>
 
 
-### Some nonstandard evaluation to make it easy to tweak the targets scripts
+## Setting up for more targets experiments
 
 This note is now off the rails. We're in the rabbithole. I want to 
 mess with this environment stuff some more. 
@@ -771,7 +821,7 @@ and makes sure the same code is reused across demos.
 ``` r
 s_setup <- quote({
   library(targets)
-  library(brms)
+  suppressPackageStartupMessages(library(brms))
   dir.create("models", showWarnings = FALSE)
   dir.create("stan", showWarnings = FALSE)
   options(cmdstanr_write_stan_file_dir = normalizePath("stan"))
@@ -831,18 +881,7 @@ write_tar_script <- function(...) {
 
 write_tar_script(s_setup, s_function, s_subfunctions, s_targets)
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
-#> ✔ skipped pipeline [93ms, 5 skipped]
+#> ✔ skipped pipeline [94ms, 5 skipped]
 #> Warning message:
 #> package 'Rcpp' was built under R version 4.6.1 
 ```
@@ -850,7 +889,7 @@ targets::tar_make()
 <pre class='chroma'>
 <span><span class='nv'>s_setup</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/substitute.html'>quote</a></span><span class='o'>(</span><span class='o'>{</span></span>
 <span>  <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://docs.ropensci.org/targets/'>targets</a></span><span class='o'>)</span></span>
-<span>  <span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/paul-buerkner/brms'>brms</a></span><span class='o'>)</span></span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='o'>(</span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://github.com/paul-buerkner/brms'>brms</a></span><span class='o'>)</span><span class='o'>)</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/files2.html'>dir.create</a></span><span class='o'>(</span><span class='s'>"models"</span>, showWarnings <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/files2.html'>dir.create</a></span><span class='o'>(</span><span class='s'>"stan"</span>, showWarnings <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='o'>(</span>cmdstanr_write_stan_file_dir <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span><span class='o'>(</span><span class='s'>"stan"</span><span class='o'>)</span><span class='o'>)</span></span>
@@ -910,22 +949,13 @@ targets::tar_make()
 <span></span>
 <span><span class='nf'>write_tar_script</span><span class='o'>(</span><span class='nv'>s_setup</span>, <span class='nv'>s_function</span>, <span class='nv'>s_subfunctions</span>, <span class='nv'>s_targets</span><span class='o'>)</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; ✔ skipped pipeline [93ms, 5 skipped]</span></span>
+<span><span class='c'>#&gt; ✔ skipped pipeline [94ms, 5 skipped]</span></span>
 <span><span class='c'>#&gt; Warning message:</span></span>
 <span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
-Let's make a superficial change to the pipeline by 1) cleaning up the
+### Superficial code changes do nothing
+
+Let's make a trivial change to the pipeline by 1) cleaning up the
 `fit1 <-` assignment and 2) including the `.sd` value in the function
 arguments in the targets commands. These change affects the targets'
 commands so they need to be remade but it does not change the brms
@@ -967,24 +997,13 @@ s_targets2 <- quote({
 
 write_tar_script(s_setup, s_function2, s_subfunctions, s_targets2)
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + model_3_file dispatched
-#> ✔ model_3_file completed [359ms, 561.05 kB]
+#> ✔ model_3_file completed [390ms, 561.04 kB]
 #> + model_1 dispatched
 #> ✔ model_1 completed [187ms, 552.39 kB]
 #> + model_2 dispatched
 #> ✔ model_2 completed [187ms, 552.96 kB]
-#> ✔ ended pipeline [6.1s, 3 completed, 2 skipped]
+#> ✔ ended pipeline [6.2s, 3 completed, 2 skipped]
 #> Warning message:
 #> package 'Rcpp' was built under R version 4.6.1 
 ```
@@ -1023,24 +1042,13 @@ targets::tar_make()
 <span></span>
 <span><span class='nf'>write_tar_script</span><span class='o'>(</span><span class='nv'>s_setup</span>, <span class='nv'>s_function2</span>, <span class='nv'>s_subfunctions</span>, <span class='nv'>s_targets2</span><span class='o'>)</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [359ms, 561.05 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [390ms, 561.04 kB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
 <span><span class='c'>#&gt; ✔ model_1 completed [187ms, 552.39 kB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
 <span><span class='c'>#&gt; ✔ model_2 completed [187ms, 552.96 kB]</span></span>
-<span><span class='c'>#&gt; ✔ ended pipeline [6.1s, 3 completed, 2 skipped]</span></span>
+<span><span class='c'>#&gt; ✔ ended pipeline [6.2s, 3 completed, 2 skipped]</span></span>
 <span><span class='c'>#&gt; Warning message:</span></span>
 <span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
@@ -1048,7 +1056,7 @@ Okay, as expected, `model_3_file` had to be remade, but not `model_3`
 because the underlying file did not change.
 
 And removing the assignment from the model fitting function reduced the
-file-size of the `_targets` version of the model:
+file size of the `_targets` version of the model:
 
 <!--
 
@@ -1059,11 +1067,11 @@ targets::tar_path_store() |>
   fs::file_info() |> 
   dplyr::select(path, size)
 #> # A tibble: 3 × 2
-#>   path                             size
-#>   <fs::path>                <fs::bytes>
-#> 1 __targets/objects/data          2.62K
-#> 2 __targets/objects/model_1     539.45K
-#> 3 __targets/objects/model_3     547.92K
+#>   path                                  size
+#>   <fs::path>                     <fs::bytes>
+#> 1 __temp_targets/objects/data          2.62K
+#> 2 __temp_targets/objects/model_1     539.44K
+#> 3 __temp_targets/objects/model_3     547.91K
 ```
 -->
 <pre class='chroma'>
@@ -1073,13 +1081,16 @@ targets::tar_path_store() |>
 <span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_info</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>path</span>, <span class='nv'>size</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; # A tibble: 3 × 2</span></span>
-<span><span class='c'>#&gt;   path                             size</span></span>
-<span><span class='c'>#&gt;   &lt;fs::path&gt;                &lt;fs::bytes&gt;</span></span>
-<span><span class='c'>#&gt; 1 __targets/objects/data          2.62K</span></span>
-<span><span class='c'>#&gt; 2 __targets/objects/model_1     539.45K</span></span>
-<span><span class='c'>#&gt; 3 __targets/objects/model_3     547.92K</span></span></pre>
+<span><span class='c'>#&gt;   path                                  size</span></span>
+<span><span class='c'>#&gt;   &lt;fs::path&gt;                     &lt;fs::bytes&gt;</span></span>
+<span><span class='c'>#&gt; 1 __temp_targets/objects/data          2.62K</span></span>
+<span><span class='c'>#&gt; 2 __temp_targets/objects/model_1     539.44K</span></span>
+<span><span class='c'>#&gt; 3 __temp_targets/objects/model_3     547.91K</span></span></pre>
 
-Let's actually change the prior, forcing a refit, and see what happens:
+### Changing the prior forces a refit
+
+Let's actually change the prior, forcing a model refit by brms, and see
+what happens:
 
 <!--
 
@@ -1098,26 +1109,15 @@ s_targets3 <- quote({
 
 write_tar_script(s_setup, s_function2, s_subfunctions, s_targets3)
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + model_3_file dispatched
-#> ✔ model_3_file completed [31.9s, 561.26 kB]
+#> ✔ model_3_file completed [32s, 561.26 kB]
 #> + model_1 dispatched
-#> ✔ model_1 completed [10.4s, 552.85 kB]
+#> ✔ model_1 completed [10s, 552.85 kB]
 #> + model_2 dispatched
-#> ✔ model_2 completed [10.3s, 552.53 kB]
+#> ✔ model_2 completed [10s, 552.53 kB]
 #> + model_3 dispatched
-#> ✔ model_3 completed [15ms, 561.28 kB]
-#> ✔ ended pipeline [58.1s, 4 completed, 1 skipped]
+#> ✔ model_3 completed [0ms, 561.28 kB]
+#> ✔ ended pipeline [57.4s, 4 completed, 1 skipped]
 #> Warning message:
 #> package 'Rcpp' was built under R version 4.6.1 
 ```
@@ -1137,31 +1137,20 @@ targets::tar_make()
 <span></span>
 <span><span class='nf'>write_tar_script</span><span class='o'>(</span><span class='nv'>s_setup</span>, <span class='nv'>s_function2</span>, <span class='nv'>s_subfunctions</span>, <span class='nv'>s_targets3</span><span class='o'>)</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [31.9s, 561.26 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [32s, 561.26 kB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_1 completed [10.4s, 552.85 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_1 completed [10s, 552.85 kB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_2 completed [10.3s, 552.53 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_2 completed [10s, 552.53 kB]</span></span>
 <span><span class='c'>#&gt; + model_3 dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_3 completed [15ms, 561.28 kB]</span></span>
-<span><span class='c'>#&gt; ✔ ended pipeline [58.1s, 4 completed, 1 skipped]</span></span>
+<span><span class='c'>#&gt; ✔ model_3 completed [0ms, 561.28 kB]</span></span>
+<span><span class='c'>#&gt; ✔ ended pipeline [57.4s, 4 completed, 1 skipped]</span></span>
 <span><span class='c'>#&gt; Warning message:</span></span>
 <span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
-As expected, all three models had to refit. Yes, I feel like inventing
-an intransitive *refit*.
+As expected, all three models had to refit. (I feel like inventing
+an intransitive *refit*.)
 
 <!--
 
@@ -1192,7 +1181,7 @@ prior_summary(model_3)[1, 1]
 <span><span class='nf'><a href='https://mc-stan.org/rstantools/reference/prior_summary.html'>prior_summary</a></span><span class='o'>(</span><span class='nv'>model_3</span><span class='o'>)</span><span class='o'>[</span><span class='m'>1</span>, <span class='m'>1</span><span class='o'>]</span></span>
 <span><span class='c'>#&gt; [1] "normal(0, 5)"</span></span></pre>
 
-### Adding LOO scores
+## Experiments with LOO scores
 
 brms will store derived model data such as LOO scores inside of the
 `brmsfit` (model) object, and if the model has an associated file, that
@@ -1200,8 +1189,15 @@ file will be updated with the derived model data. Thus, we might run into a
 case where an assignment creates something in the model's environment that 
 inflates the model size. 
 
-**Adding LOO scores to an already fitted model**. We add an assignment to the 
-function and use `add_criterion()` on the model:
+
+### Adding LOO scores to an already fitted model. 
+
+Suppose we fit our models but decide to tweak the model-fitting
+functions so that they also compute LOO scores for the model. We make
+this tweak by adding an assignment to the function and use
+`add_criterion()` on the model. The models have already been fitted so 
+brms will load the model file, add the LOO scores, and save the updated object
+to the model file path.
 
 <!--
 
@@ -1222,42 +1218,26 @@ s_function3 <- quote({
       silent = 2,
       chains = 1
     )
-    add_criterion(m, "loo")
+    suppressWarnings(add_criterion(m, "loo"))
   }
 })
 
 write_tar_script(s_setup, s_function3, s_subfunctions, s_targets3)
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + model_3_file dispatched
 #> Automatically saving the model object in 'models/test3.rds'
-#> ✔ model_3_file completed [1.7s, 572.84 kB]
+#> ✔ model_3_file completed [1.6s, 572.84 kB]
 #> + model_1 dispatched
 #> Automatically saving the model object in 'models/test1.rds'
-#> ✔ model_1 completed [953ms, 564.26 kB]
+#> ✔ model_1 completed [906ms, 564.26 kB]
 #> + model_2 dispatched
 #> Automatically saving the model object in 'models/test2.rds'
-#> ✔ model_2 completed [922ms, 563.95 kB]
+#> ✔ model_2 completed [735ms, 563.95 kB]
 #> + model_3 dispatched
 #> ✔ model_3 completed [0ms, 572.84 kB]
-#> ✔ ended pipeline [9s, 4 completed, 1 skipped]
-#> Warning messages:
-#> 1: package 'Rcpp' was built under R version 4.6.1 
-#> 2: Found 14 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 3: The ESS has been capped to avoid unstable estimates. 
-#> 4: Found 10 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 5: Found 7 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 6: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. 
+#> ✔ ended pipeline [8.7s, 4 completed, 1 skipped]
+#> Warning message:
+#> package 'Rcpp' was built under R version 4.6.1 
 ```
 -->
 <pre class='chroma'>
@@ -1277,44 +1257,28 @@ targets::tar_make()
 <span>      silent <span class='o'>=</span> <span class='m'>2</span>,</span>
 <span>      chains <span class='o'>=</span> <span class='m'>1</span></span>
 <span>    <span class='o'>)</span></span>
-<span>    <span class='nf'><a href='https://paulbuerkner.com/brms/reference/add_criterion.html'>add_criterion</a></span><span class='o'>(</span><span class='nv'>m</span>, <span class='s'>"loo"</span><span class='o'>)</span></span>
+<span>    <span class='nf'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span><span class='o'>(</span><span class='nf'><a href='https://paulbuerkner.com/brms/reference/add_criterion.html'>add_criterion</a></span><span class='o'>(</span><span class='nv'>m</span>, <span class='s'>"loo"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span>  <span class='o'>}</span></span>
 <span><span class='o'>}</span><span class='o'>)</span></span>
 <span></span>
 <span><span class='nf'>write_tar_script</span><span class='o'>(</span><span class='nv'>s_setup</span>, <span class='nv'>s_function3</span>, <span class='nv'>s_subfunctions</span>, <span class='nv'>s_targets3</span><span class='o'>)</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test3.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [1.7s, 572.84 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [1.6s, 572.84 kB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test1.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_1 completed [953ms, 564.26 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_1 completed [906ms, 564.26 kB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test2.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_2 completed [922ms, 563.95 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_2 completed [735ms, 563.95 kB]</span></span>
 <span><span class='c'>#&gt; + model_3 dispatched</span></span>
 <span><span class='c'>#&gt; ✔ model_3 completed [0ms, 572.84 kB]</span></span>
-<span><span class='c'>#&gt; ✔ ended pipeline [9s, 4 completed, 1 skipped]</span></span>
-<span><span class='c'>#&gt; Warning messages:</span></span>
-<span><span class='c'>#&gt; 1: package 'Rcpp' was built under R version 4.6.1 </span></span>
-<span><span class='c'>#&gt; 2: Found 14 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 3: The ESS has been capped to avoid unstable estimates. </span></span>
-<span><span class='c'>#&gt; 4: Found 10 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 5: Found 7 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 6: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. </span></span></pre>
+<span><span class='c'>#&gt; ✔ ended pipeline [8.7s, 4 completed, 1 skipped]</span></span>
+<span><span class='c'>#&gt; Warning message:</span></span>
+<span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
-We can see the loo scores inside of the model object:
+We can see the LOO scores inside of the model object:
 
 <!--
 
@@ -1372,11 +1336,11 @@ targets::tar_path_store() |>
   fs::file_info() |> 
   dplyr::select(path, size)
 #> # A tibble: 3 × 2
-#>   path                             size
-#>   <fs::path>                <fs::bytes>
-#> 1 __targets/objects/data          2.62K
-#> 2 __targets/objects/model_1     551.04K
-#> 3 __targets/objects/model_3     559.41K
+#>   path                                  size
+#>   <fs::path>                     <fs::bytes>
+#> 1 __temp_targets/objects/data          2.62K
+#> 2 __temp_targets/objects/model_1     551.04K
+#> 3 __temp_targets/objects/model_3     559.41K
 ```
 -->
 <pre class='chroma'>
@@ -1386,11 +1350,11 @@ targets::tar_path_store() |>
 <span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_info</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>path</span>, <span class='nv'>size</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; # A tibble: 3 × 2</span></span>
-<span><span class='c'>#&gt;   path                             size</span></span>
-<span><span class='c'>#&gt;   &lt;fs::path&gt;                &lt;fs::bytes&gt;</span></span>
-<span><span class='c'>#&gt; 1 __targets/objects/data          2.62K</span></span>
-<span><span class='c'>#&gt; 2 __targets/objects/model_1     551.04K</span></span>
-<span><span class='c'>#&gt; 3 __targets/objects/model_3     559.41K</span></span></pre>
+<span><span class='c'>#&gt;   path                                  size</span></span>
+<span><span class='c'>#&gt;   &lt;fs::path&gt;                     &lt;fs::bytes&gt;</span></span>
+<span><span class='c'>#&gt; 1 __temp_targets/objects/data          2.62K</span></span>
+<span><span class='c'>#&gt; 2 __temp_targets/objects/model_1     551.04K</span></span>
+<span><span class='c'>#&gt; 3 __temp_targets/objects/model_3     559.41K</span></span></pre>
 
 So do the environments:
 
@@ -1413,8 +1377,9 @@ model_3$formula$formula |> environment() |> ls()
 <span><span class='nv'>model_3</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/ls.html'>ls</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "data" "file" "p"</span></span></pre>
 
-**Adding LOO scores to a forced refit**. But let's force the models to
-refit and have their LOO scores computed.
+### Adding LOO scores to a forced refit
+
+But let's force the models to refit and have their LOO scores computed.
 
 <!--
 
@@ -1422,72 +1387,42 @@ refit and have their LOO scores computed.
 # roll back to default priors
 write_tar_script(s_setup, s_function3, s_subfunctions, s_targets2)
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + model_3_file dispatched
 #> Automatically saving the model object in 'models/test3.rds'
-#> ✔ model_3_file completed [10.5s, 1.10 MB]
+#> ✔ model_3_file completed [10.6s, 1.10 MB]
 #> + model_1 dispatched
 #> Automatically saving the model object in 'models/test1.rds'
-#> ✔ model_1 completed [10s, 1.10 MB]
+#> ✔ model_1 completed [10.3s, 1.10 MB]
 #> + model_2 dispatched
 #> Automatically saving the model object in 'models/test2.rds'
-#> ✔ model_2 completed [11.2s, 1.10 MB]
+#> ✔ model_2 completed [11.6s, 1.10 MB]
 #> + model_3 dispatched
-#> ✔ model_3 completed [15ms, 1.10 MB]
-#> ✔ ended pipeline [37.2s, 4 completed, 1 skipped]
-#> Warning messages:
-#> 1: package 'Rcpp' was built under R version 4.6.1 
-#> 2: Found 15 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 3: Found 14 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 4: Found 15 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 5: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. 
+#> ✔ model_3 completed [0ms, 1.10 MB]
+#> ✔ ended pipeline [38s, 4 completed, 1 skipped]
+#> Warning message:
+#> package 'Rcpp' was built under R version 4.6.1 
 ```
 -->
 <pre class='chroma'>
 <span><span class='c'># roll back to default priors</span></span>
 <span><span class='nf'>write_tar_script</span><span class='o'>(</span><span class='nv'>s_setup</span>, <span class='nv'>s_function3</span>, <span class='nv'>s_subfunctions</span>, <span class='nv'>s_targets2</span><span class='o'>)</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test3.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [10.5s, 1.10 MB]</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [10.6s, 1.10 MB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test1.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_1 completed [10s, 1.10 MB]</span></span>
+<span><span class='c'>#&gt; ✔ model_1 completed [10.3s, 1.10 MB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test2.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_2 completed [11.2s, 1.10 MB]</span></span>
+<span><span class='c'>#&gt; ✔ model_2 completed [11.6s, 1.10 MB]</span></span>
 <span><span class='c'>#&gt; + model_3 dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_3 completed [15ms, 1.10 MB]</span></span>
-<span><span class='c'>#&gt; ✔ ended pipeline [37.2s, 4 completed, 1 skipped]</span></span>
-<span><span class='c'>#&gt; Warning messages:</span></span>
-<span><span class='c'>#&gt; 1: package 'Rcpp' was built under R version 4.6.1 </span></span>
-<span><span class='c'>#&gt; 2: Found 15 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 3: Found 14 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 4: Found 15 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 5: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. </span></span></pre>
+<span><span class='c'>#&gt; ✔ model_3 completed [0ms, 1.10 MB]</span></span>
+<span><span class='c'>#&gt; ✔ ended pipeline [38s, 4 completed, 1 skipped]</span></span>
+<span><span class='c'>#&gt; Warning message:</span></span>
+<span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
-We can see the changed prior and the loo scores inside of the model object:
+We can see the changed prior and the LOO scores inside of the model object.
 
 <!--
 
@@ -1508,7 +1443,7 @@ class(model_1$criteria$loo)
 <span><span class='c'>#&gt; [1] "psis_loo"                "importance_sampling_loo"</span></span>
 <span><span class='c'>#&gt; [3] "loo"</span></span></pre>
 
-The file sizes look suspicious:
+But the file sizes look suspicious.
 
 <!--
 
@@ -1519,11 +1454,11 @@ targets::tar_path_store() |>
   fs::file_info() |> 
   dplyr::select(path, size)
 #> # A tibble: 3 × 2
-#>   path                             size
-#>   <fs::path>                <fs::bytes>
-#> 1 __targets/objects/data          2.62K
-#> 2 __targets/objects/model_1       1.05M
-#> 3 __targets/objects/model_3       1.05M
+#>   path                                  size
+#>   <fs::path>                     <fs::bytes>
+#> 1 __temp_targets/objects/data          2.62K
+#> 2 __temp_targets/objects/model_1       1.05M
+#> 3 __temp_targets/objects/model_3       1.05M
 ```
 -->
 <pre class='chroma'>
@@ -1533,13 +1468,14 @@ targets::tar_path_store() |>
 <span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_info</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>path</span>, <span class='nv'>size</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; # A tibble: 3 × 2</span></span>
-<span><span class='c'>#&gt;   path                             size</span></span>
-<span><span class='c'>#&gt;   &lt;fs::path&gt;                &lt;fs::bytes&gt;</span></span>
-<span><span class='c'>#&gt; 1 __targets/objects/data          2.62K</span></span>
-<span><span class='c'>#&gt; 2 __targets/objects/model_1       1.05M</span></span>
-<span><span class='c'>#&gt; 3 __targets/objects/model_3       1.05M</span></span></pre>
+<span><span class='c'>#&gt;   path                                  size</span></span>
+<span><span class='c'>#&gt;   &lt;fs::path&gt;                     &lt;fs::bytes&gt;</span></span>
+<span><span class='c'>#&gt; 1 __temp_targets/objects/data          2.62K</span></span>
+<span><span class='c'>#&gt; 2 __temp_targets/objects/model_1       1.05M</span></span>
+<span><span class='c'>#&gt; 3 __temp_targets/objects/model_3       1.05M</span></span></pre>
 
-Here we can see the larger environments affecting all of the models:
+Here we can see the larger environments affecting all of the models, even
+`model_2`:
 
 <!--
 
@@ -1568,25 +1504,13 @@ model_3$formula$formula |> environment() |> ls()
 <span><span class='nv'>model_3</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/ls.html'>ls</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "data" "file" "m"    "p"</span></span></pre>
 
-This is utterly strange, but here is what is going on. Think about two  
-environments:
+This is utterly strange.
 
-  - the environment where model-fitting happens (referenced in
-    `model$formula$formula`)
-  - the environment where `add_criterion()` happens.
+### Use a pipe to skip an intermediate assignment
 
-When the model has already been fitted and cached and the LOO criterion
-needs to be computed, these two environments are different. They
-essentially happen in different R sessions.
-
-When the model needs to refit and the LOO criterion needs to be
-computed, these two environments are the same. When the model with the
-added LOO scores is saved, the reference to the model-fitting
-environment is still active so the extra (self) copy sneaks in.
-
-**Force refit and use a pipe to skip an intermediate assignment**. Let's
-rewrite the model-fitting call and LOO-computation call into piped
-function form. We'll change the priors again to force a refit.
+As a quick fix, let's rewrite the model-fitting call and LOO-computation
+call into piped function form. We'll change the priors again to force a
+refit.
 
 <!--
 
@@ -1614,29 +1538,18 @@ s_function4 <- quote({
 
 write_tar_script(s_setup, s_function4, s_subfunctions, s_targets3)
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + model_3_file dispatched
 #> Automatically saving the model object in 'models/test3.rds'
-#> ✔ model_3_file completed [10.3s, 564.27 kB]
+#> ✔ model_3_file completed [10.2s, 564.27 kB]
 #> + model_1 dispatched
 #> Automatically saving the model object in 'models/test1.rds'
-#> ✔ model_1 completed [10.6s, 564.39 kB]
+#> ✔ model_1 completed [10.4s, 564.39 kB]
 #> + model_2 dispatched
 #> Automatically saving the model object in 'models/test2.rds'
-#> ✔ model_2 completed [10.1s, 564.07 kB]
+#> ✔ model_2 completed [10.2s, 564.07 kB]
 #> + model_3 dispatched
 #> ✔ model_3 completed [0ms, 564.29 kB]
-#> ✔ ended pipeline [36.4s, 4 completed, 1 skipped]
+#> ✔ ended pipeline [36.3s, 4 completed, 1 skipped]
 #> Warning messages:
 #> 1: package 'Rcpp' was built under R version 4.6.1 
 #> 2: Found 14 observations with a pareto_k > 0.67 in model 'brm(count ~ zBase * Trt + (1 | patient), data = data, family = poisson(),     prior = p + prior(cauchy(0, 2), class = sd), file = file,     file_refit = "on_change", backend = "cmdstanr", silent = 2,     chains = 1)'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
@@ -1670,29 +1583,18 @@ targets::tar_make()
 <span></span>
 <span><span class='nf'>write_tar_script</span><span class='o'>(</span><span class='nv'>s_setup</span>, <span class='nv'>s_function4</span>, <span class='nv'>s_subfunctions</span>, <span class='nv'>s_targets3</span><span class='o'>)</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test3.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [10.3s, 564.27 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [10.2s, 564.27 kB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test1.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_1 completed [10.6s, 564.39 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_1 completed [10.4s, 564.39 kB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test2.rds'</span></span>
-<span><span class='c'>#&gt; ✔ model_2 completed [10.1s, 564.07 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_2 completed [10.2s, 564.07 kB]</span></span>
 <span><span class='c'>#&gt; + model_3 dispatched</span></span>
 <span><span class='c'>#&gt; ✔ model_3 completed [0ms, 564.29 kB]</span></span>
-<span><span class='c'>#&gt; ✔ ended pipeline [36.4s, 4 completed, 1 skipped]</span></span>
+<span><span class='c'>#&gt; ✔ ended pipeline [36.3s, 4 completed, 1 skipped]</span></span>
 <span><span class='c'>#&gt; Warning messages:</span></span>
 <span><span class='c'>#&gt; 1: package 'Rcpp' was built under R version 4.6.1 </span></span>
 <span><span class='c'>#&gt; 2: Found 14 observations with a pareto_k &gt; 0.67 in model 'brm(count ~ zBase * Trt + (1 | patient), data = data, family = poisson(),     prior = p + prior(cauchy(0, 2), class = sd), file = file,     file_refit = "on_change", backend = "cmdstanr", silent = 2,     chains = 1)'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
@@ -1712,11 +1614,11 @@ targets::tar_path_store() |>
   fs::file_info() |> 
   dplyr::select(path, size)
 #> # A tibble: 3 × 2
-#>   path                             size
-#>   <fs::path>                <fs::bytes>
-#> 1 __targets/objects/data          2.62K
-#> 2 __targets/objects/model_1     551.16K
-#> 3 __targets/objects/model_3     551.06K
+#>   path                                  size
+#>   <fs::path>                     <fs::bytes>
+#> 1 __temp_targets/objects/data          2.62K
+#> 2 __temp_targets/objects/model_1     551.17K
+#> 3 __temp_targets/objects/model_3     551.06K
 ```
 -->
 <pre class='chroma'>
@@ -1726,24 +1628,44 @@ targets::tar_path_store() |>
 <span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_info</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>path</span>, <span class='nv'>size</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; # A tibble: 3 × 2</span></span>
-<span><span class='c'>#&gt;   path                             size</span></span>
-<span><span class='c'>#&gt;   &lt;fs::path&gt;                &lt;fs::bytes&gt;</span></span>
-<span><span class='c'>#&gt; 1 __targets/objects/data          2.62K</span></span>
-<span><span class='c'>#&gt; 2 __targets/objects/model_1     551.16K</span></span>
-<span><span class='c'>#&gt; 3 __targets/objects/model_3     551.06K</span></span></pre>
+<span><span class='c'>#&gt;   path                                  size</span></span>
+<span><span class='c'>#&gt;   &lt;fs::path&gt;                     &lt;fs::bytes&gt;</span></span>
+<span><span class='c'>#&gt; 1 __temp_targets/objects/data          2.62K</span></span>
+<span><span class='c'>#&gt; 2 __temp_targets/objects/model_1     551.17K</span></span>
+<span><span class='c'>#&gt; 3 __temp_targets/objects/model_3     551.06K</span></span></pre>
 
 Add another point on the scoreboard for the pipe-programming style.
 
+### Explicitly bypass the model fitting environment
 
-**Explicitly isolate the model fitting environment**. I have a hunch
-that if I call `brm()` twice the second `brm()` will load the saved
-model, and when it unserializes (loads) the formula's saved environment,
-it will create a new environment object that can't be contaminated by
-new data in the model-fitting environment.
+I have a hunch that if I call `brm()` twice the second `brm()` will load
+the saved model, and when it unserializes (loads) the formula's saved
+environment, it will create a new environment object that can't be
+contaminated by new data in the model-fitting environment.
 
-To clarify things, I am also going to print out environment addresses
-too. I've lost track of things, so I am going to force a refit by
-changing the code and deleting the models.
+Here is my mental model for what it is going on: Think about three  
+environments:
+
+  1. the environment where `brm()` and the actual model-fitting happens 
+  2. the environment that is created when we load a saved model from a file.
+  3. the environment where `add_criterion()` happens.
+
+When we write out the .rds file during model fitting, the contents of
+(1) are saved, and when we load in the model file, (2) is created.
+Although (1) and (2) are meant to represent the same environments (in
+terms of objects and data), they are different environment objects. 
+
+When we load in a model file, environment (2) is created and the
+LOO-score environment (3) cannot affect it. When we fit a model and
+compute LOO scores in the same go, (1) and (3) are the same environment.
+When the model with the added LOO scores is saved, the reference to the
+model-fitting environment (1) by the formula is still active so the
+extra (self) model copy sneaks in.
+
+Calling `brm()` twice therefore should force the creation of (2). To clarify
+things, I am also going to print out environment addresses too. I've
+lost track of things, so I am going to force a refit by changing the
+code and deleting the models.
 
 <!--
 
@@ -1784,7 +1706,7 @@ s_function5 <- quote({
       "Formula after reading cached model: ", 
       m$formula$formula |> environment() |> format()
     )
-    m <- add_criterion(m, "loo")
+    m <- suppressWarnings(add_criterion(m, "loo"))
     message(
       "Formula after add_criterion(): ", 
       m$formula$formula |> environment() |> format()
@@ -1797,48 +1719,32 @@ write_tar_script(s_setup, s_function5, s_subfunctions, s_targets3)
 file.remove("models/test1.rds", "models/test2.rds", "models/test3.rds")
 #> [1] TRUE TRUE TRUE
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + model_3_file dispatched
-#> Model fitting: <environment: 0x0000021abf48ba00>
-#> Formula after fitting: <environment: 0x0000021abf48ba00>
-#> Formula after reading cached model: <environment: 0x0000021b2855fa58>
+#> Model fitting: <environment: 0x0000022b03a18f48>
+#> Formula after fitting: <environment: 0x0000022b03a18f48>
+#> Formula after reading cached model: <environment: 0x0000022b6e68a550>
 #> Automatically saving the model object in 'models/test3.rds'
-#> Formula after add_criterion(): <environment: 0x0000021b2855fa58>
-#> ✔ model_3_file completed [10.6s, 564.16 kB]
+#> Formula after add_criterion(): <environment: 0x0000022b6e68a550>
+#> ✔ model_3_file completed [10.4s, 564.16 kB]
 #> + model_1 dispatched
-#> Model fitting: <environment: 0x0000021ac215d110>
-#> Formula after fitting: <environment: 0x0000021ac215d110>
-#> Formula after reading cached model: <environment: 0x0000021b24a09bf8>
+#> Model fitting: <environment: 0x0000022b0753ca40>
+#> Formula after fitting: <environment: 0x0000022b0753ca40>
+#> Formula after reading cached model: <environment: 0x0000022b6ab38ea0>
 #> Automatically saving the model object in 'models/test1.rds'
-#> Formula after add_criterion(): <environment: 0x0000021b24a09bf8>
-#> ✔ model_1 completed [10.8s, 564.27 kB]
+#> Formula after add_criterion(): <environment: 0x0000022b6ab38ea0>
+#> ✔ model_1 completed [10.6s, 564.26 kB]
 #> + model_2 dispatched
-#> Model fitting: <environment: 0x0000021b23c9f900>
-#> Formula after fitting: <environment: 0x0000021b23c9f900>
-#> Formula after reading cached model: <environment: 0x0000021ac1838730>
+#> Model fitting: <environment: 0x0000022b6999b078>
+#> Formula after fitting: <environment: 0x0000022b6999b078>
+#> Formula after reading cached model: <environment: 0x0000022b06c78318>
 #> Automatically saving the model object in 'models/test2.rds'
-#> Formula after add_criterion(): <environment: 0x0000021ac1838730>
-#> ✔ model_2 completed [10.1s, 563.95 kB]
+#> Formula after add_criterion(): <environment: 0x0000022b06c78318>
+#> ✔ model_2 completed [10.3s, 563.95 kB]
 #> + model_3 dispatched
 #> ✔ model_3 completed [0ms, 564.16 kB]
-#> ✔ ended pipeline [37s, 4 completed, 1 skipped]
-#> Warning messages:
-#> 1: package 'Rcpp' was built under R version 4.6.1 
-#> 2: Found 14 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 3: The ESS has been capped to avoid unstable estimates. 
-#> 4: Found 10 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 5: Found 7 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 6: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. 
+#> ✔ ended pipeline [36.8s, 4 completed, 1 skipped]
+#> Warning message:
+#> package 'Rcpp' was built under R version 4.6.1 
 ```
 -->
 <pre class='chroma'>
@@ -1878,7 +1784,7 @@ targets::tar_make()
 <span>      <span class='s'>"Formula after reading cached model: "</span>, </span>
 <span>      <span class='nv'>m</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/format.html'>format</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span>    <span class='o'>)</span></span>
-<span>    <span class='nv'>m</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://paulbuerkner.com/brms/reference/add_criterion.html'>add_criterion</a></span><span class='o'>(</span><span class='nv'>m</span>, <span class='s'>"loo"</span><span class='o'>)</span></span>
+<span>    <span class='nv'>m</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span><span class='o'>(</span><span class='nf'><a href='https://paulbuerkner.com/brms/reference/add_criterion.html'>add_criterion</a></span><span class='o'>(</span><span class='nv'>m</span>, <span class='s'>"loo"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span>    <span class='nf'><a href='https://rdrr.io/r/base/message.html'>message</a></span><span class='o'>(</span></span>
 <span>      <span class='s'>"Formula after add_criterion(): "</span>, </span>
 <span>      <span class='nv'>m</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/format.html'>format</a></span><span class='o'>(</span><span class='o'>)</span></span>
@@ -1891,48 +1797,32 @@ targets::tar_make()
 <span><span class='nf'><a href='https://rdrr.io/r/base/files.html'>file.remove</a></span><span class='o'>(</span><span class='s'>"models/test1.rds"</span>, <span class='s'>"models/test2.rds"</span>, <span class='s'>"models/test3.rds"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] TRUE TRUE TRUE</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000021abf48ba00&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000021abf48ba00&gt;</span></span>
-<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000021b2855fa58&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000022b03a18f48&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000022b03a18f48&gt;</span></span>
+<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000022b6e68a550&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test3.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000021b2855fa58&gt;</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [10.6s, 564.16 kB]</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000022b6e68a550&gt;</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [10.4s, 564.16 kB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000021ac215d110&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000021ac215d110&gt;</span></span>
-<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000021b24a09bf8&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000022b0753ca40&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000022b0753ca40&gt;</span></span>
+<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000022b6ab38ea0&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test1.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000021b24a09bf8&gt;</span></span>
-<span><span class='c'>#&gt; ✔ model_1 completed [10.8s, 564.27 kB]</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000022b6ab38ea0&gt;</span></span>
+<span><span class='c'>#&gt; ✔ model_1 completed [10.6s, 564.26 kB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000021b23c9f900&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000021b23c9f900&gt;</span></span>
-<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000021ac1838730&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000022b6999b078&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000022b6999b078&gt;</span></span>
+<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000022b06c78318&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test2.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000021ac1838730&gt;</span></span>
-<span><span class='c'>#&gt; ✔ model_2 completed [10.1s, 563.95 kB]</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000022b06c78318&gt;</span></span>
+<span><span class='c'>#&gt; ✔ model_2 completed [10.3s, 563.95 kB]</span></span>
 <span><span class='c'>#&gt; + model_3 dispatched</span></span>
 <span><span class='c'>#&gt; ✔ model_3 completed [0ms, 564.16 kB]</span></span>
-<span><span class='c'>#&gt; ✔ ended pipeline [37s, 4 completed, 1 skipped]</span></span>
-<span><span class='c'>#&gt; Warning messages:</span></span>
-<span><span class='c'>#&gt; 1: package 'Rcpp' was built under R version 4.6.1 </span></span>
-<span><span class='c'>#&gt; 2: Found 14 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 3: The ESS has been capped to avoid unstable estimates. </span></span>
-<span><span class='c'>#&gt; 4: Found 10 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 5: Found 7 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 6: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. </span></span></pre>
+<span><span class='c'>#&gt; ✔ ended pipeline [36.8s, 4 completed, 1 skipped]</span></span>
+<span><span class='c'>#&gt; Warning message:</span></span>
+<span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
 The file sizes look good again:
 
@@ -1945,11 +1835,11 @@ targets::tar_path_store() |>
   fs::file_info() |> 
   dplyr::select(path, size)
 #> # A tibble: 3 × 2
-#>   path                             size
-#>   <fs::path>                <fs::bytes>
-#> 1 __targets/objects/data          2.62K
-#> 2 __targets/objects/model_1     551.05K
-#> 3 __targets/objects/model_3     550.94K
+#>   path                                  size
+#>   <fs::path>                     <fs::bytes>
+#> 1 __temp_targets/objects/data          2.62K
+#> 2 __temp_targets/objects/model_1     551.04K
+#> 3 __temp_targets/objects/model_3     550.93K
 ```
 -->
 <pre class='chroma'>
@@ -1959,11 +1849,11 @@ targets::tar_path_store() |>
 <span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_info</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>path</span>, <span class='nv'>size</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; # A tibble: 3 × 2</span></span>
-<span><span class='c'>#&gt;   path                             size</span></span>
-<span><span class='c'>#&gt;   &lt;fs::path&gt;                &lt;fs::bytes&gt;</span></span>
-<span><span class='c'>#&gt; 1 __targets/objects/data          2.62K</span></span>
-<span><span class='c'>#&gt; 2 __targets/objects/model_1     551.05K</span></span>
-<span><span class='c'>#&gt; 3 __targets/objects/model_3     550.94K</span></span></pre>
+<span><span class='c'>#&gt;   path                                  size</span></span>
+<span><span class='c'>#&gt;   &lt;fs::path&gt;                     &lt;fs::bytes&gt;</span></span>
+<span><span class='c'>#&gt; 1 __temp_targets/objects/data          2.62K</span></span>
+<span><span class='c'>#&gt; 2 __temp_targets/objects/model_1     551.04K</span></span>
+<span><span class='c'>#&gt; 3 __temp_targets/objects/model_3     550.93K</span></span></pre>
 
 I can't believe this do-it-twice trick worked.
 
@@ -1979,6 +1869,9 @@ model_1$formula$formula |> environment() |> ls()
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_load.html'>tar_load</a></span><span class='o'>(</span><span class='nv'>model_1</span><span class='o'>)</span></span>
 <span><span class='nv'>model_1</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/ls.html'>ls</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "data" "file" "p"</span></span></pre>
+
+
+#### Environment address from do-it-once versions
 
 For completeness, let's look at the environments from a do-it-once version:
 
@@ -2006,7 +1899,7 @@ s_function6 <- quote({
       "Formula after fitting: ", 
       m$formula$formula |> environment() |> format()
     )
-    m <- add_criterion(m, "loo")
+    m <- suppressWarnings(add_criterion(m, "loo"))
     message(
       "Formula after add_criterion(): ", 
       m$formula$formula |> environment() |> format()
@@ -2019,45 +1912,29 @@ write_tar_script(s_setup, s_function6, s_subfunctions, s_targets3)
 file.remove("models/test1.rds", "models/test2.rds", "models/test3.rds")
 #> [1] TRUE TRUE TRUE
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + model_3_file dispatched
-#> Model fitting: <environment: 0x000002b52c49e4a8>
-#> Formula after fitting: <environment: 0x000002b52c49e4a8>
+#> Model fitting: <environment: 0x0000021ad9d0ab70>
+#> Formula after fitting: <environment: 0x0000021ad9d0ab70>
 #> Automatically saving the model object in 'models/test3.rds'
-#> Formula after add_criterion(): <environment: 0x000002b52c49e4a8>
-#> ✔ model_3_file completed [10.3s, 1.10 MB]
+#> Formula after add_criterion(): <environment: 0x0000021ad9d0ab70>
+#> ✔ model_3_file completed [10.2s, 1.10 MB]
 #> + model_1 dispatched
-#> Model fitting: <environment: 0x000002b53076a900>
-#> Formula after fitting: <environment: 0x000002b53076a900>
+#> Model fitting: <environment: 0x0000021ade01ae48>
+#> Formula after fitting: <environment: 0x0000021ade01ae48>
 #> Automatically saving the model object in 'models/test1.rds'
-#> Formula after add_criterion(): <environment: 0x000002b53076a900>
+#> Formula after add_criterion(): <environment: 0x0000021ade01ae48>
 #> ✔ model_1 completed [10.5s, 1.11 MB]
 #> + model_2 dispatched
-#> Model fitting: <environment: 0x000002b5b1603dd0>
-#> Formula after fitting: <environment: 0x000002b5b1603dd0>
+#> Model fitting: <environment: 0x0000021ac0d9d958>
+#> Formula after fitting: <environment: 0x0000021ac0d9d958>
 #> Automatically saving the model object in 'models/test2.rds'
-#> Formula after add_criterion(): <environment: 0x000002b5b1603dd0>
-#> ✔ model_2 completed [9.9s, 1.10 MB]
+#> Formula after add_criterion(): <environment: 0x0000021ac0d9d958>
+#> ✔ model_2 completed [10.2s, 1.10 MB]
 #> + model_3 dispatched
-#> ✔ model_3 completed [15ms, 1.10 MB]
-#> ✔ ended pipeline [36.2s, 4 completed, 1 skipped]
-#> Warning messages:
-#> 1: package 'Rcpp' was built under R version 4.6.1 
-#> 2: Found 14 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 3: The ESS has been capped to avoid unstable estimates. 
-#> 4: Found 10 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 5: Found 7 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 6: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. 
+#> ✔ model_3 completed [16ms, 1.10 MB]
+#> ✔ ended pipeline [36.3s, 4 completed, 1 skipped]
+#> Warning message:
+#> package 'Rcpp' was built under R version 4.6.1 
 ```
 -->
 <pre class='chroma'>
@@ -2082,7 +1959,7 @@ targets::tar_make()
 <span>      <span class='s'>"Formula after fitting: "</span>, </span>
 <span>      <span class='nv'>m</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/format.html'>format</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span>    <span class='o'>)</span></span>
-<span>    <span class='nv'>m</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://paulbuerkner.com/brms/reference/add_criterion.html'>add_criterion</a></span><span class='o'>(</span><span class='nv'>m</span>, <span class='s'>"loo"</span><span class='o'>)</span></span>
+<span>    <span class='nv'>m</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span><span class='o'>(</span><span class='nf'><a href='https://paulbuerkner.com/brms/reference/add_criterion.html'>add_criterion</a></span><span class='o'>(</span><span class='nv'>m</span>, <span class='s'>"loo"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span>    <span class='nf'><a href='https://rdrr.io/r/base/message.html'>message</a></span><span class='o'>(</span></span>
 <span>      <span class='s'>"Formula after add_criterion(): "</span>, </span>
 <span>      <span class='nv'>m</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/format.html'>format</a></span><span class='o'>(</span><span class='o'>)</span></span>
@@ -2095,54 +1972,39 @@ targets::tar_make()
 <span><span class='nf'><a href='https://rdrr.io/r/base/files.html'>file.remove</a></span><span class='o'>(</span><span class='s'>"models/test1.rds"</span>, <span class='s'>"models/test2.rds"</span>, <span class='s'>"models/test3.rds"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] TRUE TRUE TRUE</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x000002b52c49e4a8&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x000002b52c49e4a8&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000021ad9d0ab70&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000021ad9d0ab70&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test3.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x000002b52c49e4a8&gt;</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [10.3s, 1.10 MB]</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000021ad9d0ab70&gt;</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [10.2s, 1.10 MB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x000002b53076a900&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x000002b53076a900&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000021ade01ae48&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000021ade01ae48&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test1.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x000002b53076a900&gt;</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000021ade01ae48&gt;</span></span>
 <span><span class='c'>#&gt; ✔ model_1 completed [10.5s, 1.11 MB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x000002b5b1603dd0&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x000002b5b1603dd0&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000021ac0d9d958&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000021ac0d9d958&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test2.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x000002b5b1603dd0&gt;</span></span>
-<span><span class='c'>#&gt; ✔ model_2 completed [9.9s, 1.10 MB]</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000021ac0d9d958&gt;</span></span>
+<span><span class='c'>#&gt; ✔ model_2 completed [10.2s, 1.10 MB]</span></span>
 <span><span class='c'>#&gt; + model_3 dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_3 completed [15ms, 1.10 MB]</span></span>
-<span><span class='c'>#&gt; ✔ ended pipeline [36.2s, 4 completed, 1 skipped]</span></span>
-<span><span class='c'>#&gt; Warning messages:</span></span>
-<span><span class='c'>#&gt; 1: package 'Rcpp' was built under R version 4.6.1 </span></span>
-<span><span class='c'>#&gt; 2: Found 14 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 3: The ESS has been capped to avoid unstable estimates. </span></span>
-<span><span class='c'>#&gt; 4: Found 10 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 5: Found 7 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 6: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. </span></span></pre>
+<span><span class='c'>#&gt; ✔ model_3 completed [16ms, 1.10 MB]</span></span>
+<span><span class='c'>#&gt; ✔ ended pipeline [36.3s, 4 completed, 1 skipped]</span></span>
+<span><span class='c'>#&gt; Warning message:</span></span>
+<span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
 The environments are all the same! 
 
 That is why adding the criterion's embloats the models. The do-it-twice version
 creates a new environment when it loads the model's saved formula environment.
 
-**A clean version of the do-it-twice trick**. It looks pretty odd to fit the 
-same model twice. We can just read in the saved model with 
-`m <- readRDS(m$file)` instead for the same effect:
+### A clean version of the do-it-twice trick
+
+It looks pretty odd to fit the same model twice. We can just read in the
+saved model with `m <- readRDS(m$file)` instead for the same effect:
 
 <!--
 
@@ -2173,7 +2035,7 @@ s_function7 <- quote({
       "Formula after reading cached model: ", 
       m$formula$formula |> environment() |> format()
     )
-    m <- add_criterion(m, "loo", )
+    m <- suppressWarnings(add_criterion(m, "loo"))
     message(
       "Formula after add_criterion(): ", 
       m$formula$formula |> environment() |> format()
@@ -2186,48 +2048,32 @@ write_tar_script(s_setup, s_function7, s_subfunctions, s_targets3)
 file.remove("models/test1.rds", "models/test2.rds", "models/test3.rds")
 #> [1] TRUE TRUE TRUE
 targets::tar_make()
-#> Loading required package: Rcpp
-#> Loading 'brms' package (version 2.23.0). Useful instructions
-#> can be found by typing help('brms'). A more detailed introduction
-#> to the package is available through vignette('brms_overview').
-#> 
-#> Attaching package: 'brms'
-#> 
-#> The following object is masked from 'package:stats':
-#> 
-#>     ar
-#> 
 #> + model_3_file dispatched
-#> Model fitting: <environment: 0x000001934059b7e8>
-#> Formula after fitting: <environment: 0x000001934059b7e8>
-#> Formula after reading cached model: <environment: 0x00000193a5d5d960>
+#> Model fitting: <environment: 0x0000015a73b8f580>
+#> Formula after fitting: <environment: 0x0000015a73b8f580>
+#> Formula after reading cached model: <environment: 0x0000015a5948f990>
 #> Automatically saving the model object in 'models/test3.rds'
-#> Formula after add_criterion(): <environment: 0x00000193a5d5d960>
-#> ✔ model_3_file completed [10.2s, 564.16 kB]
+#> Formula after add_criterion(): <environment: 0x0000015a5948f990>
+#> ✔ model_3_file completed [10.2s, 564.15 kB]
 #> + model_1 dispatched
-#> Model fitting: <environment: 0x0000019342f04458>
-#> Formula after fitting: <environment: 0x0000019342f04458>
-#> Formula after reading cached model: <environment: 0x00000193a6c311c8>
+#> Model fitting: <environment: 0x0000015a76447618>
+#> Formula after fitting: <environment: 0x0000015a76447618>
+#> Formula after reading cached model: <environment: 0x0000015a5a5c1f08>
 #> Automatically saving the model object in 'models/test1.rds'
-#> Formula after add_criterion(): <environment: 0x00000193a6c311c8>
-#> ✔ model_1 completed [10.5s, 564.26 kB]
+#> Formula after add_criterion(): <environment: 0x0000015a5a5c1f08>
+#> ✔ model_1 completed [10.5s, 564.27 kB]
 #> + model_2 dispatched
-#> Model fitting: <environment: 0x00000193a5637a50>
-#> Formula after fitting: <environment: 0x00000193a5637a50>
-#> Formula after reading cached model: <environment: 0x00000193ae914e80>
+#> Model fitting: <environment: 0x0000015a58e53d68>
+#> Formula after fitting: <environment: 0x0000015a58e53d68>
+#> Formula after reading cached model: <environment: 0x0000015aa16804d8>
 #> Automatically saving the model object in 'models/test2.rds'
-#> Formula after add_criterion(): <environment: 0x00000193ae914e80>
+#> Formula after add_criterion(): <environment: 0x0000015aa16804d8>
 #> ✔ model_2 completed [10.2s, 563.95 kB]
 #> + model_3 dispatched
-#> ✔ model_3 completed [0ms, 564.16 kB]
+#> ✔ model_3 completed [15ms, 564.15 kB]
 #> ✔ ended pipeline [36.4s, 4 completed, 1 skipped]
-#> Warning messages:
-#> 1: package 'Rcpp' was built under R version 4.6.1 
-#> 2: Found 14 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 3: The ESS has been capped to avoid unstable estimates. 
-#> 4: Found 10 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 5: Found 7 observations with a pareto_k > 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
-#> 6: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. 
+#> Warning message:
+#> package 'Rcpp' was built under R version 4.6.1 
 ```
 -->
 <pre class='chroma'>
@@ -2257,7 +2103,7 @@ targets::tar_make()
 <span>      <span class='s'>"Formula after reading cached model: "</span>, </span>
 <span>      <span class='nv'>m</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/format.html'>format</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span>    <span class='o'>)</span></span>
-<span>    <span class='nv'>m</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://paulbuerkner.com/brms/reference/add_criterion.html'>add_criterion</a></span><span class='o'>(</span><span class='nv'>m</span>, <span class='s'>"loo"</span>, <span class='o'>)</span></span>
+<span>    <span class='nv'>m</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span><span class='o'>(</span><span class='nf'><a href='https://paulbuerkner.com/brms/reference/add_criterion.html'>add_criterion</a></span><span class='o'>(</span><span class='nv'>m</span>, <span class='s'>"loo"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span>    <span class='nf'><a href='https://rdrr.io/r/base/message.html'>message</a></span><span class='o'>(</span></span>
 <span>      <span class='s'>"Formula after add_criterion(): "</span>, </span>
 <span>      <span class='nv'>m</span><span class='o'>$</span><span class='nv'>formula</span><span class='o'>$</span><span class='nv'>formula</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/format.html'>format</a></span><span class='o'>(</span><span class='o'>)</span></span>
@@ -2270,48 +2116,32 @@ targets::tar_make()
 <span><span class='nf'><a href='https://rdrr.io/r/base/files.html'>file.remove</a></span><span class='o'>(</span><span class='s'>"models/test1.rds"</span>, <span class='s'>"models/test2.rds"</span>, <span class='s'>"models/test3.rds"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] TRUE TRUE TRUE</span></span>
 <span><span class='nf'>targets</span><span class='nf'>::</span><span class='nf'><a href='https://docs.ropensci.org/targets/reference/tar_make.html'>tar_make</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Loading required package: Rcpp</span></span>
-<span><span class='c'>#&gt; Loading 'brms' package (version 2.23.0). Useful instructions</span></span>
-<span><span class='c'>#&gt; can be found by typing help('brms'). A more detailed introduction</span></span>
-<span><span class='c'>#&gt; to the package is available through vignette('brms_overview').</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; Attaching package: 'brms'</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt;     ar</span></span>
-<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; + model_3_file dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x000001934059b7e8&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x000001934059b7e8&gt;</span></span>
-<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x00000193a5d5d960&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000015a73b8f580&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000015a73b8f580&gt;</span></span>
+<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000015a5948f990&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test3.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x00000193a5d5d960&gt;</span></span>
-<span><span class='c'>#&gt; ✔ model_3_file completed [10.2s, 564.16 kB]</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000015a5948f990&gt;</span></span>
+<span><span class='c'>#&gt; ✔ model_3_file completed [10.2s, 564.15 kB]</span></span>
 <span><span class='c'>#&gt; + model_1 dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000019342f04458&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000019342f04458&gt;</span></span>
-<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x00000193a6c311c8&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000015a76447618&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000015a76447618&gt;</span></span>
+<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000015a5a5c1f08&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test1.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x00000193a6c311c8&gt;</span></span>
-<span><span class='c'>#&gt; ✔ model_1 completed [10.5s, 564.26 kB]</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000015a5a5c1f08&gt;</span></span>
+<span><span class='c'>#&gt; ✔ model_1 completed [10.5s, 564.27 kB]</span></span>
 <span><span class='c'>#&gt; + model_2 dispatched</span></span>
-<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x00000193a5637a50&gt;</span></span>
-<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x00000193a5637a50&gt;</span></span>
-<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x00000193ae914e80&gt;</span></span>
+<span><span class='c'>#&gt; Model fitting: &lt;environment: 0x0000015a58e53d68&gt;</span></span>
+<span><span class='c'>#&gt; Formula after fitting: &lt;environment: 0x0000015a58e53d68&gt;</span></span>
+<span><span class='c'>#&gt; Formula after reading cached model: &lt;environment: 0x0000015aa16804d8&gt;</span></span>
 <span><span class='c'>#&gt; Automatically saving the model object in 'models/test2.rds'</span></span>
-<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x00000193ae914e80&gt;</span></span>
+<span><span class='c'>#&gt; Formula after add_criterion(): &lt;environment: 0x0000015aa16804d8&gt;</span></span>
 <span><span class='c'>#&gt; ✔ model_2 completed [10.2s, 563.95 kB]</span></span>
 <span><span class='c'>#&gt; + model_3 dispatched</span></span>
-<span><span class='c'>#&gt; ✔ model_3 completed [0ms, 564.16 kB]</span></span>
+<span><span class='c'>#&gt; ✔ model_3 completed [15ms, 564.15 kB]</span></span>
 <span><span class='c'>#&gt; ✔ ended pipeline [36.4s, 4 completed, 1 skipped]</span></span>
-<span><span class='c'>#&gt; Warning messages:</span></span>
-<span><span class='c'>#&gt; 1: package 'Rcpp' was built under R version 4.6.1 </span></span>
-<span><span class='c'>#&gt; 2: Found 14 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 3: The ESS has been capped to avoid unstable estimates. </span></span>
-<span><span class='c'>#&gt; 4: Found 10 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 5: Found 7 observations with a pareto_k &gt; 0.67 in model 'm'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. </span></span>
-<span><span class='c'>#&gt; 6: 3 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. </span></span></pre>
+<span><span class='c'>#&gt; Warning message:</span></span>
+<span><span class='c'>#&gt; package 'Rcpp' was built under R version 4.6.1 </span></span></pre>
 
 Quick check of the file sizes:
 
@@ -2324,11 +2154,11 @@ targets::tar_path_store() |>
   fs::file_info() |> 
   dplyr::select(path, size)
 #> # A tibble: 3 × 2
-#>   path                             size
-#>   <fs::path>                <fs::bytes>
-#> 1 __targets/objects/data          2.62K
-#> 2 __targets/objects/model_1     551.04K
-#> 3 __targets/objects/model_3     550.94K
+#>   path                                  size
+#>   <fs::path>                     <fs::bytes>
+#> 1 __temp_targets/objects/data          2.62K
+#> 2 __temp_targets/objects/model_1     551.04K
+#> 3 __temp_targets/objects/model_3     550.93K
 ```
 -->
 <pre class='chroma'>
@@ -2338,14 +2168,14 @@ targets::tar_path_store() |>
 <span>  <span class='nf'>fs</span><span class='nf'>::</span><span class='nf'><a href='https://fs.r-lib.org/reference/file_info.html'>file_info</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='o'>(</span><span class='nv'>path</span>, <span class='nv'>size</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; # A tibble: 3 × 2</span></span>
-<span><span class='c'>#&gt;   path                             size</span></span>
-<span><span class='c'>#&gt;   &lt;fs::path&gt;                &lt;fs::bytes&gt;</span></span>
-<span><span class='c'>#&gt; 1 __targets/objects/data          2.62K</span></span>
-<span><span class='c'>#&gt; 2 __targets/objects/model_1     551.04K</span></span>
-<span><span class='c'>#&gt; 3 __targets/objects/model_3     550.94K</span></span></pre>
+<span><span class='c'>#&gt;   path                                  size</span></span>
+<span><span class='c'>#&gt;   &lt;fs::path&gt;                     &lt;fs::bytes&gt;</span></span>
+<span><span class='c'>#&gt; 1 __temp_targets/objects/data          2.62K</span></span>
+<span><span class='c'>#&gt; 2 __temp_targets/objects/model_1     551.04K</span></span>
+<span><span class='c'>#&gt; 3 __temp_targets/objects/model_3     550.93K</span></span></pre>
 
 
-### Observations
+## Observations
 
 The problem of environments inflating model sizes is a known one. The
 [butcher R package](https://butcher.tidymodels.org/), for example, will
@@ -2354,15 +2184,15 @@ its self-referential head into these experiments. I just wanted to
 experiment to see if its possible to work with just one file per model in 
 a targets workflow. (It is, using the model-2 style).
 
-I've been coding in the model-1 style for years. brms caches it so that
-the model is only refit when the formula, priors or data changes, and
+I've been coding in the model-1 style for years. brms caches models so
+that a model is only refit when the formula, priors or data changes, and
 targets has its own copy of the model in it data store. I'm now inclined
 to use the model-3 style because it hands targets the `.rds` file
 created by brms and avoids at least one unexpected environment/size
-issue. But it was truly a baffling result that the newly-fitted-model
-plus assignment plus LOO-score case led to an inflated file size, and
-the model-3 style could not avoid that issue. Immediately loading the saved
-model file seemed to help this problem.
+issue. But that's a small difference. It was truly a baffling result
+that the newly-fitted-model plus assignment plus LOO-score case led to
+an inflated file size, and the model-3 style could not avoid that issue.
+Immediately loading the saved model file solved this problem.
 
 I recently completed a project that had some impressively large model objects. 
 I am going to paste in the R results from inspecting one of them:
