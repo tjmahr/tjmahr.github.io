@@ -317,7 +317,8 @@ outer_e
 inner_e
 ```
 
-Here is a diagram:
+Here is a diagram. (Note that the environment address is just a placeholder,
+not the exact same one from the last code chunk.)
 
 ```
 model_1 (outer model)
@@ -479,7 +480,7 @@ targets::tar_make()
 
 Let's make a trivial change to the pipeline by 1) cleaning up the
 `fit1 <-` assignment and 2) including the `.sd` value in the function
-arguments in the targets commands. These change affects the targets'
+arguments in the targets commands. These changes affect the targets'
 commands so they need to be remade but it does not change the brms
 models so they do not need to be refitted. The saved files should suffice:
 
