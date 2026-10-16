@@ -1,0 +1,864 @@
+---
+title: "Storing brms models in a targets workflow"
+date: 2026-10-15
+tags: [r, brms, readr]
+---
+
+```{r, include = FALSE}
+library(targets)
+library(tarchetypes)
+library(brms)
+```
+
+This note is a quick test for how to set up a function that fits a brms model
+in a targets workflow. Specifically, should my function for fitting a brms model 
+return a model or a path to saved model? That is,
+
+```{r}
+f_ret_model <- function(...) {
+  brm(..., file = "model", file_refit = "on_change")
+}
+
+f_ret_file <- function(...) {
+  m <- brm(..., file = "model", file_refit = "on_change")
+  m$file
+}
+```
+
+We definitely want to leverage the `file` argument because it caches 
+the model so that it will only refit if the model's formula, data, 
+priors, or generated Stan code change. But should I use inside of a 
+[targets](https://books.ropensci.org/targets/) workflow?
+
+## Setting up a temporary targets project
+
+First, because this notebook and website is rendered using a targets
+pipeline, I am going to set up a temporary directory to serve as the
+working directory for this post.
+
+```{r}
+library(targets)
+library(tarchetypes)
+library(brms)
+
+dir <- tempfile() 
+dir.create(dir)
+setwd(dir)
+knitr::opts_knit$set(root.dir = dir)
+
+# I don't want to accidentally mangle my website's targets files,
+# so I'm adding an extra underscore
+targets::tar_config_set(script = "__targets.R")
+targets::tar_config_set(store = "__targets")
+```
+
+Next, I am going to create a `_targets.R` file that will fit the same
+model three times, but the models will try different things:
+
+  - `model_1`: returns the model object
+  - `model_2`: returns the path to the model's .rds file
+  - `model_3`: returns the model's .rds file and targets reads in the
+    .rds file
+
+```{r}
+tar_script({
+  library(targets)
+  library(brms)
+  dir.create("models", showWarnings = FALSE)
+  dir.create("stan", showWarnings = FALSE)
+  # Avoids recompilations
+  options(cmdstanr_write_stan_file_dir = normalizePath("stan"))
+  
+  # Fit a model and return the model
+  fit <- function(data, file, .sd = 10) {
+    p <- sprintf("normal(0, %s)", .sd) |>
+      prior_string(class = "b")
+    fit1 <- brm(
+      count ~ zBase * Trt + (1|patient),
+      data = data, 
+      family = poisson(),
+      prior = p + prior(cauchy(0, 2), class = sd),
+      file = file,
+      file_refit = "on_change",
+      backend = "cmdstanr",
+      silent = 2, 
+      chains = 1
+    )
+    fit1
+  }
+  
+  f1 <- function(data, .sd = 10) {
+    m <- fit(data, "models/test1", .sd = .sd)
+    m
+  }
+  f2 <- function(data, .sd = 10) {
+    m <- fit(data, "models/test2", .sd = .sd)
+    m$file
+  }
+  f3 <- function(data, .sd = 10) {
+    m <- fit(data, "models/test3", .sd = .sd)
+    m$file
+  }
+
+  tarchetypes::tar_assign({
+    data <- tar_target(epilepsy)
+    model_1 <- tar_target(f1(data))
+    model_2 <- tar_target(f2(data), format = "file")
+    model_3 <- tarchetypes::tar_file_read(
+      command = f3(data),
+      read = readRDS(file = !! .x)
+    )
+  })
+}, ask = FALSE)
+```
+
+Now, we fit the models:
+
+```{r}
+targets::tar_make()
+```
+
+Confirm that they don't refit when nothing changes:
+
+```{r}
+targets::tar_make()
+```
+
+When we try to load in the targets, we see that `model_2` is *just* a
+path, and it's a relative path at that. We have to take an extra step of
+reading the file content. `model_1` and `model_3` provide the actual
+brms objects:
+
+```{r}
+targets::tar_load(model_1)
+class(model_1)
+
+targets::tar_load(model_2)
+model_2
+class(readRDS(model_2))
+
+targets::tar_load(model_3)
+class(model_3)
+```
+
+`model_3` is actually two targets. `tar_file_read(name, command, read)`
+creates a `[name]_file` for the result of the `command` and creates
+`[name]` target for the result of `read`:
+
+```{r, fig.width=6, fig.height = 3, fig.caption = "dependency graph for this targets project", fig.alt= "dependency graph for this targets project"}
+targets::tar_visnetwork()
+```
+
+Because targets never does read in the contents of `model_2` as R data,
+it has no storage footprint:
+
+```{r}
+targets::tar_path_store() |> 
+  fs::dir_ls() |> 
+  fs::dir_ls(regexp = "objects") |>
+  fs::file_info() |> 
+  dplyr::select(path, size)
+```
+
+So, the `model_2` approach means that there is no duplicated storage of
+models between `_targets/objects/` and `models/`.
+
+
+### At this point, I went down a terrible rabbit-hole
+
+*Pop quiz*: In the filesize printout, why is `model_1` twice as big as
+`model_3`?
+
+Here is a hint. `lobstr::obj_size()` measures the size of an R object, 
+including environments referenced by the object:
+
+```{r}
+targets::tar_load(model_1)
+targets::tar_load(model_2)
+sizes_1 <- model_1 |> lapply(lobstr::obj_size) |> unlist()
+sizes_3 <- model_3 |> lapply(lobstr::obj_size) |> unlist()
+sizes_3 - sizes_1
+```
+
+That's where within the model structure the sizes differ. What extra
+thing is in those parts of the model?
+
+Here is another hint:
+
+```{r}
+m <- function() {
+  fit <- lm(mpg ~ 1, mtcars)
+  fit
+}
+lobstr::obj_size(m())
+
+m <- function() {
+  fit <- lm(mpg ~ 1, mtcars)
+  BIG_DATA <- rnorm(1000000)
+  fit
+}
+lobstr::obj_size(m())
+```
+
+That's how the model's context surrounding context can influence the size of 
+the model. What's going on?
+
+Here is yet another hint:
+
+```{r}
+model_1$formula$formula |> environment() |> ls()
+model_3$formula$formula |> environment() |> ls()
+```
+
+That's the precise difference in the context. But how did that self-reference 
+happen?
+
+Here is a final hint:
+
+```{r}
+tar_path_target("model_1") |> file.size()
+model_1$file |> file.size()
+```
+
+The formulas in the model are R formula objects which means that they
+contain a reference to their surrounding environment. That is a
+*reference*, as opposed to a copy of the environment. If we ask the
+model for the environment, we see the environment as it is *right now*,
+including any changes after the fitting of the model. That's why
+`BIG_DATA` in the second hint can make the model's `lobstr::obj_size()`
+increase. 
+
+In `f1()`, this sequence happens:
+
+1.  The model is fit and saved to the `models/` file, and return by
+    `brm()`.
+2.  The model object is assigned to `fit1`. `fit1` is now part of the
+    environment, so that if we asked the model's formula for the
+    environment, we would see `fit1`.
+3.  targets saves the model object to the `_targets/objects` including
+    the updated environment.
+
+This behavior means that we should not assign the model inside `f1()` if
+possible. Now I'm starting to worry about much memory I've wasted by mostly 
+following pattern 1 (storing models in both `models` and `_targets/objects` and 
+not being careful about assignments).
+
+One might ask if the formula's environment references the fitted model,
+then doesn't that "inner" model's formula also have its own model, ad
+infinitum? Yes, but it's just a loop. The environment captured by the
+out model's formula and the inner model's formula are the same.
+
+```{r}
+targets::tar_load(model_1)
+outer_e <- model_1$formula$formula |> 
+  environment() 
+inner_model <- outer_e$fit1
+
+inner_e <- inner_model$formula$formula |> 
+  environment() 
+outer_e
+inner_e
+```
+
+So, what is being duplicated? Let's surgically remove the referenced
+model from the formula environment and compare file sizes:
+
+```{r}
+model_1_copy <- unserialize(serialize(model_1, NULL))
+
+# Remove "fit1" in the formula's environment 
+e <- model_1_copy$formula$formula |> 
+  environment()
+rm("fit1", envir = e) 
+
+saveRDS(model_1, "models/model-1-resave.rds")
+saveRDS(model_1_copy, "models/model-1-clean.rds")
+
+file.size("models/model-1-resave.rds")
+file.size("models/model-1-clean.rds")
+```
+
+Maybe it's the posterior draws in the inner model? Let's only remove those and 
+see what happens.
+
+```{r}
+model_1_copy2 <- unserialize(serialize(model_1, NULL))
+
+# Ablate the `$fit` part of the inner model
+e <- model_1_copy2$formula$formula |> 
+  environment()
+with(e, fit1$fit <- NULL)
+is.null(e$fit1$fit)
+```
+
+The outer model has its draws.
+
+```{r}
+model_1_copy2
+```
+
+But the inner one gives a summary I had never seen before:
+
+```{r}
+e$fit1
+```
+
+Comparing file sizes, it does seem like the duplicated posterior draws
+are responsible for the inflated size.
+
+```{r}
+saveRDS(model_1_copy2, "models/model-1-clean2.rds")
+
+file.size("models/model-1-resave.rds")
+file.size("models/model-1-clean.rds")
+file.size("models/model-1-clean2.rds")
+```
+
+
+### Some nonstandard evaluation to make it easy to tweak the targets scripts
+
+This note is now off the rails. We're in the rabbithole. I want to 
+mess with this environment stuff some more. 
+
+In the next few tests, I'll be tweaking parts of the `tar_script()`
+code, so I am going to define some code chunks and assemble the final
+code block by injecting expressions. This move cuts down on copy-pasting
+and makes sure the same code is reused across demos.
+
+```{r}
+s_setup <- quote({
+  library(targets)
+  library(brms)
+  dir.create("models", showWarnings = FALSE)
+  dir.create("stan", showWarnings = FALSE)
+  options(cmdstanr_write_stan_file_dir = normalizePath("stan"))
+})
+
+s_function <- quote({
+  # Fit a model and return the model
+  fit <- function(data, file, .sd = 10) {
+    p <- sprintf("normal(0, %s)", .sd) |>
+      prior_string(class = "b")
+    fit1 <- brm(
+      count ~ zBase * Trt + (1|patient),
+      data = data, 
+      family = poisson(),
+      prior = p + prior(cauchy(0, 2), class = sd),
+      file = file,
+      file_refit = "on_change",
+      backend = "cmdstanr",
+      silent = 2,
+      chains = 1
+    )
+    fit1
+  }
+})
+
+s_subfunctions <- quote({
+  f1 <- function(data, .sd = 10) {
+    m <- fit(data, "models/test1", .sd = .sd)
+    m
+  }
+  f2 <- function(data, .sd = 10) {
+    m <- fit(data, "models/test2", .sd = .sd)
+    m$file
+  }
+  f3 <- function(data, .sd = 10) {
+    m <- fit(data, "models/test3", .sd = .sd)
+    m$file
+  }
+})
+
+s_targets <- quote({
+  tarchetypes::tar_assign({
+    data <- tar_target(epilepsy)
+    model_1 <- tar_target(f1(data))
+    model_2 <- tar_target(f2(data), format = "file")
+    model_3 <- tarchetypes::tar_file_read(
+      command = f3(data),
+      read = readRDS(file = !! .x)
+    )
+  })
+})
+
+write_tar_script <- function(...) {
+  code <- rlang::expr({!!! list(...)})
+  rlang::eval_tidy(rlang::expr(tar_script(!! code, ask = FALSE)))
+}
+
+write_tar_script(s_setup, s_function, s_subfunctions, s_targets)
+targets::tar_make()
+```
+
+Let's make a superficial change to the pipeline by 1) cleaning up the
+`fit1 <-` assignment and 2) including the `.sd` value in the function
+arguments in the targets commands. These change affects the targets'
+commands so they need to be remade but it does not change the brms
+models so they do not need to be refitted. The saved files should suffice:
+
+```{r}
+s_function2 <- quote({
+  # Fit a model and return the model
+  fit <- function(data, file, .sd = 10) {
+    p <- sprintf("normal(0, %s)", .sd) |>
+      prior_string(class = "b")
+    brm(
+      count ~ zBase * Trt + (1|patient),
+      data = data, 
+      family = poisson(),
+      prior = p + prior(cauchy(0, 2), class = sd),
+      file = file,
+      file_refit = "on_change",
+      backend = "cmdstanr",
+      silent = 2,
+      chains = 1
+    )
+  }
+})
+
+s_targets2 <- quote({
+  tarchetypes::tar_assign({
+    data <- tar_target(epilepsy)
+    model_1 <- tar_target(f1(data, .sd = 10))
+    model_2 <- tar_target(f2(data, .sd = 10), format = "file")
+    model_3 <- tarchetypes::tar_file_read(
+      command = f3(data, .sd = 10),
+      read = readRDS(file = !! .x)
+    )
+  })
+})
+
+write_tar_script(s_setup, s_function2, s_subfunctions, s_targets2)
+targets::tar_make()
+```
+
+Okay, as expected, `model_3_file` had to be remade, but not `model_3`
+because the underlying file did not change.
+
+And removing the assignment from the model fitting function reduced the
+file-size of the `_targets` version of the model:
+
+```{r}
+targets::tar_path_store() |> 
+  fs::dir_ls() |> 
+  fs::dir_ls(regexp = "objects") |>
+  fs::file_info() |> 
+  dplyr::select(path, size)
+```
+
+Let's actually change the prior, forcing a refit, and see what happens:
+
+```{r}
+s_targets3 <- quote({
+  tarchetypes::tar_assign({
+    data <- tar_target(epilepsy)
+    model_1 <- tar_target(f1(data, .sd = 5))
+    model_2 <- tar_target(f2(data, .sd = 5), format = "file")
+    model_3 <- tarchetypes::tar_file_read(
+      command = f3(data, .sd = 5),
+      read = readRDS(file = !! .x)
+    )
+  })
+})
+
+write_tar_script(s_setup, s_function2, s_subfunctions, s_targets3)
+targets::tar_make()
+```
+
+As expected, all three models had to refit. Yes, I feel like inventing
+an intransitive *refit*.
+
+```{r}
+targets::tar_load(model_1)
+targets::tar_load(model_2)
+targets::tar_load(model_3)
+
+# Confirm change in prior
+prior_summary(model_1)[1, 1]
+prior_summary(readRDS(model_2))[1, 1]
+prior_summary(model_3)[1, 1]
+```
+
+### Adding LOO scores
+
+brms will store derived model data such as LOO scores inside of the
+`brmsfit` (model) object, and if the model has an associated file, that
+file will be updated with the derived model data. Thus, we might run into a 
+case where an assignment creates something in the model's environment that 
+inflates the model size. 
+
+**Adding LOO scores to an already fitted model**. We add an assignment to the 
+function and use `add_criterion()` on the model:
+
+```{r}
+s_function3 <- quote({
+  # Fit a model and return the model
+  fit <- function(data, file, .sd = 10) {
+    p <- sprintf("normal(0, %s)", .sd) |>
+      prior_string(class = "b")
+    m <- brm(
+      count ~ zBase * Trt + (1|patient),
+      data = data, 
+      family = poisson(),
+      prior = p + prior(cauchy(0, 2), class = sd),
+      file = file,
+      file_refit = "on_change",
+      backend = "cmdstanr",
+      silent = 2,
+      chains = 1
+    )
+    add_criterion(m, "loo")
+  }
+})
+
+write_tar_script(s_setup, s_function3, s_subfunctions, s_targets3)
+targets::tar_make()
+```
+
+We can see the loo scores inside of the model object:
+
+```{r}
+targets::tar_load(model_1)
+model_1$criteria$loo
+```
+
+The file sizes look okay:
+
+```{r}
+targets::tar_path_store() |> 
+  fs::dir_ls() |> 
+  fs::dir_ls(regexp = "objects") |>
+  fs::file_info() |> 
+  dplyr::select(path, size)
+```
+
+So do the environments:
+
+```{r}
+targets::tar_load(model_1)
+targets::tar_load(model_3)
+model_1$formula$formula |> environment() |> ls()
+model_3$formula$formula |> environment() |> ls()
+```
+
+**Adding LOO scores to a forced refit**. But let's force the models to
+refit and have their LOO scores computed.
+
+```{r}
+# roll back to default priors
+write_tar_script(s_setup, s_function3, s_subfunctions, s_targets2)
+targets::tar_make()
+```
+
+We can see the changed prior and the loo scores inside of the model object:
+
+```{r}
+targets::tar_load(model_1)
+prior_summary(model_1)[1, 1]
+class(model_1$criteria$loo)
+```
+
+The file sizes look suspicious:
+
+```{r}
+targets::tar_path_store() |> 
+  fs::dir_ls() |> 
+  fs::dir_ls(regexp = "objects") |>
+  fs::file_info() |> 
+  dplyr::select(path, size)
+```
+
+Here we can see the larger environments affecting all of the models:
+
+```{r}
+targets::tar_load(model_1)
+model_2 <- readRDS(targets::tar_read(model_2))
+targets::tar_load(model_3)
+
+model_1$formula$formula |> environment() |> ls()
+model_2$formula$formula |> environment() |> ls()
+model_3$formula$formula |> environment() |> ls()
+```
+
+This is utterly strange, but here is what is going on. Think about two  
+environments:
+
+  - the environment where model-fitting happens (referenced in
+    `model$formula$formula`)
+  - the environment where `add_criterion()` happens.
+
+When the model has already been fitted and cached and the LOO criterion
+needs to be computed, these two environments are different. They
+essentially happen in different R sessions.
+
+When the model needs to refit and the LOO criterion needs to be
+computed, these two environments are the same. When the model with the
+added LOO scores is saved, the reference to the model-fitting
+environment is still active so the extra (self) copy sneaks in.
+
+**Force refit and use a pipe to skip an intermediate assignment**. Let's
+rewrite the model-fitting call and LOO-computation call into piped
+function form. We'll change the priors again to force a refit.
+
+```{r}
+s_function4 <- quote({
+  # Fit a model and return the model
+  fit <- function(data, file, .sd = 10) {
+    p <- sprintf("normal(0, %s)", .sd) |>
+      prior_string(class = "b")
+    data |> 
+      brm(
+        count ~ zBase * Trt + (1|patient),
+        data = _, 
+        family = poisson(),
+        prior = p + prior(cauchy(0, 2), class = sd),
+        file = file,
+        file_refit = "on_change",
+        backend = "cmdstanr",
+        silent = 2,
+        chains = 1
+      ) |> 
+      add_criterion("loo")
+  }
+})
+
+write_tar_script(s_setup, s_function4, s_subfunctions, s_targets3)
+targets::tar_make()
+```
+
+The file sizes look good again:
+
+```{r}
+targets::tar_path_store() |> 
+  fs::dir_ls() |> 
+  fs::dir_ls(regexp = "objects") |>
+  fs::file_info() |> 
+  dplyr::select(path, size)
+```
+
+Add another point on the scoreboard for the pipe-programming style.
+
+
+**Explicitly isolate the model fitting environment**. I have a hunch
+that if I call `brm()` twice the second `brm()` will load the saved
+model, and when it unserializes (loads) the formula's saved environment,
+it will create a new environment object that can't be contaminated by
+new data in the model-fitting environment.
+
+To clarify things, I am also going to print out environment addresses
+too. I've lost track of things, so I am going to force a refit by
+changing the code and deleting the models.
+
+```{r}
+s_function5 <- quote({
+  # Fit a model and return the model
+  fit <- function(data, file, .sd = 10) {
+    p <- sprintf("normal(0, %s)", .sd) |>
+      prior_string(class = "b")
+    message("Model fitting: ", environment() |> format())
+    m <- brm(
+        count ~ zBase * Trt + (1|patient),
+        data,
+        family = poisson(),
+        prior = p + prior(cauchy(0, 2), class = sd),
+        file = file,
+        file_refit = "on_change",
+        backend = "cmdstanr",
+        silent = 2,
+        chains = 1
+      )
+    message(
+      "Formula after fitting: ", 
+      m$formula$formula |> environment() |> format()
+    )
+    m <- brm(
+        count ~ zBase * Trt + (1|patient),
+        data,
+        family = poisson(),
+        prior = p + prior(cauchy(0, 2), class = sd),
+        file = file,
+        file_refit = "on_change",
+        backend = "cmdstanr",
+        silent = 2,
+        chains = 1
+      )
+    message(
+      "Formula after reading cached model: ", 
+      m$formula$formula |> environment() |> format()
+    )
+    m <- add_criterion(m, "loo")
+    message(
+      "Formula after add_criterion(): ", 
+      m$formula$formula |> environment() |> format()
+    )
+    m
+  }
+})
+write_tar_script(s_setup, s_function5, s_subfunctions, s_targets3)
+
+file.remove("models/test1.rds", "models/test2.rds", "models/test3.rds")
+targets::tar_make()
+```
+
+The file sizes look good again:
+
+```{r}
+targets::tar_path_store() |> 
+  fs::dir_ls() |> 
+  fs::dir_ls(regexp = "objects") |>
+  fs::file_info() |> 
+  dplyr::select(path, size)
+```
+
+I can't believe this do-it-twice trick worked.
+
+```{r}
+targets::tar_load(model_1)
+model_1$formula$formula |> environment() |> ls()
+```
+
+For completeness, let's look at the environments from a do-it-once version:
+
+```{r}
+s_function6 <- quote({
+  # Fit a model and return the model
+  fit <- function(data, file, .sd = 10) {
+    p <- sprintf("normal(0, %s)", .sd) |>
+      prior_string(class = "b")
+    message("Model fitting: ", environment() |> format())
+    m <- brm(
+        count ~ zBase * Trt + (1|patient),
+        data,
+        family = poisson(),
+        prior = p + prior(cauchy(0, 2), class = sd),
+        file = file,
+        file_refit = "on_change",
+        backend = "cmdstanr",
+        silent = 2,
+        chains = 1
+      )
+    message(
+      "Formula after fitting: ", 
+      m$formula$formula |> environment() |> format()
+    )
+    m <- add_criterion(m, "loo")
+    message(
+      "Formula after add_criterion(): ", 
+      m$formula$formula |> environment() |> format()
+    )
+    m
+  }
+})
+write_tar_script(s_setup, s_function6, s_subfunctions, s_targets3)
+
+file.remove("models/test1.rds", "models/test2.rds", "models/test3.rds")
+targets::tar_make()
+```
+
+The environments are all the same! 
+
+That is why adding the criterion's embloats the models. The do-it-twice version
+creates a new environment when it loads the model's saved formula environment.
+
+**A clean version of the do-it-twice trick**. It looks pretty odd to fit the 
+same model twice. We can just read in the saved model with 
+`m <- readRDS(m$file)` instead for the same effect:
+
+```{r}
+s_function7 <- quote({
+  # Fit a model and return the model
+  fit <- function(data, file, .sd = 10) {
+    p <- sprintf("normal(0, %s)", .sd) |>
+      prior_string(class = "b")
+    message("Model fitting: ", environment() |> format())
+    m <- brm(
+        count ~ zBase * Trt + (1|patient),
+        data,
+        family = poisson(),
+        prior = p + prior(cauchy(0, 2), class = sd),
+        file = file,
+        file_refit = "on_change",
+        backend = "cmdstanr",
+        silent = 2,
+        chains = 1
+      )
+    message(
+      "Formula after fitting: ", 
+      m$formula$formula |> environment() |> format()
+    )
+    m <- readRDS(m$file)
+    message(
+      "Formula after reading cached model: ", 
+      m$formula$formula |> environment() |> format()
+    )
+    m <- add_criterion(m, "loo", )
+    message(
+      "Formula after add_criterion(): ", 
+      m$formula$formula |> environment() |> format()
+    )
+    m
+  }
+})
+write_tar_script(s_setup, s_function7, s_subfunctions, s_targets3)
+
+file.remove("models/test1.rds", "models/test2.rds", "models/test3.rds")
+targets::tar_make()
+```
+
+Quick check of the file sizes:
+
+```{r}
+targets::tar_path_store() |> 
+  fs::dir_ls() |> 
+  fs::dir_ls(regexp = "objects") |>
+  fs::file_info() |> 
+  dplyr::select(path, size)
+```
+
+
+### Observations
+
+The problem of environments inflating model sizes is a known one. The
+[butcher R package](https://butcher.tidymodels.org/), for example, will
+hack off parts of model to lower their size. I did not expect it to rear 
+its self-referential head into these experiments. I just wanted to 
+experiment to see if its possible to work with just one file per model in 
+a targets workflow. (It is, using the model-2 style).
+
+I've been coding in the model-1 style for years. brms caches it so that
+the model is only refit when the formula, priors or data changes, and
+targets has its own copy of the model in it data store. I'm now inclined
+to use the model-3 style because it hands targets the `.rds` file
+created by brms and avoids at least one unexpected environment/size
+issue. But it was truly a baffling result that the newly-fitted-model
+plus assignment plus LOO-score case led to an inflated file size, and
+the model-3 style could not avoid that issue. Immediately loading the saved
+model file seemed to help this problem.
+
+I recently completed a project that had some impressively large model objects. 
+I am going to paste in the R results from inspecting one of them:
+
+```{r, eval = FALSE}
+# [... omitted code to locate/store the model path ...]
+
+big_model <- path_big_model |> readRDS()
+path_big_model |> file.size() |> scales::label_bytes()()
+#> [1] "433 MB"
+
+big_model |> 
+  lapply(lobstr::obj_size) |> 
+  unlist() |> 
+  scales::label_bytes()()
+#>   formula      data     prior     data2  stanvars     model 
+#>  "230 MB"  "231 MB"    "6 kB"    "48 B"   "280 B"    "8 kB" 
+#> save_pars algorithm   backend   threads    opencl stan_args 
+#>   "944 B"   "120 B"   "120 B"   "904 B"   "512 B"    "1 kB" 
+#>       fit     basis  criteria      file   version    family 
+#>  "229 MB"  "460 kB"   "89 kB"   "168 B"    "3 kB"   "18 kB" 
+#>   autocor     ranef cov_ranef stan_funs data.name 
+#>     "0 B"  "230 MB"     "0 B"     "0 B"   "112 B" 
+```
+
+It really does look like the `formula`, `data`, and `ranef` entries, which all 
+contain formulas, are carrying around an extra 230 MB of stuff. 
+
