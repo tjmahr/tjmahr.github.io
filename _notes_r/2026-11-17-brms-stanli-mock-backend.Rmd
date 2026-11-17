@@ -1,0 +1,171 @@
+---
+title: "Fitting a brms model with a stanli backend"
+date: 2026-11-17
+tags: [r, brms, stanli]
+---
+
+```{r, include = FALSE}
+library(targets)
+library(tarchetypes)
+library(brms)
+library(stanli)
+```
+
+This note is a stopgap demo of how to use a
+[stanli](https://github.com/seantalts/stanli) backend with brms until
+the next version of brms (something newer than 2.23.0) comes out. (brms
+[\#1966](https://github.com/paul-buerkner/brms/pull/1966) added an
+official stanli backend, and it was merged into the master branch of
+brms.)
+
+Set up and install stanli:
+
+```{r, eval = FALSE}
+install.packages("stanli", repos = c("https://seantalts.r-universe.dev"))
+library(stanli)
+stanli_install()
+```
+
+First, let's fit a normal model with cmdstanr as a point of comparison for 
+stanli's performance gains.
+
+The current [demo of brms usage with
+stanli](https://github.com/seantalts/stanli/blob/main/docs/teaching.md)
+doesn't feature priors or a custom model family, so we will use a
+contrived example with both:
+
+```{r}
+library(stanli)
+library(brms)
+# stanli::stanli_install()
+
+# Make a model from scratch
+data <- lme4::sleepstudy
+formula <- bf(
+  Reaction ~ Days + (Days | Subject), 
+  # Just to test a non-default family
+  family = student()
+)
+
+# Loose basis for some priors
+lme4::sleepstudy$Reaction |> mean()
+lme4::sleepstudy$Reaction |> sd()
+rexp(1000, .01) |> fivenum()
+rexp(1000, .10) |> fivenum()
+rgamma(1000, .2, .01) |> fivenum()
+
+priors <- prior(normal(300, 100), class = Intercept) +
+  prior(normal(0, 100), class = b) +
+  prior(exponential(0.01), class = sigma) +
+  prior(exponential(0.01), class = sd, group = Subject, coef = Intercept) +
+  prior(exponential(0.10), class = sd, group = Subject, coef = Days) +
+  prior(lkj(2), class = cor)
+
+check <- validate_prior(priors, formula, data)
+
+model_cmdstanr <- brm(
+  formula = formula, 
+  data = lme4::sleepstudy, 
+  prior = priors,
+  backend = "cmdstanr", 
+  cores = 4, 
+  file = "2026-11-17-model1",
+  file_refit = "on_change",
+)
+
+model_cmdstanr
+```
+
+stanli is going to run a Stan program for us, so we need to prepare the things
+that a Stan program needs (code and data). Then we define a model and sample
+from it:
+
+
+```{r}
+scode <- stancode(object = formula, data = data, prior = priors)
+sdata <- standata(object = formula, data = data, prior = priors)
+model <- stanli_model(code = scode, data = sdata)
+fit <- sample_model(model, chains = 4, refresh = 0)
+```
+
+Note that there was no compilation.
+
+Now, the current trick is to tell brms to fit the model using a `"mock"`[^1] 
+backend.
+
+[^1]: In software testing, we might define a "mock" version of a
+computation, like a file download, where we skip the actual and maybe
+unpredictable work and load up a prepared result. brms can test model
+preparation by skipping model compilation and skipping sampling with
+a mock backend and loading in some prepared MCMC samples. That's how we
+can understand what this code is doing.
+
+```{r}
+model_stanli <- brm(
+  formula = formula,
+  data = data,
+  prior = priors,
+  backend = "mock",
+  mock_fit = as_stanfit(fit)
+)
+model_stanli
+```
+
+This model should work like a regular brms model:
+
+```{r ppcheck, fig.width=4, fig.height=3, fig.cap="Posterior predictive density"}
+pp_check(model_stanli)
+```
+
+If we already have a brms-fitted version of the model around, we skip the data
+and code steps and use `update.brmsfit()` instead:
+
+```{r}
+model_stanli2 <- update(
+  model_cmdstanr,
+  backend = "mock",
+  mock_fit = as_stanfit(fit),
+  recompile = TRUE
+)
+model_stanli2
+```
+
+We can compare sampling performance. This is a pretty fast model to begin 
+with, so the gains here might be more limited compared to a more complex model.
+
+```{r}
+rstan::get_elapsed_time(model_cmdstanr$fit)
+
+rstan::get_elapsed_time(model_stanli$fit)
+
+# If we want to say "n-times faster"
+rstan::get_elapsed_time(model_cmdstanr$fit) / 
+  rstan::get_elapsed_time(model_stanli$fit)
+```
+
+But don't forget compile time:
+
+```{r}
+stan_file <- tempfile(fileext = ".stan")
+writeLines(scode, stan_file)
+
+compile_time <- system.time({
+  model <- cmdstanr::cmdstan_model(
+    stan_file,
+    force_recompile = TRUE
+  )
+})
+compile_time
+
+cmdstanr_total <- model_cmdstanr$fit |> 
+  rstan::get_elapsed_time() |> 
+  rowSums() |> 
+  max()
+
+stanli_total <- model_stanli$fit |> 
+  rstan::get_elapsed_time() |> 
+  rowSums() |> 
+  max()
+  
+(cmdstanr_total + unname(compile_time[3])) / stanli_total 
+```
