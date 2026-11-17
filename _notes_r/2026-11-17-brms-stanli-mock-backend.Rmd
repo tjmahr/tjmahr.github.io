@@ -94,11 +94,11 @@ Now, the current trick is to tell brms to fit the model using a `"mock"`[^1]
 backend.
 
 [^1]: In software testing, we might define a "mock" version of a
-computation, like a file download, where we skip the actual and maybe
-unpredictable work and load up a prepared result. brms can test model
-preparation by skipping model compilation and skipping sampling with
-a mock backend and loading in some prepared MCMC samples. That's how we
-can understand what this code is doing.
+    computation, like a file download, where we skip the actual and maybe
+    unpredictable work and load up a prepared result. brms can test model
+    preparation by skipping model compilation and skipping sampling with
+    a mock backend and loading in some prepared MCMC samples. That's how we
+    can understand what this code is doing.
 
 ```{r}
 model_stanli <- brm(

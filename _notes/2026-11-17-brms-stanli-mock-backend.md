@@ -57,11 +57,11 @@ lme4::sleepstudy$Reaction |> mean()
 lme4::sleepstudy$Reaction |> sd()
 #> [1] 56.32876
 rexp(1000, .01) |> fivenum()
-#> [1] 9.606964e-03 2.880808e+01 6.602695e+01 1.307296e+02 8.985949e+02
+#> [1]   0.04885372  30.38196331  70.14801274 145.45496673 768.92542630
 rexp(1000, .10) |> fivenum()
-#> [1] 9.182189e-04 2.731230e+00 7.065014e+00 1.418125e+01 7.533284e+01
+#> [1]  0.01731279  3.01678405  6.65988896 13.43290706 72.51916389
 rgamma(1000, .2, .01) |> fivenum()
-#> [1] 2.306141e-15 5.846520e-02 1.919103e+00 1.642537e+01 4.559981e+02
+#> [1] 1.535653e-14 7.973998e-02 2.084129e+00 1.617510e+01 2.501939e+02
 
 priors <- prior(normal(300, 100), class = Intercept) +
   prior(normal(0, 100), class = b) +
@@ -132,11 +132,11 @@ model_cmdstanr
 <span><span class='nf'>lme4</span><span class='nf'>::</span><span class='nv'><a href='https://rdrr.io/pkg/lme4/man/sleepstudy.html'>sleepstudy</a></span><span class='o'>$</span><span class='nv'>Reaction</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] 56.32876</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span><span class='o'>(</span><span class='m'>1000</span>, <span class='m'>.01</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/stats/fivenum.html'>fivenum</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 9.606964e-03 2.880808e+01 6.602695e+01 1.307296e+02 8.985949e+02</span></span>
+<span><span class='c'>#&gt; [1]   0.04885372  30.38196331  70.14801274 145.45496673 768.92542630</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span><span class='o'>(</span><span class='m'>1000</span>, <span class='m'>.10</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/stats/fivenum.html'>fivenum</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 9.182189e-04 2.731230e+00 7.065014e+00 1.418125e+01 7.533284e+01</span></span>
+<span><span class='c'>#&gt; [1]  0.01731279  3.01678405  6.65988896 13.43290706 72.51916389</span></span>
 <span><span class='nf'><a href='https://rdrr.io/r/stats/GammaDist.html'>rgamma</a></span><span class='o'>(</span><span class='m'>1000</span>, <span class='m'>.2</span>, <span class='m'>.01</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/stats/fivenum.html'>fivenum</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] 2.306141e-15 5.846520e-02 1.919103e+00 1.642537e+01 4.559981e+02</span></span>
+<span><span class='c'>#&gt; [1] 1.535653e-14 7.973998e-02 2.084129e+00 1.617510e+01 2.501939e+02</span></span>
 <span></span>
 <span><span class='nv'>priors</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://paulbuerkner.com/brms/reference/set_prior.html'>prior</a></span><span class='o'>(</span><span class='nf'>normal</span><span class='o'>(</span><span class='m'>300</span>, <span class='m'>100</span><span class='o'>)</span>, class <span class='o'>=</span> <span class='nv'>Intercept</span><span class='o'>)</span> <span class='o'>+</span></span>
 <span>  <span class='nf'><a href='https://paulbuerkner.com/brms/reference/set_prior.html'>prior</a></span><span class='o'>(</span><span class='nf'>normal</span><span class='o'>(</span><span class='m'>0</span>, <span class='m'>100</span><span class='o'>)</span>, class <span class='o'>=</span> <span class='nv'>b</span><span class='o'>)</span> <span class='o'>+</span></span>
@@ -213,11 +213,11 @@ Now, the current trick is to tell brms to fit the model using a `"mock"`[^1]
 backend.
 
 [^1]: In software testing, we might define a "mock" version of a
-computation, like a file download, where we skip the actual and maybe
-unpredictable work and load up a prepared result. brms can test model
-preparation by skipping model compilation and skipping sampling with
-a mock backend and loading in some prepared MCMC samples. That's how we
-can understand what this code is doing.
+    computation, like a file download, where we skip the actual and maybe
+    unpredictable work and load up a prepared result. brms can test model
+    preparation by skipping model compilation and skipping sampling with
+    a mock backend and loading in some prepared MCMC samples. That's how we
+    can understand what this code is doing.
 
 <!--
 
@@ -412,19 +412,19 @@ rstan::get_elapsed_time(model_cmdstanr$fit)
 
 rstan::get_elapsed_time(model_stanli$fit)
 #>            warmup    sample
-#> chain:1 0.6049492 0.2702060
-#> chain:2 0.5239084 0.2665887
-#> chain:3 0.5545677 0.2687391
-#> chain:4 0.4722335 0.2518614
+#> chain:1 0.6565742 0.2930656
+#> chain:2 0.6128654 0.2871662
+#> chain:3 0.6307627 0.2910862
+#> chain:4 0.5246784 0.2682132
 
 # If we want to say "n-times faster"
 rstan::get_elapsed_time(model_cmdstanr$fit) / 
   rstan::get_elapsed_time(model_stanli$fit)
 #>           warmup   sample
-#> chain:1 3.499467 3.630563
-#> chain:2 3.834640 3.927398
-#> chain:3 3.420682 3.832714
-#> chain:4 4.726475 4.093521
+#> chain:1 3.224312 3.347373
+#> chain:2 3.278044 3.645972
+#> chain:3 3.007470 3.538471
+#> chain:4 4.254034 3.843957
 ```
 -->
 <pre class='chroma'>
@@ -437,19 +437,19 @@ rstan::get_elapsed_time(model_cmdstanr$fit) /
 <span></span>
 <span><span class='nf'>rstan</span><span class='nf'>::</span><span class='nf'><a href='https://mc-stan.org/rstan/reference/stanfit-class.html'>get_elapsed_time</a></span><span class='o'>(</span><span class='nv'>model_stanli</span><span class='o'>$</span><span class='nv'>fit</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt;            warmup    sample</span></span>
-<span><span class='c'>#&gt; chain:1 0.6049492 0.2702060</span></span>
-<span><span class='c'>#&gt; chain:2 0.5239084 0.2665887</span></span>
-<span><span class='c'>#&gt; chain:3 0.5545677 0.2687391</span></span>
-<span><span class='c'>#&gt; chain:4 0.4722335 0.2518614</span></span>
+<span><span class='c'>#&gt; chain:1 0.6565742 0.2930656</span></span>
+<span><span class='c'>#&gt; chain:2 0.6128654 0.2871662</span></span>
+<span><span class='c'>#&gt; chain:3 0.6307627 0.2910862</span></span>
+<span><span class='c'>#&gt; chain:4 0.5246784 0.2682132</span></span>
 <span></span>
 <span><span class='c'># If we want to say "n-times faster"</span></span>
 <span><span class='nf'>rstan</span><span class='nf'>::</span><span class='nf'><a href='https://mc-stan.org/rstan/reference/stanfit-class.html'>get_elapsed_time</a></span><span class='o'>(</span><span class='nv'>model_cmdstanr</span><span class='o'>$</span><span class='nv'>fit</span><span class='o'>)</span> <span class='o'>/</span> </span>
 <span>  <span class='nf'>rstan</span><span class='nf'>::</span><span class='nf'><a href='https://mc-stan.org/rstan/reference/stanfit-class.html'>get_elapsed_time</a></span><span class='o'>(</span><span class='nv'>model_stanli</span><span class='o'>$</span><span class='nv'>fit</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt;           warmup   sample</span></span>
-<span><span class='c'>#&gt; chain:1 3.499467 3.630563</span></span>
-<span><span class='c'>#&gt; chain:2 3.834640 3.927398</span></span>
-<span><span class='c'>#&gt; chain:3 3.420682 3.832714</span></span>
-<span><span class='c'>#&gt; chain:4 4.726475 4.093521</span></span></pre>
+<span><span class='c'>#&gt; chain:1 3.224312 3.347373</span></span>
+<span><span class='c'>#&gt; chain:2 3.278044 3.645972</span></span>
+<span><span class='c'>#&gt; chain:3 3.007470 3.538471</span></span>
+<span><span class='c'>#&gt; chain:4 4.254034 3.843957</span></span></pre>
 
 But don't forget compile time:
 
@@ -467,7 +467,7 @@ compile_time <- system.time({
 })
 compile_time
 #>    user  system elapsed 
-#>    0.08    0.05   19.09
+#>    0.09    0.06   23.87
 
 cmdstanr_total <- model_cmdstanr$fit |> 
   rstan::get_elapsed_time() |> 
@@ -480,7 +480,7 @@ stanli_total <- model_stanli$fit |>
   max()
   
 (cmdstanr_total + unname(compile_time[3])) / stanli_total 
-#> [1] 25.54176
+#> [1] 28.57189
 ```
 -->
 <pre class='chroma'>
@@ -495,7 +495,7 @@ stanli_total <- model_stanli$fit |>
 <span><span class='o'>}</span><span class='o'>)</span></span>
 <span><span class='nv'>compile_time</span></span>
 <span><span class='c'>#&gt;    user  system elapsed </span></span>
-<span><span class='c'>#&gt;    0.08    0.05   19.09</span></span>
+<span><span class='c'>#&gt;    0.09    0.06   23.87</span></span>
 <span></span>
 <span><span class='nv'>cmdstanr_total</span> <span class='o'>&lt;-</span> <span class='nv'>model_cmdstanr</span><span class='o'>$</span><span class='nv'>fit</span> <span class='o'>|&gt;</span> </span>
 <span>  <span class='nf'>rstan</span><span class='nf'>::</span><span class='nf'><a href='https://mc-stan.org/rstan/reference/stanfit-class.html'>get_elapsed_time</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
@@ -508,4 +508,4 @@ stanli_total <- model_stanli$fit |>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='o'>(</span><span class='o'>)</span></span>
 <span>  </span>
 <span><span class='o'>(</span><span class='nv'>cmdstanr_total</span> <span class='o'>+</span> <span class='nf'><a href='https://rdrr.io/r/base/unname.html'>unname</a></span><span class='o'>(</span><span class='nv'>compile_time</span><span class='o'>[</span><span class='m'>3</span><span class='o'>]</span><span class='o'>)</span><span class='o'>)</span> <span class='o'>/</span> <span class='nv'>stanli_total</span> </span>
-<span><span class='c'>#&gt; [1] 25.54176</span></span></pre>
+<span><span class='c'>#&gt; [1] 28.57189</span></span></pre>
