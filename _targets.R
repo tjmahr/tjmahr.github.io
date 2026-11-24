@@ -61,6 +61,11 @@ knit_post <- function(path_in, dir_out, dir_figs, dir_cache, base_url = "/", use
       knitr::knit_hooks$set(chunk = function(x, options) {
         # Let knitr first combine source + output as usual
         md <- old_chunk_hook(x, options)
+
+        if (!identical(options$engine, "r")) {
+          return(md)
+        }
+
         tmp_in <- tempfile(fileext = ".md")
         tmp_out <- tempfile(fileext = ".md")
 

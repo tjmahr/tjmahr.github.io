@@ -1,0 +1,860 @@
+---
+title: "ASHA 2026"
+date: 2026-11-23
+tags: [conference, asha]
+output: 
+  html_document: 
+    keep_md: true
+    section_divs: false
+---
+
+At one point during the ASHA 2026 conference, I tried to tell another
+researcher that some of the themes of her talk reminded me of a keynote
+from the 2024 Motorspeech conference. The name of the researcher was on
+the tip of my tongue. Later, I tried to consult my notes from the
+conference, but I had trouble figuring out where I had put my notes. So,
+how about this? I just post my conference notes. Yes, it's a new location for
+my notes, another place to look, but something posted online is easier to 
+find.
+
+<style type="text/css">
+blockquote.slide {
+  margin: 1.5em 0;
+  padding: 1em 1.25em;
+  border: 1px solid #d3d3d3;
+  border-left: 4px solid #6f777d;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  color: inherit;
+  font-style: normal;
+}
+
+blockquote.slide > :first-child {
+  margin-top: 0;
+}
+
+blockquote.slide > :last-child {
+  margin-bottom: 0;
+}
+
+blockquote.slide p,
+blockquote.slide li {
+  font-style: normal;
+}
+
+blockquote.slide .slide-source {
+  display: block;
+  margin-top: 1em;
+  padding-top: 0.5em;
+  border-top: 1px solid #d3d3d3;
+  color: #666;
+  font-size: 0.75em;
+  font-style: normal;
+  text-align: right;
+}
+
+blockquote.conference {
+  margin: 1em 0;
+  padding: 0.65em 1em;
+  border: 0;
+  border-left: 3px solid #6f777d;
+  background: transparent;
+  color: inherit;
+  font-size: 0.8em;
+  font-style: normal;
+}
+
+/* Override the theme's italic blockquote styling */
+blockquote.conference p,
+blockquote.conference li,
+blockquote.conference strong {
+  font-style: normal;
+}
+
+/* Title */
+blockquote.conference > p:first-child {
+  margin: 0 0 0.5em;
+  font-weight: 600;
+}
+
+/* Paragraphs, including summary text */
+blockquote.conference p {
+  margin: 0 0 0.65em;
+}
+
+/* Metadata and learning outcomes */
+blockquote.conference ul {
+  margin: 0.35em 0 0.75em;
+  padding-left: 1.5em;
+}
+
+blockquote.conference li {
+  margin-bottom: 0.15em;
+}
+
+/* Avoid unnecessary trailing whitespace */
+blockquote.conference > :last-child {
+  margin-bottom: 0;
+}
+</style>
+
+
+
+
+
+In this note, I will jot down which presentations I was an author on, which
+presentations I attended, and I will record my impressions or takeaways from 
+those presentations. I won't document posters. That's madness.
+
+## My presentations
+
+The 2026 ASHA convention took place in Indianapolis, IN, on
+November 19--21, 2026. The theme was "Momentum: Where vision meets
+action".
+
+I was a presenting author on one talk and coauthor on two other talks. 
+
+My talk[^1]:
+
+[^1]: I used ChatGPT to use help convert screenshots from the conference 
+    planning site into structured markdown text and to extract text from 
+    my photos of slides. I also used it to adapt my [blockquote engine](https://www.tjmahr.com/notes/2024-01-01-knitr-blockquote-engine/) 
+    into a slide engine with basic CSS.
+
+
+
+<blockquote class="conference" markdown="1">
+
+**4557L: Development of Phoneme Production in Children Using Acoustic
+Goodness Scores**
+
+  - **Authors:** Tristan Mahr, Jairo Alejandro Martínez-Correa, Amy
+    Cochran, Pradyumna Kadambi, Nina Benway, Michael McAuliffe, Visar
+    Berisha, Katherine Hustad
+  - **Format:** Technical Research (In-Person)
+  - **Code:** 4557L
+  - **Date:** Thursday, November 19, 2026, 11:00 AM
+  - **Duration:** 30 minutes
+  - **Location:** JW Marriott, Room 205 (2nd Floor)
+  - **Topic Area:** Motor Speech Disorders Across the Lifespan
+  - **Keywords**: children, speech development, articulation,
+    acoustics
+
+**Summary:**
+
+This session introduces a novel method for scoring phoneme production
+using acoustic goodness scores derived from deep learning-based speech
+recognition models. Unlike conventional articulation assessment which
+uses binary judgments of phonemes in single words, this approach
+provides a graded measure of phoneme production aggregated across
+multiple tokens (including in connected speech). We describe how these
+scores are computed and interpreted, and we present phoneme-specific
+developmental trajectories from ages 2;6 to 9;11, relative to adult
+performance on the same task. We also examine how developmental
+expectations about early and late acquired phonemes are reflected in
+the growth of acoustic goodness scores. Implications for speech
+assessment and methodological limitations will be discussed.
+
+**Learning outcomes:**
+
+  - Describe how acoustic goodness scores are derived from phoneme
+    probabilities computed by a deep learning-based acoustic model.
+  - Interpret phoneme-specific developmental trajectories in acoustic
+    goodness scores relative to adult performance and relative to
+    expectations for phoneme acquisition.
+  - Evaluate the advantages and limitations of automated phoneme
+    scoring compared to conventional articulation assessment.
+
+</blockquote>
+
+
+
+Questions I was asked:
+
+  - Why do you think vocal tract size would explain that gap between older
+    kids and adults instead of articulatory differences? (My answer:
+    Anatomy is the lowest hanging fruit in terms of differences between
+    children and adults. I didn't rule out articulatory differences.)
+
+  - Do you think children's subglottal resonances and their interference
+    with supraglottal resonances would affect alignment and scoring a
+    child speech? (I didn't explore that feature of children's speech
+    yet.)
+
+  - What's the vision for this work? (An app that can monitor
+    treatment-related progress.)
+
+  - Is this only for typical populations and children suspected of
+    having speech sound disorders? (We want to study it like any
+    acoustic measure and see how it captures group differences in speech
+    production.)
+
+  - Isn't "goodness" a loaded and normative term? (We agree. We've had
+    that conversation. So far we changed from *Goodness of
+    Pronunciation* to *Acoustic Goodness* to emphasize that it's a
+    measure of the acoustics and not pronunciation. But we have retained
+    the word "Goodness" to maintain a lineage to earlier work. I am open
+    to leaning into the probabilistic nature of the measure and calling
+    something like Acoustic Evidence or something similar.)
+
+  - How do you think this measure does with vowels? (Vowel have more
+    competition amongst them so it gets trickier.)
+
+
+I was a coauthor on Nina Benway's talk:
+
+<blockquote class="conference" markdown="1">
+
+**4556L: Two Novel Automated Measures of Speech Sound Production:
+Acoustic Goodness and Articulatory Difference**
+
+  - **Authors:** Nina Benway, Pradyumna Kadambi, Tristan Mahr, Visar
+    Berisha, Katherine Hustad
+  - **Format:** Technical Research (In-Person)
+  - **Code:** 4556L
+  - **Date:** Thursday, November 19, 2026, 10:30 AM
+  - **Duration:** 30 minutes
+  - **Location:** JW Marriott, Room 205 (2nd Floor)
+  - **Topic Area:** Motor Speech Disorders Across the Lifespan
+  - **Related Topic Area:** Innovations in Technology
+  - **Keywords:** speech sound disorders, /r/, children, artificial
+    intelligence, automated speech analysis
+  - **Special Recognition:** Meritorious Session
+
+**Summary:**
+
+Automated speech measures could expand access to objective speech
+assessment in children with speech sound disorders. This session
+evaluates two novel automated speech measures in detecting perceptual
+change during the course of speech therapy. Acoustic Goodness is an
+auditory-perceptual measure derived from a goodness of pronunciation
+model. Speech Inversion Articulatory Difference is a somatosensory
+measure derived from acoustic-to-articulatory speech inversion.
+PERCEPT Rating Scale scores of /r/ accuracy were analyzed from
+children enrolled in two AI-assisted rhotic therapy trials. Linear
+mixed modeling indicated that each measure contributed unique
+predictive information beyond established formant-based measures, and
+beyond one another. These findings begin to address limitations in
+formant-based measures for automated analyses of /r/.
+
+**Learning outcomes:**
+
+  - Describe the auditory-perceptual, kinematic, and formant-based
+    acoustic characterization of American English /r/.
+  - Describe the Acoustic Goodness measure.
+  - Describe the Articulatory Difference measure.
+
+</blockquote>
+
+Nina was asked:
+
+  - Why doesn’t acoustic goodness explain as much variance as the
+    formant-related measure?
+  - What additional information does speech inversion have that the
+    acoustic goodness or the formant-related measure do not?
+  - /r/ is such a tough nut to crack. Have people looked at goodness and
+    speech inversion in other more (scientifically) understood sounds?
+
+I was a coauthor in Prad Kadambi's talk:
+
+<blockquote class="conference" markdown="1">
+
+**1630: Upgrade Speech Analysis with AI Speech-to-Phoneme Alignment in
+Clinical Practice and in Research**
+
+  - **Authors:** Pradyumna Kadambi, Michael McAuliffe, Nina Benway,
+    Tristan Mahr, Visar Berisha, Katherine Hustad
+  - **Format:** 1-Hour Seminar (In-Person)
+  - **Code:** 1630
+  - **Date:** Friday, November 20, 2026, 5:00 PM
+  - **Duration:** 1 hour
+  - **Location:** CC/203 (Level 2)
+  - **Topic Area:** Motor Speech Disorders Across the Lifespan
+  - **Keywords:** forced alignment, phonetic alignment, automated
+    measures, speech technology, pronunciation assessment
+
+**Summary:**
+
+Speech-to-phoneme forced alignment is the process of automatically
+mapping speech to a phonetic sequence. This session explains the
+basics of alignment and how it can enhance your clinical speech
+analyses. We demonstrate a forced aligner computer program which
+places boundaries between phonemes in speech using the click of a
+button. We cover several clinical and research use cases including
+targeted identification of sounds or words of interest, and data
+validation by flagging suspect productions. Participants will also
+learn to evaluate alignment quality. We will connect alignments to
+automated measures such as pronunciation score, speaking rate, and
+vowel measures to track progress in the clinic and in the research
+lab. Automated forced alignment tools bridge research workflows and
+clinical practice.
+
+**Learning outcomes:**
+
+  - Describe the fundamental steps of speech-to-phoneme forced
+    alignment, the use of automated forced alignment tools, and
+    clinical and research applications of alignment.
+  - Identify factors that affect alignment quality, how forced
+    alignments can be used for data quality review and targeted
+    retrieval of sounds.
+  - Apply alignment techniques to generate clinically relevant,
+    automated speech measures.
+
+</blockquote>
+
+Prad was asked the following questions. These notes come from Nina:
+
+  - How do I pick words and utterances to maximize retraining input?
+  - With a limited set of individual words, does it make sense to
+    retrain on that set and maybe across severity levels?
+  - What is the youngest age of a child speaking that this would be
+    accurate for?
+  - What is the best way to use with minimally verbal or atypical speech
+    (closed mouth /i/)
+  - Does the data stay local?
+  - Can you tell me a little more about the pronunciation scoring?
+  
+  
+## Notes from other talks
+
+### Phonology exists
+
+I attended two talks that featured Ben Munson. First:
+
+<blockquote class="conference" markdown="1">
+
+**1221: Phonology Definitely Exists, and So Do Phonological Disorders:
+How to Talk About Speech Sound Disorders**
+
+  - **Authors:** Ben Munson, Lisa Goffman
+
+**Learning outcomes:**
+
+  - Describe a model of typical and atypical speech production in
+    which motor, perceptual, and higher-order knowledge co-exist and
+    intersect.
+  - Illustrate to Speech-Language Pathologists to describe phonology
+    to clients in ways that are accessible and scientifically
+    grounded.
+  - Describe how deficits in motor control, perceptual knowledge, and
+    higher-order phonological and linguistic knowledge can lead to
+    SSDs.
+
+</blockquote>
+
+The background of this talk is that it responded to a bombshell of a
+paper which asserts that phonology is unnecessary or irrelevant for
+child speech disorders and that we need to "ground-truth" the field
+using articulatory measures---or something to that effect. I have not
+read the relevant paper. (My read of the situation is that the paper was
+rather mealy-mouthed but one of the authors is overstating the claims or
+implications of the paper outside of the paper.) Hence, this talk by Ben
+and Lisa where they show that language/phonology correlates with
+speech-motor performance. 
+
+One point that stuck with me was the
+following: The goal of speech production is an acoustic target, not an
+articulatory target, Ben reminded the audience, so we are already off to
+a rocky start if we think we need to excise phonology from our
+understanding of speech articulation.
+
+For some talks, I will include reproductions of slides that I found
+interesting or useful enough for me to take a picture of them. I
+have simplified the text and formatting in some of the slides.
+
+<blockquote class="slide" markdown="1">
+
+All of this is Phonology
+
+Phonology refers to the systematic ways that sounds pattern in the
+auditory, acoustic, and higher-order domains to convey differences
+among words and multi-word sequences, pragmatic intentions, and
+social-indexical meaning.
+
+<small class="slide-source">Munson & Goffman, ASHA 2026</small>
+
+</blockquote>
+
+<blockquote class="slide" markdown="1">
+
+What does oral language require?
+
+- Acoustic-Auditory Representations: one needs to know how sounds
+  sound.
+- The goals for speech production are incontrovertibly auditorily
+  based.
+    - Even a mild hearing loss in children will lead to speech that
+      sounds different from that of people without hearing loss,
+      even when amplification is optimal.
+    - Removing auditory feedback changes speech production
+      considerably.
+
+<small class="slide-source">Munson & Goffman, ASHA 2026</small>
+
+</blockquote>
+
+### VAS rating scales
+
+The second talk with Ben:
+
+<blockquote class="conference" markdown="1">
+
+**1636: Not Just Transcribing Phonemes: Assessing Progress in Speech
+Sound Disorders Therapy Using Continuous Rating Scales**
+
+  - **Authors:** Eugene Wong, Benjamin Munson
+
+**Learning outcomes:**
+
+  - Describe the role of covert contrast in speech development.
+  - Criticize phonetic transcription as the sole measure of speech
+    production accuracy.
+  - Apply the use of visual-analog scale to track progress in speech
+    sound therapy.
+
+</blockquote>
+    
+The takehome message here is "you can trust your ears". Children will
+produce speech sounds and speech errors where the error can be described
+as falling along a continuum between two distinct perceptual targets. For
+example, /s/-/ʃ/, /t/-/k/, /θ/-/s/ (lisping), "beep"-"bee" (final
+consonant deletion), etc. With VAS, you mark where a child's production
+lands along that continuum to get a, yes, *continuous* measure of
+production that is more useful for monitoring progress than simple
+transcription. Ben described how speech sounds will start in an
+overlapping acoustic space and then these acoustic spaces gradually be
+differentiated as children grow older.
+
+<blockquote class="slide" markdown="1">
+
+Intermediate Sounds Definitely Exist
+
+- Gibbon (1999), using electropalatography: fronting and
+  depalatalization errors involve an 'undifferentiated lingual
+  gesture' rather than simple substitutions
+- Li (2016): children gradually differentiate between /s/ and /ʃ/.
+- Romeo et al. (2014): this differentiation continues beyond the
+  point at which /s/ and /ʃ/ are transcribed as correct.
+- Baum & McNutt (1990): measurable acoustic differences in children
+  with frontal /s/ misarticulations
+
+<small class="slide-source">Wong & Munson, ASHA 2026</small>
+
+</blockquote>
+
+<blockquote class="slide" markdown="1">
+
+Summarizing thus far
+
+1.  Children's speech sounds develop gradually, through intermediate
+    productions.
+2.  Learning sounds is really about differentiating sounds from one
+    another.
+3.  Transcription and correct/incorrect scoring hide this gradual
+    change.
+4.  Listeners, including SLPs, can hear within-category detail.
+5.  VAS ratings capture that detail with no special equipment.
+
+<small class="slide-source">Wong & Munson, ASHA 2026</small>
+
+</blockquote>
+
+### Open science 
+
+This talk recalibrated my thinking about what falls under the umbrella
+of open science. 
+
+
+<blockquote class="conference" markdown="1">
+
+**1144: Putting Open Science into Action: Guidance for Editors, Peer
+Reviewers, and Authors**
+
+  - **Authors:** Danika Pfeiffer, Andrea Ford, Teresa Girolamo, Helen
+    Long
+
+**Learning outcomes:**
+
+  - Describe three open science practices that can be used during the
+    research lifecycle and may appear in the methods section.
+  - Summarize key considerations in selection of open science
+    practices.
+  - Explain strategies for advocating for authors to use open science
+    practices during the peer review process.
+
+</blockquote>
+    
+I'm too used to "open science" meaning doing science
+under a certain set of prescriptions in order to avoid certain
+questionable research practices, but we should think more about being
+"open" to the public. My takeaway is that the enemy of open science is
+the paywall.
+
+There was a remark in the talk about transparency needs to be balanced
+against the interests and safety of the participant population.
+Obviously. But I am not talking about privacy related concerns. Instead,
+I am thinking about how sometimes you should not even collect data about
+certain things, especially if the population in question is the target
+of harassment and stalking. Bad actors and dragnets don't care about 
+privacy.
+
+Other takeaways:
+
+  - Open science doesn't have to just be sharing data. Sharing other
+    materials is openness.
+  - Preregistration is handy for getting big teams on the same page.
+  - Registered Reports are a good path for replication studies.
+  - They showed some reporting standards, and they look like some pretty
+    reasonable checklists. Importantly, having reporting should be
+    formulaic makes it easy to write the report because we don't have
+    think hard about what to include or exclude.
+
+<blockquote class="slide" markdown="1">
+
+The Open Science Movement Aims to…
+
+  - *Democratize and demonopolize knowledge*, moving it from behind
+    paywalls and siloed institutions to broader society
+    (UNESCO, 2021).
+  - *Accelerate dissemination and discovery*, bringing findings into
+    the hands of interested and relevant parties quicker and more
+    efficiently (UNESCO, 2021).
+  - *Encourage collaboration*, particularly for less resourced and
+    marginalized scholars and communities (UNESCO, 2021).
+  - *Extract maximal benefits* from research investments (Wilkinson et
+    al., 2016).
+  - *Reduce questionable research practices* (Storkel & Gallun, 2022),
+    such as *p*-hacking (Fraser et al., 2018; Buttner et al., 2020)
+    and cherry-picking (Fraser et al., 2018).
+
+<small class="slide-source">Pfeiffer, Ford, Girolamo & Long, ASHA 2026</small>
+
+</blockquote>
+
+<blockquote class="slide" markdown="1">
+
+What can authors and reviewers do?
+
+Authors
+
+  - Plan sharing during study design.
+  - Make consent specific and accessible.
+  - Report what is available, where, and under what conditions.
+
+Reviewers/editors
+
+  - Ask whether sharing is consistent with participant assent/consent.
+  - Encourage transparency vs. requiring data sharing.
+  - Suggest feasible alternatives if data cannot be shared.
+
+Example reviewer language
+
+"Could the authors clarify what study data/materials can be shared and
+any ethical restrictions on sharing?"
+
+<small class="slide-source">Pfeiffer, Ford, Girolamo & Long, ASHA 2026</small>
+
+</blockquote>
+
+<blockquote class="slide" markdown="1">
+
+Different research questions: different reporting guidelines.
+
+| Study design | Examples |
+| --- | --- |
+| Quantitative/observational | JARS-Quant, STROBE |
+| Randomized trials | CONSORT |
+| Qualitative | JARS-Qual, COREQ, SRQR |
+| Mixed Methods | JARS-Mixed |
+| Reviews/meta-analyses | PRISMA, Cochrane |
+| Intervention | TIDieR |
+| Other health research designs | EQUATOR Network |
+  
+
+<small class="slide-source">Pfeiffer, Ford, Girolamo & Long, ASHA 2026</small>
+
+</blockquote>
+
+<blockquote class="slide" markdown="1">
+
+Relevant diamond OA journals for CSD
+
+**Diamond open access** means no author fees and no access fees.
+
+  - Psychology of Language and Communication
+  - Teaching and Learning in Communication Sciences & Disorders
+    (TLCSD)
+  - Journal of Critical Study of Communication and Disability
+  - Language Development Research
+  - Glossa: a journal of general linguistics
+  - International Journal of Telerehabilitation
+  - Laboratory Phonology
+  - The Journal of Early Hearing Detection and Intervention (JEHDI)
+  - IVS International Journal of Voice Sciences
+
+<small class="slide-source">Pfeiffer, Ford, Girolamo & Long, ASHA 2026</small>
+
+</blockquote>
+
+### Biofeedback
+
+This talk was neat because it connected something very nerdy (algorithm
+choice) to biofeedback.
+
+<blockquote class="conference" markdown="1">
+
+**4660L: Extending Visual-Acoustic Biofeedback to the Treatment of /s/
+in Children with Residual Speech Sound Disorders**
+
+  - **Authors:** Michelle Swartz, Laura Ochs, Tara McAllister,
+    Jonathan Preston, Elaine Hitchcock
+
+**Learning outcomes:**
+
+  - Describe Fast Fourier Transform (FFT) spectrum as used to treat
+    /s/.
+  - Identify considerations relevant to telepractice delivery using
+    visual-acoustic biofeedback for /s/.
+  - Explain the outcomes of production treatment for /s/ errors using
+    VAB intervention in the telepractice context.
+
+</blockquote>
+    
+The authors presented pilot data showing enormous effect sizes, the
+result of going from 0% to like 30% accuracy in /s/ productions.
+
+<blockquote class="slide" markdown="1">
+
+Sibilants Need a Different Display
+
+Linear Predictive Coding (LPC) Spectrum. Used in most prior VAB research.
+
+- Highlights well-defined resonant frequencies
+- Clear for vowels, rhotics and other sonorants
+- Poor fit for the aperiodic noise of sibilants
+
+Fast Fourier Transform (FFT) Spectrum. Used in this study.
+
+- Shows how frication noise energy spreads across frequencies
+- Suited to sibilants such as /s, z, ʃ, tʃ/
+- Rarely studied for /s/ intervention
+
+<small class="slide-source">Swartz et al., ASHA 2026</small>
+
+</blockquote>
+
+
+### Atypical productions
+
+This talk covered how to transcribe some speech errors that are uncommon
+in typical development but are common in cleft palate speech
+
+<blockquote class="conference" markdown="1">
+
+**1463: What Was That?: How to Listen, Transcribe, and Design
+Intervention for Atypical Speech Errors**
+
+  - **Authors:** Caitlin Cummings
+
+</blockquote>
+
+The practice examples included nasal fricatives, glottal stops,
+pharyngeal fricatives, and nonpulmonic stops. I would like to observed
+that the phrase "nasal fricative" is underspecified. Is it a *nasalized*
+fricative where a regular fricative with air leaking into the nasal
+cavity? Is it a [velopharyngeal
+fricative](https://en.wikipedia.org/wiki/Velopharyngeal_consonant) where
+the turbulence is produced at the velopharyngeal constriction? It's the
+latter, and I think "nasal emission" is how you would describe the
+former sound.
+
+
+<blockquote class="slide" markdown="1">
+
+**SSD Subtypes**
+
+Currently no consensus on how to classify SSDs.
+
+Examples:
+
+- Speech Disorders Classification System (SDCS) – Shriberg et al. (2010)
+- Psycholinguistic Framework – Stackhouse & Wells (1997)
+- Model for Differential Diagnosis – Dodd (2014)
+
+<small class="slide-source">Cummings, ASHA 2026</small>
+
+</blockquote>
+
+<blockquote class="slide" markdown="1">
+
+**Examples of Typical and Atypical Patterns**
+
+| Typical | Atypical |
+|---|---|
+| Final consonant deletion | Initial consonant deletion |
+| Weak syllable deletion | Intervocalic consonant deletion |
+| Velar fronting | Backing of stops |
+| Stopping fricatives | Affricating fricatives |
+| Gliding liquids | Liquids for glides |
+
+<small class="slide-source">Cummings, ASHA 2026</small>
+
+</blockquote>
+
+
+### Goodness of Pronunciation
+
+This talk was a can't-miss presentation for me because I also presented
+on acoustic goodness scores.
+
+<blockquote class="conference" markdown="1">
+
+**1853: Goodness of Pronunciation as an Objective Marker of Speech
+Severity in Motor Speech Disorders**
+
+  - **Authors:** Feng Wang, Rene Utianski, Joseph Duffy, Leland
+    Barnard, Hugo Botha
+
+**Learning outcomes:**
+
+  - Analyze relationships between Goodness of Pronunciation (GoP)
+    scores and perceptual measures of sound distortion and
+    intelligibility.
+  - Interpret GoP-derived metrics to differentiate levels of speech
+    impairment in individuals with motor speech disorders.
+  - Apply GoP-based approaches to support objective assessment and
+    monitoring of speech severity in clinical contexts.
+
+</blockquote>
+
+There is a
+[preprint](https://www.medrxiv.org/content/10.64898/2026.07.14.26358076v1)
+associated with this talk. They used an out-of-distribution (OOD)
+outlier-detection approach to defining acoustic goodness. They used a
+Wav-LM based model with "phoneme-conditioned Gaussian-mixture likelihood
+scoring". Feng helpfully noted that the GoP is a complement
+for clinical speech ratings, and he stopped to note what GoP is not
+(e.g., it is not a probability of a disorder).
+
+They use three repetitions of the word "catastrophe" as the only data
+for measuring Goodness of Pronunciation, and they measured
+"intelligibility" by using a scale with a three-point scale (1, 1.5, 2).
+
+<blockquote class="slide" markdown="1">
+
+What Previous Studies Showed
+
+  - **2000 — Witt & Young:** GoP introduced to score pronunciation for
+    language learners, using phoneme classifiers.
+  - **2007 — Bunton et al.:** Examined how well listeners agree when
+    rating dysarthria perceptually.
+  - **2021 — WavLM, XLS-R:** Self-supervised models learn rich speech
+    descriptions from unlabeled audio.
+  - **2025 — Choi et al.:** Across 8 GoP methods, self-supervised
+    features with OOD scoring tracked dysarthria severity best.
+  - **2026 — This study:** GoP from self-supervised models tracks SLP
+    ratings of distortion and intelligibility in MSD.
+
+<small class="slide-source">Wang et al., ASHA 2026</small>
+
+</blockquote>
+
+<blockquote class="slide" markdown="1">
+
+Two Families of GoP Methods
+
+Phoneme classifier-based: "Which phoneme is this?"
+
+  - Trained on typical speech to tell phonemes apart.
+  - Score: how confident it is that the sound is the intended phoneme.
+  - Methods: GMM, NN, DNN, MaxLogit.
+
+Out-of-distribution (OOD) detector-based: "Is this a typical /r/?"
+
+  - Learns the typical range of each sound.
+  - Score: how close the new sound is to that range (distance or
+    likelihood).
+  - Methods: kNN, SVM, PSVM, GM.
+
+Choi et al., NAACL 2025.
+
+<small class="slide-source">Wang et al., ASHA 2026</small>
+
+</blockquote>
+
+
+
+
+### Other talks
+
+What is new at NIH?
+
+<blockquote class="conference" markdown="1">
+
+**1407: NIH Updates 101: A Primer for All—Trainees, Early Stage
+Investigators, and Established Principal Investigators**
+
+  - **Authors:** Lisa Kopf, Holly Storkel, Jaclyn Schuman
+
+</blockquote>
+
+They referred to "super" intelligence. The advice about it is: don't use
+it as anything more than a spelling/grammar checker.
+
+My main takeaway from the NIH updates talk is that we need to be
+careful when attributing manuscripts to grants because of the Stevens
+amendment. The March 2026 revision of [this
+page](https://grants.nih.gov/grants/policy/nihgps/HTML5/section_4/4.2.1_acknowledgement_of_federal_funding.htm)
+says:
+
+> In accordance with the Steven's Amendment, all HHS recipients must
+> acknowledge Federal funding when issuing statements, press releases,
+> requests for proposals, bid invitations, and other documents
+> describing projects or programs funded in whole or in part with
+> Federal money. Recipients are required to state (1) the percentage and
+> dollar amounts of the total program or project costs financed with
+> Federal money and (2) the dollar amount of the total costs financed by
+> nongovernmental sources.
+
+Okay, so what does this look like in practice?
+
+In the following talk, the authors compared two sentences from the
+CAPE-V, one of which was fully voiced and one that was not fully voiced. 
+
+<blockquote class="conference" markdown="1">
+
+**4671L: Reliability of Automated Forced Alignment versus Clinician
+Segmentation for Disordered Voices**
+
+  - **Authors:** Brittany Fletcher, Sophia Gifford, Karly Bello,
+    Supriya Anand, Victoria McKenna, David Eddins
+
+</blockquote>
+
+I think they found more errors in the fully voiced sentence, and there was a
+small correlation between alignment error and disorder severity. My main
+concern---for alignment evaluation in general---is the nonindependence of
+alignment errors. How do you account for catastrophic alignment errors where one
+error ruins the rest of the alignments? Do you first require that the two
+alignments (manual and automatic) overlap by some amount to make sure that they
+are in the same ballpark first? Is there a statistical distribution is about the
+sum of accumulated errors/durations?
+
+Lastly, I supported my colleagues by attending their talks:
+
+<blockquote class="conference" markdown="1">
+
+**4017L: I Have No Idea If He Understands.: Parental Uncertainty of Vocabulary Knowledge in Cerebral Palsy**
+
+- **Authors:** Alexandria White, Yiran Chen, Jenny Saffran, Katherine Hustad
+
+</blockquote>
+
+<blockquote class="conference" markdown="1">
+
+**4653L: Effects of Rate Reduction on Intelligibility in Different Linguistic Classes in Children with Cerebral Palsy**
+
+  - **Authors:** Emily Wang, Katherine Hustad
+
+</blockquote>
+

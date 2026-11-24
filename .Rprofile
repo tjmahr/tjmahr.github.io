@@ -7,7 +7,7 @@ list_images <- function() {
 tar_make_post_menu <- function(choice = NULL) {
   d <- targets::tar_manifest()
   p <- d |>
-    subset(startsWith(name, "md")) |>
+    subset(startsWith(name, "md") | startsWith(name, "note_md")) |>
     sort_by(~name, decreasing = TRUE)
 
   if (is.null(choice)) {
